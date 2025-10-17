@@ -1,0 +1,48 @@
+<app-page-header title="View Supplier" title1="View Supplier" activeTitle="View Supplier"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Supplier'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="supplierForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_comp">Company Name</label>
+                        <input type="text" class="form-control" id="supl_comp" formControlName="supl_comp" readonly>  
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_conperson">Contact Person</label>
+                        <input type="text" class="form-control" id="supl_conperson" formControlName="supl_conperson" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_mobile">Mobile Number</label>
+                        <input type="text" class="form-control" id="supl_mobile" formControlName="supl_mobile" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_email">Email</label>
+                        <input type="text" class="form-control" id="supl_email" formControlName="supl_email" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_state_id">State</label>
+                        <input type="text" class="form-control" id="supl_state_id" formControlName="supl_state_id" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_city">City</label>
+                        <input type="text" class="form-control" id="supl_city" formControlName="supl_city" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_address">Address</label>
+                        <input type="text" class="form-control" id="supl_address" formControlName="supl_address" readonly>
+                    </div>
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                        <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/supplier/supplier-management">Cancel</a>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+

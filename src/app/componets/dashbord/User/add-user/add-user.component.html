@@ -1,0 +1,88 @@
+
+<app-page-header title="Add User" title1="User Manage" activeTitle="Add User"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add User'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="userForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="username">Username</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':userForm.get('username')?.invalid && userForm.get('username')?.touched}"  id="username" formControlName="username" placeholder="Username">
+                        @if(userForm.get('username')?.invalid && userForm.get('username')?.touched){
+                            <span  class="text-danger">Please enter valid user name </span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="pass">Password</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':userForm.get('pass')?.invalid && userForm.get('pass')?.touched}"  id="pass" formControlName="pass" placeholder="Password">
+                        @if(userForm.get('pass')?.invalid && userForm.get('pass')?.touched){
+                            <span  class="text-danger">Please enter valid password </span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="first_name">First Name</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched}"  id="first_name" formControlName="first_name" placeholder="First Name">
+                        @if(userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched){
+                            <span  class="text-danger">Please enter valid first name </span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="last_name">Last Name</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':userForm.get('last_name')?.invalid && userForm.get('last_name')?.touched}"  id="last_name" formControlName="last_name" placeholder="Last Name">
+                        @if(userForm.get('last_name')?.invalid && userForm.get('last_name')?.touched){
+                            <span  class="text-danger">Please enter valid last name</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="email">Email</label><span class="text-danger">*</span>
+                        <input type="email" class="form-control" [ngClass]="{ 'is-invalid':userForm.get('email')?.invalid && userForm.get('email')?.touched}"  id="email" formControlName="email" placeholder="Email">
+                        @if(userForm.get('email')?.invalid && userForm.get('email')?.touched){
+                            <span  class="text-danger">Please enter valid email</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="phone_number">Phone Number</label><span class="text-danger">*</span>
+                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':userForm.get('phone_number')?.invalid && userForm.get('phone_number')?.touched}"  id="phone_number" formControlName="phone_number" placeholder="Phone Number">
+                        @if(userForm.get('phone_number')?.invalid && userForm.get('phone_number')?.touched){
+                            <span  class="text-danger">Please enter valid phone number</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="user_role">User Role</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':userForm.get('user_role')?.invalid && userForm.get('user_role')?.touched}" id="user_role" formControlName="user_role">
+                            <option value="" selected disabled>Select user role</option>
+                            <option value="Admin">Admin</option>
+                            <option value="SuperAdmin">SuperAdmin</option>
+                            <option value="Senior Management">Senior Management</option>
+                            <option value="Bridge Site Engineer">Bridge Site Engineer</option>
+                            <option value="Road Site Engineer">Road Site Engineer</option>
+                            <option value="Site Storekeeper">Site Storekeeper</option>
+                        </select>
+                        @if(userForm.get('user_role')?.invalid && userForm.get('user_role')?.touched){
+                            <span  class="text-danger">Please select valid user role</span>
+                        } 
+                    </div>
+
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                        <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/user/user-management">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add</button>
+
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

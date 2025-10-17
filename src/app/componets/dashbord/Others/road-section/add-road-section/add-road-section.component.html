@@ -1,0 +1,68 @@
+<div class="col-xl-12">
+    <button type="button" class="btn btn-primary-light btn-wave me-2" data-bs-toggle="modal"
+            (click)="openVerticallyCentered(content2)" data-bs-target="#exampleModalXl">
+        <i class="bx bx-plus align-middle"></i> Add Section
+    </button>
+  
+    <div class="modal fade" id="exampleModalXl" tabindex="-1" aria-labelledby="exampleModalXlLabel"
+         style="display: none;" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <ng-template #content2 let-modal>
+          <div class="modal-content">
+            <form [formGroup]="roadForm" (ngSubmit)="onSubmit()">
+              <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalXlLabel">Add Section</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="sectionName" formControlName="sectionName" placeholder="">
+                      <label for="sectionName">Section Name</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input type="number" class="form-control" id="chainageStart" formControlName="chainageStart" placeholder="">
+                      <label for="chainageStart">Chainage Start</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input type="number" class="form-control" id="chainageEnd" formControlName="chainageEnd" placeholder="">
+                      <label for="chainageEnd">Chainage End</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="contractor" formControlName="contractor" placeholder="">
+                      <label for="contractor">Contractor</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input type="number" class="form-control" id="distance" formControlName="distance" placeholder="">
+                      <label for="distance">Distance</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input type="number" class="form-control" id="cost" formControlName="cost" placeholder="">
+                      <label for="cost">Cost</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Add</button>
+              </div>
+            </form>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+  

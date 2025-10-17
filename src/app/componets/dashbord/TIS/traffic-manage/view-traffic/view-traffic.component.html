@@ -1,0 +1,199 @@
+
+<app-page-header title="View Taffic" title1="Traffic Manage" activeTitle="View Taffic"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Taffic of '+topTitle" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="trafficForm">
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="data_collection_year">Data Collection Year</label>
+                        <input type="text" class="form-control" id="data_collection_year" formControlName="data_collection_year" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label>
+                        <input type="text" class="form-control" id="state_id" formControlName="state_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label>
+                        <input type="text" class="form-control" id="district_id" formControlName="district_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label>
+                        <input type="text" class="form-control" id="city_id" formControlName="city_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_name">Road Name</label>
+                        <input type="text" class="form-control" id="road_name" formControlName="road_name" readonly>
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road ID/Code</label>
+                        <input type="text" class="form-control" id="road_code" formControlName="road_code" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction">Direction</label>
+                        <input type="text" class="form-control" id="direction" formControlName="direction" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="total_length_km">Total Length (km)</label>
+                        <input type="text" class="form-control" id="total_length_km" formControlName="total_length_km" readonly>
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Chainage Details:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_start">Chainage Start</label>
+                        <input type="text" class="form-control" id="chainage_start" formControlName="chainage_start" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_end">Chainage End</label>
+                        <input type="text" class="form-control" id="chainage_end" formControlName="chainage_end" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Traffic Distribution (In Vehicles):</h1><br>
+                        <h2 class="page-title fw-medium fs-14 mb-2">Passenger Vehicles:</h2>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="scooter_motor_cycle">Scooter/Motor Cycle</label>
+                        <input type="text" class="form-control" id="scooter_motor_cycle" formControlName="scooter_motor_cycle" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="three_wheeler_auto">3-Wheeler/Auto</label>
+                        <input type="text" class="form-control" id="three_wheeler_auto" formControlName="three_wheeler_auto" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="car_jeep_van_taxi">Car/Jeep/Van/Taxi</label>
+                        <input type="text" class="form-control" id="car_jeep_van_taxi" formControlName="car_jeep_van_taxi" readonly>                        
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="mini_bus">Mini Bus</label>
+                        <input type="text" class="form-control" id="mini_bus" formControlName="mini_bus" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="standard_bus">Standard Bus</label>
+                        <input type="text" class="form-control"  id="standard_bus" formControlName="standard_bus" readonly>                      
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h2 class="page-title fw-medium fs-14 mb-2">Goods Vehicles</h2>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="tempo">Tempo</label>
+                        <input type="email" class="form-control"  id="tempo" formControlName="tempo" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="lcv">Light Commercial Vehicle (LCV)</label>
+                        <input type="text" class="form-control"  id="lcv" formControlName="lcv" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="two_axle_trucks">2-Axle Trucks</label>
+                        <input type="text" class="form-control"  id="two_axle_trucks" formControlName="two_axle_trucks" readonly>                     
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="three_axle_trucks">3-Axle Trucks</label>
+                        <input type="number" class="form-control" id="three_axle_trucks" formControlName="three_axle_trucks" readonly/>
+                    </div>
+                      
+                     
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="multi_axle_truck">Multi-Axle Truck</label>
+                        <input type="text" class="form-control"  id="multi_axle_truck" formControlName="multi_axle_truck" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="tractor_without_trailer">Tractor without Trailer</label>
+                        <input type="text" class="form-control"  id="tractor_without_trailer" formControlName="tractor_without_trailer" readonly>             
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="tractor_with_trailer">Tractor with Trailer</label>
+                        <input type="text" class="form-control" id="tractor_with_trailer" formControlName="tractor_with_trailer" readonly>
+                       
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h2 class="page-title fw-medium fs-14 mb-2"> Non-Motorized Traffic:</h2>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cycle">Cycle</label>
+                        <input type="text" class="form-control" id="cycle" formControlName="cycle" readonly>
+                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cycle_rickshaw">Cycle Rickshaw</label>
+                        <input type="text" class="form-control"  id="cycle_rickshaw" formControlName="cycle_rickshaw" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="animal_drawn_vehicle">Animal-Drawn Vehicle</label>
+                        <input type="text" class="form-control"  id="animal_drawn_vehicle" formControlName="animal_drawn_vehicle" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="other_non_motorized_traffic">Others</label>
+                        <input type="text" class="form-control" id="other_non_motorized_traffic" formControlName="other_non_motorized_traffic" readonly>
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Goods Vehicles</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="aadt_in_vehicles">Annual Average Daily Traffic (AADT) in Vehicles </label>
+                        <input type="text" class="form-control" id="aadt_in_vehicles" formControlName="aadt_in_vehicles" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="aadt_in_pcu">AADT in Passenger Car Units (PCU)</label>
+                        <input type="text" class="form-control" id="aadt_in_pcu" formControlName="aadt_in_pcu" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="commercial_vehicle_damage">Commercial Vehicle Damage (CVD) in Vehicles</label>
+                        <input type="text" class="form-control" id="commercial_vehicle_damage" formControlName="commercial_vehicle_damage" readonly>
+                    </div>
+                
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

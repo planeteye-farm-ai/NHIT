@@ -1,0 +1,77 @@
+
+<app-page-header title="Add Bulk Outward" title1="Bulk Outward Manage" activeTitle="Add Bulk Outward"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Bulk Outward'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="stockUpdateForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Manage Stock :</h1>
+                    </div>
+
+                    <div class="table-responsive">
+                        <form [formGroup]="stockUpdateForm">
+                          <table class="table text-nowrap">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">OutWard Quantity</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody formArrayName="stockUpdateItems">
+                              <tr *ngFor="let item of stockUpdateItems.controls; let i = index" [formGroupName]="i">
+                                <td>
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      formControlName="prod_ref_name"
+                                      placeholder="Prod Name"
+                                      [ngClass]="{ 'is-invalid': item.get('prod_ref_name')?.invalid && item.get('prod_ref_name')?.touched }"
+                                    />
+                                    <span class="text-danger" *ngIf="item.get('prod_ref_name')?.invalid && item.get('prod_ref_name')?.touched">
+                                      Please enter prod name
+                                    </span>
+                                  </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="outward_qty"
+                                    placeholder="Quantity"
+                                    [ngClass]="{ 'is-invalid': item.get('outward_qty')?.invalid && item.get('outward_qty')?.touched }"
+                                  />
+                                  <span class="text-danger" *ngIf="item.get('outward_qty')?.invalid && item.get('outward_qty')?.touched">
+                                    Please enter inward qty
+                                  </span>
+                                </td>
+                                <td>
+                                    <a href="javascript:void(0);" title="Delete" data-bs-toggle="modal"
+                                        (click)="removeRow(i)" class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
+                                                class="ri-delete-bin-line"></i></a>
+                                </td>
+                              </tr>
+
+                              <a href="javascript:void(0);" title="Delete" (click)="addStockItem()" data-bs-toggle="modal" class=" mt-2 btn btn-primary">Add New Product</a>
+                            </tbody>
+                          </table>
+                        </form>
+                      </div>
+                 
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

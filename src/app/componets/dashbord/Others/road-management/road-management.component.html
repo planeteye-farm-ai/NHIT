@@ -1,0 +1,209 @@
+<app-page-header title="Road Management" title1="Road Management" activeTitle="Road Management"></app-page-header>
+
+<div class="row">
+    <div class="col-xl-12">
+
+        <app-showcode-card [title]="'Table Head Primary'" [prism]="prismCode.table18">
+            <div class="table-responsive">
+                <div class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2">
+                  <div >
+                    <h1 class="page-title fw-medium fs-18 mb-2">Road Management</h1>
+                  </div>
+                  <div class="btn-list">
+                    <app-add-model></app-add-model>
+                  </div>
+                  </div>
+                <table class="table text-nowrap">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">Road Id</th>
+                            <th scope="col">Project No</th>
+                            <th scope="col">Road Name</th>
+                            <th scope="col">Cost</th>
+                            <th scope="col">Action</th>                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of tableData; track $index) {
+                            <tr>
+                                <th scope="row">{{$index+1}}</th>
+                                <td>{{row.projectName}}</td>
+                                <td>{{row.name}}</td>
+                                <td>{{row.amount}}</td>
+                                <td>
+                                    <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" routerLink="/road-section"
+                                            class="btn btn-icon btn-sm btn-warning-transparent rounded-pill"><i class="bi bi-card-list"></i></a>
+                                        <a href="javascript:void(0);" data-bs-toggle="modal"
+                                        (click)="openVerticallyCentered(Content2)" data-bs-target="#exampleModalXls"
+                                            class="btn btn-icon btn-sm btn-info-transparent rounded-pill"><i
+                                                class="ri-edit-line"></i></a>
+                                        <a href="javascript:void(0);" data-bs-toggle="modal"
+                                        (click)="open(content)" data-bs-target="#exampleModal"
+                                            class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
+                                                class="ri-delete-bin-line"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    
+                    </tbody>
+                </table>
+            </div>
+        </app-showcode-card>
+    </div>
+  
+</div>
+
+<!-- <app-page-header title="Road Management" title1="Road Management" activeTitle="Road Management"></app-page-header>
+
+<div class="row">
+  <div class="col-xl-12">
+    <app-showcode-card [title]="'Table Head Primary'" [prism]="prismCode.table18">
+      <div class="table-responsive">
+        
+        <div class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2">
+          
+          <div>
+            <h1 class="page-title fw-medium fs-18 mb-2">Road Management</h1>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <mat-form-field appearance="outline" class="mb-0">
+              <mat-label>Search</mat-label>
+              <input matInput (keyup)="applyFilter($event)" placeholder="Search...">
+            </mat-form-field>
+
+            <app-add-model></app-add-model>
+
+          </div>
+        </div>
+
+        <table mat-table [dataSource]="dataSource" matSort class="table text-nowrap">
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Road ID</th>
+            <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="projectName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Project No</th>
+            <td mat-cell *matCellDef="let row">{{ row.projectName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Road Name</th>
+            <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Cost</th>
+            <td mat-cell *matCellDef="let row">{{ row.amount }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let row">
+              <div class="hstack gap-2 fs-15">
+                <button mat-icon-button color="primary">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <mat-paginator [pageSizeOptions]="[2,5, 10, 20]" showFirstLastButtons></mat-paginator>
+      </div>
+    </app-showcode-card>
+  </div>
+</div>
+
+ -->
+
+
+
+ <!-- for edit -->
+
+ <div class="col-xl-12">
+
+  <div class="modal fade" id="exampleModalXl" tabindex="-1" aria-labelledby="exampleModalXlLabel"
+      style="display: none;" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+          <ng-template #Content2 let-modal>
+              <form [formGroup]="roadForm" (ngSubmit)="onSubmit()">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h6 class="modal-title" id="exampleModalXlLabel">Update Road</h6>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                              (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                          <div class="row g-2">
+                              <div class="col-md-6">
+                                  <div class="form-floating">
+                                      <input type="text" class="form-control" id="projectNo" formControlName="projectNo" placeholder="">
+                                      <label for="projectNo">Project No</label>
+                                  </div>
+                              </div>
+                              <div class="col-md-6">
+                                  <div class="form-floating">
+                                      <input type="text" class="form-control" id="roadName" formControlName="roadName" placeholder="">
+                                      <label for="roadName">Road Name</label>
+                                  </div>
+                              </div>
+                              <div class="col-md-6">
+                                  <div class="form-floating">
+                                      <input type="number" class="form-control" id="cost" formControlName="cost" placeholder="">
+                                      <label for="cost">Cost</label>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"
+                              data-bs-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-primary" (click)="modal.close('Close click')" [disabled]="roadForm.invalid">Update</button>
+                      </div>
+                  </div>
+              </form>
+          </ng-template>
+      </div>
+  </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+        <ng-template #content let-c="close" let-d="dismiss">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLabel1">Confirme</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    (click)="d('Cross click')" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="c('Closelick')" (click)="delete()">Yes</button>
+                <button type="button" class="btn btn-secondary" (click)="c('Closelick')"
+                    data-bs-dismiss="modal">No</button>
+            </div>
+        </ng-template>
+    </div>
+</div>
+</div>
+
+
+
+
+
+
+
+

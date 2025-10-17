@@ -1,0 +1,94 @@
+
+<app-page-header title="View History Of Works" title1="View History Of Works" activeTitle="View History Of Works"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View History Of Works'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="historyDataForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="name_of_road">Name Of Road</label>
+                        <input type="text" class="form-control"  id="name_of_road" formControlName="name_of_road" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_location">Road Location</label>
+                        <input type="text" class="form-control" id="road_location" formControlName="road_location" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_of_road">Type Of Road</label>
+                        <input type="text" class="form-control" id="type_of_road" formControlName="type_of_road" readonly>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_section_no">Road Section No</label>
+                        <input type="text" class="form-control" id="road_section_no" formControlName="road_section_no" readonly>   
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="name_of_contractor">Name Of Contractor</label>
+                        <input type="text" class="form-control" id="name_of_contractor" formControlName="name_of_contractor" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="old_road_length">Old Road Length</label>
+                        <input type="text" class="form-control" id="old_road_length" formControlName="old_road_length" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="old_road_width">Old Road Width</label>
+                        <input type="text" class="form-control" id="old_road_width" formControlName="old_road_width" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cons_starting_date">Construction Start Date</label>
+                        <input type="text" class="form-control" id="cons_starting_date" formControlName="cons_starting_date" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cons_ending_date">Construction End Date</label>
+                        <input type="text" class="form-control" id="cons_ending_date" formControlName="cons_ending_date" readonly>
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="last_routing_inspe_date">Last Routine Inspection Date</label>
+                        <input type="text" class="form-control" id="last_routing_inspe_date" formControlName="last_routing_inspe_date" readonly>
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_of_last_inspection">Type Of Last Inspection</label>
+                        <input type="text" class="form-control" id="type_of_last_inspection" formControlName="type_of_last_inspection" readonly>
+                    </div> 
+                
+                    <div [ngClass]="{'col-md-6 mb-3': !historyData?.comments_observations_image, 'col-md-4 mb-3': historyData?.comments_observations_image}">
+                        <label class="form-label" for="comments_observations">Comments Observations</label>
+                        <input type="text" class="form-control" id="comments_observations" formControlName="comments_observations" readonly>
+                    </div>
+
+                    @if(historyData.comments_observations_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('comments_observations_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                     }
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+
+
+

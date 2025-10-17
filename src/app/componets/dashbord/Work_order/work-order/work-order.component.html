@@ -1,0 +1,201 @@
+<app-page-header title="Work Order Manage" title1="Work Order Manage" activeTitle="Work Order Manage"></app-page-header>
+
+<div class="row">
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Work Order Manage'" [prism]="prismCode.table18">
+            <div class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2">
+                <div >
+                  <!-- <h1 class="page-title fw-medium fs-18 mb-2">Distress</h1> -->
+                </div>
+                <div class="btn-list">
+                    <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/work-order/add-work-order"> <i class="bx bx-plus align-middle"></i>  Add Work Order</a>
+                  <!-- <app-add-distress></app-add-distress> -->
+                </div>
+              </div>
+            <div class="table-responsive">
+                <table class="table text-nowrap">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">Sr No</th>
+                            <th scope="col">Work Order Id</th>
+                            <th scope="col">Type of Work</th>
+                            <th scope="col">Location Chainage</th>
+                            <th scope="col">Action</th>                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of tableData; track $index) {
+                            <tr>
+                                <td>{{$index+1}}</td>
+                                <td>{{row.work_order_id}}</td>
+                                <td>{{row.type_of_work}}</td>
+                                <td>&nbsp;&nbsp;{{row.chainage_from}} To {{row.chainage_to}}</td>
+                                <!-- <td style="text-align: center;"></td> -->
+                                <td>
+                                    <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" title="View" [routerLink]="['/work-order/view-work-order/', row.wo_id]"
+                                            class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                            class="ri-eye-line"></i></a>
+
+                                        <a href="javascript:void(0);" title="Edit" [routerLink]="['/work-order/edit-work-order/', row.wo_id]"
+                                            class="btn btn-icon btn-sm btn-info-transparent rounded-pill"><i
+                                            class="ri-edit-line"></i></a>
+                                            
+                                       <a href="javascript:void(0);" title="Assign Crew" data-bs-toggle="modal"
+                                        (click)="open(content1,row.wo_id)" data-bs-target="#assignModal"
+                                            class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i class="ri-id-card-line"></i></a>
+                                        
+                                        <a href="javascript:void(0);" title="Dates" data-bs-toggle="modal"
+                                            (click)="open(content2,row.wo_id)" data-bs-target="#datesModal"
+                                                class="btn btn-icon btn-sm btn-primary-transparent rounded-pill"><i class="ri-calendar-2-line"></i></a>
+                                            
+                                        <a href="javascript:void(0);" title="Daily Update" [routerLink]="['/work-order/daily-update/', row.wo_id]"
+                                        class="btn btn-icon btn-sm btn-info-transparent rounded-pill"><i class="ri-calendar-schedule-line"></i></a>
+
+                                       <a href="javascript:void(0);" title="Delete" data-bs-toggle="modal"
+                                        (click)="open(content3,row.wo_id)" data-bs-target="#exampleModal"
+                                            class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
+                                                class="ri-delete-bin-line"></i></a>
+                                        
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </app-showcode-card>
+    </div>
+  
+</div>
+
+    <!-- delete -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <ng-template #content3 let-c="close" let-d="dismiss">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="exampleModalLabel1">Confirm</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        (click)="d('Cross click')" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete?
+                </div>
+                <div class="modal-footer">
+                   <button type="button" class="btn btn-primary" (click)="c('Closelick')" (click)="delete()">Yes</button>
+                    <button type="button" class="btn btn-secondary" (click)="c('Closelick')"
+                        data-bs-dismiss="modal">No</button>  
+                </div>
+            </ng-template>
+        </div>
+    </div>
+    </div>
+
+  <!-- assign -->
+   <div class="modal fade" id="assignModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+   aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <ng-template #content1 let-c="close" let-d="dismiss">
+               <div class="modal-header">
+                   <h6 class="modal-title" id="exampleModalLabel1">Update Status and Assign Crew</h6>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal"
+                       (click)="d('Cross click')" (click)="restworkOrderAssignForm()" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                <form [formGroup]="workOrderAssignForm" (ngSubmit)="onSubmit()">  
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="work_status">Work Status</label><span class="text-danger">*</span>
+                            <select class="form-select"  [ngClass]="{ 'is-invalid':workOrderAssignForm.get('work_status')?.invalid && workOrderAssignForm.get('work_status')?.touched}" id="work_status" formControlName="work_status">
+                                <option value="" selected disabled>Select Status</option>
+                                <option value="Not Started">Not Started</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                            @if(workOrderAssignForm.get('work_status')?.invalid && workOrderAssignForm.get('work_status')?.touched){
+                                <span  class="text-danger">Please select valid Work Status</span>
+                            } 
+                        </div>
+                            
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="field_crew_assigned">Field Crew Assigned</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" [ngClass]="{ 'is-invalid':workOrderAssignForm.get('field_crew_assigned')?.invalid && workOrderAssignForm.get('field_crew_assigned')?.touched}"  id="field_crew_assigned" formControlName="field_crew_assigned" placeholder="Field Crew Assigned">
+                            @if(workOrderAssignForm.get('field_crew_assigned')?.invalid && workOrderAssignForm.get('field_crew_assigned')?.touched){
+                                <span  class="text-danger">Please enter valid Field Crew Assigned</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" (click)="c('Closelick')">Add</button>
+                         <button type="button" class="btn btn-secondary" (click)="restworkOrderAssignForm()" (click)="c('Closelick')"
+                             data-bs-dismiss="modal">Cancel</button>  
+                     </div>
+                </form>
+               </div>
+               
+           </ng-template>
+       </div>
+   </div>
+   </div>
+
+    <!-- dates -->
+    <div class="modal fade" id="datesModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <ng-template #content2 let-c="close" let-d="dismiss">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="exampleModalLabel1">Update Dates</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        (click)="d('Cross click')" (click)="restworkOrderDatesForm()" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                 <form [formGroup]="workOrderDatesForm" (ngSubmit)="onSubmitDates()">  
+                     <div class="row">
+                         <div class="col-md-6 mb-3">
+                             <label class="form-label" for="planned_start_date">Planned Start Date</label><span class="text-danger">*</span>
+                             <input type="date" class="form-control" [ngClass]="{ 'is-invalid':workOrderDatesForm.get('planned_start_date')?.invalid && workOrderDatesForm.get('planned_start_date')?.touched}"  id="planned_start_date" formControlName="planned_start_date" placeholder="Planned Start Date">
+                             @if(workOrderDatesForm.get('planned_start_date')?.invalid && workOrderDatesForm.get('planned_start_date')?.touched){
+                                 <span  class="text-danger">Please select Planned Start Date</span>
+                             }
+                         </div>
+
+                         <div class="col-md-6 mb-3">
+                            <label class="form-label" for="planned_completion_date">Planned Completion Date</label>
+                            <input type="date" class="form-control" [ngClass]="{ 'is-invalid':workOrderDatesForm.get('planned_completion_date')?.invalid && workOrderDatesForm.get('planned_completion_date')?.touched}"  id="planned_completion_date" formControlName="planned_completion_date" placeholder="Planned Completion Date">
+                            @if(workOrderDatesForm.get('planned_completion_date')?.invalid && workOrderDatesForm.get('planned_completion_date')?.touched){
+                                <span  class="text-danger">Please select Planned Completion Date</span>
+                            }
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="actual_start_date">Actual Start Date</label>
+                            <input type="date" class="form-control" [ngClass]="{ 'is-invalid':workOrderDatesForm.get('actual_start_date')?.invalid && workOrderDatesForm.get('actual_start_date')?.touched}"  id="actual_start_date" formControlName="actual_start_date" placeholder="Actual Start Date">
+                            @if(workOrderDatesForm.get('actual_start_date')?.invalid && workOrderDatesForm.get('actual_start_date')?.touched){
+                                <span  class="text-danger">Please select Actual Start Date</span>
+                            }
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="actual_completion_date">Actual Completion Date</label>
+                            <input type="date" class="form-control" [ngClass]="{ 'is-invalid':workOrderDatesForm.get('actual_completion_date')?.invalid && workOrderDatesForm.get('actual_completion_date')?.touched}"  id="actual_completion_date" formControlName="actual_completion_date" placeholder="Actual Completion Date">
+                            @if(workOrderDatesForm.get('actual_completion_date')?.invalid && workOrderDatesForm.get('actual_completion_date')?.touched){
+                                <span  class="text-danger">Please select Actual Completion Date</span>
+                            }
+                        </div>
+                     </div>
+                     <div class="modal-footer">
+                         <button type="submit" class="btn btn-primary" (click)="c('Closelick')">Add</button>
+                          <button type="button" class="btn btn-secondary" (click)="restworkOrderDatesForm()" (click)="c('Closelick')"
+                              data-bs-dismiss="modal">Cancel</button>  
+                      </div>
+                 </form>
+                </div>
+                
+            </ng-template>
+        </div>
+    </div>
+    </div>

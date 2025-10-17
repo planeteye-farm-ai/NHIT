@@ -1,0 +1,506 @@
+
+<app-page-header title="View Rigid Distress" title1="View Rigid Distress" activeTitle="View Rigid Distress"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Rigid Distress'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="distressForm">
+                <div class="row">
+                
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="geometry_data_id">Road</label>
+                        <input type="text" class="form-control" id="geometry_data_id" formControlName="geometry_data_id">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label>
+                        <input type="text" class="form-control" id="state_id" formControlName="state_id">
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label>
+                        <input type="text" class="form-control" id="district_id" formControlName="district_id">
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label>
+                        <input type="text" class="form-control" id="city_id" formControlName="city_id">
+                        
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="village">Village</label>
+                        <input type="text" class="form-control" id="village" formControlName="village">
+                        
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_start">Chainage Start</label>
+                        <input type="text" class="form-control" id="chainage_start" formControlName="chainage_start">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_end">Chainage End</label>
+                        <input type="text" class="form-control" id="chainage_end" formControlName="chainage_end">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_of_rigid_distress">Type Of Rigid Distress</label>
+                        <input type="text" class="form-control" id="type_of_rigid_distress" formControlName="type_of_rigid_distress">
+                    </div>
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.cracking_single_distress_image, 'col-md-4 mb-3': distressData?.cracking_single_distress_image}">
+                        <label class="form-label" for="cracking_single_distress">Cracking Single Distress</label>
+                        <input type="number" class="form-control" id="cracking_single_distress" formControlName="cracking_single_distress">  
+                    </div>
+                    
+                    @if(distressData.cracking_single_distress_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('cracking_single_distress_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.cracking_single_tra_image, 'col-md-4 mb-3': distressData?.cracking_single_tra_image}">
+                        <label class="form-label" for="cracking_single_tra">Single Transverse Crack Or Diagonal Crack</label>
+                        <input type="number" class="form-control" id="cracking_single_tra" formControlName="cracking_single_tra">
+                    </div>
+                    
+                    @if(distressData.cracking_single_tra_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('cracking_single_tra_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.cracking_single_long_image, 'col-md-4 mb-3': distressData?.cracking_single_long_image}">
+                        <label class="form-label" for="cracking_single_long">Cracking Single Long</label>
+                        <input type="number" class="form-control" id="cracking_single_long" formControlName="cracking_single_long">
+                    </div>
+
+                    @if(distressData.cracking_single_long_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('cracking_single_long_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.cracking_multiple_cracks_image, 'col-md-4 mb-3': distressData?.cracking_multiple_cracks_image}">
+                        <label class="form-label" for="cracking_multiple_cracks">Cracking Multiple Cracks</label>
+                        <input type="number" class="form-control" id="cracking_multiple_cracks" formControlName="cracking_multiple_cracks">
+                    </div>
+                    
+                    @if(distressData.cracking_multiple_cracks_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('cracking_multiple_cracks_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                               
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.cracking_corner_break_image, 'col-md-4 mb-3': distressData?.cracking_corner_break_image}">
+                        <label class="form-label" for="cracking_corner_break">Cracking Corner Break</label>
+                        <input type="number" class="form-control" id="cracking_corner_break" formControlName="cracking_corner_break">
+                    </div>
+
+                    @if(distressData.cracking_corner_break_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('cracking_corner_break_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.cracking_punchout_image, 'col-md-4 mb-3': distressData?.cracking_punchout_image}">
+                        <label class="form-label" for="cracking_punchout">Cracking Punchout</label>
+                        <input type="number" class="form-control" id="cracking_punchout" formControlName="cracking_punchout">
+                    </div>
+
+                   
+                    @if(distressData.cracking_punchout_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('cracking_punchout_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.surface_defect_ravelling_image, 'col-md-4 mb-3': distressData?.surface_defect_ravelling_image}">
+                        <label class="form-label" for="surface_defect_ravelling">Surface Defect Ravelling</label>
+                        <input type="number" class="form-control" id="surface_defect_ravelling" formControlName="surface_defect_ravelling">
+                    </div>
+
+                    @if(distressData.surface_defect_ravelling_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('surface_defect_ravelling_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                               
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.surface_defect_scaling_image, 'col-md-4 mb-3': distressData?.surface_defect_scaling_image}">
+                        <label class="form-label" for="surface_defect_scaling">Surface Defect Scaling</label>
+                        <input type="number" class="form-control" id="surface_defect_scaling" formControlName="surface_defect_scaling">
+                    </div>
+                    
+                    @if(distressData.surface_defect_scaling_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('surface_defect_scaling_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.surface_defect_polished_image, 'col-md-4 mb-3': distressData?.surface_defect_polished_image}">
+                        <label class="form-label" for="surface_defect_polished">Surface Defect Polished</label>
+                        <input type="number" class="form-control" id="surface_defect_polished" formControlName="surface_defect_polished">
+                    </div>
+
+                  
+                    @if(distressData.surface_defect_polished_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('surface_defect_polished_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                               
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.surface_defect_popout_image, 'col-md-4 mb-3': distressData?.surface_defect_popout_image}">
+                        <label class="form-label" for="surface_defect_popout">Surface Defect Popout</label>
+                        <input type="number" class="form-control" id="surface_defect_popout" formControlName="surface_defect_popout">
+                    </div>
+                    
+                    @if(distressData.surface_defect_popout_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('cracks_reflection_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                                
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.join_defects_seal_image, 'col-md-4 mb-3': distressData?.join_defects_seal_image}">
+                        <label class="form-label" for="join_defects_seal">Join Defects Seal</label>
+                        <input type="number" class="form-control" id="join_defects_seal" formControlName="join_defects_seal">
+                    </div>
+                    @if(distressData.join_defects_seal_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_seal_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                              
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.join_defects_spalling_image, 'col-md-4 mb-3': distressData?.join_defects_spalling_image}">
+                        <label class="form-label" for="join_defects_spalling">Join Defects Spalling</label>
+                        <input type="number" class="form-control" id="join_defects_spalling" formControlName="join_defects_spalling">
+                    </div>
+
+                    
+                    @if(distressData.join_defects_spalling_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_spalling_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.join_defects_faulting_image, 'col-md-4 mb-3': distressData?.join_defects_faulting_image}">
+                        <label class="form-label" for="join_defects_faulting">Join Defects Faulting</label>
+                        <input type="number" class="form-control" id="join_defects_faulting" formControlName="join_defects_faulting">
+                    </div>
+
+                    @if(distressData.join_defects_faulting_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_faulting_image')" title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                                
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.join_defects_blowup_image, 'col-md-4 mb-3': distressData?.join_defects_blowup_image}">
+                        <label class="form-label" for="join_defects_blowup">Join Defects Blowup</label>
+                        <input type="number" class="form-control" id="join_defects_blowup" formControlName="join_defects_blowup">
+                    </div>
+
+                    @if(distressData.join_defects_blowup_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_blowup_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                              
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.join_defects_depression_image, 'col-md-4 mb-3': distressData?.join_defects_depression_image}">
+                        <label class="form-label" for="join_defects_depression">Join Defects Depression</label>
+                        <input type="number" class="form-control" id="join_defects_depression" formControlName="join_defects_depression">
+                    </div>
+
+                    @if(distressData.join_defects_depression_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_depression_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.join_defects_heave_image, 'col-md-4 mb-3': distressData?.join_defects_heave_image}">
+                        <label class="form-label" for="join_defects_heave">Join Defects Heave</label>
+                        <input type="number" class="form-control" id="join_defects_heave" formControlName="join_defects_heave">
+                    </div>
+
+                   
+                    @if(distressData.join_defects_heave_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_heave_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                               
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.join_defects_bump_image, 'col-md-4 mb-3': distressData?.join_defects_bump_image}">
+                        <label class="form-label" for="join_defects_bump">Join Defects Bump</label>
+                        <input type="number" class="form-control" id="join_defects_bump" formControlName="join_defects_bump">
+                    </div>
+
+                    
+                    @if(distressData.join_defects_bump_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_bump_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                               
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.join_defects_lane_image, 'col-md-4 mb-3': distressData?.join_defects_lane_image}">
+                        <label class="form-label" for="join_defects_lane">Join Defects Lane</label>
+                        <input type="number" class="form-control" id="join_defects_lane" formControlName="join_defects_lane">
+                    </div>
+
+                    @if(distressData.join_defects_lane_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_lane_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                                
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.drainage_pumping_image, 'col-md-4 mb-3': distressData?.drainage_pumping_image}">
+                        <label class="form-label" for="drainage_pumping">Drainage Pumping</label>
+                        <input type="number" class="form-control" id="drainage_pumping" formControlName="drainage_pumping">
+                    </div>
+
+                   
+                    @if(distressData.drainage_pumping_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('drainage_pumping_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                              
+                            </div>
+                        </div>
+                    }
+                    
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.drainage_ponding_image, 'col-md-4 mb-3': distressData?.drainage_ponding_image}">
+                        <label class="form-label" for="drainage_ponding">Drainage Ponding</label>
+                        <input type="number" class="form-control" id="drainage_ponding" formControlName="drainage_ponding">
+                    </div>
+
+                   
+                    @if(distressData.drainage_ponding_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('drainage_ponding_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                             
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.patching_image, 'col-md-4 mb-3': distressData?.patching_image}">
+                        <label class="form-label" for="patching">Patching</label>
+                        <input type="number" class="form-control" id="patching" formControlName="patching">
+                    </div>
+
+                    @if(distressData.patching_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('patching_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                               
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.texture_depth_image, 'col-md-4 mb-3': distressData?.texture_depth_image}">
+                        <label class="form-label" for="texture_depth">Texture Depth</label>
+                        <input type="number" class="form-control" id="texture_depth" formControlName="texture_depth">
+                    </div>
+
+                    
+                    @if(distressData.texture_depth_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('texture_depth_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                               
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.roughness_image, 'col-md-4 mb-3': distressData?.roughness_image}">
+                        <label class="form-label" for="roughness">Roughness</label>
+                        <input type="number" class="form-control" id="roughness" formControlName="roughness">
+                    </div>
+
+                    
+                    @if(distressData.roughness_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('roughness_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                               
+                            </div>
+                        </div>
+                    }
+
+                    <div [ngClass]="{'col-md-6 mb-3': !distressData?.geometry_image, 'col-md-4 mb-3': distressData?.geometry_image}">
+                        <label class="form-label" for="geometry">Geometry</label>
+                        <input type="number" class="form-control" id="geometry" formControlName="geometry">
+                    </div>
+
+                    
+                    @if(distressData.geometry_image){
+                        <div class="col-md-2 mb-3 ">
+                            <label class="form-label">Image</label><br>
+                            <div class="hstack gap-2 fs-15">
+                                <a href="javascript:void(0);" (click)="downloadImage('geometry_image')"   title="Download"
+                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                    class="ri-download-2-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    @if(distressData.video){
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="video">Video</label>
+                            <div class="hstack gap-2 fs-15">
+                                <video id="videoPreview" class="form-control mt-3" controls style="display: block; max-height: 300px; max-width:500 px" >
+                                    <source [src]="urlLive+'/upload/distress_video/'+distressData.video" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            
+                            </div>
+                        </div>
+                    }
+                    
+                   
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>

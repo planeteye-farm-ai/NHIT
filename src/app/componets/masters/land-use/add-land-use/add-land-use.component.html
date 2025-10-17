@@ -1,0 +1,53 @@
+
+<div class="col-xl-12">
+    <!-- <app-showcode-card [title]="'Vertically centered modal'" [prism]="prismCode.model4"> -->
+    <button type="button" class="btn btn-primary-light btn-wave me-2" data-bs-toggle="modal"
+        (click)="openVerticallyCentered(Content2)" data-bs-target="#exampleModalXls">
+        <i class="bx bx-plus align-middle"></i> Add Land Use
+    </button>
+
+    <div class="modal fade" id="exampleModalXl" tabindex="-1" aria-labelledby="exampleModalXlLabel"
+        style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <ng-template #Content2 let-modal>
+                <form [formGroup]="landUseForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title" id="exampleModalXlLabel">Add Land Use</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="landUse" formControlName="landUse" placeholder="">
+                                        <label for="landUse">Land Use</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="status" formControlName="status" aria-label="Floating label select example">
+                                            <option selected disabled>Select Status</option>
+                                            <option value="Active">Active</option>
+                                            <option value="Deactive">Deactive </option>
+                                            <option value="Deleted">Deleted </option>
+                                        </select>
+                                        <label for="status">Select Status</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"
+                                data-bs-dismiss="modal">Close</button>
+                            <button type="submit" (click)="modal.close('Close click')" [disabled]="landUseForm.invalid" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </form>
+            </ng-template>
+        </div>
+    </div>
+    <!-- </app-showcode-card> -->
+</div>

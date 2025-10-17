@@ -1,0 +1,83 @@
+<app-page-header title="Purchase Invoice Manage" title1="Purchase Invoice Manage" activeTitle="Purchase Invoice Manage"></app-page-header>
+
+<div class="row">
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Purchase Invoice Manage'" [prism]="prismCode.table18">
+            <div class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2">
+                <div >
+                  <!-- <h1 class="page-title fw-medium fs-18 mb-2">Distress</h1> -->
+                </div>
+                <div class="btn-list">
+                    <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/purchase-invoice/add-invoice"> <i class="bx bx-plus align-middle"></i>  Add Purchase Invoice</a>
+                  <!-- <app-add-distress></app-add-distress> -->
+                </div>
+              </div>
+            <div class="table-responsive">
+                <table class="table text-nowrap">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">Sr No</th>
+                            <th scope="col">Invoice Date</th>
+                            <th scope="col">Invoice Number</th>
+                            <th scope="col">Supplier Name</th>
+                            <th scope="col">Action</th>                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of tableData; track $index) {
+                            <tr [ngStyle]="{'color': row.invoice_status == 'Pending' ? 'red' : ''}">
+                                <td>{{$index+1}}</td>
+                                <td>{{row.supplier_invoice_date}}</td>
+                                <td>{{row.supplier_invoice_no}}</td>
+                                <td>{{row.supl_comp}}</td>
+                                <td>
+                                    <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" title="View" [routerLink]="['/purchase-invoice/view-invoice/', row.supl_inv_id]"
+                                            class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                            class="ri-eye-line"></i></a>
+
+                                    <!-- @if(row.supl_comp == 'Pending'){ -->
+                                        <a [ngStyle]="{'display': row.invoice_status !== 'Pending' ? 'none' : ''}" href="javascript:void(0);" title="Edit" [routerLink]="['/purchase-invoice/edit-invoice', row.supl_inv_id]"
+                                            class="btn btn-icon btn-sm btn-info-transparent rounded-pill"><i
+                                            class="ri-edit-line"></i></a>
+
+                                       <a [ngStyle]="{'display': row.invoice_status !== 'Pending' ? 'none' : ''}" href="javascript:void(0);" title="Delete" data-bs-toggle="modal"
+                                        (click)="open(content,row.supl_inv_id)" data-bs-target="#exampleModal"
+                                            class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
+                                                class="ri-delete-bin-line"></i></a>
+                                    <!-- } -->
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </app-showcode-card>
+    </div>
+  
+</div>
+
+    <!-- delete -->
+   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+   aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <ng-template #content let-c="close" let-d="dismiss">
+               <div class="modal-header">
+                   <h6 class="modal-title" id="exampleModalLabel1">Confirm</h6>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal"
+                       (click)="d('Cross click')" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                   Are you sure you want to delete?
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" (click)="c('Closelick')" (click)="delete()">Yes</button>
+                   <button type="button" class="btn btn-secondary" (click)="c('Closelick')"
+                       data-bs-dismiss="modal">No</button>  
+               </div>
+           </ng-template>
+       </div>
+   </div>
+   </div>

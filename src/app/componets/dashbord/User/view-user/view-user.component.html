@@ -1,0 +1,52 @@
+
+<app-page-header title="View User" title1="View User" activeTitle="View User"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View User'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="userForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="username">Username</label>
+                        <input type="text" class="form-control" id="username" formControlName="username" readonly>  
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="first_name">First Name</label>
+                        <input type="text" class="form-control" id="first_name" formControlName="first_name" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="last_name">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" formControlName="last_name" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="text" class="form-control" id="email" formControlName="email" readonly>
+                    </div>
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="phone_number">Phone Number</label>
+                        <input type="text" class="form-control" id="phone_number" formControlName="phone_number" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="user_role">User Role</label>
+                        <input type="text" class="form-control" id="user_role" formControlName="user_role" readonly>
+                    </div>
+
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                        <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/user/user-management">Cancel</a>
+                    </div>
+ 
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

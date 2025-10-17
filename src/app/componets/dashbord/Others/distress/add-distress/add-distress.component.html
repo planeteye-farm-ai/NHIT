@@ -1,0 +1,361 @@
+<!-- <div class="col-xl-12">
+    <button type="button" class="btn btn-primary-light btn-wave me-2" data-bs-toggle="modal"
+        (click)="openVerticallyCentered(Content2)" data-bs-target="#exampleModalXl">
+        <i class="bx bx-plus align-middle"></i> Add Distress
+    </button>
+
+    <div class="modal fade" id="exampleModalXl" tabindex="-1" aria-labelledby="exampleModalXlLabel"
+        style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <ng-template #Content2 let-modal>
+                <form [formGroup]="roadForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title" id="exampleModalXlLabel">Add Distress</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="highway" formControlName="highway" placeholder="">
+                                        <label for="highway">Highway</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="section" formControlName="section" placeholder="">
+                                        <label for="section">Section</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="chainageStart" formControlName="chainageStart" placeholder="">
+                                        <label for="chainageStart">Chainage Start</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="chainageEnd" formControlName="chainageEnd" placeholder="">
+                                        <label for="chainageEnd">Chainage End</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <ng-select class="form-control" formControlName="distressType"  placeholder=""[multiple]="true"  [hideSelected]="true"  [(ngModel)]="selectedCompanies">
+                                            <ng-option selected disabled>Selecte Distress Type</ng-option>
+                                            <ng-option>Pothole</ng-option>
+                                            <ng-option>Alligator crack</ng-option>
+                                            <ng-option>Oblique crack</ng-option>
+                                            <ng-option>Edge Break</ng-option>
+                                            <ng-option>Patching</ng-option>
+                                            <ng-option>Bleeding</ng-option>
+                                            <ng-option>Hotspots</ng-option>
+                                        </ng-select>
+                                        <label for="distressType">Distress Type</label>
+                                    </div>
+                                </div>
+                        
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                      <select class="form-select" id="workStatus" formControlName="workStatus">
+                                        <option selected disabled>Select Work Status</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="Work in progress">Work in progress</option>
+                                        <option value="Overdue">Overdue</option>
+                                      </select>
+                                      <label for="status">Select Work Status</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="date" class="form-control" id="closingDate" formControlName="closingDate" placeholder="">
+                                        <label for="closingDate">Closing Date</label>
+                                    </div>
+                                </div>
+                               
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"
+                                data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" (click)="modal.close('Close click')" [disabled]="roadForm.invalid">Add</button>
+                        </div>
+                    </div>
+                </form>
+            </ng-template>
+        </div>
+    </div>
+</div> -->
+
+<app-page-header title="Add Distress" title1="Add Distress" activeTitle="Add Distress"></app-page-header>
+
+<div class="row">
+    <!-- <div class="col-xl-12">
+        <app-showcode-card [title]="'Table Head Primary'" [prism]="prismCode.table18">
+            <div>
+                <div class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2">
+                  <div >
+                    <h1 class="page-title fw-medium fs-18 mb-2">Add Distress</h1>
+                  </div>
+                </div>
+                <form [formGroup]="roadForm" (ngSubmit)="onSubmit()">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                    <select class="form-select" id="highway" formControlName="highway">
+                                        <option selected disabled>Select Highway</option>
+                                        <option value="NH-1">NH-1</option>
+                                        <option value="NH-1">NH-2</option>
+                                        <option value="NH-1">NH-3</option>
+                                    </select>
+                                    <label for="status">Select Highway</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                    <select class="form-select" id="section" formControlName="section">
+                                        <option selected disabled>Select Section</option>
+                                        <option value="section 1">section 1</option>
+                                        <option value="section 2">section 2</option>
+                                        <option value="section 3">section 3</option>
+                                    </select>
+                                    <label for="status">Select Section</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="chainageStart" formControlName="chainageStart" placeholder="">
+                                        <label for="chainageStart">Chainage Start</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="chainageEnd" formControlName="chainageEnd" placeholder="">
+                                        <label for="chainageEnd">Chainage End</label>
+                                    </div>
+                                </div>
+                        
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                    <select class="form-select" id="workStatus" formControlName="workStatus">
+                                        <option selected disabled>Select Work Status</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="Work in progress">Work in progress</option>
+                                        <option value="Re-work">Re-work</option>
+                                        <option value="Overdue">Overdue</option>
+                                    </select>
+                                    <label for="status">Select Work Status</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <ng-select class="form-control" formControlName="distressType"  placeholder=""[multiple]="true"  [hideSelected]="true"  [(ngModel)]="selectedCompanies">
+                                            <ng-option selected disabled>Selecte Distress Type</ng-option>
+                                            <ng-option>Pothole</ng-option>
+                                            <ng-option>Alligator crack</ng-option>
+                                            <ng-option>Oblique crack</ng-option>
+                                            <ng-option>Edge Break</ng-option>
+                                            <ng-option>Patching</ng-option>
+                                            <ng-option>Bleeding</ng-option>
+                                            <ng-option>Hotspots</ng-option>
+                                        </ng-select>
+                                        <label for="distressType">Distress Type</label>
+                                    </div>
+                                </div>
+ 
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="date" class="form-control" id="closingDate" formControlName="closingDate" placeholder="">
+                                        <label for="closingDate">Closing Date</label>
+                                    </div>
+                                </div>
+                                 
+                            
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between my-2 page-header-breadcrumb flex-wrap gap-2">
+                                <div>
+                                   
+                                </div>
+                                <div class="btn-list mt-1">
+                                    <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" [disabled]="roadForm.invalid">Add</button>
+                                </div>
+                            </div>
+                            
+                </form>
+            </div>
+        </app-showcode-card>
+    </div> -->
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Distress'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="roadForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway">Highway</label>
+                            <select class="form-select" id="highway" formControlName="highway">
+                                <option value="" selected disabled>Select Highway</option>
+                                <option value="NH-1">NH-1</option>
+                                <option value="NH-1">NH-2</option>
+                                <option value="NH-1">NH-3</option>
+                            </select>
+                            
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="section">Section</label>
+                        <select class="form-select" id="section" formControlName="section">
+                            <option value="" selected disabled>Select Section</option>
+                            <option value="section 1">section 1</option>
+                            <option value="section 2">section 2</option>
+                            <option value="section 3">section 3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainageStart">Chainage Start</label>
+                        <input type="number" class="form-control" id="chainageStart" formControlName="chainageStart" placeholder="Chainage Start">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainageEnd">Chainage End</label>
+                        <input type="number" class="form-control" id="chainageEnd" formControlName="chainageEnd" placeholder="Chainage End">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="workStatus">Work Status</label>
+                        <select class="form-select" id="workStatus" formControlName="workStatus">
+                            <option value="" selected disabled>Select Work Status</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Work in progress">Work in progress</option>
+                            <option value="Re-work">Re-work</option>
+                            <option value="Overdue">Overdue</option>
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-4 mb-3">
+                            <label class="form-label" for="distressType">Distress Type</label>
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="pothole">
+                                <label class="form-check-label" for="pothole">
+                                    Pothole
+                                </label>
+                            </div>
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="alligatorCrack">
+                                <label class="form-check-label" for="alligatorCrack">
+                                    Alligator crack
+                                </label>
+                            </div>
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="obliqueCrack">
+                                <label class="form-check-label" for="obliqueCrack">
+                                    Oblique crack
+                                </label>
+                            </div>
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="edgeBreak">
+                                <label class="form-check-label" for="edgeBreak">
+                                    Edge Break
+                                </label>
+                            </div>
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="patching">
+                                <label class="form-check-label" for="patching">
+                                    Patching
+                                </label>
+                            </div>
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="bleeding">
+                                <label class="form-check-label" for="bleeding">
+                                    Bleeding
+                                </label>
+                            </div>
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="hotspots">
+                                <label class="form-check-label" for="hotspots">
+                                    Hotspots
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label class="form-label" for="distressType">Distress Type Value</label>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="number" id="pothole" >
+                               
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="number" id="alligatorCrack">
+                                
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="number" id="obliqueCrack">
+                                
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="number" id="edgeBreak">
+                               
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="number" id="patching">
+                              
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="number" id="bleeding">
+                               
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="number" id="hotspots">
+                                
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-3">
+                            <label class="form-label" for="distressType">Distress Image/Video</label>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="file" id="pothole" >
+                               
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="file" id="alligatorCrack">
+                                
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="file" id="obliqueCrack">
+                                
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="file" id="edgeBreak">
+                               
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="file" id="patching">
+                              
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="file" id="bleeding">
+                               
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-control" type="file" id="hotspots">
+                                
+                            </div>
+                        </div>
+
+                        
+                    
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>

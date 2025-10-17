@@ -1,0 +1,83 @@
+::ng-deep{
+
+
+    .firebase {
+        width: 30px;
+        height: 30px;
+    }
+    .nav-tabs{
+        border-color:none !important;
+    }
+        
+}
+
+.card.custom-card {
+    border-radius: 0.85rem;
+    //  background-color: var(--custom-white);
+    // background-color: #C1AA85 !important;
+    background-color: #c1aa85cc !important;
+
+        
+
+}
+
+
+.ng-pristine {
+    // background-color:#C1AA85; 
+    // background-color: #c1aa85cc !important;
+    background-color: #c1aa8500;
+    border-radius: 0.85rem;
+    color: #000000;
+  }
+
+
+  .btn-primary {
+    background-color: #000000 !important;
+    border-color: #000000 !important;
+    color: #C1AA85;
+   
+  }
+  .btn-primary:hover {
+    background-color: #000000 !important;
+    border-color: #000000 !important;
+    color: #C1AA85;
+    
+  }
+  .btn-primary:focus {
+    background-color: #000000 !important;
+    border-color: #000000 !important;
+    color: #C1AA85;
+  }
+  
+  .btn-check:focus + .btn-primary,
+  .btn-primary:focus {
+    background-color: #000000 !important;
+    border-color: #000000 !important;
+    color: #C1AA85;
+    outline: 0;
+    box-shadow: none;
+  }
+  
+  .btn-check:active + .btn-primary:focus,
+  .btn-check:checked + .btn-primary:focus,
+  .btn-primary.active:focus,
+  .btn-primary.show:focus,
+  .btn-primary:active:focus {
+    /* box-shadow: 0 0.25rem 1rem var(--primary05); */
+    box-shadow: 0 0.25rem 1rem rgba(26, 26, 26, 0.05); /* Adjusted rgba shadow */
+  }
+  
+  .btn-check:active + .btn-primary,
+  .btn-check:checked + .btn-primary,
+  .btn-primary.active,
+  .btn-primary.show,
+  .btn-primary:active {
+    background-color: #000000 !important;
+    border-color: #000000 !important;
+    color: #C1AA85;
+  }
+  
+  .eye-icon{
+    font-size: 22px;
+    color: white;
+  }

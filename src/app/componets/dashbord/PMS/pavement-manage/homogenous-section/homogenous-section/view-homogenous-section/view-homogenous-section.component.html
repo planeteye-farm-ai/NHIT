@@ -1,0 +1,165 @@
+
+<app-page-header title="View Homogenous Section" title1="Homogenous Section Manage" activeTitle="View Homogenous Section"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Homogenous Section of '+topTitle" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="homogenousForm">
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Road Information</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="geometry_data_id">Road Name</label>
+                        <input type="text" class="form-control" id="geometry_data_id" formControlName="geometry_data_id" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road ID/Code</label>
+                        <input type="text" class="form-control" id="road_code" formControlName="road_code" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label>
+                        <input type="text" class="form-control" id="state_id" formControlName="state_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label>
+                        <input type="text" class="form-control" id="district_id" formControlName="district_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label>
+                        <input type="text" class="form-control" id="city_id" formControlName="city_id" readonly>
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_start">Chainage Start</label>
+                        <input type="text" class="form-control" id="chainage_start" formControlName="chainage_start" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carriageway_width">Chainage End</label>
+                        <input type="text" class="form-control" id="chainage_end" formControlName="chainage_end" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="date_of_survey">Date of Survey</label>
+                        <input type="text" class="form-control" id="date_of_survey" formControlName="date_of_survey" readonly>
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Carriageway Type and Width</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carriageway_type">Carriageway Type</label>
+                        <input type="text" class="form-control" id="carriageway_type" formControlName="carriageway_type" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carriageway_width">Carriageway Width</label>
+                        <input type="text" class="form-control" id="carriageway_width" formControlName="carriageway_width" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Pavement Condition Data</h1>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="severity_of_distress">Severity of Distress</label>
+                        <input type="text" class="form-control" id="severity_of_distress" formControlName="severity_of_distress" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="pavement_condition_scores">Pavement Condition Score (PCS)</label>
+                        <input type="text" class="form-control" id="pavement_condition_scores" formControlName="pavement_condition_scores" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="international_roughness_index">International Roughness Index (IRI)</label>
+                        <input type="text" class="form-control" id="international_roughness_index" formControlName="international_roughness_index" readonly>                        
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Traffic Data</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="aadt_data">Annual Average Daily Traffic (AADT)</label>
+                        <input type="email" class="form-control"  id="aadt_data" formControlName="aadt_data" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cvd_class">Commercial Vehicle Damage (CVD) Class</label>
+                        <input type="text" class="form-control"  id="cvd_class" formControlName="cvd_class" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="axle_load_data">Axle Load Data</label>
+                        <input type="text" class="form-control"  id="axle_load_data" formControlName="axle_load_data" readonly>                     
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Environmental and Site Conditions</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="temperature">Temperature</label>
+                        <input type="number" class="form-control" id="temperature" formControlName="temperature" readonly/>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="rainfall">Rainfall (mm)</label>
+                        <input type="text" class="form-control"  id="rainfall" formControlName="rainfall" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="drainage_condition">Drainage Condition</label>
+                        <input type="text" class="form-control"  id="drainage_condition" formControlName="drainage_condition" readonly>             
+                    </div>
+
+                    
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">History of Works</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="last_maintenance_date">Last Maintenance Date</label>
+                        <input type="text" class="form-control" id="last_maintenance_date" formControlName="last_maintenance_date" readonly>
+                       
+                    </div>
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_of_last_maintenance">Type of Last Maintenance</label>
+                        <input type="text" class="form-control" id="type_of_last_maintenance" formControlName="type_of_last_maintenance" readonly>
+                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="comments_observations">Comments/Observations</label>
+                        <input type="text" class="form-control"  id="comments_observations" formControlName="comments_observations" readonly>                       
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

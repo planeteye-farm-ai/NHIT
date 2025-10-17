@@ -1,0 +1,166 @@
+
+<app-page-header title="Add Purchase Invoice" title1="Purchase Invoice Manage" activeTitle="Add Purchase Invoice"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Purchase Invoice'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="purchaseForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supplier_id">Supplier Name</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':purchaseForm.get('supplier_id')?.invalid && purchaseForm.get('supplier_id')?.touched}" id="supplier_id" formControlName="supplier_id">
+                            <option value="" selected disabled>Select Supplier</option>
+                            @for (row of supplierlist; track $index) {
+                              <option value="{{row.supl_id}}">{{row.supl_comp}}</option>
+                              }
+                        </select>
+                        @if(purchaseForm.get('supplier_id')?.invalid && purchaseForm.get('supplier_id')?.touched){
+                            <span  class="text-danger">Please select valid Supplier</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supplier_invoice_date">Invoice Date</label><span class="text-danger">*</span>
+                        <input type="date" class="form-control" [ngClass]="{ 'is-invalid':purchaseForm.get('supplier_invoice_date')?.invalid && purchaseForm.get('supplier_invoice_date')?.touched}"  id="supplier_invoice_date" formControlName="supplier_invoice_date" placeholder="Supplier Invoice Date">
+                        @if(purchaseForm.get('supplier_invoice_date')?.invalid && purchaseForm.get('supplier_invoice_date')?.touched){
+                            <span  class="text-danger">Please enter select invoice date</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supplier_invoice_no">Invoice Number</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':purchaseForm.get('supplier_invoice_no')?.invalid && purchaseForm.get('supplier_invoice_no')?.touched}"  id="supplier_invoice_no" formControlName="supplier_invoice_no" placeholder="Supplier Invoice Number">
+                        @if(purchaseForm.get('supplier_invoice_no')?.invalid && purchaseForm.get('supplier_invoice_no')?.touched){
+                            <span  class="text-danger">Please enter valid supplier invoice number</span>
+                        }
+                    </div>
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="discount_amount">Extra Discount Amount</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':purchaseForm.get('discount_amount')?.invalid && purchaseForm.get('discount_amount')?.touched}"  id="discount_amount" formControlName="discount_amount" placeholder="Extra Discount Amount">
+                        @if(purchaseForm.get('discount_amount')?.invalid && purchaseForm.get('discount_amount')?.touched){
+                            <span  class="text-danger">Please enter valid extra discount amount</span>
+                        }
+                    </div> -->
+<!-- 
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="invoice_state_id">State</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':purchaseForm.get('invoice_state_id')?.invalid && purchaseForm.get('invoice_state_id')?.touched}" id="invoice_state_id" formControlName="invoice_state_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of stateList; track $index) {
+                            <option value="{{row.state_id}}">{{row.state_name}}</option>
+                            }
+                        </select>   
+                        @if(purchaseForm.get('invoice_state_id')?.invalid && purchaseForm.get('invoice_state_id')?.touched){
+                            <span  class="text-danger">Please select valid state</span>
+                        } 
+                    </div> -->
+
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Manage Products :</h1>
+                    </div>
+
+                    <div class="table-responsive">
+                        <form [formGroup]="purchaseForm">
+                          <table class="table text-nowrap">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Rate</th>
+                                <th scope="col">Batch Number</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody formArrayName="purchaseInvoiceItems">
+                              <tr *ngFor="let item of purchaseInvoiceItems.controls; let i = index" [formGroupName]="i">
+                                <td>
+                                    <!-- <input
+                                      type="text"
+                                      class="form-control"
+                                      formControlName="prod_ref_name"
+                                      placeholder="Prod Name"
+                                      [ngClass]="{ 'is-invalid': item.get('prod_ref_name')?.invalid && item.get('prod_ref_name')?.touched }"
+                                    /> -->
+                                    <select class="form-select" [ngClass]="{ 'is-invalid':purchaseForm.get('prod_ref_name')?.invalid && purchaseForm.get('prod_ref_name')?.touched}" id="prod_ref_name" formControlName="prod_ref_name">
+                                        <option value="" selected disabled>Select product</option>
+                                        @for(row of productList; track $index){
+                                          <option value="{{row.pid}}">{{row.product_name}}</option>
+                                        }
+                                    </select>
+                                    <span class="text-danger" *ngIf="item.get('prod_ref_name')?.invalid && item.get('prod_ref_name')?.touched">
+                                      Please select prod name
+                                    </span>
+                                  </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="po_qty"
+                                    placeholder="Quantity"
+                                    [ngClass]="{ 'is-invalid': item.get('po_qty')?.invalid && item.get('po_qty')?.touched }"
+                                  />
+                                  <span class="text-danger" *ngIf="item.get('po_qty')?.invalid && item.get('po_qty')?.touched">
+                                    Please enter po qty
+                                  </span>
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="po_rate"
+                                    placeholder="Rate"
+                                    [ngClass]="{ 'is-invalid': item.get('po_rate')?.invalid && item.get('po_rate')?.touched }"
+                                  />
+                                  <span class="text-danger" *ngIf="item.get('po_rate')?.invalid && item.get('po_rate')?.touched">
+                                    Please enter rate
+                                  </span>
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="batch_no"
+                                    placeholder="Batch No"
+                                    [ngClass]="{ 'is-invalid': item.get('batch_no')?.invalid && item.get('batch_no')?.touched }"
+                                  />
+                                  <span class="text-danger" *ngIf="item.get('batch_no')?.invalid && item.get('batch_no')?.touched">
+                                    Please enter batch no
+                                  </span>
+                                </td>
+                                <td>
+                              @if(i != 0 ){
+
+                                    <a href="javascript:void(0);" title="Delete" data-bs-toggle="modal"
+                                        (click)="removeRow(i)" class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
+                                                class="ri-delete-bin-line"></i></a>
+                              }
+
+                                </td>
+                              </tr>
+                                <a href="javascript:void(0);" title="Delete" (click)="addInspectionItem()" data-bs-toggle="modal" class=" mt-2 btn btn-primary">Add New Product</a>
+                            </tbody>
+                          </table>
+                        </form>
+                      </div>
+                  
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                      <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/purchase-invoice">Cancel</a>
+                      <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

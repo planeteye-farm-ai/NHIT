@@ -1,0 +1,44 @@
+<div class="col-xl-12">
+    <div class="modal fade" id="exampleModalXl" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <ng-template #Content2 let-modal>
+          <div class="modal-content">
+            <form [formGroup]="carriagewayForm" (ngSubmit)="onSubmitCarriageway()">
+              <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalXlLabel">Add Carriageway Furniture</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"  (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="carriageway" placeholder=""
+                             formControlName="carriageway">
+                      <label for="carriageway">Carriageway Furniture</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <select class="form-select" id="status" formControlName="status">
+                        <option selected disabled>Select Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Deactive">Deactive</option>
+                        <option value="Deleted">Deleted</option>
+                      </select>
+                      <label for="status">Select Status</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')" data-bs-dismiss="modal">Close</button>
+                <button type="submit" (click)="modal.close('Close click')" [disabled]="carriagewayForm.invalid" class="btn btn-primary">Update</button>
+              </div>
+            </form>
+          </div>
+        </ng-template>
+      </div>
+    
+    </div> 
+  </div>
+  

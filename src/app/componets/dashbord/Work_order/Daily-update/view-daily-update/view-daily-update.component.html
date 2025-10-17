@@ -1,0 +1,67 @@
+
+<app-page-header title="Manage Daily Update" title1="Manage Daily Update" activeTitle="View Daily Update"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Daily Update'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="dailyUpdateForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="daily_update_date">Date</label>
+                        <input type="text" class="form-control" id="daily_update_date" formControlName="daily_update_date" readonly>  
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="progress_update">Progress Update (km/m² completed)</label>
+                        <input type="text" class="form-control" id="progress_update" formControlName="progress_update" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="site_photos">Site Photos</label>
+                        <input type="text" class="form-control" id="site_photos" formControlName="site_photos" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="gps_evidence_attached">GPS Evidence Attached</label>
+                        <input type="text" class="form-control" id="gps_evidence_attached" formControlName="gps_evidence_attached" readonly>
+                    </div>
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="names_links">Names Links</label>
+                        <input type="text" class="form-control" id="names_links" formControlName="names_links" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="challenges_delays_faced">Challenges Delays Faced</label>
+                        <input type="text" class="form-control" id="challenges_delays_faced" formControlName="challenges_delays_faced" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="statistical_analysis_required">Statistical Analysis Required</label>
+                        <input type="text" class="form-control" id="statistical_analysis_required" formControlName="statistical_analysis_required" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="site_supervisor_name_signature">Site Supervisor/Name Signature</label>
+                        <input type="text" class="form-control" id="site_supervisor_name_signature" formControlName="site_supervisor_name_signature" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="additional_comments">Additional Comments</label>
+                        <input type="text" class="form-control" id="additional_comments" formControlName="additional_comments" readonly>
+                    </div>
+
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                        <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" [routerLink]="['/work-order/daily-update/',work_order_id]">Cancel</a>
+                    </div>
+ 
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

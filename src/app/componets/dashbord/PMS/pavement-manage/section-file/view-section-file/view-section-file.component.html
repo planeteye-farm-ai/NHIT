@@ -1,0 +1,142 @@
+
+<app-page-header title="View Section" title1="Section Manage" activeTitle="View Section"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Section of '+topTitle" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="sectionForm">
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Section Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="heading_count">Heading Count</label>
+                        <input type="text" class="form-control" id="heading_count" formControlName="heading_count" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="strategy_code">Strategy Code</label>
+                        <input type="text" class="form-control" id="strategy_code" formControlName="strategy_code" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road Code</label>
+                        <input type="text" class="form-control" id="road_code" formControlName="road_code" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="jurisdiction_code">Jurisdiction Code</label>
+                        <input type="text" class="form-control" id="jurisdiction_code" formControlName="jurisdiction_code" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Chainage Details:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="start_chainage">Start Chainage</label>
+                        <input type="text" class="form-control" id="start_chainage" formControlName="start_chainage" readonly>
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="end_chainage">End Chainage</label>
+                        <input type="text" class="form-control" id="end_chainage" formControlName="end_chainage" readonly>
+                    </div>
+                    
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction_flag">Direction Flag</label>
+                        <input type="text" class="form-control" id="direction_flag" formControlName="direction_flag" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Section Identification:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="section_id">Section ID</label>
+                        <input type="text" class="form-control" id="section_id" formControlName="section_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="section_name">Section Name</label>
+                        <input type="text" class="form-control" id="section_name" formControlName="section_name" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Link Details:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="link_id">Link ID</label>
+                        <input type="text" class="form-control" id="link_id" formControlName="link_id" readonly>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="link_name">Link Name</label>
+                        <input type="text" class="form-control" id="link_name" formControlName="link_name" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Flow Information:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="speed_flow">Speed Flow</label>
+                        <input type="text" class="form-control" id="speed_flow" formControlName="speed_flow" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="traffic_flow">Traffic Flow</label>
+                        <input type="text" class="form-control" id="traffic_flow" formControlName="traffic_flow" readonly>                        
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Classification Information:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="accessibility_class">Accessibility Class</label>
+                        <input type="text" class="form-control" id="accessibility_class" formControlName="accessibility_class" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_class">Road Class</label>
+                        <input type="text" class="form-control"  id="road_class" formControlName="road_class" readonly>                      
+                    </div>
+                     
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="climatic_zone">Climatic Zone</label>
+                        <input type="email" class="form-control"  id="climatic_zone" formControlName="climatic_zone" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="surface_class">Surface Class</label>
+                        <input type="text" class="form-control"  id="surface_class" formControlName="surface_class" readonly>                      
+                    </div>
+
+                    
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

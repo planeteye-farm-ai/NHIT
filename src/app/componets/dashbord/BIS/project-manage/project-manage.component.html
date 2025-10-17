@@ -1,0 +1,87 @@
+<app-page-header title="Project Manage" title1="Project Manage" activeTitle="Project Manage"></app-page-header>
+
+<div class="row">
+    <div class="col-xl-12">
+
+        <app-showcode-card [title]="'Project Manage'" [prism]="prismCode.table18">
+            <div class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2">
+                <div >
+                  <!-- <h1 class="page-title fw-medium fs-18 mb-2">Distress</h1> -->
+                </div>
+                <div class="btn-list">
+                    <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/bis/project-manage/add-project"> <i class="bx bx-plus align-middle"></i>  Add Project</a>
+                  <!-- <app-add-distress></app-add-distress> -->
+                </div>
+              </div>
+            <div class="table-responsive">
+                <table class="table text-nowrap">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">Project Name</th>
+                            <th scope="col">Project Id</th>
+                            <th scope="col">No Of Package</th>
+                            <th scope="col">Structure Type</th>
+                            <th scope="col">Mid Chainage</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Action</th>                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of tableData; track $index) {
+                            <tr>
+                                <td>{{row.projectname}}</td>
+                                <td>{{row.projectId}}</td>
+                                <td>{{row.noOfPackage}}</td>
+                                <td>{{row.structureType}}</td>
+                                <td>{{row.midChainage}}</td>
+                                <td>{{row.date | date:'yyyy-MM-dd'}}</td>
+                                <td>
+                                    <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" title="View" [routerLink]="['/bis/project-manage/view-project', row.bridge_id]"
+                                            class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                            class="ri-eye-line"></i></a>
+
+                                        <a href="javascript:void(0);" title="Edit" [routerLink]="['/bis/project-manage/edit-project', row.bridge_id]"
+                                            class="btn btn-icon btn-sm btn-info-transparent rounded-pill"><i
+                                            class="ri-edit-line"></i></a>
+
+                                        <a href="javascript:void(0);" title="Delete" data-bs-toggle="modal"
+                                        (click)="open(content,row.bridge_id)" data-bs-target="#exampleModal"
+                                            class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
+                                                class="ri-delete-bin-line"></i></a> 
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </app-showcode-card>
+    </div>
+  
+</div>
+
+    <!-- delete -->
+   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+   aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <ng-template #content let-c="close" let-d="dismiss">
+               <div class="modal-header">
+                   <h6 class="modal-title" id="exampleModalLabel1">Confirme</h6>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal"
+                       (click)="d('Cross click')" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                   Are you sure you want to delete?
+               </div>
+               <div class="modal-footer">
+                   <button type="button" class="btn btn-primary" (click)="c('Closelick')" (click)="delete()">Yes</button>
+                   <button type="button" class="btn btn-secondary" (click)="c('Closelick')"
+                       data-bs-dismiss="modal">No</button>
+               </div>
+           </ng-template>
+       </div>
+   </div>
+   </div>

@@ -1,0 +1,142 @@
+
+<app-page-header title="Add Transfer Stock" title1="Transfer Stock Manage" activeTitle="Add Transfer Stock"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Transfer Stock'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="stockForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="client_id">Client Name</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':stockForm.get('client_id')?.invalid && stockForm.get('client_id')?.touched}" id="client_id" formControlName="client_id">
+                            <option value="" selected disabled>Select name</option>
+                            <option value="" selected disabled>Select Supplier</option>
+                            @for (row of clientList; track $index) {
+                              <option value="{{row.comp_id}}">{{row.comp_name}}</option>
+                              }
+                        </select>
+                        @if(stockForm.get('client_id')?.invalid && stockForm.get('client_id')?.touched){
+                            <span  class="text-danger">Please select valid client</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="date">Date</label><span class="text-danger">*</span>
+                        <input type="date" class="form-control" [ngClass]="{ 'is-invalid':stockForm.get('date')?.invalid && stockForm.get('date')?.touched}"  id="date" formControlName="date" placeholder=" Date">
+                        @if(stockForm.get('date')?.invalid && stockForm.get('date')?.touched){
+                            <span  class="text-danger">Please enter select date</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="location">Location</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':stockForm.get('location')?.invalid && stockForm.get('location')?.touched}"  id="location" formControlName="location" placeholder="Location">
+                        @if(stockForm.get('location')?.invalid && stockForm.get('location')?.touched){
+                            <span  class="text-danger">Please enter valid location</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label" for="remark">Remark</label>
+                      <textarea class="form-control" id="remark" formControlName="remark" placeholder="Remark">
+                      </textarea>
+                  </div>
+
+                  <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Manage Products :</h1>
+                    </div>
+
+                    <div class="table-responsive">
+                        <form [formGroup]="stockForm">
+                          <table class="table text-nowrap">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Rate</th>
+                                <th scope="col">Batch Number</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody formArrayName="transferStockItems">
+                              <tr *ngFor="let item of transferStockItems.controls; let i = index" [formGroupName]="i">
+                                <td>
+                                  <select class="form-select" (change)="getBatchDropdwon(item.get('prod_ref_name')?.value,i)" [ngClass]="{ 'is-invalid':stockForm.get('prod_ref_name')?.invalid && stockForm.get('prod_ref_name')?.touched}" id="prod_ref_name" formControlName="prod_ref_name">
+                                    <option value="" selected disabled>Select product</option>
+                                    @for(row of productList; track $index){
+                                      <option value="{{row.pid}}">{{row.product_name}}</option>
+                                    }
+                                  </select>
+                                    <span class="text-danger" *ngIf="item.get('prod_ref_name')?.invalid && item.get('prod_ref_name')?.touched">
+                                      Please select prod name
+                                    </span>
+                                  </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="transfer_qty"
+                                    placeholder="Quantity"
+                                    [ngClass]="{ 'is-invalid': item.get('transfer_qty')?.invalid && item.get('transfer_qty')?.touched }"
+                                  />
+                                  <span class="text-danger" *ngIf="item.get('transfer_qty')?.invalid && item.get('transfer_qty')?.touched">
+                                    Please enter po qty
+                                  </span>
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="transfer_rate"
+                                    placeholder="Rate"
+                                    [ngClass]="{ 'is-invalid': item.get('transfer_rate')?.invalid && item.get('transfer_rate')?.touched }"
+                                  />
+                                  <span class="text-danger" *ngIf="item.get('transfer_rate')?.invalid && item.get('transfer_rate')?.touched">
+                                    Please enter rate
+                                  </span>
+                                </td>
+                                <td>
+                                  <select class="form-select" (change)="setLotNo(i)" [ngClass]="{ 'is-invalid':stockForm.get('batch_no')?.invalid && stockForm.get('batch_no')?.touched}" id="batch_no" formControlName="batch_no">
+                                    <option value="" selected disabled>Select batch</option>
+                                    @for(row of batchList[i]; track $index){
+                                      <option value="{{row.batch_no}}">{{row.batch_no}} ({{row.batchStock}})</option>
+                                    }
+                                </select>
+                                <!-- <input type="text" class="form-control" formControlName="lot_no" placeholder="lot_no" > -->
+
+                                  <span class="text-danger" *ngIf="item.get('batch_no')?.invalid && item.get('batch_no')?.touched">
+                                    Please enter batch no
+                                  </span>
+                                </td>
+                                <td>
+                                    @if(i != 0 ){
+                                      <a href="javascript:void(0);" title="Delete" data-bs-toggle="modal" (click)="removeRow(i)" class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i class="ri-delete-bin-line"></i></a>
+                                    }
+
+                                </td>
+                              </tr>
+                                <a href="javascript:void(0);" title="Delete" (click)="addStockTransferItem()" data-bs-toggle="modal" class=" mt-2 btn btn-primary">Add New Product</a>
+                            </tbody>
+                          </table>
+                        </form>
+                      </div>
+                  
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                      <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/material/transfer-stock">Cancel</a>
+                      <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

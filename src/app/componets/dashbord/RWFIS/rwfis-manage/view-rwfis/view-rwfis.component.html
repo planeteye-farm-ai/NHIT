@@ -1,0 +1,154 @@
+
+<app-page-header title="View RWFIS" title1="RWFIS Manage" activeTitle="View RWFIS"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View RWFIS of '+topTitle" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="rwfisForm">
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label>
+                        <input type="text" class="form-control" id="state_id" formControlName="state_id" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label>
+                        <input type="text" class="form-control" id="district_id" formControlName="district_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label>
+                        <input type="text" class="form-control" id="city_id" formControlName="city_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_name">Road Name</label>
+                        <input type="text" class="form-control" id="road_name" formControlName="road_name" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road Code</label>
+                        <input type="text" class="form-control" id="road_code" formControlName="road_code" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="total_length_km">Total Length (km)</label>
+                        <input type="text" class="form-control" id="total_length_km" formControlName="total_length_km" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="survey_year">Survey Year</label>
+                        <input type="text" class="form-control" id="survey_year" formControlName="survey_year" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="survey_date">Survey Date</label>
+                        <input type="text" class="form-control" id="survey_date" formControlName="survey_date" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Chainage Information</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction">Direction</label>
+                        <input type="text" class="form-control" id="direction" formControlName="direction" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_start">Chainage Start</label>
+                        <input type="text" class="form-control" id="chainage_start" formControlName="chainage_start" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_end">Chainage End</label>
+                        <input type="text" class="form-control" id="chainage_end" formControlName="chainage_end" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Detailed Roadside Feature Data (For Each Chainage)</h1>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage">Chainage</label>
+                        <input type="text" class="form-control" id="chainage" formControlName="chainage" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cross_section_location">Cross Section Location</label>
+                        <input type="text" class="form-control" id="cross_section_location" formControlName="cross_section_location" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="offset_from_center_line">Offset From Center-Line (m)</label>
+                        <input type="text" class="form-control" id="offset_from_center_line" formControlName="offset_from_center_line" readonly>                        
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="feature_type">Feature Type</label>
+                        <input type="text" class="form-control" id="feature_type" formControlName="feature_type" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="material_type">Material Type</label>
+                        <input type="text" class="form-control"  id="material_type" formControlName="material_type" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="feature_condition">Feature Condition</label>
+                        <input type="email" class="form-control"  id="feature_condition" formControlName="feature_condition" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="safety_hazard">Safety Hazard</label>
+                        <input type="text" class="form-control"  id="safety_hazard" formControlName="safety_hazard" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="land_use">Land Use</label>
+                        <input type="text" class="form-control"  id="land_use" formControlName="land_use" readonly>                     
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="terrain">Terrain</label>
+                        <input type="number" class="form-control" id="terrain" formControlName="terrain" readonly/>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="latitude">Latitude</label>
+                        <input type="text" class="form-control"  id="latitude" formControlName="latitude" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="longitude">Longitude</label>
+                        <input type="text" class="form-control"  id="longitude" formControlName="longitude" readonly>             
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="altitude">Altitude</label>
+                        <input type="text" class="form-control" id="altitude" formControlName="altitude" readonly>
+                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="remarks">Remarks</label>
+                        <input type="text" class="form-control"  id="remarks" formControlName="remarks" readonly>                       
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

@@ -1,0 +1,290 @@
+
+<app-page-header title="Update Traffic" title1="Traffic Manage" activeTitle="Update Traffic"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Update Traffic of '+topTitle" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="trafficForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        
+                        <label class="form-label" for="data_collection_year">Data Collection Year</label><span class="text-danger">*</span>
+                        <!-- <input type="date" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('data_collection_year')?.invalid && trafficForm.get('data_collection_year')?.touched}"  id="data_collection_year" formControlName="data_collection_year" placeholder="Data Collection Year"> -->
+                        <select  class="form-control"
+                            [ngClass]="{ 'is-invalid': trafficForm.get('data_collection_year')?.invalid && trafficForm.get('data_collection_year')?.touched }"
+                            id="data_collection_year"
+                            formControlName="data_collection_year"
+                            >
+                            @for (row of years; track $index) {
+                                <option value="{{row}}">{{ row }}</option>
+                            }
+                            </select>
+
+                        @if(trafficForm.get('data_collection_year')?.invalid && trafficForm.get('data_collection_year')?.touched){
+                            <span  class="text-danger">Please select valid Year</span>
+                        }
+                    </div>
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label><span class="text-danger">*</span>
+                        <select (change)="getDistrctList(trafficForm.get('state_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':trafficForm.get('state_id')?.invalid && trafficForm.get('state_id')?.touched}" id="state_id" formControlName="state_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of stateList; track $index) {
+                            <option value="{{row.state_id}}">{{row.state_name}}</option>
+                            }
+                        </select>   
+                        @if(trafficForm.get('state_id')?.invalid && trafficForm.get('state_id')?.touched){
+                            <span  class="text-danger">Please select valid state</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label><span class="text-danger">*</span>
+                        <select  (change)="getCitytList(trafficForm.get('district_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':trafficForm.get('district_id')?.invalid && trafficForm.get('district_id')?.touched}" id="district_id" formControlName="district_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of districtList; track $index) {
+                              <option value="{{row.district_id}}">{{row.district_name}}</option> 
+                            }
+                        </select>   
+                        @if(trafficForm.get('district_id')?.invalid && trafficForm.get('district_id')?.touched){
+                            <span  class="text-danger">Please select valid district</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':trafficForm.get('city_id')?.invalid && trafficForm.get('city_id')?.touched}" id="city_id" formControlName="city_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of cityList; track $index) {
+                                 <option value="{{row.city_id}}">{{row.city_name}}</option>  
+                            }
+                        </select>   
+                        @if(trafficForm.get('city_id')?.invalid && trafficForm.get('city_id')?.touched){
+                            <span  class="text-danger">Please select valid Block</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_name"> Road Name</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':trafficForm.get('road_name')?.invalid && trafficForm.get('road_name')?.touched}" id="road_name" formControlName="road_name">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of roadList; track $index) {
+                             <option value="{{row.geometry_data_id}}">{{row.name_of_road}}</option> 
+                            }  
+                        </select>   
+                        @if(trafficForm.get('road_name')?.invalid && trafficForm.get('road_name')?.touched){
+                            <span  class="text-danger">Please select valid Road name</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road ID/Code</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('road_code')?.invalid && trafficForm.get('road_code')?.touched}" id="road_code" formControlName="road_code" placeholder="Road ID/Code">
+                        @if(trafficForm.get('road_code')?.invalid && trafficForm.get('road_code')?.touched){
+                            <span  class="text-danger">Please enter valid road code</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction">Direction</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':trafficForm.get('direction')?.invalid && trafficForm.get('direction')?.touched}" id="direction" formControlName="direction">
+                            <option value="" selected disabled>Select Direction</option>
+                            <option value="Increasing">Increasing</option>
+                            <option value="Decreasing">Decreasing</option>
+                        </select>
+                        @if(trafficForm.get('direction')?.invalid && trafficForm.get('direction')?.touched){
+                            <span  class="text-danger">Please select valid direction</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="total_length_km">Total Length (km)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('total_length_km')?.invalid && trafficForm.get('total_length_km')?.touched}" id="total_length_km" formControlName="total_length_km" placeholder="Total Length (km)">
+                        @if(trafficForm.get('total_length_km')?.invalid && trafficForm.get('total_length_km')?.touched){
+                            <span  class="text-danger">Please enter valid total length (km)</span>
+                        } 
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Chainage Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_start">Chainage Start</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('chainage_start')?.invalid && trafficForm.get('chainage_start')?.touched}" id="chainage_start" formControlName="chainage_start" placeholder="Chainage Start">
+                        @if(trafficForm.get('chainage_start')?.invalid && trafficForm.get('chainage_start')?.touched){
+                            <span class="text-danger">Please enter valid chainage start</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_end">Chainage End</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('chainage_end')?.invalid && trafficForm.get('chainage_end')?.touched}" id="chainage_end" formControlName="chainage_end" placeholder="Chainage End">
+                        @if(trafficForm.get('chainage_end')?.invalid && trafficForm.get('chainage_end')?.touched){
+                            <span  class="text-danger">Please enter valid chainage end</span>
+                        } 
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Traffic Distribution (In Vehicles):</h1><br>
+                        <h2 class="page-title fw-medium fs-14 mb-2">Passenger Vehicles:</h2>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="scooter_motor_cycle">Scooter/Motor Cycle</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('scooter_motor_cycle')?.invalid && trafficForm.get('scooter_motor_cycle')?.touched}" id="scooter_motor_cycle" formControlName="scooter_motor_cycle" placeholder="Scooter/Motor Cycle">
+                        @if(trafficForm.get('scooter_motor_cycle')?.invalid && trafficForm.get('scooter_motor_cycle')?.touched){
+                            <span  class="text-danger">Please enter valid scooter/motor cycle</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="three_wheeler_auto">3-Wheeler/Auto</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('three_wheeler_auto')?.invalid && trafficForm.get('three_wheeler_auto')?.touched}" id="three_wheeler_auto" formControlName="three_wheeler_auto" placeholder="3-Wheeler/Auto">
+                        @if(trafficForm.get('three_wheeler_auto')?.invalid && trafficForm.get('three_wheeler_auto')?.touched){
+                            <span  class="text-danger">Please enter valid 3-wheeler/auto</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="car_jeep_van_taxi">Car/Jeep/Van/Taxi </label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('car_jeep_van_taxi')?.invalid && trafficForm.get('car_jeep_van_taxi')?.touched}" id="car_jeep_van_taxi" formControlName="car_jeep_van_taxi" placeholder="Car/Jeep/Van/Taxi">
+                        @if(trafficForm.get('car_jeep_van_taxi')?.invalid && trafficForm.get('car_jeep_van_taxi')?.touched){
+                            <span  class="text-danger">Please enter valid Car/Jeep/Van/Taxi</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="mini_bus">Mini Bus</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('mini_bus')?.invalid && trafficForm.get('mini_bus')?.touched}" id="mini_bus" formControlName="mini_bus" placeholder="Mini Bus">
+                        @if(trafficForm.get('mini_bus')?.invalid && trafficForm.get('mini_bus')?.touched){
+                            <span  class="text-danger">Please enter valid mini bus</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="standard_bus">Standard Bus</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('standard_bus')?.invalid && trafficForm.get('standard_bus')?.touched}" id="standard_bus" formControlName="standard_bus" placeholder="Standard Bus">
+                        @if(trafficForm.get('standard_bus')?.invalid && trafficForm.get('standard_bus')?.touched){
+                            <span  class="text-danger">Please enter valid standard bus</span>
+                        } 
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h2 class="page-title fw-medium fs-14 mb-2">Goods Vehicles:</h2>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="tempo">Tempo</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('tempo')?.invalid && trafficForm.get('tempo')?.touched}" id="tempo" formControlName="tempo" placeholder="Tempo">
+                        @if(trafficForm.get('tempo')?.invalid && trafficForm.get('tempo')?.touched){
+                            <span  class="text-danger">Please enter valid tempo</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="lcv">Light Commercial Vehicle (LCV)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('lcv')?.invalid && trafficForm.get('lcv')?.touched}" id="lcv" formControlName="lcv" placeholder="Light Commercial Vehicle (LCV)">
+                        @if(trafficForm.get('lcv')?.invalid && trafficForm.get('lcv')?.touched){
+                            <span  class="text-danger">Please enter valid light commercial vehicle (LCV)</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="two_axle_trucks">2-Axle Trucks</label><span class="text-danger">*</span>
+                        <input type="email" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('two_axle_trucks')?.invalid && trafficForm.get('two_axle_trucks')?.touched}"  id="two_axle_trucks" formControlName="two_axle_trucks" placeholder="2-Axle Trucks">
+                        @if(trafficForm.get('two_axle_trucks')?.invalid && trafficForm.get('two_axle_trucks')?.touched){
+                            <span  class="text-danger">Please enter valid 2-axle trucks</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="three_axle_trucks">3-Axle Trucks</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('three_axle_trucks')?.invalid && trafficForm.get('three_axle_trucks')?.touched}" id="three_axle_trucks" formControlName="three_axle_trucks" placeholder="3-Axle Trucks">
+                        @if(trafficForm.get('three_axle_trucks')?.invalid && trafficForm.get('three_axle_trucks')?.touched){
+                            <span  class="text-danger">Please enter valid 3-axle trucks</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="multi_axle_truck">Multi-Axle Truck</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('multi_axle_truck')?.invalid && trafficForm.get('multi_axle_truck')?.touched}" id="multi_axle_truck" formControlName="multi_axle_truck" placeholder="Multi-Axle Truck">
+                        @if(trafficForm.get('multi_axle_truck')?.invalid && trafficForm.get('multi_axle_truck')?.touched){
+                            <span  class="text-danger">Please enter valid multi axle truck</span>
+                        } 
+                    </div>
+
+                                       
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="tractor_without_trailer">Tractor without Trailer</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('tractor_without_trailer')?.invalid && trafficForm.get('tractor_without_trailer')?.touched}" id="Tractor without Trailer" formControlName="tractor_without_trailer" placeholder="Tractor without Trailer">
+                        @if(trafficForm.get('tractor_without_trailer')?.invalid && trafficForm.get('tractor_without_trailer')?.touched){
+                            <span  class="text-danger">Please enter valid tractor without trailer</span>
+                        } 
+                     </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="tractor_with_trailer">Tractor with Trailer</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('tractor_with_trailer')?.invalid && trafficForm.get('tractor_with_trailer')?.touched}" id="tractor_with_trailer" formControlName="tractor_with_trailer" placeholder="Tractor with Trailer">
+                        @if(trafficForm.get('tractor_with_trailer')?.invalid && trafficForm.get('tractor_with_trailer')?.touched){
+                            <span  class="text-danger">Please enter valid tractor with trailer</span>
+                        } 
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h2 class="page-title fw-medium fs-14 mb-2"> Non-Motorized Traffic:</h2>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cycle">Cycle</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('cycle')?.invalid && trafficForm.get('cycle')?.touched}" id="cycle" formControlName="cycle" placeholder="Cycle">
+                        @if(trafficForm.get('cycle')?.invalid && trafficForm.get('cycle')?.touched){
+                            <span  class="text-danger">Please enter valid cycle</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cycle_rickshaw">Cycle Rickshaw</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('cycle_rickshaw')?.invalid && trafficForm.get('cycle_rickshaw')?.touched}" id="cycle_rickshaw" formControlName="cycle_rickshaw" placeholder="Cycle Rickshaw">
+                        @if(trafficForm.get('cycle_rickshaw')?.invalid && trafficForm.get('cycle_rickshaw')?.touched){
+                            <span  class="text-danger">Please enter valid cycle rickshaw</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="animal_drawn_vehicle">Animal-Drawn Vehicle</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('animal_drawn_vehicle')?.invalid && trafficForm.get('animal_drawn_vehicle')?.touched}" id="animal_drawn_vehicle" formControlName="animal_drawn_vehicle" placeholder="Animal-Drawn Vehicle">
+                        @if(trafficForm.get('animal_drawn_vehicle')?.invalid && trafficForm.get('animal_drawn_vehicle')?.touched){
+                            <span  class="text-danger">Please enter valid animal drawn vehicle</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="other_non_motorized_traffic">Others</label><span class="text-danger">*</span>
+                        <textarea class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('other_non_motorized_traffic')?.invalid && trafficForm.get('other_non_motorized_traffic')?.touched}" id="other_non_motorized_traffic" formControlName="other_non_motorized_traffic" placeholder="Others"></textarea>
+                        @if(trafficForm.get('other_non_motorized_traffic')?.invalid && trafficForm.get('other_non_motorized_traffic')?.touched){
+                            <span  class="text-danger">Please enter valid traffic lane on bridge</span>
+                        }
+                    </div>
+                   
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

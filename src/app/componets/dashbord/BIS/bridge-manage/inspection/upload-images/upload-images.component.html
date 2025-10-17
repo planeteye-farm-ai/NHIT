@@ -1,0 +1,83 @@
+
+<app-page-header title="Upload Images" title1="Upload Images" activeTitle="Upload Images"></app-page-header>
+
+<div class="row">
+    <div class="col-xl-12">
+
+        <app-showcode-card [title]="'Upload Images'" >
+            <!-- <div class="row">
+                @for (image of inspectionImages; track image) {
+              
+                    <img style="height: 100px; width: 150px;margin-bottom: 25px;" [src]="urlLive+'/upload/inspection_extra_images/'+image.name" class="img-fluid rounded" data-bs-toggle="modal"
+                     data-bs-target="#exampleModalXls" (click)="openVerticallyCentered(Content2,image.name)" alt="...">
+                    <button type="button" class="btn btn-danger-light btn-wave me-2">
+                    <a href="javascript:void(0);">Delete</a>
+                    </button>
+                }
+              
+            </div> -->
+            <div class="d-flex flex-wrap">
+                @for (image of inspectionImages; track image) {
+                    <div style="position: relative; margin: 10px;">
+                        <img 
+                            style="height: 100px; width: 150px;" 
+                            [src]="urlLive+'/upload/inspection_extra_images/'+image.image_path" 
+                            class="img-fluid rounded" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#exampleModalXls" 
+                            (click)="openVerticallyCentered(Content2, image.image_path)" 
+                            alt="..."
+                        >
+                        <button 
+                            type="button" 
+                            class="btn btn-danger btn-sm" 
+                            style="position: absolute; top: 5px; right: 5px; z-index: 1; background-color: rgba(255, 0, 0, 0.7); border: none;" 
+                            (click)="deleteImage(image.in_id)">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                }
+            </div>
+            
+            <div class="row mt-2">
+                <div class="col-md-4">
+                </div>
+                <div class="col-md-4">
+                    <input class="form-control" type="file" multiple capture (change)="onSelect($event)"accept=".jpg,.jpeg,.png,.svg,.webp">
+                    <span class="mt-2">Only .jpg, .jpeg, webp, svg and .png are allowed.</span>
+                </div>
+            </div>
+
+            <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                    <button type="submit" class="btn btn-primary" (click)="save()">Save</button>
+            </div>   
+
+           
+            
+        </app-showcode-card>
+    </div>
+  
+</div>
+
+
+
+<div class="modal fade" id="exampleModalXl" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <ng-template #Content2 let-c="close" let-d="dismiss">
+        <div class="modal-content">
+            <img [src]="urlLive+'/upload/inspection_extra_images/'+imageOpen" class="img-fluid rounded" alt="...">
+            <!-- <button 
+            type="button" 
+            class="btn btn-danger btn-sm" 
+            style="position: absolute; top: 5px; right: 5px; z-index: 1; background-color: rgba(255, 0, 0, 0.7); border: none;" 
+            >
+            <i class="ri-delete-bin-line"></i>
+        </button> -->
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+        style="position: absolute; top: 5px; right: 5px; z-index: 1;  border: none;"
+        (click)="d('Cross click')" aria-label="Close">
+        </button>
+        </div>
+      </ng-template>
+    </div>
+  </div>

@@ -1,0 +1,124 @@
+
+<app-page-header title="Add Traffic" title1="Traffic Manage" activeTitle="Add Traffic"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Traffic'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="trafficForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        
+                        <label class="form-label" for="data_collection_year">Data Collection Year</label><span class="text-danger">*</span>
+                        <!-- <input type="date" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('data_collection_year')?.invalid && trafficForm.get('data_collection_year')?.touched}"  id="data_collection_year" formControlName="data_collection_year" placeholder="Data Collection Year"> -->
+                        <select  class="form-control"
+                            [ngClass]="{ 'is-invalid': trafficForm.get('data_collection_year')?.invalid && trafficForm.get('data_collection_year')?.touched }"
+                            id="data_collection_year"
+                            formControlName="data_collection_year"
+                            >
+                            @for (row of years; track $index) {
+                                <option value="{{row}}">{{ row }}</option>
+                            }
+                            </select>
+
+                        @if(trafficForm.get('data_collection_year')?.invalid && trafficForm.get('data_collection_year')?.touched){
+                            <span  class="text-danger">Please select valid year</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label><span class="text-danger">*</span>
+                        <select (change)="getDistrctList(trafficForm.get('state_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':trafficForm.get('state_id')?.invalid && trafficForm.get('state_id')?.touched}" id="state_id" formControlName="state_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of stateList; track $index) {
+                            <option value="{{row.state_id}}">{{row.state_name}}</option>
+                            }
+                        </select>   
+                        @if(trafficForm.get('state_id')?.invalid && trafficForm.get('state_id')?.touched){
+                            <span  class="text-danger">Please select valid state</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label><span class="text-danger">*</span>
+                        <select  (change)="getCitytList(trafficForm.get('district_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':trafficForm.get('district_id')?.invalid && trafficForm.get('district_id')?.touched}" id="district_id" formControlName="district_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of districtList; track $index) {
+                              <option value="{{row.district_id}}">{{row.district_name}}</option> 
+                            }
+                        </select>   
+                        @if(trafficForm.get('district_id')?.invalid && trafficForm.get('district_id')?.touched){
+                            <span  class="text-danger">Please select valid district</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':trafficForm.get('city_id')?.invalid && trafficForm.get('city_id')?.touched}" id="city_id" formControlName="city_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of cityList; track $index) {
+                                 <option value="{{row.city_id}}">{{row.city_name}}</option>  
+                            }
+                        </select>   
+                        @if(trafficForm.get('city_id')?.invalid && trafficForm.get('city_id')?.touched){
+                            <span  class="text-danger">Please select valid Block</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_name"> Road Name</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':trafficForm.get('road_name')?.invalid && trafficForm.get('road_name')?.touched}" id="road_name" formControlName="road_name">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of roadList; track $index) {
+                             <option value="{{row.geometry_data_id}}">{{row.name_of_road}}</option> 
+                            }  
+                        </select>   
+                        @if(trafficForm.get('road_name')?.invalid && trafficForm.get('road_name')?.touched){
+                            <span  class="text-danger">Please select valid Road name</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road ID/Code</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('road_code')?.invalid && trafficForm.get('road_code')?.touched}" id="road_code" formControlName="road_code" placeholder="Road ID/Code">
+                        @if(trafficForm.get('road_code')?.invalid && trafficForm.get('road_code')?.touched){
+                            <span  class="text-danger">Please enter valid road code</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction">Direction</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':trafficForm.get('direction')?.invalid && trafficForm.get('direction')?.touched}" id="direction" formControlName="direction">
+                            <option value="" selected disabled>Select Direction</option>
+                            <option value="Increasing">Increasing</option>
+                            <option value="Decreasing">Decreasing</option>
+                        </select>
+                        @if(trafficForm.get('direction')?.invalid && trafficForm.get('direction')?.touched){
+                            <span  class="text-danger">Please select valid direction</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="total_length_km">Total Length (km)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':trafficForm.get('total_length_km')?.invalid && trafficForm.get('total_length_km')?.touched}" id="total_length_km" formControlName="total_length_km" placeholder="Total Length (km)">
+                        @if(trafficForm.get('total_length_km')?.invalid && trafficForm.get('total_length_km')?.touched){
+                            <span  class="text-danger">Please enter valid total length (km)</span>
+                        } 
+                    </div>
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

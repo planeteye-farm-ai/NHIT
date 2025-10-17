@@ -1,0 +1,103 @@
+
+<app-page-header title="Add Daily Update" title1="Manage Daily Update" activeTitle="Add Daily Update"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Daily Update'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="dailyUpdateForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="daily_update_date">Date</label><span class="text-danger">*</span>
+                        <input type="date" class="form-control" [ngClass]="{ 'is-invalid':dailyUpdateForm.get('daily_update_date')?.invalid && dailyUpdateForm.get('daily_update_date')?.touched}"  id="daily_update_date" formControlName="daily_update_date" placeholder="Date">
+                        @if(dailyUpdateForm.get('daily_update_date')?.invalid && dailyUpdateForm.get('daily_update_date')?.touched){
+                            <span  class="text-danger">Please enter valid date</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="progress_update">Progress Update (km/m² completed)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':dailyUpdateForm.get('progress_update')?.invalid && dailyUpdateForm.get('progress_update')?.touched}"  id="progress_update" formControlName="progress_update" placeholder="Progress Update">
+                        @if(dailyUpdateForm.get('progress_update')?.invalid && dailyUpdateForm.get('progress_update')?.touched){
+                            <span  class="text-danger">Please enter valid progress update</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="site_photos">Site Photos</label><span class="text-danger">*</span>
+                        <input type="file" class="form-control" [ngClass]="{ 'is-invalid':dailyUpdateForm.get('site_photos')?.invalid && dailyUpdateForm.get('site_photos')?.touched}"  id="site_photos" formControlName="site_photos" placeholder="Site Photos">
+                        @if(dailyUpdateForm.get('site_photos')?.invalid && dailyUpdateForm.get('site_photos')?.touched){
+                            <span  class="text-danger">Please selecr valid site photos</span>
+                        }
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="gps_evidence_attached">GPS Evidence Attached</label><span class="text-danger">*</span>
+                        <select class="form-select"  [ngClass]="{ 'is-invalid':dailyUpdateForm.get('gps_evidence_attached')?.invalid && dailyUpdateForm.get('gps_evidence_attached')?.touched}" id="gps_evidence_attached" formControlName="gps_evidence_attached">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(dailyUpdateForm.get('gps_evidence_attached')?.invalid && dailyUpdateForm.get('gps_evidence_attached')?.touched){
+                            <span  class="text-danger">Please select GPS evidence attached or not</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="names_links">Names Links</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':dailyUpdateForm.get('names_links')?.invalid && dailyUpdateForm.get('names_links')?.touched}"  id="names_links" formControlName="names_links" placeholder="Names Links">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="challenges_delays_faced">Challenges Delays Faced</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':dailyUpdateForm.get('challenges_delays_faced')?.invalid && dailyUpdateForm.get('challenges_delays_faced')?.touched}"  id="challenges_delays_faced" formControlName="challenges_delays_faced" placeholder="Challenges Delays Faced">
+                        @if(dailyUpdateForm.get('challenges_delays_faced')?.invalid && dailyUpdateForm.get('challenges_delays_faced')?.touched){
+                            <span  class="text-danger">Please enter valid challenges delays faced</span>
+                        }
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="statistical_analysis_required">Statistical Analysis Required</label><span class="text-danger">*</span>
+                        <select class="form-select"  [ngClass]="{ 'is-invalid':dailyUpdateForm.get('statistical_analysis_required')?.invalid && dailyUpdateForm.get('statistical_analysis_required')?.touched}" id="statistical_analysis_required" formControlName="statistical_analysis_required">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(dailyUpdateForm.get('statistical_analysis_required')?.invalid && dailyUpdateForm.get('statistical_analysis_required')?.touched){
+                            <span  class="text-danger">Please select valid statistical analysis required</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="site_supervisor_name_signature">Site Supervisor/Name Signature</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':dailyUpdateForm.get('site_supervisor_name_signature')?.invalid && dailyUpdateForm.get('site_supervisor_name_signature')?.touched}"  id="site_supervisor_name_signature" formControlName="site_supervisor_name_signature" placeholder="Site Supervisor Name Signature">
+                        @if(dailyUpdateForm.get('site_supervisor_name_signature')?.invalid && dailyUpdateForm.get('site_supervisor_name_signature')?.touched){
+                            <span  class="text-danger">Please enter valid site supervisor name signature</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="additional_comments">Additional Comments</label><span class="text-danger">*</span>
+                        <textarea class="form-control" [ngClass]="{ 'is-invalid':dailyUpdateForm.get('additional_comments')?.invalid && dailyUpdateForm.get('additional_comments')?.touched}"  id="additional_comments" formControlName="additional_comments" placeholder="Additional Comments"></textarea>
+                        @if(dailyUpdateForm.get('additional_comments')?.invalid && dailyUpdateForm.get('additional_comments')?.touched){
+                            <span  class="text-danger">Please enter valid additional comments</span>
+                        }
+                    </div>
+
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                      <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" [routerLink]="['/work-order/daily-update/',work_order_id]">Cancel</a>
+                      <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

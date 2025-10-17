@@ -1,0 +1,86 @@
+<app-page-header title="Labour Manage" title1="Labour Manage" activeTitle="Labour Manage"></app-page-header>
+
+<div class="row">
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Labour Manage'" [prism]="prismCode.table18">
+            <div class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2">
+                <div >
+                  <!-- <h1 class="page-title fw-medium fs-18 mb-2">Distress</h1> -->
+                </div>
+                <div class="btn-list">
+                    <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/labour-management/add-labour"> <i class="bx bx-plus align-middle"></i>Add Labour</a>
+                  <!-- <app-add-distress></app-add-distress> -->
+                </div>
+              </div>
+            <div class="table-responsive">
+                <table class="table text-nowrap">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">Sr No</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">CREW ID</th>
+                            <th scope="col">Labour Type</th>
+                            <th scope="col">Contact Number</th>
+                            <th scope="col">Gender</th>
+                            <th scope="col">Action</th>                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of tableData; track $index) {
+                            <tr>
+                                <td>{{$index+1}}</td>
+                                <td>{{row.first_name}} {{row.last_name}}</td>
+                                <td>{{row.crew_id}}</td>
+                                <td>{{row.labour_type}}</td>
+                                <td>{{row.contact_number}}</td>
+                                <td>{{row.gender}}</td>
+                                <td>
+                                    <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" title="View" [routerLink]="['/labour-management/view-labour', row.l_id]"
+                                            class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
+                                            class="ri-eye-line"></i></a>
+
+                                        <a href="javascript:void(0);" title="Edit" [routerLink]="['/labour-management/edit-labour', row.l_id]"
+                                            class="btn btn-icon btn-sm btn-info-transparent rounded-pill"><i
+                                            class="ri-edit-line"></i></a>
+
+                                       <a href="javascript:void(0);" title="Delete" data-bs-toggle="modal"
+                                        (click)="open(content,row.l_id)" data-bs-target="#exampleModal"
+                                            class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
+                                                class="ri-delete-bin-line"></i></a>
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </app-showcode-card>
+    </div>
+  
+</div>
+
+    <!-- delete -->
+   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+   aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <ng-template #content let-c="close" let-d="dismiss">
+               <div class="modal-header">
+                   <h6 class="modal-title" id="exampleModalLabel1">Confirm</h6>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal"
+                       (click)="d('Cross click')" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                   Are you sure you want to delete?
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" (click)="c('Closelick')" (click)="delete()">Yes</button>
+                   <button type="button" class="btn btn-secondary" (click)="c('Closelick')"
+                       data-bs-dismiss="modal">No</button>  
+               </div>
+           </ng-template>
+       </div>
+   </div>
+   </div>

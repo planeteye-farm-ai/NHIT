@@ -1,0 +1,1509 @@
+<div class="row pdf-container" id="pdf-content">
+  <div class="col-xl-12">
+      <!-- <app-showcode-card [title]="'View Inspection'" [prism]="prismCode.formlayouts10"> -->
+        <h3 style="text-align: center; font-weight: 600;" class="mt-5 mb-4">Inspection Report of - {{insepectionData.popular_name_of_bridge}} </h3>
+          <div class="row">
+            @if(insepectionData.popular_name_of_bridge){
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="bridgeName">Bridge Name</label>
+                <input type="text" class="form-control" value="{{insepectionData.popular_name_of_bridge}}" readonly>
+              </div>
+            }
+            @if(insepectionData.highway_no){
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="highway_no">Road/ Highway No</label>
+                <input type="text" class="form-control" value="{{insepectionData.highway_no}}" readonly>
+              </div>
+            }
+            @if(insepectionData.type_of_Bridge){
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="type_of_Bridge">Type of Bridge</label>
+                <input type="text" class="form-control" value="{{insepectionData.type_of_Bridge}}" readonly>
+              </div>
+            }
+            @if(insepectionData.duration_of_inspection){
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="duration_of_inspection">Duration Of Inspection</label>
+                <input type="text" class="form-control" value="{{insepectionData.duration_of_inspection}}" readonly>
+              </div>
+            }
+            <div class="row">
+              @if(insepectionData.erosion_of_embankment){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="erosion_of_embankment">Erosion Embankment</label>
+                    <input type="text" class="form-control" value="{{insepectionData.erosion_of_embankment}}" readonly>
+                    <br>
+                    @if(insepectionData.erosion_of_embankment_image){
+                        <label class="form-label" for="erosion_of_embankment_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.erosion_of_embankment_image" alt="Image" width="70%" />
+                
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.approach_slab){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="approach_slab">Approach Slab</label>
+                    <input type="text" class="form-control" value="{{insepectionData.approach_slab}}" readonly>
+                    <br>
+                    @if(insepectionData.approach_slab_image){
+                        <label class="form-label" for="approach_slab_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.approach_slab_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.approach_geometry){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="approach_geometry">Approach Geometries</label>
+                    <input type="text" class="form-control" value="{{insepectionData.approach_geometry}}" readonly>
+                    <br>
+                    @if(insepectionData.approach_geometry_image){
+                        <label class="form-label" for="approach_geometry_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.approach_geometry_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.accumulation_on_approaches){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="accumulation_on_approaches">Silt And Debris On Submersible Approaches</label>
+                    <input type="text" class="form-control" value="{{insepectionData.accumulation_on_approaches}}" readonly>
+                    <br>
+                    @if(insepectionData.accumulation_on_approaches_image){
+                        <label class="form-label" for="accumulation_on_approaches_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.accumulation_on_approaches_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.protective_work_type){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="protective_work_type">Type Of Protective Works</label>
+                    <input type="text" class="form-control" value="{{insepectionData.protective_work_type}}" readonly>
+                    <br>
+                    @if(insepectionData.protective_work_type_image){
+                        <label class="form-label" for="protective_work_type_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.protective_work_type_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.protective_layout_damage){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="protective_layout_damage">Layout And Cross-Section Profile Damage</label>
+                    <input type="text" class="form-control" value="{{insepectionData.protective_layout_damage}}" readonly>
+                    <br>
+                    @if(insepectionData.protective_layout_damage_image){
+                        <label class="form-label" for="protective_layout_damage_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.protective_layout_damage_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.protective_slope_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="protective_slope_condition">Slope Pitching Condition</label>
+                    <input type="text" class="form-control" value="{{insepectionData.protective_slope_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.protective_slope_condition_image){
+                        <label class="form-label" for="protective_slope_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.protective_slope_condition_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.floor_protection_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="floor_protection_condition">Floor Protection Condition</label>
+                    <input type="text" class="form-control" value="{{insepectionData.floor_protection_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.floor_protection_condition_image){
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label" for="floor_protection_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.floor_protection_condition_image" alt="Image" width="70%" />
+                         
+                      </div>
+                    }
+                  </div>
+              }
+
+              
+              @if(insepectionData.abnormal_scour){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="abnormal_scour">Scour Condition</label>
+                    <input type="text" class="form-control" value="{{insepectionData.abnormal_scour}}" readonly>
+                    <br>
+                    @if(insepectionData.abnormal_scour_image){
+                        <label class="form-label" for="abnormal_scour_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.abnormal_scour_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+              @if(insepectionData.reserve_stone_material){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="reserve_stone_material">Reserve Stone Material</label>
+                    <input type="text" class="form-control" value="{{insepectionData.reserve_stone_material}}" readonly>
+                    <br>
+                    @if(insepectionData.reserve_stone_material_image){
+                        <label class="form-label" for="reserve_stone_material_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.reserve_stone_material_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+
+              @if(insepectionData.waterway_obstruction){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="waterway_obstruction">Waterway Condition</label>
+                    <input type="text" class="form-control" value="{{insepectionData.waterway_obstruction}}" readonly>
+                    <br>
+                    @if(insepectionData.waterway_obstruction_image){
+                        <label class="form-label" for="waterway_obstruction_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.waterway_obstruction_image" alt="Image" width="70%" />
+                    }
+
+                  </div>
+              }
+
+
+              @if(insepectionData.flow_pattern_change){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="flow_pattern_change">Any Changes In Flow Pattern</label>
+                    <input type="text" class="form-control" value="{{insepectionData.flow_pattern_change}}" readonly>
+                    <br>
+                    @if(insepectionData.flow_pattern_change_image){
+                        <label class="form-label" for="flow_pattern_change_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.flow_pattern_change_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+              @if(insepectionData.max_flood_level){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="max_flood_level">Maximum Flood Level (U/S)</label>
+                    <input type="text" class="form-control" value="{{insepectionData.max_flood_level}}" readonly>
+                    <br>
+                    @if(insepectionData.max_flood_level_image){
+                        <label class="form-label" for="max_flood_level_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.max_flood_level_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+              @if(insepectionData.abnormal_afflux){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="abnormal_afflux">Abnormal Afflux</label>
+                    <input type="text" class="form-control" value="{{insepectionData.abnormal_afflux}}" readonly>
+                    <br>
+                    @if(insepectionData.abnormal_afflux_image){
+                        <label class="form-label" for="abnormal_afflux_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.abnormal_afflux_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.waterway_adequacy){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="waterway_adequacy">Adequacy Of Waterway</label>
+                    <input type="text" class="form-control" value="{{insepectionData.waterway_adequacy}}" readonly>
+                    <br>
+                    @if(insepectionData.waterway_adequacy_image){
+                        <label class="form-label" for="waterway_adequacy_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.waterway_adequacy_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.foundation_settlement){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="foundation_settlement">Settlement Shifting Of Wells</label>
+                    <input type="text" class="form-control" value="{{insepectionData.foundation_settlement}}" readonly>
+                    <br>
+                    @if(insepectionData.foundation_settlement_image){
+                        <label class="form-label" for="foundation_settlement_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.foundation_settlement_image" alt="Image" width="70%" />
+                    }
+
+                  </div>
+              }
+
+              @if(insepectionData.foundation_cracks){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="foundation_cracks">Foundations Report</label>
+                    <input type="text" class="form-control" value="{{insepectionData.foundation_cracks}}" readonly>
+                    <br>
+                    @if(insepectionData.foundation_cracks_image){
+                        <label class="form-label" for="foundation_cracks_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.foundation_cracks_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.foundation_damage){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="foundation_damage">Report Damage Due To Impact</label>
+                    <input type="text" class="form-control" value="{{insepectionData.foundation_damage}}" readonly>
+                    <br>
+                    @if(insepectionData.foundation_damage_image){
+                        <label class="form-label" for="foundation_damage_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.foundation_damage_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.subway_damage){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="subway_damage">Subways Report Damage To Foundations</label>
+                    <input type="text" class="form-control" value="{{insepectionData.subway_damage}}" readonly>
+                    <br>
+                    @if(insepectionData.subway_damage_image){
+                        <label class="form-label" for="subway_damage_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.subway_damage_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.substructure_drainage_efficiency){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="substructure_drainage_efficiency">Substructure Drainage Efficiency Of Backfill</label>
+                    <input type="text" class="form-control" value="{{insepectionData.substructure_drainage_efficiency}}" readonly>
+                    <br>
+                    @if(insepectionData.substructure_drainage_efficiency_image){
+                        <label class="form-label" for="substructure_drainage_efficiency_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.substructure_drainage_efficiency_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.substructure_cracks){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="substructure_cracks">Substructure Cracking/Disintegration Decay</label>
+                    <input type="text" class="form-control" value="{{insepectionData.substructure_cracks}}" readonly>
+                    <br>
+                    @if(insepectionData.substructure_cracks_images){
+                        <label class="form-label" for="substructure_cracks_images">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.substructure_cracks_images" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.subway_wall_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="subway_wall_condition">Substructure Subways Condition</label>
+                    <input type="text" class="form-control" value="{{insepectionData.subway_wall_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.subway_wall_condition_image){
+                        <label class="form-label" for="subway_wall_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.subway_wall_condition_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.road_excavation){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="road_excavation">Substructure Large Excavations Report</label>
+                    <input type="text" class="form-control" value="{{insepectionData.road_excavation}}" readonly>
+                    <br>
+                    @if(insepectionData.road_excavation_image){
+                        <label class="form-label" for="road_excavation_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.road_excavation_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.pier_abutment_damage){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="pier_abutment_damage">Substructure Damages To Protective Measures</label>
+                    <input type="text" class="form-control" value="{{insepectionData.pier_abutment_damage}}" readonly>
+                    <br>
+                    @if(insepectionData.pier_abutment_damage_image){
+                        <label class="form-label" for="pier_abutment_damage_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.pier_abutment_damage_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.protective_coating_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="protective_coating_condition">Substructure Protective Coating/Paint Damages</label>
+                    <input type="text" class="form-control" value="{{insepectionData.protective_coating_condition}}" readonly>
+                    @if(insepectionData.protective_coating_condition_image){
+                        <label class="form-label" for="protective_coating_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.protective_coating_condition_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.metallic_bearing_type){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="metallic_bearing_type">Metallic Bearings</label>
+                    <input type="text" class="form-control" value="{{insepectionData.metallic_bearing_type}}" readonly>
+                    @if(insepectionData.metallic_bearing_type_image){
+                        <label class="form-label" for="metallic_bearing_type_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.metallic_bearing_type_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+              @if(insepectionData.metallic_bearing_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="metallic_bearing_condition">Bearings Condition</label>
+                    <input type="text" class="form-control" value="{{insepectionData.metallic_bearing_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.metallic_bearing_condition_image){
+                        <label class="form-label" for="metallic_bearing_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.metallic_bearing_condition_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.metallic_bearing_functioning){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="metallic_bearing_functioning">Bearings Functioning</label>
+                    <input type="text" class="form-control" value="{{insepectionData.metallic_bearing_functioning}}" readonly>
+                    <br>
+                    @if(insepectionData.metallic_bearing_functioning_image){
+                        <label class="form-label" for="metallic_bearing_functioning_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.metallic_bearing_functioning_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.metallic_bearing_greasing){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="metallic_bearing_greasing">Greasing/Oil Bath</label>
+                    <input type="text" class="form-control" value="{{insepectionData.metallic_bearing_greasing}}" readonly>
+                    <br>
+                    @if(insepectionData.metallic_bearing_greasing_image){
+                        <label class="form-label" for="metallic_bearing_greasing_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.metallic_bearing_greasing_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+              @if(insepectionData.anchor_bolts_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="anchor_bolts_condition">Anchor Bolts In Position</label>
+                    <input type="text" class="form-control" value="{{insepectionData.anchor_bolts_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.anchor_bolts_condition_image){
+                        <label class="form-label" for="anchor_bolts_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.anchor_bolts_condition_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.elastomeric_bearings){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="elastomeric_bearings">Elastromeric Bearings</label>
+                    <input type="text" class="form-control" value="{{insepectionData.elastomeric_bearings}}" readonly>
+                    <br>
+                    @if(insepectionData.elastomeric_bearings_image){
+                        <label class="form-label" for="elastomeric_bearings_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.elastomeric_bearings_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.elastomeric_bearings_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="elastomeric_bearings_condition">Condition Of Pads/Oxidation/Creep Flattening/Bulging/Splitting</label>
+                    <input type="text" class="form-control" value="{{insepectionData.elastomeric_bearings_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.elastomeric_bearings_condition_image){
+                        <label class="form-label" for="elastomeric_bearings_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.elastomeric_bearings_condition_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+              @if(insepectionData.genral_cleanliness){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="genral_cleanliness">Bearings General Cleanliness</label>
+                    <input type="text" class="form-control" value="{{insepectionData.genral_cleanliness}}" readonly>
+                    <br>
+                    @if(insepectionData.genral_cleanliness_image){
+                        <label class="form-label" for="genral_cleanliness_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.genral_cleanliness_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.concrete_bearings){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="concrete_bearings">Concrete Bearings</label>
+                    <input type="text" class="form-control" value="{{insepectionData.concrete_bearings}}" readonly>
+                    <br>
+                    @if(insepectionData.concrete_bearings_image){
+                        <label class="form-label" for="concrete_bearings_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.concrete_bearings_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+              @if(insepectionData.distressSigns){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="distressSigns">Bearings Signs Of Distress (Cracking/Spalling/Disintegration/Staining)</label>
+                    <input type="text" class="form-control" value="{{insepectionData.distressSigns}}" readonly>
+                    <br>
+                    @if(insepectionData.signs_of_distress_image){
+                        <label class="form-label" for="signs_of_distress_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.signs_of_distress_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.excessive_tilting){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="excessive_tilting">Excessive Tilting</label>
+                    <input type="text" class="form-control" value="{{insepectionData.excessive_tilting}}" readonly>
+                    <br>
+                    @if(insepectionData.excessive_tilting_image){
+                        <label class="form-label" for="excessive_tilting_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.excessive_tilting_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.loss_of_shape){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="loss_of_shape">Loss Of Shape</label>
+                    <input type="text" class="form-control" value="{{insepectionData.loss_of_shape}}" readonly>
+                    <br>
+                    @if(insepectionData.loss_of_shape_image){
+                        <label class="form-label" for="loss_of_shape_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.loss_of_shape_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+              
+              @if(insepectionData.support_member_cracks){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="support_member_cracks">Report Cracks In Supporting Member</label>
+                    <input type="text" class="form-control" value="{{insepectionData.support_member_cracks}}" readonly>
+                    <br>
+                    @if(insepectionData.support_member_cracks_image){
+                        <label class="form-label" for="support_member_cracks_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.support_member_cracks_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.superstructure_type){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="superstructure_type">Reinforced Concrete And Prestressed Concrete</label>
+                    <input type="text" class="form-control" value="{{insepectionData.superstructure_type}}" readonly>
+                    <br>
+                    @if(insepectionData.superstructure_type_image){
+                        <label class="form-label" for="superstructure_type_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.superstructure_type_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.spalling_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="spalling_condition">Spalling, Disintegration, Or Honeycombing</label>
+                    <input type="text" class="form-control" value="{{insepectionData.spalling_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.spalling_condition_image){
+                        <label class="form-label" for="spalling_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.spalling_condition_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.deck_cracks){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="deck_cracks">Cracking In Deck Slab</label>
+                    <input type="text" class="form-control" value="{{insepectionData.deck_cracks}}" readonly>
+                    <br>
+                    @if(insepectionData.deck_cracks_images){
+                        <label class="form-label" for="deck_cracks_images">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.deck_cracks_images" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.deck_cover_thickness){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="deck_cover_thickness">Cover Thickness (Exposed Reinforcement)</label>
+                    <input type="text" class="form-control" value="{{insepectionData.deck_cover_thickness}}" readonly>
+                    <br>
+                    @if(insepectionData.deck_cover_thickness_image){
+                        <label class="form-label" for="deck_cover_thickness_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.deck_cover_thickness_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.deck_surface_wear){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="deck_surface_wear">Wear Of Deck Slab</label>
+                    <input type="text" class="form-control" value="{{insepectionData.deck_surface_wear}}" readonly>
+                    <br>
+                    @if(insepectionData.deck_surface_wear_image){
+                        <label class="form-label" for="deck_surface_wear_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.deck_surface_wear_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.deck_scaling){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="deck_scaling">Scaling (Surface Mortar Loss)</label>
+                    <input type="text" class="form-control" value="{{insepectionData.deck_scaling}}" readonly>
+                    <br>
+                    @if(insepectionData.deck_scaling_image){
+                        <label class="form-label" for="deck_scaling_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.deck_scaling_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.deck_surface_stains){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="deck_surface_stains">Report Surface Stain And Rust Stain With Locations</label>
+                    <input type="text" class="form-control" value="{{insepectionData.deck_surface_stains}}" readonly>
+                    <br>
+                    @if(insepectionData.deck_surface_stains_image){
+                        <label class="form-label" for="deck_surface_stains_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.deck_surface_stains_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.deck_leaching){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="deck_leaching">Leaching</label>
+                    <input type="text" class="form-control" value="{{insepectionData.deck_leaching}}" readonly>
+                    <br>
+                    @if(insepectionData.deck_leaching_image){
+                        <label class="form-label" for="deck_leaching_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.deck_leaching_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.reinforcement_corrosion_images){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="reinforcement_corrosion">Corrosion Of Reinforcement</label>
+                    <input type="text" class="form-control" value="{{insepectionData.reinforcement_corrosion}}" readonly>
+                    <br>
+                    @if(insepectionData.reinforcement_corrosion_image){
+                        <label class="form-label" for="reinforcement_corrosion_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.reinforcement_corrosion_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.deck_leakage){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="deck_leakage">Report Leakage</label>
+                    <input type="text" class="form-control" value="{{insepectionData.deck_leakage}}" readonly>
+                    <br>
+                    @if(insepectionData.deck_leakage_image){
+                        <label class="form-label" for="deck_leakage_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.deck_leakage_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.vehicle_damage){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="vehicle_damage">Report Damages Due to Moving Vehicles</label>
+                    <input type="text" class="form-control" value="{{insepectionData.vehicle_damage}}" readonly>
+                    <br>
+                    @if(insepectionData.vehicle_damage_image){
+                        <label class="form-label" for="vehicle_damage_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.vehicle_damage_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.articulation_cracks){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="articulation_cracks">Report Condition Of Articulation (Cracks, If Any)</label>
+                    <input type="text" class="form-control" value="{{insepectionData.articulation_cracks}}" readonly>
+                    <br>
+                    @if(insepectionData.articulation_cracks_image){
+                        <label class="form-label" for="articulation_cracks_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.articulation_cracks_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+              @if(insepectionData.deck_vibration){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="deck_vibration">Report Perceptible Vibrations</label>
+                    <input type="text" class="form-control" value="{{insepectionData.deck_vibration}}" readonly>
+                    <br>
+                    @if(insepectionData.deck_vibration_image){
+                        <label class="form-label" for="deck_vibration_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.deck_vibration_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.deck_deflection){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="deck_deflection">Report Excessive Deflection (Sag) Or Loss Of Camber</label>
+                    <input type="text" class="form-control" value="{{insepectionData.deck_deflection}}" readonly>
+                    <br>
+                    @if(insepectionData.deck_deflection_image){
+                        <label class="form-label" for="deck_deflection_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.deck_deflection_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.end_anchorage_cracks){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="end_anchorage_cracks">Report Cracks In End Anchorage Zone</label>
+                    <input type="text" class="form-control" value="{{insepectionData.end_anchorage_cracks}}" readonly>
+                    <br>
+                    @if(insepectionData.end_anchorage_cracks_image){
+                        <label class="form-label" for="end_anchorage_cracks_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.end_anchorage_cracks_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.cantilever_deflection){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="cantilever_deflection">Report Excessive Deflection (Sag) At Central Hinge Tip</label>
+                    <input type="text" class="form-control" value="{{insepectionData.cantilever_deflection}}" readonly>
+                    <br>
+                    @if(insepectionData.cantilever_deflection_image){
+                        <label class="form-label" for="cantilever_deflection_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.cantilever_deflection_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.longitudinal_cracks_in_flanges){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="longitudinal_cracks_in_flanges">Longitudinal Cracks In The Flanges</label>
+                    <input type="text" class="form-control" value="{{insepectionData.longitudinal_cracks_in_flanges}}" readonly>
+                    <br>
+                    @if(insepectionData.longitudinal_cracks_in_flanges_image){
+                        <label class="form-label" for="longitudinal_cracks_in_flanges_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.longitudinal_cracks_in_flanges_image" alt="Image" width="70%" />
+
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.spalling_or_cracking_of_concrete){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="spalling_or_cracking_of_concrete">Spalling Or Cracking Of Concrete Near Curved Cable Ducts</label>
+                    <input type="text" class="form-control" value="{{insepectionData.spalling_or_cracking_of_concrete}}" readonly>
+                    <br>
+                    @if(insepectionData.spalling_or_cracking_of_concrete_image){
+                        <label class="form-label" for="spalling_or_cracking_of_concrete_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.spalling_or_cracking_of_concrete_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.shear_cracks){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="shear_cracks">Shear Cracks In Webs Nearer To Supports</label>
+                    <input type="text" class="form-control" value="{{insepectionData.shear_cracks}}" readonly>
+                    <br>
+                    @if(insepectionData.shear_cracks_image){
+                        <label class="form-label" for="shear_cracks_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.shear_cracks_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.box_girder_cracks){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="box_girder_cracks">Cracks In Box Girder</label>
+                    <input type="text" class="form-control" value="{{insepectionData.box_girder_cracks}}" readonly>
+                    <br>
+                    @if(insepectionData.box_girder_cracks_image){
+                        <label class="form-label" for="box_girder_cracks_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.box_girder_cracks_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.accumulation_for_submersible_bridges){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="accumulation_for_submersible_bridges">Report Accumulation Of Silt And Debris On Deck Surface</label>
+                    <input type="text" class="form-control" value="{{insepectionData.accumulation_for_submersible_bridges}}" readonly>
+                    <br>
+                    @if(insepectionData.accumulation_for_submersible_bridges_image){
+                        <label class="form-label" for="accumulation_for_submersible_bridges_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.accumulation_for_submersible_bridges_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.protective_coating_peeling){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="protective_coating_peeling">Report Peeling Off Of Protective Coat Or Paint</label>
+                    <input type="text" class="form-control" value="{{insepectionData.protective_coating_peeling}}" readonly>
+                    <br>
+                    @if(insepectionData.protective_coating_peeling_image){
+                        <label class="form-label" for="protective_coating_peeling_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.protective_coating_peeling_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+              @if(insepectionData.steel_members){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="steel_members">Steel Members</label>
+                    <input type="text" class="form-control" value="{{insepectionData.steel_members}}" readonly>
+                    <br>
+                    @if(insepectionData.steel_members_image){
+                        <label class="form-label" for="steel_members_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.steel_members_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.protective_system_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="protective_system_condition">Report Condition Of Protective System</label>
+                    <input type="text" class="form-control" value="{{insepectionData.protective_system_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.protective_system_condition_image){
+                        <label class="form-label" for="protective_system_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.protective_system_condition_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.corrosion_if_any){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="corrosion_if_any">Report On Corrosion</label>
+                    <input type="text" class="form-control" value="{{insepectionData.corrosion_if_any}}" readonly>
+                    <br>
+                    @if(insepectionData.corrosion_if_any_image){
+                        <label class="form-label" for="corrosion_if_any_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.corrosion_if_any_image" alt="Image" width="70%" />
+                    }
+                  </div>
+              }
+
+
+              @if(insepectionData.excessive_vibrations){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="excessive_vibrations">Report Excessive Vibrations</label>
+                    <input type="text" class="form-control" value="{{insepectionData.excessive_vibrations}}" readonly>
+                    <br>
+                    @if(insepectionData.excessive_vibrations_image){
+                        <label class="form-label" for="excessive_vibrations_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.excessive_vibrations_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.alignment_of_members){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="alignment_of_members">Report On Alignment Of Members</label>
+                    <input type="text" class="form-control" value="{{insepectionData.alignment_of_members}}" readonly>
+                    <br>
+                    @if(insepectionData.alignment_of_members_image){
+                        <label class="form-label" for="alignment_of_members_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.alignment_of_members_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.condition_of_connection){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="condition_of_connection">Condition Of Connection</label>
+                    <input type="text" class="form-control" value="{{insepectionData.condition_of_connection}}" readonly>
+                    <br>
+                    @if(insepectionData.condition_of_connection_image){
+                        <label class="form-label" for="condition_of_connection_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.condition_of_connection_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.excessive_loss_of_camber){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="excessive_loss_of_camber">Excessive Loss Cf Camber</label>
+                    <input type="text" class="form-control" value="{{insepectionData.excessive_loss_of_camber}}" readonly>
+                    <br>
+                    @if(insepectionData.excessive_loss_of_camber_image){
+                        <label class="form-label" for="excessive_loss_of_camber_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.excessive_loss_of_camber_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.buckling_kinking_warping_waviness){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="buckling_kinking_warping_waviness">Buckling Kinking Warping Waviness</label>
+                    <input type="text" class="form-control" value="{{insepectionData.buckling_kinking_warping_waviness}}" readonly>
+                    <br>
+                    @if(insepectionData.buckling_kinking_warping_waviness_image){
+                        <label class="form-label" for="buckling_kinking_warping_waviness_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.buckling_kinking_warping_waviness_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.cleanliness_of_members){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="cleanliness_of_members">Cleanliness Of Members</label>
+                    <input type="text" class="form-control" value="{{insepectionData.cleanliness_of_members}}" readonly>
+                    <br>
+                    @if(insepectionData.cleanliness_of_members_image){
+                        <label class="form-label" for="cleanliness_of_members_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.cleanliness_of_members_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.fracture_apparent){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="fracture_apparent">Fracture Apparent</label>
+                    <input type="text" class="form-control" value="{{insepectionData.fracture_apparent}}" readonly>
+                    <br>
+                    @if(insepectionData.fracture_apparent_image){
+                        <label class="form-label" for="fracture_apparent_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.fracture_apparent_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.excessive_wear){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="excessive_wear">Excessive Wear</label>
+                    <input type="text" class="form-control" value="{{insepectionData.excessive_wear}}" readonly>
+                    <br>
+                    @if(insepectionData.excessive_wear_image){
+                        <label class="form-label" for="excessive_wear_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.excessive_wear_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+              
+
+              @if(insepectionData.closed_members_conditions){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="closed_members_conditions">Closed Members Conditions</label>
+                    <input type="text" class="form-control" value="{{insepectionData.closed_members_conditions}}" readonly>
+                    <br>
+                    @if(insepectionData.closed_members_conditions_image){
+                        <label class="form-label" for="closed_members_conditions_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.closed_members_conditions_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.masonry_arches){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="masonry_arches">Masonry Arches</label>
+                    <input type="text" class="form-control" value="{{insepectionData.masonry_arches}}" readonly>
+                    <br>
+                    @if(insepectionData.masonry_arches_image){
+                        <label class="form-label" for="masonry_arches_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.masonry_arches_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.condition_of_joints_mortar){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="condition_of_joints_mortar">Condition Of Joints Mortar</label>
+                    <input type="text" class="form-control" value="{{insepectionData.condition_of_joints_mortar}}" readonly>
+                    <br>
+                    @if(insepectionData.condition_of_joints_mortar_image){
+                        <label class="form-label" for="condition_of_joints_mortar_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.condition_of_joints_mortar_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.flattening_by_observing_rise){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="flattening_by_observing_rise">Flattening By observing Rise</label>
+                    <input type="text" class="form-control" value="{{insepectionData.flattening_by_observing_rise}}" readonly>
+                    <br>  
+                    @if(insepectionData.flattening_by_observing_rise_image){
+                        <label class="form-label" for="flattening_by_observing_rise_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.flattening_by_observing_rise_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.masonry_arches_cracks){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="masonry_arches_cracks">Masonry Arches Cracks</label>
+                    <input type="text" class="form-control" value="{{insepectionData.masonry_arches_cracks}}" readonly>
+                    <br>
+                    @if(insepectionData.masonry_arches_cracks_image){
+                        <label class="form-label" for="masonry_arches_cracks_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.masonry_arches_cracks_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.drainage_of_spandrel_fillings){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="drainage_of_spandrel_fillings">Drainage Of Spandrel Fillings</label>
+                    <input type="text" class="form-control" value="{{insepectionData.drainage_of_spandrel_fillings}}" readonly>
+                    <br>
+                    @if(insepectionData.drainage_of_spandrel_fillings_image){
+                        <label class="form-label" for="drainage_of_spandrel_fillings_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.drainage_of_spandrel_fillings_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.growth_of_vegetation){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="growth_of_vegetation">Growth Of Vegetation</label>
+                    <input type="text" class="form-control" value="{{insepectionData.growth_of_vegetation}}" readonly>
+                    <br>
+                    @if(insepectionData.growth_of_vegetation_image){
+                        <label class="form-label" for="growth_of_vegetation_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.growth_of_vegetation_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.cast_iron_and_wrought_iron){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="cast_iron_and_wrought_iron">Cast Iron And Wrought Iron</label>
+                    <input type="text" class="form-control" value="{{insepectionData.cast_iron_and_wrought_iron}}" readonly>
+                    <br>
+                    @if(insepectionData.cast_iron_and_wrought_iron_image){
+                        <label class="form-label" for="cast_iron_and_wrought_iron_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.cast_iron_and_wrought_iron_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.casting_of_metal){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="casting_of_metal">Casting Of Metal</label>
+                    <input type="text" class="form-control" value="{{insepectionData.casting_of_metal}}" readonly>
+                    <br>
+                    @if(insepectionData.casting_of_metal_image){
+                        <label class="form-label" for="casting_of_metal_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.casting_of_metal_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.expansion_joint_functioning){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="expansion_joint_functioning">Crack Details (Near Expansion Joint)</label>
+                    <input type="text" class="form-control" value="{{insepectionData.expansion_joint_functioning}}" readonly>
+                    <br>
+                    @if(insepectionData.expansion_joint_functioning_image){
+                        <label class="form-label" for="expansion_joint_functioning_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.expansion_joint_functioning_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.expansion_joint_sealing_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="expansion_joint_sealing_condition">Condition Of Sealing Material</label>
+                    <input type="text" class="form-control" value="{{insepectionData.expansion_joint_sealing_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.expansion_joint_sealing_condition_image){
+                        <label class="form-label" for="expansion_joint_sealing_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.expansion_joint_sealing_condition_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.expansion_joint_security){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="expansion_joint_security">Joints Are Secured?</label>
+                    <input type="text" class="form-control" value="{{insepectionData.expansion_joint_security}}" readonly>
+                    <br>
+                    @if(insepectionData.expansion_joint_security_image){
+                        <label class="form-label" for="expansion_joint_security_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.expansion_joint_security_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+              @if(insepectionData.expansion_joint_top_plate_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="expansion_joint_top_plate_condition">Condition Of Top Sliding Plate</label>
+                    <input type="text" class="form-control" value="{{insepectionData.expansion_joint_top_plate_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.expansion_joint_top_plate_condition_image){
+                        <label class="form-label" for="expansion_joint_top_plate_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.expansion_joint_top_plate_condition_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.expansion_joint_locking){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="expansion_joint_locking">Locking Condition Of Joints</label>
+                    <input type="text" class="form-control" value="{{insepectionData.expansion_joint_locking}}" readonly>
+                    <br>
+                    @if(insepectionData.expansion_joint_locking_image){
+                        <label class="form-label" for="expansion_joint_locking_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.expansion_joint_locking_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+              @if(insepectionData.expansion_joint_debris){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="expansion_joint_debris">Debris In Open Joints</label>
+                    <input type="text" class="form-control" value="{{insepectionData.expansion_joint_debris}}" readonly>
+                    <br>
+                    @if(insepectionData.expansion_joint_debris_image){
+                        <label class="form-label" for="expansion_joint_debris_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.expansion_joint_debris_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.expansion_joint_rattling){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="expansion_joint_rattling">Rattling Condition</label>
+                    <input type="text" class="form-control" value="{{insepectionData.expansion_joint_rattling}}" readonly>
+                    <br>
+                    @if(insepectionData.expansion_joint_rattling_image){
+                        <label class="form-label" for="expansion_joint_rattling_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.expansion_joint_rattling_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.expansion_joint_drainage){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="expansion_joint_drainage">Drainage Improvement Needed</label>
+                    <input type="text" class="form-control" value="{{insepectionData.expansion_joint_drainage}}" readonly>
+                    <br>
+                    @if(insepectionData.expansion_joint_drainage_image){
+                        <label class="form-label" for="expansion_joint_drainage_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.expansion_joint_drainage_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+              @if(insepectionData.wearing_coat_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="wearing_coat_condition">Surface Condition</label>
+                    <input type="text" class="form-control" value="{{insepectionData.wearing_coat_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.wearing_coat_condition_image){
+                        <label class="form-label" for="wearing_coat_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.wearing_coat_condition_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.wearing_coat_wear){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="wearing_coat_wear">Evidence Of Wear</label>
+                    <input type="text" class="form-control" value="{{insepectionData.wearing_coat_wear}}" readonly>
+                    <br>
+                    @if(insepectionData.wearing_coat_wear_image){
+                        <label class="form-label" for="wearing_coat_wear_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.wearing_coat_wear_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.wearing_coat_thickness){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="wearing_coat_thickness">Compare Thickness</label>
+                    <input type="text" class="form-control" value="{{insepectionData.wearing_coat_thickness}}" readonly>
+                    <br>
+                    @if(insepectionData.wearing_coat_thickness_image){
+                        <label class="form-label" for="wearing_coat_thickness_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.wearing_coat_thickness_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+              @if(insepectionData.drainage_spouts_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="drainage_spouts_condition">Clogging Deterioration And Damage</label>
+                    <input type="text" class="form-control" value="{{insepectionData.drainage_spouts_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.drainage_spouts_condition_image){
+                        <label class="form-label" for="drainage_spouts_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.drainage_spouts_condition_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.spout_projection){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="spout_projection">Projection Level</label>
+                    <input type="text" class="form-control" value="{{insepectionData.spout_projection}}" readonly>
+                    <br>
+                    @if(insepectionData.spout_projection_image){
+                        <label class="form-label" for="spout_projection_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.spout_projection_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.adequacy_thereof){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="adequacy_thereof">Report / Adequacy Thereof</label>
+                    <input type="text" class="form-control" value="{{insepectionData.adequacy_thereof}}" readonly>
+                    <br>
+                    @if(insepectionData.adequacy_thereof_image){
+                        <label class="form-label" for="adequacy_thereof_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.adequacy_thereof_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.drainage_adequacy){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="drainage_adequacy">Adequacy Of Drainage And Pumping Arrangements</label>
+                    <input type="text" class="form-control" value="{{insepectionData.drainage_adequacy}}" readonly>
+                    <br>
+                    @if(insepectionData.drainage_adequacy_image){
+                        <label class="form-label" for="drainage_adequacy_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.drainage_adequacy_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+              
+              @if(insepectionData.submersible_bridges_functioning){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="submersible_bridges_functioning">Drainage Spouts And Vent Holes Functioning</label>
+                    <input type="text" class="form-control" value="{{insepectionData.submersible_bridges_functioning}}" readonly>
+                    <br>
+                    @if(insepectionData.submersible_bridges_functioning_image){
+                        <label class="form-label" for="submersible_bridges_functioning_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.submersible_bridges_functioning_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.handrail_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="handrail_condition">Handrail/Parapet Condition</label>
+                    <input type="text" class="form-control" value="{{insepectionData.handrail_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.handrail_condition_images){
+                        <label class="form-label" for="handrail_condition_images">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.handrail_condition_images" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.handrail_collision){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="handrail_collision">Damage Due To Collision</label>
+                    <input type="text" class="form-control" value="{{insepectionData.handrail_collision}}" readonly>
+                    <br>
+                    @if(insepectionData.handrail_collision_image){
+                        <label class="form-label" for="handrail_collision_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.handrail_collision_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.handrail_alignment){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="handrail_alignment">Handrails And Parapets - Check Alignment</label>
+                    <input type="text" class="form-control" value="{{insepectionData.handrail_alignment}}" readonly>
+                    <br>
+                    @if(insepectionData.handrail_alignment_image){
+                        <label class="form-label" for="handrail_alignment_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.handrail_alignment_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.footpath_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="footpath_condition">Footpaths- Report General Condition</label>
+                    <input type="text" class="form-control" value="{{insepectionData.footpath_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.footpath_condition_image){
+                        <label class="form-label" for="footpath_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.footpath_condition_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.footpath_slabs){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="footpath_slabs">Report Missing Footpath Slabs</label>
+                    <input type="text" class="form-control" value="{{insepectionData.footpath_slabs}}" readonly>
+                    <br>
+                    @if(insepectionData.footpath_slabs_image){
+                        <label class="form-label" for="footpath_slabs_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.footpath_slabs_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.utility_leakage){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="utility_leakage">Report Leakage Of Water And Sewage Pipes</label>
+                    <input type="text" class="form-control" value="{{insepectionData.utility_leakage}}" readonly>
+                    <br>
+                    @if(insepectionData.utility_leakage_image){
+                        <label class="form-label" for="utility_leakage_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.utility_leakage_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.utility_damage){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="utility_damage">Any Damage By Telephone And Electric Cables</label>
+                    <input type="text" class="form-control" value="{{insepectionData.utility_damage}}" readonly>
+                    <br>
+                    @if(insepectionData.utility_damage_image){
+                        <label class="form-label" for="utility_damage_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.utility_damage_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.lighting_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="lighting_condition">Condition Of Lighting Facilities</label>
+                    <input type="text" class="form-control" value="{{insepectionData.lighting_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.lighting_condition_image){
+                        <label class="form-label" for="lighting_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.lighting_condition_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.utility_other_damages){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="utility_other_damages">Report Damages Due To Any Other Utilities</label>
+                    <input type="text" class="form-control" value="{{insepectionData.utility_other_damages}}" readonly>
+                    <br>
+                    @if(insepectionData.utility_other_damages_image){
+                        <label class="form-label" for="utility_other_damages_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.utility_other_damages_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+
+              @if(insepectionData.condition_of_painting){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="condition_of_painting">Report Condition Of Painting</label>
+                    <input type="text" class="form-control" value="{{insepectionData.condition_of_painting}}" readonly>
+                    <br>
+                    @if(insepectionData.condition_of_painting_image){
+                        <label class="form-label" for="condition_of_painting_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.condition_of_painting_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+              
+
+              @if(insepectionData.aesthetics_condition){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="aesthetics_condition">Report Any visual Inspection</label>
+                    <input type="text" class="form-control" value="{{insepectionData.aesthetics_condition}}" readonly>
+                    <br>
+                    @if(insepectionData.aesthetics_condition_image){
+                        <label class="form-label" for="aesthetics_condition_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.aesthetics_condition_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+              @if(insepectionData.remarks){
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" for="remarks">Remark</label>
+                    <input type="text" class="form-control" value="{{insepectionData.remarks}}" readonly>
+                    <br>
+                    @if(insepectionData.remarks_image){
+                        <label class="form-label" for="remarks_image">Image</label>
+                        <img [src]="urlLive+'/upload/inspection_images/'+insepectionData.remarks_image" alt="Image" width="70%" />
+                    }
+                  </div> 
+              }
+
+              
+
+            <br>
+            <hr>
+            <div >
+                <h1 class="page-title fw-medium fs-14 mb-2">Suggestions And Improvement And Recommendations:</h1>
+            </div>
+
+            <div class="table-responsive">
+              <form [formGroup]="inspectionForm">
+                <table class="table text-nowrap">
+                  <thead class="table-primary">
+                    <tr>
+                      <th scope="col">Items Needing Attention</th>
+                      <th scope="col">Actions Recommended</th>
+                      <th scope="col">Time When To Be Completed</th>
+                      <th scope="col">Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody formArrayName="inspectionItems">
+                    <tr *ngFor="let item of inspectionItems.controls; let i = index" [formGroupName]="i">
+                      <td><input type="text" class="form-control" formControlName="items_needing_attentions" readonly></td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control"
+                          formControlName="actions_recommended"
+                         readonly
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control"
+                          formControlName="suggestion_time"
+                         readonly
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control"
+                          formControlName="remarks"
+                         readonly
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </form>
+            </div>
+            
+               
+          </div>
+       
+      <!-- </app-showcode-card> -->
+  </div>
+</div>
+
+
+<div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-3">
+<a href="javascript:void(0);" title="Pdf" (click)="generatePDF()"class="btn btn btn-primary"> Download</a>
+</div>
+
+
+
+
+

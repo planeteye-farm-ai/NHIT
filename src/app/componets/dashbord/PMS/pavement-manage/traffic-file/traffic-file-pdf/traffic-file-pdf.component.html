@@ -1,0 +1,84 @@
+
+<app-page-header title="View Traffic" title1="Traffic Manage" activeTitle="View Traffic"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12" id="pdf-content">
+        <!-- <app-showcode-card [title]="'View Traffic of '+topTitle" [prism]="prismCode.formlayouts10"> -->
+            <h3 style="text-align: center; font-weight: 600;" class="mt-5 mb-4">Traffic File Report of - {{topTitle}} </h3>
+            <form [formGroup]="trafficForm">
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Traffic Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road Code</label>
+                        <input type="text" class="form-control" id="road_code" formControlName="road_code" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="jurisdiction_code">Jurisdiction Code</label>
+                        <input type="text" class="form-control" id="jurisdiction_code" formControlName="jurisdiction_code" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="start_chainage">Start Chainage</label>
+                        <input type="text" class="form-control" id="start_chainage" formControlName="start_chainage" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="end_chainage">End Chainage</label>
+                        <input type="text" class="form-control" id="end_chainage" formControlName="end_chainage" readonly>
+                    </div>
+ 
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction">Direction</label>
+                        <input type="text" class="form-control" id="direction" formControlName="direction" readonly>
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="data_identifier">Data Identifier</label>
+                        <input type="text" class="form-control" id="data_identifier" formControlName="data_identifier" readonly>
+                    </div>
+                    
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="vehicle_id">Vehicle ID</label>
+                        <input type="text" class="form-control" id="vehicle_id" formControlName="vehicle_id" readonly>
+                    </div>
+ 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="vehicle_category">Vehicle Category</label>
+                        <input type="text" class="form-control" id="vehicle_category" formControlName="vehicle_category" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="year_index">Year Index</label>
+                        <input type="text" class="form-control" id="year_index" formControlName="year_index" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="year">Year</label>
+                        <input type="text" class="form-control" id="year" formControlName="year" readonly>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="aadt">Annual Average Daily Traffic (AADT)</label>
+                        <input type="text" class="form-control" id="aadt" formControlName="aadt" readonly>
+                    </div>
+                </div>
+            </form>
+
+        <!-- </app-showcode-card> -->
+    </div>
+</div>
+<div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-3">
+    <a href="javascript:void(0);" title="Pdf" (click)="generatePDF()"class="btn btn btn-primary"> Download</a>
+  </div>
+
+
+
+
+

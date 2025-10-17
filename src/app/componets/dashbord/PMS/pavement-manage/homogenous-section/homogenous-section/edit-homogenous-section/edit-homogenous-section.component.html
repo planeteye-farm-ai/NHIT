@@ -1,0 +1,308 @@
+
+<app-page-header title="Update Homogenous Section" title1="Homogenous Section Manage" activeTitle="Update Homogenous Section"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Update Homogenous Section of '+topTitle" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="homogenousForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Road Information</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="geometry_data_id">Road Name</label><span class="text-danger">*</span>
+                        <select  (change)="getCitytList(homogenousForm.get('geometry_data_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('geometry_data_id')?.invalid && homogenousForm.get('geometry_data_id')?.touched}" id="geometry_data_id" formControlName="geometry_data_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of roadList; track $index) {
+                              <option value="{{row.geometry_data_id}}">{{row.name_of_road}}</option> 
+                            }
+                        </select>   
+                        @if(homogenousForm.get('geometry_data_id')?.invalid && homogenousForm.get('geometry_data_id')?.touched){
+                            <span  class="text-danger">Please select valid road code</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road ID/Code</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':homogenousForm.get('road_code')?.invalid && homogenousForm.get('road_code')?.touched}" id="road_code" formControlName="road_code" placeholder="Road ID/Code">
+                        @if(homogenousForm.get('road_code')?.invalid && homogenousForm.get('road_code')?.touched){
+                            <span  class="text-danger">Please enter valid road code</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label><span class="text-danger">*</span>
+                        <select (change)="getDistrctList(homogenousForm.get('state_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('state_id')?.invalid && homogenousForm.get('state_id')?.touched}" id="state_id" formControlName="state_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of stateList; track $index) {
+                            <option value="{{row.state_id}}">{{row.state_name}}</option>
+                            }
+                        </select>   
+                        @if(homogenousForm.get('state_id')?.invalid && homogenousForm.get('state_id')?.touched){
+                            <span  class="text-danger">Please select valid state</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label><span class="text-danger">*</span>
+                        <select  (change)="getCitytList(homogenousForm.get('district_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('district_id')?.invalid && homogenousForm.get('district_id')?.touched}" id="district_id" formControlName="district_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of districtList; track $index) {
+                              <option value="{{row.district_id}}">{{row.district_name}}</option> 
+                            }
+                        </select>   
+                        @if(homogenousForm.get('district_id')?.invalid && homogenousForm.get('district_id')?.touched){
+                            <span  class="text-danger">Please select valid district</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('city_id')?.invalid && homogenousForm.get('city_id')?.touched}" id="city_id" formControlName="city_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of cityList; track $index) {
+                                 <option value="{{row.city_id}}">{{row.city_name}}</option>  
+                            }
+                        </select>   
+                        @if(homogenousForm.get('city_id')?.invalid && homogenousForm.get('city_id')?.touched){
+                            <span  class="text-danger">Please select valid Block</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_start">Chainage Start</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':homogenousForm.get('chainage_start')?.invalid && homogenousForm.get('chainage_start')?.touched}" id="chainage_start" formControlName="chainage_start" placeholder="Chainage Start">
+                        @if(homogenousForm.get('chainage_start')?.invalid && homogenousForm.get('chainage_start')?.touched){
+                            <span  class="text-danger">Please enter valid Chainage Start</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_end">Chainage End</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':homogenousForm.get('chainage_end')?.invalid && homogenousForm.get('chainage_end')?.touched}" id="chainage_end" formControlName="chainage_end" placeholder="Chainage End">
+                        @if(homogenousForm.get('chainage_end')?.invalid && homogenousForm.get('chainage_end')?.touched){
+                            <span  class="text-danger">Please enter valid Chainage End</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="date_of_survey">Date of Survey</label><span class="text-danger">*</span>
+                        <input type="date" class="form-control" [ngClass]="{ 'is-invalid':homogenousForm.get('date_of_survey')?.invalid && homogenousForm.get('date_of_survey')?.touched}" id="date_of_survey" formControlName="date_of_survey" placeholder="Date of Survey">
+                        @if(homogenousForm.get('date_of_survey')?.invalid && homogenousForm.get('date_of_survey')?.touched){
+                            <span  class="text-danger">Please enter valid Date of Survey</span>
+                        } 
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Carriageway Type and Width</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carriageway_type">Carriageway Type</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('carriageway_type')?.invalid && homogenousForm.get('carriageway_type')?.touched}" id="carriageway_type" formControlName="carriageway_type">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Bituminous (BT)">Bituminous (BT)</option>
+                            <option value="Cement Concrete (CC)">Cement Concrete (CC)</option>
+                            <option value="Earthen (ER)">Earthen (ER)</option>
+                            <option value="Gravel (GR)">Gravel (GR)</option>
+                            <option value="Paver Block (PB)">Paver Block (PB)</option>
+                             
+                        </select>   
+                        @if(homogenousForm.get('carriageway_type')?.invalid && homogenousForm.get('carriageway_type')?.touched){
+                            <span  class="text-danger">Please select valid Carriageway Type</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carriageway_width">Carriageway Width</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('carriageway_width')?.invalid && homogenousForm.get('carriageway_width')?.touched}" id="carriageway_width" formControlName="carriageway_width">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Single Lane (SL)">Single Lane (SL)</option>
+                            <option value="Intermediate Lane (IL)">Intermediate Lane (IL)</option>
+                            <option value="Double Lane (DL)">Double Lane (DL)</option>
+                            <option value="Multi Lane (ML)">Multi Lane (ML)</option>
+                             
+                        </select>   
+                        @if(homogenousForm.get('carriageway_width')?.invalid && homogenousForm.get('carriageway_width')?.touched){
+                            <span  class="text-danger">Please select valid Carriageway Width</span>
+                        } 
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Pavement Condition Data</h1>
+                    </div>
+                     
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="severity_of_distress">Severity of Distress</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('severity_of_distress')?.invalid && homogenousForm.get('severity_of_distress')?.touched}" id="severity_of_distress" formControlName="severity_of_distress">
+                            <option value="" selected disabled>Select</option>
+                            <option value="No Distress">No Distress</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                             
+                        </select>   
+                        @if(homogenousForm.get('severity_of_distress')?.invalid && homogenousForm.get('severity_of_distress')?.touched){
+                            <span  class="text-danger">Please select valid Severity of Distress</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="pavement_condition_scores">Pavement Condition Score (PCS)</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('pavement_condition_scores')?.invalid && homogenousForm.get('pavement_condition_scores')?.touched}" id="pavement_condition_scores" formControlName="pavement_condition_scores">
+                            <option value="" selected disabled>Select</option>
+                            <option value="100-90 (Excellent - Minimal to no distresses)">100-90 (Excellent - Minimal to no distresses)</option>
+                            <option value="89-70 (Good - Minor distresses, still serviceable)">89-70 (Good - Minor distresses, still serviceable)</option>
+                            <option value="69-50 (Fair - Moderate distresses, may require minor repairs)">69-50 (Fair - Moderate distresses, may require minor repairs)</option>
+                            <option value="49-30 (Poor - Significant distresses, repair or resurfacing needed soon)">49-30 (Poor - Significant distresses, repair or resurfacing needed soon)</option>
+                            <option value="29-0 (Very Poor - Severe distress, immediate intervention required, possibly reconstruction)">29-0 (Very Poor - Severe distress, immediate intervention required, possibly reconstruction)</option>
+                             
+                        </select>   
+                        @if(homogenousForm.get('pavement_condition_scores')?.invalid && homogenousForm.get('pavement_condition_scores')?.touched){
+                            <span  class="text-danger">Please select valid Pavement Condition Score</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="international_roughness_index">International Roughness Index (IRI)</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('international_roughness_index')?.invalid && homogenousForm.get('international_roughness_index')?.touched}" id="international_roughness_index" formControlName="international_roughness_index">
+                            <option value="" selected disabled>Select</option>
+                            <option value="less than 4">less than 4</option>
+                            <option value="4-6">4-6</option>
+                            <option value="6-8">6-8</option>
+                            <option value="8-12">8-12</option>
+                            <option value="12-16">12-16</option>
+                            <option value="greater than 16">greater than 16</option>
+                             
+                        </select>   
+                        @if(homogenousForm.get('international_roughness_index')?.invalid && homogenousForm.get('international_roughness_index')?.touched){
+                            <span  class="text-danger">Please select valid International Roughness Index (IRI)</span>
+                        } 
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Traffic Data</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="aadt_data">Annual Average Daily Traffic (AADT)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':homogenousForm.get('aadt_data')?.invalid && homogenousForm.get('aadt_data')?.touched}" id="aadt_data" formControlName="aadt_data" placeholder="Annual Average Daily Traffic (AADT)">
+                        @if(homogenousForm.get('aadt_data')?.invalid && homogenousForm.get('aadt_data')?.touched){
+                            <span  class="text-danger">Please enter valid Annual Average Daily Traffic (AADT)</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cvd_class">Commercial Vehicle Damage (CVD) Class</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('cvd_class')?.invalid && homogenousForm.get('cvd_class')?.touched}" id="cvd_class" formControlName="cvd_class">
+                            <option value="" selected disabled>Select</option>
+                            <option value="T1">T1</option>
+                            <option value="T2">T2</option>
+                            <option value="T3">T3</option>
+                             
+                        </select>   
+                        @if(homogenousForm.get('cvd_class')?.invalid && homogenousForm.get('cvd_class')?.touched){
+                            <span  class="text-danger">Please select valid Commercial Vehicle Damage (CVD) Class</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="axle_load_data">Axle Load Data</label><span class="text-danger">*</span>
+                        <textarea class="form-control" [ngClass]="{ 'is-invalid':homogenousForm.get('axle_load_data')?.invalid && homogenousForm.get('axle_load_data')?.touched}" id="axle_load_data" formControlName="axle_load_data" placeholder="Axle Load Data"></textarea>
+                        @if(homogenousForm.get('axle_load_data')?.invalid && homogenousForm.get('axle_load_data')?.touched){
+                            <span  class="text-danger">Please enter valid Axle Load Data</span>
+                        }
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Environmental and Site Conditions</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="temperature">Temperature</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':homogenousForm.get('temperature')?.invalid && homogenousForm.get('temperature')?.touched}" id="temperature" formControlName="temperature" placeholder="Temperature">
+                        @if(homogenousForm.get('temperature')?.invalid && homogenousForm.get('temperature')?.touched){
+                            <span  class="text-danger">Please enter valid Temperature</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="rainfall">Rainfall (mm)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':homogenousForm.get('rainfall')?.invalid && homogenousForm.get('rainfall')?.touched}" id="rainfall" formControlName="rainfall" placeholder="Rainfall (mm)">
+                        @if(homogenousForm.get('rainfall')?.invalid && homogenousForm.get('rainfall')?.touched){
+                            <span  class="text-danger">Please enter valid Rainfall (mm)</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="drainage_condition">Drainage Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('drainage_condition')?.invalid && homogenousForm.get('drainage_condition')?.touched}" id="drainage_condition" formControlName="drainage_condition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                            <option value="Poorss">Poorss</option>
+                             
+                        </select>   
+                        @if(homogenousForm.get('drainage_condition')?.invalid && homogenousForm.get('drainage_condition')?.touched){
+                            <span  class="text-danger">Please select valid Drainage Condition</span>
+                        } 
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">History of Works</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="last_maintenance_date">Last Maintenance Date</label><span class="text-danger">*</span>
+                        <input type="date" class="form-control" [ngClass]="{ 'is-invalid':homogenousForm.get('last_maintenance_date')?.invalid && homogenousForm.get('last_maintenance_date')?.touched}" id="last_maintenance_date" formControlName="last_maintenance_date" placeholder="Last Maintenance Date">
+                        @if(homogenousForm.get('last_maintenance_date')?.invalid && homogenousForm.get('last_maintenance_date')?.touched){
+                            <span  class="text-danger">Please enter valid Last Maintenance Date</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_of_last_maintenance">Type of Last Maintenance</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':homogenousForm.get('type_of_last_maintenance')?.invalid && homogenousForm.get('type_of_last_maintenance')?.touched}" id="type_of_last_maintenance" formControlName="type_of_last_maintenance">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Routine">Routine</option>
+                            <option value="Resurfacing">Resurfacing</option>
+                            <option value="Reconstruction">Reconstruction</option>
+                             
+                        </select>   
+                        @if(homogenousForm.get('type_of_last_maintenance')?.invalid && homogenousForm.get('type_of_last_maintenance')?.touched){
+                            <span  class="text-danger">Please select valid Type of Last Maintenance</span>
+                        } 
+                    </div>
+
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label" for="comments_observations">Comments/Observations</label><span class="text-danger">*</span>
+                        <textarea class="form-control" [ngClass]="{ 'is-invalid':homogenousForm.get('comments_observations')?.invalid && homogenousForm.get('comments_observations')?.touched}" id="comments_observations" formControlName="comments_observations" placeholder="Comments/Observations"></textarea>
+                        @if(homogenousForm.get('comments_observations')?.invalid && homogenousForm.get('comments_observations')?.touched){
+                            <span  class="text-danger">Please enter valid Comments/Observations</span>
+                        }
+                    </div>
+
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

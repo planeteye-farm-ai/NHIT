@@ -1,0 +1,1613 @@
+
+<app-page-header title="Update Inspection" title1="Update Inspection" activeTitle="Update Inspection"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Update Inspection'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="inspectionForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridgeName">Bridge Name</label>
+                        <input type="text" class="form-control" id="bridgeName" formControlName="bridgeName" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highwayNo">Road/ Highway No</label>
+                        <input type="text" class="form-control" id="highwayNo" formControlName="highwayNo" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="typeOfBridge">Type of Bridge</label>
+                        <input type="text" class="form-control" id="typeOfBridge" formControlName="typeOfBridge" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="durationOfInspection">Duration Of Inspection</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('durationOfInspection')?.invalid && inspectionForm.get('durationOfInspection')?.touched}" id="durationOfInspection" formControlName="durationOfInspection" placeholder="Duration Of Inspection">
+                        @if(inspectionForm.get('durationOfInspection')?.invalid && inspectionForm.get('durationOfInspection')?.touched){
+                            <span  class="text-danger">Please enter valid duration of inspection</span>
+                        } 
+                    </div>
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="methodOfInspection">Method Of Inspection</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('methodOfInspection')?.invalid && inspectionForm.get('methodOfInspection')?.touched}" id="methodOfInspection" formControlName="methodOfInspection" placeholder="Traffic Intensity">
+                        @if(inspectionForm.get('methodOfInspection')?.invalid && inspectionForm.get('methodOfInspection')?.touched){
+                            <span  class="text-danger">Please enter valid method of inspection</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="trafficIntensity">Traffic Intensity</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('trafficIntensity')?.invalid && inspectionForm.get('trafficIntensity')?.touched}" id="trafficIntensity" formControlName="trafficIntensity" placeholder="Traffic Intensity">
+                        @if(inspectionForm.get('trafficIntensity')?.invalid && inspectionForm.get('trafficIntensity')?.touched){
+                            <span  class="text-danger">Please enter valid traffic intensity</span>
+                        } 
+                    </div> -->
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="pavementSurface">Pavement Surface</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('pavementSurface')?.invalid && inspectionForm.get('pavementSurface')?.touched}" id="pavementSurface" formControlName="pavementSurface">
+                            <option value="" selected disabled>Select</option>
+                            <option value="settlement">Settlement</option>
+                            <option value="cracks">Cracks</option>
+                            <option value="pot holes">Pot Holes</option>
+                            
+                        </select>
+                        @if(inspectionForm.get('pavementSurface')?.invalid && inspectionForm.get('pavementSurface')?.touched){
+                            <span  class="text-danger">Please select valid pavement surface</span>
+                        } 
+                    </div> -->
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="sideslopes">Side Slopes</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('sideslopes')?.invalid && inspectionForm.get('sideslopes')?.touched}" id="sideslopes" formControlName="sideslopes">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Pitched">Pitched</option>
+                            <option value="Un-pitched">Un-pitched</option>
+                            <option value="Condition of Pitching">Condition of Pitching</option>
+                            <option value="Signs of Slope Failure">Signs of Slope Failure</option>
+                            <option value="No Side Slope">No Side Slope</option>
+                            
+                        </select>
+                        @if(inspectionForm.get('sideslopes')?.invalid && inspectionForm.get('sideslopes')?.touched){
+                            <span  class="text-danger">Please select valid side slopes</span>
+                        } 
+                    </div> -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="erosionEmbankment">Erosion Embankment</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('erosionEmbankment')?.invalid && inspectionForm.get('erosionEmbankment')?.touched}" id="erosionEmbankment" formControlName="erosionEmbankment">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Erosion by rain">Erosion by rain</option>
+                            <option value="Other damage">Other damage</option>
+                            <option value="No erosion">No erosion</option>
+                        </select>
+                        @if(inspectionForm.get('erosionEmbankment')?.invalid && inspectionForm.get('erosionEmbankment')?.touched){
+                            <span  class="text-danger">Please select valid erosion embankment</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="approachSlab">Approach Slab</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('approachSlab')?.invalid && inspectionForm.get('approachSlab')?.touched}" id="approachSlab" formControlName="approachSlab">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Settlement cracks">Settlement cracks</option>
+                            <option value="Movement">Movement</option>
+                            <option value="Not visible">Not visible</option>
+                        </select>
+                        @if(inspectionForm.get('approachSlab')?.invalid && inspectionForm.get('approachSlab')?.touched){
+                            <span  class="text-danger">Please select valid approach slab</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="approachGeometries">Approach Geometries</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('approachGeometries')?.invalid && inspectionForm.get('approachGeometries')?.touched}" id="approachGeometries" formControlName="approachGeometries">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes, satisfies the standards">Yes, satisfies the standards</option>
+                            <option value="No,does not satisfy the standards">No,does not satisfy the standards</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('approachGeometries')?.invalid && inspectionForm.get('approachGeometries')?.touched){
+                            <span  class="text-danger">Please select valid approach geometries</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="siltDebrisAccumulation">Silt And Debris On Submersible Approaches</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('siltDebrisAccumulation')?.invalid && inspectionForm.get('siltDebrisAccumulation')?.touched}" id="siltDebrisAccumulation" formControlName="siltDebrisAccumulation">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Submersible">Submersible</option>
+                            <option value="Non-submersible">Non-submersible</option>
+                        </select>
+                        @if(inspectionForm.get('siltDebrisAccumulation')?.invalid && inspectionForm.get('siltDebrisAccumulation')?.touched){
+                            <span  class="text-danger">Please select valid silt debris accumulation</span>
+                        } 
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="protectiveWorksType">Type Of Protective Works</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('protectiveWorksType')?.invalid && inspectionForm.get('protectiveWorksType')?.touched}" id="protectiveWorksType" formControlName="protectiveWorksType">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Guidebund">Guidebund</option>
+                            <option value="Protection around abutments">Protection around abutments</option>
+                            <option value="Spurs">Spurs</option>
+                            <option value="No protective works">No protective works</option>
+                        </select>
+                        @if(inspectionForm.get('protectiveWorksType')?.invalid && inspectionForm.get('protectiveWorksType')?.touched){
+                            <span  class="text-danger">Please select valid protective works type</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="layoutDamageReport">Layout And Cross-Section Profile Damage</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('layoutDamageReport')?.invalid && inspectionForm.get('layoutDamageReport')?.touched}" id="layoutDamageReport" formControlName="layoutDamageReport">
+                            <option value="" selected disabled>Select</option>
+                            <option value="No damage">No damage</option>
+                            <option value="Minor damage">Minor damage</option>
+                            <option value="Major damage">Major damage</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('layoutDamageReport')?.invalid && inspectionForm.get('layoutDamageReport')?.touched){
+                            <span  class="text-danger">Please select valid layout damage report</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="slopePitchingCondition">Slope Pitching Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('slopePitchingCondition')?.invalid && inspectionForm.get('slopePitchingCondition')?.touched}" id="slopePitchingCondition" formControlName="slopePitchingCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="No slope pitching">No slope pitching</option>
+                            <option value="Proper slope with no Damage">Proper slope with no damage</option>
+                            <option value="Damaged slope - thickness issue">Damaged slope - thickness issue</option>
+                            <option value="Damaged slope - width issue">Damaged slope - width issue</option>
+                            <option value="Damaged apron - thickness issue">Damaged apron - thickness issue</option>
+                            <option value="Damaged apron - width issue">Damaged apron - width issue</option>
+                            <option value="improper_toe_wall">improper_toe_wall</option>
+                            <option value="Other issues">Other issues</option>
+                        </select>
+                        @if(inspectionForm.get('slopePitchingCondition')?.invalid && inspectionForm.get('slopePitchingCondition')?.touched){
+                            <span  class="text-danger">Please select valid slope pitching condition</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="floorProtectionCondition">Floor Protection Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('floorProtectionCondition')?.invalid && inspectionForm.get('floorProtectionCondition')?.touched}" id="floorProtectionCondition" formControlName="floorProtectionCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="No floor protection done">No floor protection done</option>
+                            <option value="Impervious floor - damaged">Impervious floor - damaged</option>
+                            <option value="Flexible apron - damaged">Flexible apron - damaged</option>
+                            <option value="Curtain walls - damaged">Curtain walls damaged</option>
+                            <option value="Other issues">Other issues</option>
+                        </select>
+                        @if(inspectionForm.get('floorProtectionCondition')?.invalid && inspectionForm.get('floorProtectionCondition')?.touched){
+                            <span  class="text-danger">Please select valid floor protection condition</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="scourCondition">Scour Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('scourCondition')?.invalid && inspectionForm.get('scourCondition')?.touched}" id="scourCondition" formControlName="scourCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            
+                        </select>
+                        @if(inspectionForm.get('scourCondition')?.invalid && inspectionForm.get('scourCondition')?.touched){
+                            <span  class="text-danger">Please select valid scour condition</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reserveStoneMaterial">Reserve Stone Material</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('reserveStoneMaterial')?.invalid && inspectionForm.get('reserveStoneMaterial')?.touched}" id="reserveStoneMaterial" formControlName="reserveStoneMaterial">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            
+                        </select>
+                        @if(inspectionForm.get('reserveStoneMaterial')?.invalid && inspectionForm.get('reserveStoneMaterial')?.touched){
+                            <span  class="text-danger">Please select valid reserve stone material</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="waterwayCondition">Waterway Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('waterwayCondition')?.invalid && inspectionForm.get('waterwayCondition')?.touched}" id="waterwayCondition" formControlName="waterwayCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="No waterway">No waterway</option>
+                            <option value="Obstruction">Obstruction</option>
+                            <option value="Undergrowth">Undergrowth</option>
+                            <option value="Other">Other</option>
+                            
+                        </select>
+                        @if(inspectionForm.get('waterwayCondition')?.invalid && inspectionForm.get('waterwayCondition')?.touched){
+                            <span  class="text-danger">Please select valid waterway condition</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="flowPattern">Any Changes In Flow Pattern</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('flowPattern')?.invalid && inspectionForm.get('flowPattern')?.touched}" id="flowPattern" formControlName="flowPattern">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('flowPattern')?.invalid && inspectionForm.get('flowPattern')?.touched){
+                            <span  class="text-danger">Please select valid flow pattern</span>
+                        } 
+                    </div>
+
+    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="floodLevelUS">Maximum Flood Level (U/S)</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('floodLevelUS')?.invalid && inspectionForm.get('floodLevelUS')?.touched}" id="floodLevelUS" formControlName="floodLevelUS">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('floodLevelUS')?.invalid && inspectionForm.get('floodLevelUS')?.touched){
+                            <span  class="text-danger">Please enter valid Maximum Flood Level (U/S)</span>
+                        } 
+                    </div>
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="floodLevelDS">Maximum Flood Level (D/S)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('floodLevelDS')?.invalid && inspectionForm.get('floodLevelDS')?.touched}" id="floodLevelDS" formControlName="floodLevelDS" placeholder="Maximum Flood Level (D/S)">
+                        @if(inspectionForm.get('floodLevelDS')?.invalid && inspectionForm.get('floodLevelDS')?.touched){
+                            <span  class="text-danger">Please enter valid Maximum Flood Level (D/S)</span>
+                        } 
+                    </div> -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="abnormalAfflux">Abnormal Afflux</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('abnormalAfflux')?.invalid && inspectionForm.get('abnormalAfflux')?.touched}" id="abnormalAfflux" formControlName="abnormalAfflux">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('abnormalAfflux')?.invalid && inspectionForm.get('abnormalAfflux')?.touched){
+                            <span  class="text-danger">Please select valid abnormal afflux</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="adequacyOfWaterway">Adequacy Of Waterway</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('adequacyOfWaterway')?.invalid && inspectionForm.get('adequacyOfWaterway')?.touched}" id="adequacyOfWaterway" formControlName="adequacyOfWaterway">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('adequacyOfWaterway')?.invalid && inspectionForm.get('adequacyOfWaterway')?.touched){
+                            <span  class="text-danger">Please select valid adequacy of waterway</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="settlementShifting">Settlement Shifting Of Wells</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('settlementShifting')?.invalid && inspectionForm.get('settlementShifting')?.touched}" id="settlementShifting" formControlName="settlementShifting">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('settlementShifting')?.invalid && inspectionForm.get('settlementShifting')?.touched){
+                            <span  class="text-danger">Please select valid settlement shifting</span>
+                        } 
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="foundationReport">Foundations Report</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('foundationReport')?.invalid && inspectionForm.get('foundationReport')?.touched}" id="foundationReport" formControlName="foundationReport">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Cracking">Cracking</option>
+                            <option value="Disintegration">Disintegration</option>
+                            <option value="Decay">Decay</option>
+                            <option value="Erosion">Erosion</option>
+                            <option value="Cavitation">Cavitation</option>
+                        </select>
+                        @if(inspectionForm.get('foundationReport')?.invalid && inspectionForm.get('foundationReport')?.touched){
+                            <span  class="text-danger">Please select valid foundation report</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="foundationDamageType">Report Damage Due To Impact</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('foundationDamageType')?.invalid && inspectionForm.get('foundationDamageType')?.touched}" id="foundationDamageType" formControlName="foundationDamageType">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Flooring bodies">Flooring bodies</option>
+                            <option value="Boulders">Boulders</option>
+                            <option value="Others">Others</option>
+                        </select>
+                        @if(inspectionForm.get('foundationDamageType')?.invalid && inspectionForm.get('foundationDamageType')?.touched){
+                            <span  class="text-danger">Please select valid foundation damage type</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="subwaysReportDamageToFoundations">Subways Report Damage To Foundations</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('subwaysReportDamageToFoundations')?.invalid && inspectionForm.get('subwaysReportDamageToFoundations')?.touched}" id="subwaysReportDamageToFoundations" formControlName="subwaysReportDamageToFoundations">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('subwaysReportDamageToFoundations')?.invalid && inspectionForm.get('subwaysReportDamageToFoundations')?.touched){
+                            <span  class="text-danger">Please select valid subways report damage to foundations</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="SubstructureDrainageEfficiency">Substructure Drainage Efficiency Of Backfill</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('SubstructureDrainageEfficiency')?.invalid && inspectionForm.get('SubstructureDrainageEfficiency')?.touched}" id="SubstructureDrainageEfficiency" formControlName="SubstructureDrainageEfficiency">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Functioning of weep holes">Functioning of weep holes</option>
+                            <option value="Evidence of moisture on abutment faces">Evidence of moisture on abutment faces</option>
+                        </select>
+                        @if(inspectionForm.get('SubstructureDrainageEfficiency')?.invalid && inspectionForm.get('SubstructureDrainageEfficiency')?.touched){
+                            <span  class="text-danger">Please select valid substructure drainage efficiency of backfill</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="crackingDisintegrationDecay">Substructure Cracking/Disintegration Decay</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('crackingDisintegrationDecay')?.invalid && inspectionForm.get('crackingDisintegrationDecay')?.touched}" id="crackingDisintegrationDecay" formControlName="crackingDisintegrationDecay">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Cracking">Cracking</option>
+                            <option value="Disintegration">Disintegration</option>
+                            <option value="Decay">Decay</option>
+                            <option value="No cracks & disintegration decay">No cracks & disintegration decay</option>
+                        </select>
+                        @if(inspectionForm.get('crackingDisintegrationDecay')?.invalid && inspectionForm.get('crackingDisintegrationDecay')?.touched){
+                            <span  class="text-danger">Please select valid substructure cracking/disintegration decay</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="substructureSubwaysConditions">Substructure Subways Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('substructureSubwaysConditions')?.invalid && inspectionForm.get('substructureSubwaysConditions')?.touched}" id="substructureSubwaysConditions" formControlName="substructureSubwaysConditions">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Cracking">Cracking</option>
+                            <option value="Disintegration">Disintegration</option>
+                            <option value="See page">See page</option>
+                            <option value="No subways">No subways</option>
+                        </select>
+                        @if(inspectionForm.get('substructureSubwaysConditions')?.invalid && inspectionForm.get('substructureSubwaysConditions')?.touched){
+                            <span  class="text-danger">Please select valid substructure subways conditions</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="substructureLargeExcavationsReport">Substructure Large Excavations Report</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('substructureLargeExcavationsReport')?.invalid && inspectionForm.get('substructureLargeExcavationsReport')?.touched}" id="substructureLargeExcavationsReport" formControlName="substructureLargeExcavationsReport">
+                            <option value="" selected disabled>Select</option>
+                            <option value="No large excavations">No large excavations</option>
+                            <option value="Large excavations">Large excavationss</option>
+                        </select>
+                        @if(inspectionForm.get('substructureLargeExcavationsReport')?.invalid && inspectionForm.get('substructureLargeExcavationsReport')?.touched){
+                            <span  class="text-danger">Please select valid substructure large excavations report</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="substructureDamagesProtectiveMeasures">Substructure Damages To Protective Measures</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('substructureDamagesProtectiveMeasures')?.invalid && inspectionForm.get('substructureDamagesProtectiveMeasures')?.touched}" id="substructureDamagesProtectiveMeasures" formControlName="substructureDamagesProtectiveMeasures">
+                            <option value="" selected disabled>Select</option>
+                            <option value="No damage">No damage</option>
+                            <option value="Damage">Damage</option>
+                        </select>
+                        @if(inspectionForm.get('substructureDamagesProtectiveMeasures')?.invalid && inspectionForm.get('substructureDamagesProtectiveMeasures')?.touched){
+                            <span  class="text-danger">Please select valid substructure substructure damages protective measures</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="substructureProtectiveCoating">Substructure Protective Coating/Paint Damages</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('substructureProtectiveCoating')?.invalid && inspectionForm.get('substructureProtectiveCoating')?.touched}" id="substructureProtectiveCoating" formControlName="substructureProtectiveCoating">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Requires painting">Requires painting</option>
+                            <option value="No Damage">No damage</option>
+                        </select>
+                        @if(inspectionForm.get('substructureProtectiveCoating')?.invalid && inspectionForm.get('substructureProtectiveCoating')?.touched){
+                            <span  class="text-danger">Please select valid substructure protective coating</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="metallicBearings">Metallic Bearings</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('metallicBearings')?.invalid && inspectionForm.get('metallicBearings')?.touched}" id="metallicBearings" formControlName="metallicBearings">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Sliding plate">Sliding plate</option>
+                            <option value="Rocke">Rocke</option>
+                            <option value="Roller">Roller</option>
+                        </select>
+                        @if(inspectionForm.get('metallicBearings')?.invalid && inspectionForm.get('metallicBearings')?.touched){
+                            <span  class="text-danger">Please select valid metallic bearings</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bearingsCondition">Bearings Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('bearingsCondition')?.invalid && inspectionForm.get('bearingsCondition')?.touched}" id="bearingsCondition" formControlName="bearingsCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Rusting">Rusting</option>
+                            <option value="Cleanliness">Cleanliness</option>
+                            <option value="Ceasing of plates">Ceasing of plates</option>
+                            <option value="Silting accumulation">Silting accumulation</option>
+                        </select>
+                        @if(inspectionForm.get('bearingsCondition')?.invalid && inspectionForm.get('bearingsCondition')?.touched){
+                            <span  class="text-danger">Please select valid bearings condition</span>
+                        } 
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bearingsFunctioning">Bearings Functioning</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('bearingsFunctioning')?.invalid && inspectionForm.get('bearingsFunctioning')?.touched}" id="bearingsFunctioning" formControlName="bearingsFunctioning">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Report excessive movement/tilting">Report excessive movement/tilting</option>
+                            <option value="Jumping of guides">Jumping of guides</option>
+                            <option value="Functioning">Functioning</option>
+                        </select>
+                        @if(inspectionForm.get('bearingsFunctioning')?.invalid && inspectionForm.get('bearingsFunctioning')?.touched){
+                            <span  class="text-danger">Please select valid bearings functioning</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="greasingOilBath">Greasing/Oil Bath</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('greasingOilBath')?.invalid && inspectionForm.get('greasingOilBath')?.touched}" id="greasingOilBath" formControlName="greasingOilBath">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Report date of last greasing of 1 bath">Report date of last greasing of 1 bath</option>
+                            <option value="Whether to be redone or not">Whether to be redone or not</option>
+                            <option value="Requires greasing and oiling">Requires greasing and oiling</option>
+                        </select>
+                        @if(inspectionForm.get('greasingOilBath')?.invalid && inspectionForm.get('greasingOilBath')?.touched){
+                            <span  class="text-danger">Please select valid greasing oil bath</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="anchorBoltsPosition">Anchor Bolts In Position</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('anchorBoltsPosition')?.invalid && inspectionForm.get('anchorBoltsPosition')?.touched}" id="anchorBoltsPosition" formControlName="anchorBoltsPosition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('anchorBoltsPosition')?.invalid && inspectionForm.get('anchorBoltsPosition')?.touched){
+                            <span  class="text-danger">Please select valid anchor bolts position</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="elastromericBearings">Elastromeric Bearings </label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('elastromericBearings')?.invalid && inspectionForm.get('elastromericBearings')?.touched}" id="elastromericBearings" formControlName="elastromericBearings">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('elastromericBearings')?.invalid && inspectionForm.get('elastromericBearings')?.touched){
+                            <span  class="text-danger">Please select valid elastromeric bearings</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="padsConditionBearings">Condition Of Pads/Oxidation/Creep Flattening/Bulging/Splitting </label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('padsConditionBearings')?.invalid && inspectionForm.get('padsConditionBearings')?.touched}" id="padsConditionBearings" formControlName="padsConditionBearings">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('padsConditionBearings')?.invalid && inspectionForm.get('padsConditionBearings')?.touched){
+                            <span  class="text-danger">Please select valid pads condition bearings</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="generalCleanlinessBearings">Bearings General Cleanliness</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('generalCleanlinessBearings')?.invalid && inspectionForm.get('generalCleanlinessBearings')?.touched}" id="generalCleanlinessBearings" formControlName="generalCleanlinessBearings">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('generalCleanlinessBearings')?.invalid && inspectionForm.get('generalCleanlinessBearings')?.touched){
+                            <span  class="text-danger">Please select valid general cleanliness bearings</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="concreteBearings">Concrete Bearings</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('concreteBearings')?.invalid && inspectionForm.get('concreteBearings')?.touched}" id="concreteBearings" formControlName="concreteBearings">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('concreteBearings')?.invalid && inspectionForm.get('concreteBearings')?.touched){
+                            <span  class="text-danger">Please select valid concrete bearings</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="distressSigns">Bearings Signs Of Distress (Cracking/Spalling/Disintegration/Staining)</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('distressSigns')?.invalid && inspectionForm.get('distressSigns')?.touched}" id="distressSigns" formControlName="distressSigns">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('distressSigns')?.invalid && inspectionForm.get('distressSigns')?.touched){
+                            <span  class="text-danger">Please select valid distress signs</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="excessiveTilting">Excessive Tilting</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('excessiveTilting')?.invalid && inspectionForm.get('excessiveTilting')?.touched}" id="excessiveTilting" formControlName="excessiveTilting">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('excessiveTilting')?.invalid && inspectionForm.get('excessiveTilting')?.touched){
+                            <span  class="text-danger">Please select valid excessive tilting </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="lossOfShape">Loss Of Shape</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('lossOfShape')?.invalid && inspectionForm.get('lossOfShape')?.touched}" id="lossOfShape" formControlName="lossOfShape">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('lossOfShape')?.invalid && inspectionForm.get('lossOfShape')?.touched){
+                            <span  class="text-danger">Please select valid loss of shape </span>
+                        } 
+                    </div>
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bearingsGeneralCleanliness">Bearings General Cleanliness</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('bearingsGeneralCleanliness')?.invalid && inspectionForm.get('bearingsGeneralCleanliness')?.touched}" id="bearingsGeneralCleanliness" formControlName="bearingsGeneralCleanliness">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('bearingsGeneralCleanliness')?.invalid && inspectionForm.get('bearingsGeneralCleanliness')?.touched){
+                            <span  class="text-danger">Please select valid bearings general cleanliness </span>
+                        } 
+                    </div> -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="crackReport">Report Cracks In Supporting Member</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('crackReport')?.invalid && inspectionForm.get('crackReport')?.touched}" id="crackReport" formControlName="crackReport">
+                            <option value="" selected disabled>Select</option>
+                            <option value="No cracks">No cracks</option>
+                            <option value="Cracks in abutment cap">Cracks in abutment cap</option>
+                            <option value="Cracks in pier cap">Cracks in pier cap</option>
+                            <option value="Cracks in pedestal">Cracks in pedestal</option>
+                            <option value="Cracks in pier p1">Cracks in pier p1</option>
+                            <option value="Cracks in pier p2">Cracks in pier p2</option>
+                            <option value="Cracks in pier p1 & p2">Cracks in pier p1 & p2</option>
+
+                        </select>
+                        @if(inspectionForm.get('crackReport')?.invalid && inspectionForm.get('crackReport')?.touched){
+                            <span  class="text-danger">Please select valid crack report </span>
+                        } 
+                    </div>
+
+                    <!-- 10 point sart here  -->
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reinforcedConc">Reinforced Concrete And Prestressed Concrete</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('reinforcedConc')?.invalid && inspectionForm.get('reinforcedConc')?.touched}" id="reinforcedConc" formControlName="reinforcedConc" placeholder="Reinforced concrete and prestressed concrete">
+                        @if(inspectionForm.get('reinforcedConc')?.invalid && inspectionForm.get('reinforcedConc')?.touched){
+                            <span  class="text-danger">Please enter valid Reinforced Concrete And Prestressed Concrete</span>
+                        } 
+                    </div> -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reinforcedConc">Reinforced Concrete And Prestressed Concrete Members</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('reinforcedConc')?.invalid && inspectionForm.get('reinforcedConc')?.touched}" id="reinforcedConc" formControlName="reinforcedConc">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Reinforced concrete">Reinforced concrete</option>
+                            <option value="Prestressed concrete">Prestressed concrete</option>
+                        </select>
+                        @if(inspectionForm.get('reinforcedConc')?.invalid && inspectionForm.get('reinforcedConc')?.touched){
+                            <span  class="text-danger">reinforced concrete and prestressed concrete members</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="spallingDisintegration">Spalling, Disintegration, Or Honeycombing</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('spallingDisintegration')?.invalid && inspectionForm.get('spallingDisintegration')?.touched}" id="spallingDisintegration" formControlName="spallingDisintegration">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('spallingDisintegration')?.invalid && inspectionForm.get('spallingDisintegration')?.touched){
+                            <span  class="text-danger">Please select valid Spalling, disintegration, or honeycombing </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="crackingInDeckSlab">Cracking In Deck Slab</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('crackingInDeckSlab')?.invalid && inspectionForm.get('crackingInDeckSlab')?.touched}" id="crackingInDeckSlab" formControlName="crackingInDeckSlab">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('crackingInDeckSlab')?.invalid && inspectionForm.get('crackingInDeckSlab')?.touched){
+                            <span  class="text-danger">Please select valid cracking in deck slab </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="coverThickness">Cover Thickness (Exposed Reinforcement)</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('coverThickness')?.invalid && inspectionForm.get('coverThickness')?.touched}" id="coverThickness" formControlName="coverThickness">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('coverThickness')?.invalid && inspectionForm.get('coverThickness')?.touched){
+                            <span  class="text-danger">Please select valid cover thickness </span>
+                        } 
+                    </div>
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="wearDeckSurface">Wear Of Deck Slab</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('wearDeckSurface')?.invalid && inspectionForm.get('wearDeckSurface')?.touched}" id="wearDeckSurface" formControlName="wearDeckSurface" placeholder="Crack Details (near expansion joint)">
+                        @if(inspectionForm.get('wearDeckSurface')?.invalid && inspectionForm.get('wearDeckSurface')?.touched){
+                            <span  class="text-danger">Please enter valid wear of deck slab</span>
+                        } 
+                    </div> -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="wearDeckSurface">Wear Of Deck Slab</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('wearDeckSurface')?.invalid && inspectionForm.get('wearDeckSurface')?.touched}" id="wearDeckSurface" formControlName="wearDeckSurface">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('wearDeckSurface')?.invalid && inspectionForm.get('wearDeckSurface')?.touched){
+                            <span  class="text-danger">Please select valid wear of deck slab</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="scalingSurfaceMortarLoss">Scaling (Surface Mortar Loss)</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('scalingSurfaceMortarLoss')?.invalid && inspectionForm.get('scalingSurfaceMortarLoss')?.touched}" id="scalingSurfaceMortarLoss" formControlName="scalingSurfaceMortarLoss">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('scalingSurfaceMortarLoss')?.invalid && inspectionForm.get('scalingSurfaceMortarLoss')?.touched){
+                            <span  class="text-danger">Please select valid scaling (surface mortar loss)</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="stainsRust">Report Surface Stain And Rust Stain With Locations</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('stainsRust')?.invalid && inspectionForm.get('stainsRust')?.touched}" id="stainsRust" formControlName="stainsRust" placeholder="Report Surface Stain And Rust Stain With Locations">
+                        @if(inspectionForm.get('stainsRust')?.invalid && inspectionForm.get('stainsRust')?.touched){
+                            <span  class="text-danger">Please enter valid report surface stain and rust stain with locations</span>
+                        } 
+                    </div>
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="leaching">Leaching</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('leaching')?.invalid && inspectionForm.get('leaching')?.touched}" id="leaching" formControlName="leaching" placeholder="Crack Details (near expansion joint)">
+                        @if(inspectionForm.get('leaching')?.invalid && inspectionForm.get('leaching')?.touched){
+                            <span  class="text-danger">Please enter valid leaching</span>
+                        } 
+                    </div> -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="leaching">Leaching</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('leaching')?.invalid && inspectionForm.get('leaching')?.touched}" id="leaching" formControlName="leaching">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('leaching')?.invalid && inspectionForm.get('leaching')?.touched){
+                            <span  class="text-danger">Please select valid leaching</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="corrosionOfReinforcement">Corrosion Of Reinforcement</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('corrosionOfReinforcement')?.invalid && inspectionForm.get('corrosionOfReinforcement')?.touched}" id="corrosionOfReinforcement" formControlName="corrosionOfReinforcement">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('corrosionOfReinforcement')?.invalid && inspectionForm.get('corrosionOfReinforcement')?.touched){
+                            <span  class="text-danger">Please select valid corrosion of reinforcement</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="leakageReport">Report Leakage</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('leakageReport')?.invalid && inspectionForm.get('leakageReport')?.touched}" id="leakageReport" formControlName="leakageReport" placeholder="Report Leakage">
+                        @if(inspectionForm.get('leakageReport')?.invalid && inspectionForm.get('leakageReport')?.touched){
+                            <span  class="text-danger">Please enter valid leakage report</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="damagesDueToVehicles">Report Damages Due to Moving Vehicles</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('damagesDueToVehicles')?.invalid && inspectionForm.get('damagesDueToVehicles')?.touched}" id="damagesDueToVehicles" formControlName="damagesDueToVehicles">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('damagesDueToVehicles')?.invalid && inspectionForm.get('damagesDueToVehicles')?.touched){
+                            <span  class="text-danger">Please select valid report damages due to moving vehicles</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="articulationCondition">Report Condition Of Articulation (Cracks, If Any)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('articulationCondition')?.invalid && inspectionForm.get('articulationCondition')?.touched}" id="articulationCondition" formControlName="articulationCondition" placeholder="Report Condition of Articulation (Cracks, If Any)">
+                        @if(inspectionForm.get('articulationCondition')?.invalid && inspectionForm.get('articulationCondition')?.touched){
+                            <span  class="text-danger">Please enter valid articulation condition</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="perceptibleVibrations">Report Perceptible Vibrations</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('perceptibleVibrations')?.invalid && inspectionForm.get('perceptibleVibrations')?.touched}" id="perceptibleVibrations" formControlName="perceptibleVibrations">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('perceptibleVibrations')?.invalid && inspectionForm.get('perceptibleVibrations')?.touched){
+                            <span  class="text-danger">Please select valid report perceptible vibrations</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="deflectionCondition">Report Excessive Deflection (Sag) Or Loss Of Camber</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('deflectionCondition')?.invalid && inspectionForm.get('deflectionCondition')?.touched}" id="deflectionCondition" formControlName="deflectionCondition" placeholder="Report Excessive Deflection (Sag) Or Loss Of Camber">
+                        @if(inspectionForm.get('deflectionCondition')?.invalid && inspectionForm.get('deflectionCondition')?.touched){
+                            <span  class="text-danger">Please enter valid deflection condition</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reportCracks">Report Cracks In End Anchorage Zone</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('reportCracks')?.invalid && inspectionForm.get('reportCracks')?.touched}" id="reportCracks" formControlName="reportCracks">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('reportCracks')?.invalid && inspectionForm.get('reportCracks')?.touched){
+                            <span  class="text-danger">Please select valid report cracks in end anchorage zone</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reportExcessiveDeflection">Report Excessive Deflection (Sag) At Central Hinge Tip</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('reportExcessiveDeflection')?.invalid && inspectionForm.get('reportExcessiveDeflection')?.touched}" id="reportExcessiveDeflection" formControlName="reportExcessiveDeflection">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('reportExcessiveDeflection')?.invalid && inspectionForm.get('reportExcessiveDeflection')?.touched){
+                            <span  class="text-danger">Please select valid report excessive deflection</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="longitudinalCracksInFlanges">Longitudinal Cracks In The Flanges</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('longitudinalCracksInFlanges')?.invalid && inspectionForm.get('longitudinalCracksInFlanges')?.touched}" id="longitudinalCracksInFlanges" formControlName="longitudinalCracksInFlanges">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('longitudinalCracksInFlanges')?.invalid && inspectionForm.get('longitudinalCracksInFlanges')?.touched){
+                            <span  class="text-danger">Please select valid longitudinal cracks in the flanges</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="spallingOrCracking">Spalling Or Cracking Of Concrete Near Curved Cable Ducts</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('spallingOrCracking')?.invalid && inspectionForm.get('spallingOrCracking')?.touched}" id="spallingOrCracking" formControlName="spallingOrCracking">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('spallingOrCracking')?.invalid && inspectionForm.get('spallingOrCracking')?.touched){
+                            <span  class="text-danger">Please select valid spalling or cracking</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shearCracksInWebs">Shear Cracks In Webs Nearer To Supports</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('shearCracksInWebs')?.invalid && inspectionForm.get('shearCracksInWebs')?.touched}" id="shearCracksInWebs" formControlName="shearCracksInWebs">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('shearCracksInWebs')?.invalid && inspectionForm.get('shearCracksInWebs')?.touched){
+                            <span  class="text-danger">Please select valid shear cracks in webs</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cracksInBoxGirder">Cracks In Box Girder</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('cracksInBoxGirder')?.invalid && inspectionForm.get('cracksInBoxGirder')?.touched}" id="cracksInBoxGirder" formControlName="cracksInBoxGirder">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('cracksInBoxGirder')?.invalid && inspectionForm.get('cracksInBoxGirder')?.touched){
+                            <span  class="text-danger">Please select valid cracks in box girder</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="siltDebrisReport">Report Accumulation Of Silt And Debris On Deck Surface</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('siltDebrisReport')?.invalid && inspectionForm.get('siltDebrisReport')?.touched}" id="siltDebrisReport" formControlName="siltDebrisReport" placeholder="Report Accumulation Of Silt And Debris On Deck Surface">
+                        @if(inspectionForm.get('siltDebrisReport')?.invalid && inspectionForm.get('siltDebrisReport')?.touched){
+                            <span  class="text-danger">Please enter valid silt debris report</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="peelingPaint">Report Peeling Off Of Protective Coat Or Paint</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('peelingPaint')?.invalid && inspectionForm.get('peelingPaint')?.touched}" id="peelingPaint" formControlName="peelingPaint" placeholder="Report Peeling Off Of Protective Coat Or Paint">
+                        @if(inspectionForm.get('peelingPaint')?.invalid && inspectionForm.get('peelingPaint')?.touched){
+                            <span  class="text-danger">Please enter valid peeling Paint</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="steelMembers">Steel Members</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('steelMembers')?.invalid && inspectionForm.get('steelMembers')?.touched}" id="steelMembers" formControlName="steelMembers">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('steelMembers')?.invalid && inspectionForm.get('steelMembers')?.touched){
+                            <span  class="text-danger">Please select valid steel embers</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ConOfProtectiveSystem">Report Condition Of Protective System</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('ConOfProtectiveSystem')?.invalid && inspectionForm.get('ConOfProtectiveSystem')?.touched}" id="ConOfProtectiveSystem" formControlName="ConOfProtectiveSystem">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('ConOfProtectiveSystem')?.invalid && inspectionForm.get('ConOfProtectiveSystem')?.touched){
+                            <span  class="text-danger">Please select valid report condition of protective cystem</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reportOnCorrosion">Report On Corrosion</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('reportOnCorrosion')?.invalid && inspectionForm.get('reportOnCorrosion')?.touched}" id="reportOnCorrosion" formControlName="reportOnCorrosion">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('reportOnCorrosion')?.invalid && inspectionForm.get('reportOnCorrosion')?.touched){
+                            <span  class="text-danger">Please select valid report on corrosion</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reportExcessiveVibrations">Report Excessive Vibrations</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('reportExcessiveVibrations')?.invalid && inspectionForm.get('reportExcessiveVibrations')?.touched}" id="reportExcessiveVibrations" formControlName="reportExcessiveVibrations">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('reportExcessiveVibrations')?.invalid && inspectionForm.get('reportExcessiveVibrations')?.touched){
+                            <span  class="text-danger">Please select valid report excessive vibrations</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="alignmentOfMembers">Report On Alignment Of Members</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('alignmentOfMembers')?.invalid && inspectionForm.get('alignmentOfMembers')?.touched}" id="alignmentOfMembers" formControlName="alignmentOfMembers">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('alignmentOfMembers')?.invalid && inspectionForm.get('alignmentOfMembers')?.touched){
+                            <span  class="text-danger">Please select valid alignment of members</span>
+                        } 
+                    </div>
+                    <!-- new  -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="condition_of_connection">Condition Of Connection</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('condition_of_connection')?.invalid && inspectionForm.get('condition_of_connection')?.touched}" id="condition_of_connection" formControlName="condition_of_connection">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('condition_of_connection')?.invalid && inspectionForm.get('condition_of_connection')?.touched){
+                            <span  class="text-danger">Please select valid condition of connection</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="excessive_loss_of_camber">Excessive Loss Cf Camber</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('excessive_loss_of_camber')?.invalid && inspectionForm.get('excessive_loss_of_camber')?.touched}" id="excessive_loss_of_camber" formControlName="excessive_loss_of_camber">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('excessive_loss_of_camber')?.invalid && inspectionForm.get('excessive_loss_of_camber')?.touched){
+                            <span  class="text-danger">Please select valid excessive loss of camber</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="buckling_kinking_warping_waviness">Buckling Kinking Warping Waviness</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('buckling_kinking_warping_waviness')?.invalid && inspectionForm.get('buckling_kinking_warping_waviness')?.touched}" id="buckling_kinking_warping_waviness" formControlName="buckling_kinking_warping_waviness">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('buckling_kinking_warping_waviness')?.invalid && inspectionForm.get('buckling_kinking_warping_waviness')?.touched){
+                            <span  class="text-danger">Please select valid buckling kinking warping waviness</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cleanliness_of_members">Cleanliness Of Members</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('cleanliness_of_members')?.invalid && inspectionForm.get('cleanliness_of_members')?.touched}" id="cleanliness_of_members" formControlName="cleanliness_of_members">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('cleanliness_of_members')?.invalid && inspectionForm.get('cleanliness_of_members')?.touched){
+                            <span  class="text-danger">Please select valid cleanliness of members</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="fracture_apparent">Fracture Apparent</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('fracture_apparent')?.invalid && inspectionForm.get('fracture_apparent')?.touched}" id="fracture_apparent" formControlName="fracture_apparent">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('fracture_apparent')?.invalid && inspectionForm.get('fracture_apparent')?.touched){
+                            <span  class="text-danger">Please select valid fracture apparent</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="excessive_wear">Excessive Wear</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('excessive_wear')?.invalid && inspectionForm.get('excessive_wear')?.touched}" id="excessive_wear" formControlName="excessive_wear">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('excessive_wear')?.invalid && inspectionForm.get('excessive_wear')?.touched){
+                            <span  class="text-danger">Please select valid excessive wear</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="closed_members_conditions">Closed Members Conditions</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('closed_members_conditions')?.invalid && inspectionForm.get('closed_members_conditions')?.touched}" id="closed_members_conditions" formControlName="closed_members_conditions">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('closed_members_conditions')?.invalid && inspectionForm.get('closed_members_conditions')?.touched){
+                            <span  class="text-danger">Please select closed members conditions</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="masonry_arches">Masonry Arches</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('masonry_arches')?.invalid && inspectionForm.get('masonry_arches')?.touched}" id="masonry_arches" formControlName="masonry_arches">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('masonry_arches')?.invalid && inspectionForm.get('masonry_arches')?.touched){
+                            <span  class="text-danger">Please select closed masonry arches</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="condition_of_joints_mortar">Condition Of Joints Mortar</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('condition_of_joints_mortar')?.invalid && inspectionForm.get('condition_of_joints_mortar')?.touched}" id="condition_of_joints_mortar" formControlName="condition_of_joints_mortar">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('condition_of_joints_mortar')?.invalid && inspectionForm.get('condition_of_joints_mortar')?.touched){
+                            <span  class="text-danger">Please select condition of joints mortar</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="flattening_by_observing_rise">Flattening By observing Rise</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('flattening_by_observing_rise')?.invalid && inspectionForm.get('flattening_by_observing_rise')?.touched}" id="flattening_by_observing_rise" formControlName="flattening_by_observing_rise">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('flattening_by_observing_rise')?.invalid && inspectionForm.get('flattening_by_observing_rise')?.touched){
+                            <span  class="text-danger">Please select flattening by observing rise</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="masonry_arches_cracks">Masonry Arches Cracks</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('masonry_arches_cracks')?.invalid && inspectionForm.get('masonry_arches_cracks')?.touched}" id="masonry_arches_cracks" formControlName="masonry_arches_cracks">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('masonry_arches_cracks')?.invalid && inspectionForm.get('masonry_arches_cracks')?.touched){
+                            <span  class="text-danger">Please select masonry arches cracks</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="drainage_of_spandrel_fillings">Drainage Of Spandrel Fillings</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('drainage_of_spandrel_fillings')?.invalid && inspectionForm.get('drainage_of_spandrel_fillings')?.touched}" id="drainage_of_spandrel_fillings" formControlName="drainage_of_spandrel_fillings">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('drainage_of_spandrel_fillings')?.invalid && inspectionForm.get('drainage_of_spandrel_fillings')?.touched){
+                            <span  class="text-danger">Please select drainage of spandrel fillings</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="growth_of_vegetation">Growth Of Vegetation</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('growth_of_vegetation')?.invalid && inspectionForm.get('growth_of_vegetation')?.touched}" id="growth_of_vegetation" formControlName="growth_of_vegetation">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('growth_of_vegetation')?.invalid && inspectionForm.get('growth_of_vegetation')?.touched){
+                            <span  class="text-danger">Please select growth of vegetation</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cast_iron_and_wrought_iron">Cast Iron And Wrought Iron</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('cast_iron_and_wrought_iron')?.invalid && inspectionForm.get('cast_iron_and_wrought_iron')?.touched}" id="cast_iron_and_wrought_iron" formControlName="cast_iron_and_wrought_iron">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('cast_iron_and_wrought_iron')?.invalid && inspectionForm.get('cast_iron_and_wrought_iron')?.touched){
+                            <span  class="text-danger">Please select cast iron and wrought iron</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="casting_of_metal">Casting Of Metal</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('casting_of_metal')?.invalid && inspectionForm.get('casting_of_metal')?.touched}" id="casting_of_metal" formControlName="casting_of_metal">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('casting_of_metal')?.invalid && inspectionForm.get('casting_of_metal')?.touched){
+                            <span  class="text-danger">Please select casting of metal</span>
+                        } 
+                    </div>
+
+
+                    <!-- 10 point end here  -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="expansionJointCrackDetails">Crack Details (Near Expansion Joint)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('expansionJointCrackDetails')?.invalid && inspectionForm.get('expansionJointCrackDetails')?.touched}" id="expansionJointCrackDetails" formControlName="expansionJointCrackDetails" placeholder="Crack Details (Near Expansion Joint)">
+                        @if(inspectionForm.get('expansionJointCrackDetails')?.invalid && inspectionForm.get('expansionJointCrackDetails')?.touched){
+                            <span  class="text-danger">Please enter valid expansion joint crack details</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="sealingMaterialCondition">Condition Of Sealing Material</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('sealingMaterialCondition')?.invalid && inspectionForm.get('sealingMaterialCondition')?.touched}" id="sealingMaterialCondition" formControlName="sealingMaterialCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Spalling">Spalling</option>
+                            <option value="Oxidation">Oxidation</option>
+                            <option value="Creep">Creep</option>
+                            <option value="Flattening">Flattening</option>
+                            <option value="Bulging">Bulging</option>
+                            <option value="Cracking">Burdening</option>
+                            <option value="Cracking">Cracking</option>
+                            <option value="No sealing material mrovided">No sealing material mrovided</option>
+                        </select>
+                        @if(inspectionForm.get('sealingMaterialCondition')?.invalid && inspectionForm.get('sealingMaterialCondition')?.touched){
+                            <span  class="text-danger">Please select valid sealing material condition </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="jointsAreSecured">Joints Are Secured?</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('jointsAreSecured')?.invalid && inspectionForm.get('jointsAreSecured')?.touched}" id="jointsAreSecured" formControlName="jointsAreSecured">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('jointsAreSecured')?.invalid && inspectionForm.get('jointsAreSecured')?.touched){
+                            <span  class="text-danger">Please select valid joints are secured or not </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="topSlidingPlateCondition">Condition Of Top Sliding Plate</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('topSlidingPlateCondition')?.invalid && inspectionForm.get('topSlidingPlateCondition')?.touched}" id="topSlidingPlateCondition" formControlName="topSlidingPlateCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Good condition">Good condition</option>
+                            <option value="Corroded">Corroded</option>
+                            <option value="Damage to welds">Damage to welds</option>
+                        </select>
+                        @if(inspectionForm.get('topSlidingPlateCondition')?.invalid && inspectionForm.get('topSlidingPlateCondition')?.touched){
+                            <span  class="text-danger">Please select valid condition of top sliding plate </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="lockingCondition">Locking Condition Of Joints</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('lockingCondition')?.invalid && inspectionForm.get('lockingCondition')?.touched}" id="lockingCondition" formControlName="lockingCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Locked">Locked</option>
+                            <option value="Unlocked">Unlocked</option>
+                            <option value="Not finger type expansion joint">Not finger type expansion joint</option>
+                        </select>
+                        @if(inspectionForm.get('lockingCondition')?.invalid && inspectionForm.get('lockingCondition')?.touched){
+                            <span  class="text-danger">Please select valid locking condition of joints </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="debrisCondition">Debris In Open Joints</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('debrisCondition')?.invalid && inspectionForm.get('debrisCondition')?.touched}" id="debrisCondition" formControlName="debrisCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes, silt and sand are seen in expansion joints">Yes, silt and sand are seen in expansion joints</option>
+                            <option value="No debris observed">No debris observed</option>
+                        </select>
+                        @if(inspectionForm.get('debrisCondition')?.invalid && inspectionForm.get('debrisCondition')?.touched){
+                            <span  class="text-danger">Please select valid debris in jpen joints </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="rattlingCondition">Rattling Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('rattlingCondition')?.invalid && inspectionForm.get('rattlingCondition')?.touched}" id="rattlingCondition" formControlName="rattlingCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('rattlingCondition')?.invalid && inspectionForm.get('rattlingCondition')?.touched){
+                            <span  class="text-danger">Please select valid rattling condition </span>
+                        } 
+                    </div>
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="drainageImprovement">Drainage Improvement Needed</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('drainageImprovement')?.invalid && inspectionForm.get('drainageImprovement')?.touched}" id="drainageImprovement" formControlName="drainageImprovement" placeholder="Drainage Improvement Needed">
+                        @if(inspectionForm.get('drainageImprovement')?.invalid && inspectionForm.get('drainageImprovement')?.touched){
+                            <span  class="text-danger">Please enter valid drainage improvement</span>
+                        } 
+                    </div> -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="drainageImprovement">Drainage Improvement Needed</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('drainageImprovement')?.invalid && inspectionForm.get('drainageImprovement')?.touched}" id="drainageImprovement" formControlName="drainageImprovement">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('drainageImprovement')?.invalid && inspectionForm.get('drainageImprovement')?.touched){
+                            <span  class="text-danger">Please select valid drainage improvement needed </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="surfaceCondition">Surface Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('surfaceCondition')?.invalid && inspectionForm.get('surfaceCondition')?.touched}" id="surfaceCondition" formControlName="surfaceCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Cracks">Cracks</option>
+                            <option value="Spalling">Spalling</option>
+                            <option value="Disintegration">Disintegration</option>
+                            <option value="Pot holes">Pot holes</option>
+                        </select>
+                        @if(inspectionForm.get('surfaceCondition')?.invalid && inspectionForm.get('surfaceCondition')?.touched){
+                            <span  class="text-danger">Please select valid surface condition </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="wearEvidence">Evidence Of Wear</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('wearEvidence')?.invalid && inspectionForm.get('wearEvidence')?.touched}" id="wearEvidence" formControlName="wearEvidence">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Not known">Not known</option>
+                            <option value="Tell-tale rings">Tell-tale rings</option>
+                            <option value="Thickness check">Thickness check</option>
+                            <option value="Last inspection date">Last inspection date</option>
+                        </select>
+                        @if(inspectionForm.get('wearEvidence')?.invalid && inspectionForm.get('wearEvidence')?.touched){
+                            <span  class="text-danger">Please select valid evidence of wear </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="thicknessComparison">Compare Thickness</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('thicknessComparison')?.invalid && inspectionForm.get('thicknessComparison')?.touched}" id="thicknessComparison" formControlName="thicknessComparison">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Design thickness not known">Design thickness not known</option>
+                            <option value="Matches design">Matches design</option>
+                            <option value="Less than design">Less than design</option>
+                            <option value="Greater than design">Greater than design</option>
+                        </select>
+                        @if(inspectionForm.get('thicknessComparison')?.invalid && inspectionForm.get('thicknessComparison')?.touched){
+                            <span  class="text-danger">Please select valid thickness comparison</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cloggingCheck">Clogging Deterioration And Damage</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('cloggingCheck')?.invalid && inspectionForm.get('cloggingCheck')?.touched}" id="cloggingCheck" formControlName="cloggingCheck" placeholder="Clogging Deterioration And Damage">
+                        @if(inspectionForm.get('cloggingCheck')?.invalid && inspectionForm.get('cloggingCheck')?.touched){
+                            <span  class="text-danger">Please enter valid clogging check</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="projectionLevel">Projection Level</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('projectionLevel')?.invalid && inspectionForm.get('projectionLevel')?.touched}" id="projectionLevel" formControlName="projectionLevel">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Minimum level">Minimum level</option>
+                            <option value="Moderate level">Moderate level</option>
+                            <option value="High level">High level</option>
+                        </select>
+                        @if(inspectionForm.get('projectionLevel')?.invalid && inspectionForm.get('projectionLevel')?.touched){
+                            <span  class="text-danger">Please select valid projection level</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reportAdequacy">Report / Adequacy Thereof</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('reportAdequacy')?.invalid && inspectionForm.get('reportAdequacy')?.touched}" id="reportAdequacy" formControlName="reportAdequacy" placeholder="Report / Adequacy Thereof">
+                        @if(inspectionForm.get('reportAdequacy')?.invalid && inspectionForm.get('reportAdequacy')?.touched){
+                            <span  class="text-danger">Please enter valid report / adequacy Thereof</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="drainageAdequacy">Adequacy Of Drainage And Pumping Arrangements</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('drainageAdequacy')?.invalid && inspectionForm.get('drainageAdequacy')?.touched}" id="drainageAdequacy" formControlName="drainageAdequacy">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('drainageAdequacy')?.invalid && inspectionForm.get('drainageAdequacy')?.touched){
+                            <span  class="text-danger">Please select valid drainage adequacy </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="drainageSpoutsFunctioning">Drainage Spouts And Vent Holes Functioning</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('drainageSpoutsFunctioning')?.invalid && inspectionForm.get('drainageSpoutsFunctioning')?.touched}" id="drainageSpoutsFunctioning" formControlName="drainageSpoutsFunctioning">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Bridge is not submersible">Bridge is not submersible</option>
+                            <option value="Bridge is submersible">Bridge is submersible</option>
+                        </select>
+                        @if(inspectionForm.get('drainageSpoutsFunctioning')?.invalid && inspectionForm.get('drainageSpoutsFunctioning')?.touched){
+                            <span  class="text-danger">Please select valid drainage spouts functioning </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="handrailCondition">Handrail/Parapet Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('handrailCondition')?.invalid && inspectionForm.get('handrailCondition')?.touched}" id="handrailCondition" formControlName="handrailCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Good">Good</option>
+                            <option value="Check expansion gaps">Check expansion gaps</option>
+                            <option value="Missing parts">Missing parts</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        @if(inspectionForm.get('handrailCondition')?.invalid && inspectionForm.get('handrailCondition')?.touched){
+                            <span  class="text-danger">Please select valid handrail/parapet condition </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="damageDueToCollision">Damage Due To Collision</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('damageDueToCollision')?.invalid && inspectionForm.get('damageDueToCollision')?.touched}" id="damageDueToCollision" formControlName="damageDueToCollision">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('damageDueToCollision')?.invalid && inspectionForm.get('damageDueToCollision')?.touched){
+                            <span  class="text-danger">Please select valid damage collision </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="handrailsCheckAlignment">Handrails And Parapets - Check Alignment</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('handrailsCheckAlignment')?.invalid && inspectionForm.get('handrailsCheckAlignment')?.touched}" id="handrailsCheckAlignment" formControlName="handrailsCheckAlignment">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('handrailsCheckAlignment')?.invalid && inspectionForm.get('handrailsCheckAlignment')?.touched){
+                            <span  class="text-danger">Please select check alignment </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="footpathsGenCondition">Footpaths- Report General Condition </label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('footpathsGenCondition')?.invalid && inspectionForm.get('footpathsGenCondition')?.touched}" id="footpathsGenCondition" formControlName="footpathsGenCondition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('footpathsGenCondition')?.invalid && inspectionForm.get('footpathsGenCondition')?.touched){
+                            <span  class="text-danger">Please select footpaths- Report general condition </span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="missingFootpathSlabs">Report Missing Footpath Slabs </label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('missingFootpathSlabs')?.invalid && inspectionForm.get('missingFootpathSlabs')?.touched}" id="missingFootpathSlabs" formControlName="missingFootpathSlabs">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('missingFootpathSlabs')?.invalid && inspectionForm.get('missingFootpathSlabs')?.touched){
+                            <span  class="text-danger">Please select report missing footpath slabs condition </span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="leakageWaterAndSewagePipes">Report Leakage Of Water And Sewage Pipes</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('leakageWaterAndSewagePipes')?.invalid && inspectionForm.get('leakageWaterAndSewagePipes')?.touched}" id="leakageWaterAndSewagePipes" formControlName="leakageWaterAndSewagePipes" placeholder="Report Leakage Of Water And Sewage Pipes">
+                        @if(inspectionForm.get('leakageWaterAndSewagePipes')?.invalid && inspectionForm.get('leakageWaterAndSewagePipes')?.touched){
+                        <span  class="text-danger">Please enter valid Report Leakage Of Water And Sewage Pipes</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="anyDamageByTelAndElecCables">Any Damage By Telephone And Electric Cables </label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('anyDamageByTelAndElecCables')?.invalid && inspectionForm.get('anyDamageByTelAndElecCables')?.touched}" id="anyDamageByTelAndElecCables" formControlName="anyDamageByTelAndElecCables">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('anyDamageByTelAndElecCables')?.invalid && inspectionForm.get('anyDamageByTelAndElecCables')?.touched){
+                            <span  class="text-danger">Please select any damage by telephone and electric cables</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="condOfLightingFacilities">Condition Of Lighting Facilities</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('condOfLightingFacilities')?.invalid && inspectionForm.get('condOfLightingFacilities')?.touched}" id="condOfLightingFacilities" formControlName="condOfLightingFacilities">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Good">Good </option>
+                            <option value="Nominal">Nominal</option>
+                            <option value="Poor">Poor</option>
+                        </select>
+                        @if(inspectionForm.get('condOfLightingFacilities')?.invalid && inspectionForm.get('condOfLightingFacilities')?.touched){
+                            <span  class="text-danger">Please select condition of lighting facilities</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="damagesDueToAnyOtherUtiliti">Report Damages Due To Any Other Utilities</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('damagesDueToAnyOtherUtiliti')?.invalid && inspectionForm.get('damagesDueToAnyOtherUtiliti')?.touched}" id="damagesDueToAnyOtherUtiliti" formControlName="damagesDueToAnyOtherUtiliti">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('damagesDueToAnyOtherUtiliti')?.invalid && inspectionForm.get('damagesDueToAnyOtherUtiliti')?.touched){
+                            <span  class="text-danger">Please select report damages due to any other utilities</span>
+                        } 
+                    </div>
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reptConditionOfPainting">Report Condition Of Painting</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('reptConditionOfPainting')?.invalid && inspectionForm.get('reptConditionOfPainting')?.touched}" id="reptConditionOfPainting" formControlName="reptConditionOfPainting" placeholder="Condition Of Lighting Facilities">
+                        @if(inspectionForm.get('reptConditionOfPainting')?.invalid && inspectionForm.get('reptConditionOfPainting')?.touched){
+                        <span  class="text-danger">Please enter valid report condition of painting</span>
+                        } 
+                    </div> -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reptConditionOfPainting">Report Condition Of Painting</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('reptConditionOfPainting')?.invalid && inspectionForm.get('reptConditionOfPainting')?.touched}" id="reptConditionOfPainting" formControlName="reptConditionOfPainting">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Good">Good </option>
+                            <option value="Nominal">Nominal</option>
+                            <option value="Poor">Poor</option>
+                        </select>
+                        @if(inspectionForm.get('reptConditionOfPainting')?.invalid && inspectionForm.get('reptConditionOfPainting')?.touched){
+                            <span  class="text-danger">Please select report condition of painting</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="reportAnyvisualInspection">Report Any visual Inspection</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('reportAnyvisualInspection')?.invalid && inspectionForm.get('reportAnyvisualInspection')?.touched}" id="reportAnyvisualInspection" formControlName="reportAnyvisualInspection">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inspectionForm.get('reportAnyvisualInspection')?.invalid && inspectionForm.get('reportAnyvisualInspection')?.touched){
+                            <span  class="text-danger">Please select report any visual inspection</span>
+                        } 
+                    </div>
+
+
+                    <!-- add new -->
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="vertical_clear_of_struct">Vertical Clearance Of Structure</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('vertical_clear_of_struct')?.invalid && inspectionForm.get('vertical_clear_of_struct')?.touched}" id="vertical_clear_of_struct" formControlName="vertical_clear_of_struct" placeholder="Remark">
+                        @if(inspectionForm.get('vertical_clear_of_struct')?.invalid && inspectionForm.get('vertical_clear_of_struct')?.touched){
+                            <span  class="text-danger">Please enter vertical clearance of structure</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="rat_of_avg_daily_traffic">Rating Of Average Daily Traffic</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('rat_of_avg_daily_traffic')?.invalid && inspectionForm.get('rat_of_avg_daily_traffic')?.touched}" id="rat_of_avg_daily_traffic" formControlName="rat_of_avg_daily_traffic">
+                            <option value="" selected disabled>Select</option>
+                            <option value="<300/<300"><300/<300</option>
+                            <option value="301 to 500 / 301 to 500">301 to 500 / 301 to 500</option>
+                            <option value="501 to 1000 / 501 to 1000">501 to 1000 / 501 to 1000</option>
+                            <option value="1001 to 2000/ 1001 to 2000">1001 to 2000/ 1001 to 2000</option>
+                            <option value="2001 to 3000/ 2001 to 3000">2001 to 3000/ 2001 to 3000</option>
+                            <option value="3001 to 4500 / 3001 to 5000">3001 to 4500 / 3001 to 5000</option>
+                            <option value="4501 to 6000 / 5001 to 6000">4501 to 6000 / 5001 to 6000</option>
+                            <option value="6001 to 7000 / 6001 to 7500">6001 to 7000 / 6001 to 7500</option>
+                            <option value="7001 to 7500 / 7501 to 8500">7001 to 7500 / 7501 to 8500</option>
+                            <option value=">7500 / > 8500">>7500 / > 8500</option>
+                            <option value="The structure has been demolished">The structure has been demolished</option>
+                            <option value="The structure is in under construction">The structure is in under construction</option>
+                        </select>
+                        @if(inspectionForm.get('rat_of_avg_daily_traffic')?.invalid && inspectionForm.get('rat_of_avg_daily_traffic')?.touched){
+                            <span  class="text-danger">Please select rating of average daily traffic</span>
+                        } 
+                    </div> -->
+                    
+                    <!-- add new end -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="remarks">Remark</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('remarks')?.invalid && inspectionForm.get('remarks')?.touched}" id="remarks" formControlName="remarks" placeholder="Remark">
+                        @if(inspectionForm.get('remarks')?.invalid && inspectionForm.get('remarks')?.touched){
+                            <span  class="text-danger">Please enter remark</span>
+                        } 
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Suggestions And Improvement And Recommendations:</h1>
+                    </div>
+
+                    <div class="table-responsive">
+                        <form [formGroup]="inspectionForm">
+                          <table class="table text-nowrap">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">Items Needing Attention</th>
+                                <th scope="col">Actions Recommended</th>
+                                <th scope="col">Time When To Be Completed</th>
+                                <th scope="col">Remarks</th>
+                              </tr>
+                            </thead>
+                            <tbody formArrayName="inspectionItems">
+                              <tr *ngFor="let item of inspectionItems.controls; let i = index" [formGroupName]="i">
+                                <td><input type="text" class="form-control" formControlName="items_needing_attentions"></td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="actions_recommended"
+                                    placeholder="Recommendation"
+                                    [ngClass]="{ 'is-invalid': item.get('actions_recommended')?.invalid && item.get('actions_recommended')?.touched }"
+                                  />
+                                  <span class="text-danger" *ngIf="item.get('actions_recommended')?.invalid && item.get('actions_recommended')?.touched">
+                                    Please enter Recommended
+                                  </span>
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="suggestion_time"
+                                    placeholder="Time To Be Completed"
+                                    [ngClass]="{ 'is-invalid': item.get('suggestion_time')?.invalid && item.get('suggestion_time')?.touched }"
+                                  />
+                                  <span class="text-danger" *ngIf="item.get('suggestion_time')?.invalid && item.get('suggestion_time')?.touched">
+                                    Please enter time of completion
+                                  </span>
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="remarks"
+                                    placeholder="remarks"
+                                    [ngClass]="{ 'is-invalid': item.get('remarks')?.invalid && item.get('remarks')?.touched }"
+                                  />
+                                  <span class="text-danger" *ngIf="item.get('remarks')?.invalid && item.get('remarks')?.touched">
+                                    Please enter remark
+                                  </span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </form>
+                      </div>
+                      
+
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+
+

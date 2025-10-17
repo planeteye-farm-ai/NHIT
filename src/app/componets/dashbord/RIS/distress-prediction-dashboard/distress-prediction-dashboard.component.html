@@ -1,0 +1,201 @@
+<div class="dashboard-container">
+  <!-- Main Content Area -->
+    <!-- Dashboard Content (always show) -->
+    <div>
+    <!-- Filter Containers -->
+    <div class="filters-container">
+      <!-- Main Filters Container (100% width) -->
+      <div class="main-filters-container">
+        <div class="filter-row-main">
+          <!-- Project Name Filter -->
+          <div class="filter-group">
+            <label>Project Name:</label>
+            <select 
+              [value]="filters.projectName" 
+              (change)="onProjectChange($event)" 
+              class="filter-select">
+              <option *ngFor="let project of availableProjects" [value]="project">
+                {{ project }}
+              </option>
+            </select>
+          </div>
+          
+          <!-- Date Filter -->
+          <div class="filter-group">
+            <label>Date:</label>
+            <select 
+              [value]="filters.date" 
+              (change)="onDateChange($event)" 
+              class="filter-select">
+              <option *ngFor="let date of availableDates" [value]="date">
+                {{ date }}
+              </option>
+            </select>
+          </div>
+          
+          <!-- Direction Filter -->
+          <div class="filter-group">
+            <label>Direction:</label>
+            <div class="direction-buttons">
+              <button 
+                [class.active]="filters.direction === 'Increasing'" 
+                (click)="onDirectionChange('Increasing')"
+                class="direction-btn">
+                Increasing
+              </button>
+              <button 
+                [class.active]="filters.direction === 'Decreasing'" 
+                (click)="onDirectionChange('Decreasing')"
+                class="direction-btn">
+                Decreasing
+              </button>
+            </div>
+          </div>
+          
+          <!-- Pavement Type Filter -->
+          <div class="filter-group">
+            <label>Pavement Type:</label>
+            <select 
+              [value]="filters.pavementType" 
+              (change)="onPavementTypeChange($event)" 
+              class="filter-select">
+              <option value="All">All</option>
+              <option *ngFor="let type of availablePavementTypes" [value]="type">
+                {{ type }}
+              </option>
+            </select>
+          </div>
+          
+          <!-- Lane Filter -->
+          <div class="filter-group">
+            <label>Lane:</label>
+            <select 
+              [value]="filters.lane" 
+              (change)="onLaneChange($event)" 
+              class="filter-select">
+              <option value="All">All</option>
+              <option *ngFor="let lane of availableLanes" [value]="lane">
+                {{ lane }}
+              </option>
+            </select>
+          </div>
+          
+          <!-- Chainage Range Filter -->
+          <div class="filter-group chainage-range-group">
+            <label class="chainage-range-label">
+              Chainage: {{ filters.chainageRange.min.toFixed(3) }} - {{ filters.chainageRange.max.toFixed(3) }}
+            </label>
+            <div class="chainage-inputs">
+              <input 
+                type="number" 
+                [min]="getChainageMin()" 
+                [max]="filters.chainageRange.max" 
+                [value]="filters.chainageRange.min"
+                (input)="onChainageMinChange($event)"
+                class="chainage-input"
+                placeholder="Min"
+                step="0.001">
+              <input 
+                type="number" 
+                [min]="filters.chainageRange.min" 
+                [max]="getChainageMax()" 
+                [value]="filters.chainageRange.max"
+                (input)="onChainageMaxChange($event)"
+                class="chainage-input"
+                placeholder="Max"
+                step="0.001">
+            </div>
+            <div class="chainage-slider-container">
+              <input 
+                type="range" 
+                [min]="getChainageMin()" 
+                [max]="getChainageMax()" 
+                [value]="filters.chainageRange.min"
+                (input)="onChainageMinSliderChange($event)"
+                class="chainage-slider min-slider">
+              <input 
+                type="range" 
+                [min]="getChainageMin()" 
+                [max]="getChainageMax()" 
+                [value]="filters.chainageRange.max"
+                (input)="onChainageMaxSliderChange($event)"
+                class="chainage-slider max-slider">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Container -->
+    <div class="main-dashboard-container">
+      <!-- Left Panel (50% width) - Map Only -->
+      <div class="left-panel">
+        <!-- Predicted Distress Map -->
+        <div class="map-container">
+          <div class="chart-header">
+            <h3>Location wise Predicted Distress Distribution</h3>
+          </div>
+          <div class="map-wrapper">
+            <div *ngIf="!filters.date" class="map-placeholder">
+              <p>Select a date to view map data</p>
+            </div>
+            <div *ngIf="filters.date && rawData.length === 0" class="map-placeholder">
+              <div class="loading-spinner"></div>
+              <p>Loading map data...</p>
+            </div>
+            <div *ngIf="filters.date" id="mapContainer" class="map"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel (30% width) -->
+      <div class="right-panel">
+        <div class="asset-summary">
+          <h3>Predicted Distress Summary</h3>
+          
+          <div *ngIf="!filters.date" class="asset-placeholder">
+            <p>Select a date to view distress data</p>
+          </div>
+          
+          <div *ngIf="filters.date && rawData.length === 0" class="asset-placeholder">
+            <div class="loading-spinner"></div>
+            <p>Loading distress data...</p>
+          </div>
+          
+          <div *ngIf="filters.date" class="distress-sections">
+            <!-- Point Distress Section -->
+            <div class="distress-grid">
+              <div 
+                *ngFor="let distress of pointDistresses" 
+                class="asset-card"
+                [class.selected]="selectedDistressType === distress.name"
+                [style.border-left-color]="distress.color"
+                (click)="onDistressCardClick(distress)">
+                <div class="asset-info">
+                  <div class="asset-name">{{ distress.name }}</div>
+                  <div class="asset-count">{{ distress.count }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Cracks & Rutting Section -->
+            <div class="section-header">Cracks & Rutting (Meter)</div>
+            <div class="distress-grid">
+              <div 
+                *ngFor="let distress of cracksAndRutting" 
+                class="asset-card"
+                [class.selected]="selectedDistressType === distress.name"
+                [style.border-left-color]="distress.color"
+                (click)="onDistressCardClick(distress)">
+                <div class="asset-info">
+                  <div class="asset-name">{{ distress.name }}</div>
+                  <div class="asset-count">{{ distress.count }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

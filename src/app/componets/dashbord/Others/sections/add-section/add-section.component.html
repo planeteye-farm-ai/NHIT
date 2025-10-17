@@ -1,0 +1,71 @@
+
+<div class="col-xl-12">
+    <!-- <app-showcode-card [title]="'Vertically centered modal'" [prism]="prismCode.model4"> -->
+    <button type="button" class="btn btn-primary-light btn-wave me-2" data-bs-toggle="modal"
+        (click)="openVerticallyCentered(Content2)" data-bs-target="#exampleModalXls">
+        <i class="bx bx-plus align-middle"></i> Add Section
+    </button>
+
+    <div class="modal fade" id="exampleModalXl" tabindex="-1" aria-labelledby="exampleModalXlLabel"
+        style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <ng-template #Content2 let-modal>
+                <form [formGroup]="sectionForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title" id="exampleModalXlLabel">Add Section</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="sectionName" formControlName="sectionName" placeholder="">
+                                        <label for="sectionName">Section Name</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="chainageStart" formControlName="chainageStart" placeholder="">
+                                        <label for="chainageStart">Chainage Start</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="chainageEnd" formControlName="chainageEnd" placeholder="">
+                                        <label for="chainageEnd">Chainage End</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="contractor" formControlName="contractor" placeholder="">
+                                        <label for="contractor">Contractor</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="distance" formControlName="distance" placeholder="">
+                                        <label for="distance">Distance</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="cost" formControlName="cost" placeholder="">
+                                        <label for="number">Cost</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"
+                                data-bs-dismiss="modal">Close</button>
+                            <button type="submit" (click)="modal.close('Close click')" [disabled]="sectionForm.invalid" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </form>
+            </ng-template>
+        </div>
+    </div>
+    <!-- </app-showcode-card> -->

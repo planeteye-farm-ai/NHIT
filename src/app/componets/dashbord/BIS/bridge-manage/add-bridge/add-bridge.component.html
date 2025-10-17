@@ -1,0 +1,843 @@
+
+<app-page-header title="Add Bridge" title1="Add Bridge" activeTitle="Add Bridge"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Bridge'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="bridgeForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridgeName">Bridge Name</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('bridgeName')?.invalid && bridgeForm.get('bridgeName')?.touched}"  id="bridgeName" formControlName="bridgeName" placeholder="Bridge Name">
+                        @if(bridgeForm.get('bridgeName')?.invalid && bridgeForm.get('bridgeName')?.touched){
+                            <span  class="text-danger">Please enter valid bridge name</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridgeNo">Bridge No</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('bridgeNo')?.invalid && bridgeForm.get('bridgeNo')?.touched}" id="bridgeNo" formControlName="bridgeNo" placeholder="Bridge No">
+                        @if(bridgeForm.get('bridgeNo')?.invalid && bridgeForm.get('bridgeNo')?.touched){
+                            <span  class="text-danger">Please enter valid bridge no</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="projectName">Project Name</label><span class="text-danger">*</span>
+                        <select class="form-select" 
+                        [ngClass]="{ 'is-invalid':bridgeForm.get('projectName')?.invalid && bridgeForm.get('projectName')?.touched}" 
+                        id="projectName" formControlName="projectName">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of projectList; track $index) {
+                            <option value="{{row.project_name}}">{{row.project_name}}</option>
+                            }
+                        </select>   
+                        @if(bridgeForm.get('projectName')?.invalid && bridgeForm.get('projectName')?.touched){
+                            <span  class="text-danger">Please enter valid project name</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="projectId">project id</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" id="projectId" formControlName="projectId" placeholder="Project Id">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state">State</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('state')?.invalid && bridgeForm.get('state')?.touched}" id="state" formControlName="state">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of stateList; track $index) {
+                            <option value="{{row.state_id}}">{{row.state_name}}</option>
+                            }
+                        </select>   
+                        @if(bridgeForm.get('state')?.invalid && bridgeForm.get('state')?.touched){
+                            <span  class="text-danger">Please enter valid state</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="zone">Zone</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('zone')?.invalid && bridgeForm.get('zone')?.touched}" id="zone" formControlName="zone" placeholder="Zone">
+                        @if(bridgeForm.get('zone')?.invalid && bridgeForm.get('zone')?.touched){
+                            <span  class="text-danger">Please enter valid zone</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="roadType">Road Type</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('roadType')?.invalid && bridgeForm.get('roadType')?.touched}" id="roadType" formControlName="roadType">
+                            <option value="" selected disabled>Select</option>
+                            <option value="EH">EH</option>
+                            <option value="NH">NH</option>
+                            <option value="SH">SH</option>
+                            <option value="MDR">MDR</option>
+                            <option value="ODR">ODR</option>
+                            <option value="MR">MR</option>
+                            <option value="TR">MR</option>
+                            <option value="RR">RR</option>
+                        </select>
+                        @if(bridgeForm.get('roadType')?.invalid && bridgeForm.get('roadType')?.touched){
+                            <span  class="text-danger">Please enter valid road type</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highwayNo">Road/ Highway No</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('highwayNo')?.invalid && bridgeForm.get('highwayNo')?.touched}" id="highwayNo" formControlName="highwayNo" placeholder="Road/ Highway No">
+                        @if(bridgeForm.get('highwayNo')?.invalid && bridgeForm.get('highwayNo')?.touched){
+                            <span  class="text-danger">Please enter valid highway no</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage">Chainage</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('chainage')?.invalid && bridgeForm.get('chainage')?.touched}" id="chainage" formControlName="chainage" placeholder="Chainage">
+                        @if(bridgeForm.get('chainage')?.invalid && bridgeForm.get('chainage')?.touched){
+                            <span  class="text-danger">Please enter valid chainage</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction_of_inventory">Direction Of Inventory</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('direction_of_inventory')?.invalid && bridgeForm.get('direction_of_inventory')?.touched}" id="direction_of_inventory" formControlName="direction_of_inventory" placeholder="Direction Of Inventory">
+                        @if(bridgeForm.get('direction_of_inventory')?.invalid && bridgeForm.get('direction_of_inventory')?.touched){
+                            <span  class="text-danger">Please enter valid direction of inventory</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="latitude">Latitude</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('latitude')?.invalid && bridgeForm.get('latitude')?.touched}" id="latitude" formControlName="latitude" placeholder="Latitude">
+                        @if(bridgeForm.get('latitude')?.invalid && bridgeForm.get('latitude')?.touched){
+                            <span  class="text-danger">Please enter valid latitude</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="longitude">Longitude</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('longitude')?.invalid && bridgeForm.get('longitude')?.touched}" id="longitude" formControlName="longitude" placeholder="Longitude">
+                        @if(bridgeForm.get('longitude')?.invalid && bridgeForm.get('longitude')?.touched){
+                            <span  class="text-danger">Please enter valid longitude</span>
+                        } 
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Administration Details:</h1>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="consultantName">Consultant Name</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('consultantName')?.invalid && bridgeForm.get('consultantName')?.touched}" id="consultantName" formControlName="consultantName" placeholder="Consultant Name">
+                        @if(bridgeForm.get('consultantName')?.invalid && bridgeForm.get('consultantName')?.touched){
+                            <span  class="text-danger">Please enter valid consultant name</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="administration_name_of_bridge">Popular Name Of Bridge</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('administration_name_of_bridge')?.invalid && bridgeForm.get('administration_name_of_bridge')?.touched}" id="administration_name_of_bridge" formControlName="administration_name_of_bridge" placeholder="Popular Name Of Bridge">
+                        @if(bridgeForm.get('administration_name_of_bridge')?.invalid && bridgeForm.get('administration_name_of_bridge')?.touched){
+                            <span  class="text-danger">Please enter valid popular name of bridge</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="custodian">Custodian</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('custodian')?.invalid && bridgeForm.get('custodian')?.touched}" id="custodian" formControlName="custodian" placeholder="Custodian">
+                        @if(bridgeForm.get('custodian')?.invalid && bridgeForm.get('custodian')?.touched){
+                            <span  class="text-danger">Please enter valid custodian</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="engineerDesignation">Engineer Designation</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('engineerDesignation')?.invalid && bridgeForm.get('engineerDesignation')?.touched}" id="engineerDesignation" formControlName="engineerDesignation" placeholder="Engineer Designation">
+                        @if(bridgeForm.get('engineerDesignation')?.invalid && bridgeForm.get('engineerDesignation')?.touched){
+                            <span  class="text-danger">Please enter valid engineer designation</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="contactDetails">Contact No</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('contactDetails')?.invalid && bridgeForm.get('contactDetails')?.touched}" id="contactDetails" formControlName="contactDetails" placeholder="Contact Details">
+                        @if(bridgeForm.get('contactDetails')?.invalid && bridgeForm.get('contactDetails')?.touched){
+                            <span  class="text-danger">Please enter valid contact details</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="emailID">Email ID</label>
+                        <input type="email" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('emailID')?.invalid && bridgeForm.get('emailID')?.touched}"  id="emailID" formControlName="emailID" placeholder="Email ID">
+                        @if(bridgeForm.get('emailID')?.invalid && bridgeForm.get('emailID')?.touched){
+                            <span  class="text-danger">Please enter valid email id</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="departmentalChainage">Departmental Chainage</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('departmentalChainage')?.invalid && bridgeForm.get('departmentalChainage')?.touched}" id="departmentalChainage" formControlName="departmentalChainage" placeholder="Departmental Chainage">
+                        @if(bridgeForm.get('departmentalChainage')?.invalid && bridgeForm.get('departmentalChainage')?.touched){
+                            <span  class="text-danger">Please enter valid departmental chainage</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="departmentalBridgeNo">Departmental Bridge Number</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('departmentalBridgeNo')?.invalid && bridgeForm.get('departmentalBridgeNo')?.touched}" id="departmentalBridgeNo" formControlName="departmentalBridgeNo" placeholder="Departmental Bridge Number">
+                        @if(bridgeForm.get('departmentalBridgeNo')?.invalid && bridgeForm.get('departmentalBridgeNo')?.touched){
+                            <span  class="text-danger">Please enter valid departmental bridge no</span>
+                        } 
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Geometric Details:</h1>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="noOfSpan">No Of Span</label>
+                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('noOfSpan')?.invalid && bridgeForm.get('noOfSpan')?.touched}" id="noOfSpan" formControlName="noOfSpan" placeholder="No Of Span" min="1">
+                        @if(bridgeForm.get('noOfSpan')?.invalid && bridgeForm.get('noOfSpan')?.touched){
+                            <span  class="text-danger">Please enter valid no of span</span>
+                        } 
+                     </div>
+
+                   
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="noOfSpan">No of Span</label>
+                        <input type="number" class="form-control" id="noOfSpan" formControlName="noOfSpan" min="1">
+                        <div *ngIf="bridgeForm.get('noOfSpan')?.invalid && bridgeForm.get('noOfSpan')?.touched" class="text-danger">
+                          Please enter a valid number of spans
+                        </div>
+                      </div> 
+                      
+                      <div *ngFor="let span of spanArrangement.controls; let i = index" class="col-md-6 mb-3">
+                        <label class="form-label">Span {{ i + 1 }} Length</label>
+                        <input type="number" class="form-control" [formControl]="span" placeholder="Span {{ i + 1 }} Length">
+                        <div *ngIf="span.invalid && (span.dirty || span.touched)" class="text-danger">
+                          Please enter a valid span length
+                        </div>
+                      </div>-->
+
+                      
+                       @for (row of spanArrangement.controls; track $index) {
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="spanArrangement">Span{{ $index + 1 }} Length </label>
+                            <input type="number" class="form-control" [ngClass]="{ 'is-invalid':row.invalid && row.touched}" [formControl]="row"  placeholder="Span{{$index + 1}} Length">
+                            @if(row.invalid && row.touched){
+                                <span  class="text-danger">Please enter valid span arrangement</span>
+                            } 
+                        </div>
+                        }
+                      
+                      
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="lengthOfBridge">Length Of Bridge</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('lengthOfBridge')?.invalid && bridgeForm.get('lengthOfBridge')?.touched}" id="lengthOfBridge" formControlName="lengthOfBridge" placeholder="Length Of Bridge">
+                        @if(bridgeForm.get('lengthOfBridge')?.invalid && bridgeForm.get('lengthOfBridge')?.touched){
+                            <span  class="text-danger">Please enter valid length of bridge</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="widthOfBridge">Width Of Bridge</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('widthOfBridge')?.invalid && bridgeForm.get('widthOfBridge')?.touched}" id="widthOfBridge" formControlName="widthOfBridge" placeholder="Width Of Bridge">
+                        @if(bridgeForm.get('widthOfBridge')?.invalid && bridgeForm.get('widthOfBridge')?.touched){
+                            <span  class="text-danger">Please enter valid width of bridge</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="height_of_bridge">Height Of Bridge</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('height_of_bridge')?.invalid && bridgeForm.get('height_of_bridge')?.touched}" id="height_of_bridge" formControlName="height_of_bridge" placeholder="Height Of Bridge">
+                        @if(bridgeForm.get('height_of_bridge')?.invalid && bridgeForm.get('height_of_bridge')?.touched){
+                            <span  class="text-danger">Please enter valid height of bridge</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="soffit_level_of_bridge">Soffit Level Of Bridge</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('soffit_level_of_bridge')?.invalid && bridgeForm.get('soffit_level_of_bridge')?.touched}" id="soffit_level_of_bridge" formControlName="soffit_level_of_bridge" placeholder="Soffit Level Of Bridge">
+                        @if(bridgeForm.get('soffit_level_of_bridge')?.invalid && bridgeForm.get('soffit_level_of_bridge')?.touched){
+                            <span  class="text-danger">Please enter valid soffit level of bridge</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="trafficLaneOnBridge">Traffic Lane On Bridge</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('trafficLaneOnBridge')?.invalid && bridgeForm.get('trafficLaneOnBridge')?.touched}" id="trafficLaneOnBridge" formControlName="trafficLaneOnBridge" placeholder="Traffic Lane On Bridge">
+                        @if(bridgeForm.get('trafficLaneOnBridge')?.invalid && bridgeForm.get('trafficLaneOnBridge')?.touched){
+                            <span  class="text-danger">Please enter valid traffic lane on bridge</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="typeOfBridge">Type Of Bridge(As Per Length)</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('typeOfBridge')?.invalid && bridgeForm.get('typeOfBridge')?.touched}" id="typeOfBridge" formControlName="typeOfBridge">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Level crossing">Level crossing</option>
+                            <option value="Culvert(less than 6m)">Culvert(less than 6m)</option>
+                            <option value="Box culvert">Box culvert</option>
+                            <option value="Pipe culvert">Pipe culvert</option>
+                            <option value="Public under pass(pup)">Public under pass(pup)</option>
+                            <option value="Vehicle under pass(vup)">Vehicle under pass(vup)</option>
+                            <option value="Minor bridge(6-60m)">Minor bridge(6-60m)</option>
+                            <option value="Major bridge(above 60m)">Major bridge(above 60m)</option>
+                            <option value="Extra long bridge(above 150m)">Extra long bridge(above 150m)</option>
+                        </select>
+                        @if(bridgeForm.get('typeOfBridge')?.invalid && bridgeForm.get('typeOfBridge')?.touched){
+                            <span  class="text-danger">Please enter valid type of bridge</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="year_of_construction">Year Of Construction</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('year_of_construction')?.invalid && bridgeForm.get('year_of_construction')?.touched}" id="year_of_construction" formControlName="year_of_construction" placeholder="Year Of Construction">
+                        @if(bridgeForm.get('year_of_construction')?.invalid && bridgeForm.get('year_of_construction')?.touched){
+                            <span  class="text-danger">Please enter valid year of construction</span>
+                        }
+                    </div>
+
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="structureOfBridge">Structure Of Bridge</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('structureOfBridge')?.invalid && bridgeForm.get('structureOfBridge')?.touched}" id="structureOfBridge" formControlName="structureOfBridge">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Slab/arch-deck">Slab/arch-deck</option>
+                            <option value="Beam or girder/arch-thru">Beam or girder/arch-thru</option>
+                            <option value="Floor beam system/suspension">Floor beam system/suspension</option>
+                            <option value="Tee beam girder/stayed girder">Tee beam girder/stayed girder</option>
+                            <option value="Multiple box beam or girder/reserved for further use">Multiple box beam or girder/reserved for further use</option>
+                            <option value="Single box beam or girder/tunnel">Single box beam or girder/tunnel</option>
+                            <option value="Frame/culvert">Frame/culvert</option>
+                            <option value="Orthotropic/channel beam">Orthotropic/channel beam</option>  
+                            <option value="Truss-deck/other">Truss-deck/othe</option>
+                            <option value="Truss-thru/reserved for further use">Truss-thru/reserved for further use</option>      
+                        </select>
+                        @if(bridgeForm.get('structureOfBridge')?.invalid && bridgeForm.get('structureOfBridge')?.touched){
+                            <span  class="text-danger">Please enter valid structure of bridge</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="material_foundation">Material Of Construction Foundation</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('material_foundation')?.invalid && bridgeForm.get('material_foundation')?.touched}" id="material_foundation" formControlName="material_foundation">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Reinforced Concrete">Reinforced Concrete</option>
+                            <option value="Wooden & Timber">Wooden & Timber</option>
+                            <option value="Masonry">Masonry</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        @if(bridgeForm.get('material_foundation')?.invalid && bridgeForm.get('material_foundation')?.touched){
+                            <span  class="text-danger">Please enter valid material of construction foundation</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="material_substructure">Material Of Construction Substructure</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('material_substructure')?.invalid && bridgeForm.get('material_substructure')?.touched}" id="material_substructure" formControlName="material_substructure">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Reinforced Concrete">Reinforced Concrete</option>
+                            <option value="Wooden & Timber">Wooden & Timber</option>
+                            <option value="Masonry">Masonry</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        @if(bridgeForm.get('material_substructure')?.invalid && bridgeForm.get('material_substructure')?.touched){
+                            <span  class="text-danger">Please enter valid material of construction substructure</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="material_superstructure">Material Of Construction Superstructure</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('material_superstructure')?.invalid && bridgeForm.get('material_superstructure')?.touched}" id="material_superstructure" formControlName="material_superstructure">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Reinforced Concrete">Reinforced Concrete</option>
+                            <option value="Wooden & Timber">Wooden & Timber</option>
+                            <option value="Masonry">Masonry</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        @if(bridgeForm.get('material_superstructure')?.invalid && bridgeForm.get('material_superstructure')?.touched){
+                            <span  class="text-danger">Please enter valid material of construction superstructure</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="loadingAsPerIRC">Loading As Per IRC</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('loadingAsPerIRC')?.invalid && bridgeForm.get('loadingAsPerIRC')?.touched}" id="loadingAsPerIRC" formControlName="loadingAsPerIRC">
+                            <option value="" selected disabled>Select</option>
+                            <option value="25T">25T</option>
+                            <option value="30T">30T</option>
+                            <option value="40T">40T</option>
+                            <option value="50T">50T</option>
+                            <option value="60T">60T</option>
+                            <option value="70T">70T</option>
+                            <option value="108T">108T</option>
+                            <option value="144T">144T</option>
+                            <option value="180T">180T</option>
+                            <option value="216T">216T</option>
+                            <option value="252T">252T</option>
+                            <option value="360T or More">360T or more</option>
+                        </select>
+                        @if(bridgeForm.get('loadingAsPerIRC')?.invalid && bridgeForm.get('loadingAsPerIRC')?.touched){
+                            <span  class="text-danger">Please enter valid loading as per IRC</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridgeCrossingFeature">Bridge Crossing Feature</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('bridgeCrossingFeature')?.invalid && bridgeForm.get('bridgeCrossingFeature')?.touched}" id="bridgeCrossingFeature" formControlName="bridgeCrossingFeature">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Bridge crossing feature">Bridge crossing feature</option>
+                            <option value="Bridge crossing over river">Bridge crossing over river</option>
+                            <option value="Bridge crossing over canal bodies, nalla, drains and other bodies">Bridge crossing over canal bodies, nalla, drains and other bodies</option>
+                            <option value="Bridge over railway lines and railway related structure (ROB)">Bridge over railway lines and railway related structure (ROB)</option>
+                            <option value="Rail under bridge (RUB)">Rail under bridge (RUB)</option>
+                            <option value="Bridge over road and highway">Bridge over road and highway</option>
+                            <option value="Underpass">Underpass</option>
+                            <option value="Tunnel">Tunnel</option>
+                            <option value="Grade separators, Flyovers">Grade separators, Flyovers</option>
+                            <option value="All railway crossing where no bridge exists">All railway crossing where no bridge exists</option>
+                        </select>
+                        @if(bridgeForm.get('bridgeCrossingFeature')?.invalid && bridgeForm.get('bridgeCrossingFeature')?.touched){
+                            <span  class="text-danger">Please enter valid bridge crossing feature</span>
+                        }
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Hydraulic Data:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ground_level">Ground Level</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('ground_level')?.invalid && bridgeForm.get('ground_level')?.touched}" id="ground_level" formControlName="ground_level" placeholder="Ground Level">
+                        @if(bridgeForm.get('ground_level')?.invalid && bridgeForm.get('ground_level')?.touched){
+                            <span  class="text-danger">Please enter valid ground level</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="design_discharge">Design Discharge</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('design_discharge')?.invalid && bridgeForm.get('design_discharge')?.touched}" id="design_discharge" formControlName="design_discharge" placeholder="Design Discharge">
+                        @if(bridgeForm.get('design_discharge')?.invalid && bridgeForm.get('design_discharge')?.touched){
+                            <span  class="text-danger">Please enter valid design discharge</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="design_hfl">Design HFL</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('design_hfl')?.invalid && bridgeForm.get('design_hfl')?.touched}" id="design_hfl" formControlName="design_hfl" placeholder="Design HFL">
+                        @if(bridgeForm.get('design_hfl')?.invalid && bridgeForm.get('design_hfl')?.touched){
+                            <span  class="text-danger">Please enter valid design HFL</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="lowest_water_level">Lowest Water Level</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('lowest_water_level')?.invalid && bridgeForm.get('lowest_water_level')?.touched}" id="lowest_water_level" formControlName="lowest_water_level" placeholder="Lowest Water Level">
+                        @if(bridgeForm.get('lowest_water_level')?.invalid && bridgeForm.get('lowest_water_level')?.touched){
+                            <span  class="text-danger">Please enter valid lowest water level</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="scour_level_at_pier">Scour Level At Pier</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('scour_level_at_pier')?.invalid && bridgeForm.get('scour_level_at_pier')?.touched}" id="scour_level_at_pier" formControlName="scour_level_at_pier" placeholder="Scour Level At Pier">
+                        @if(bridgeForm.get('scour_level_at_pier')?.invalid && bridgeForm.get('scour_level_at_pier')?.touched){
+                            <span  class="text-danger">Please enter valid scour level at pier</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="scour_level_at_abutment">Scour Level At Abutment</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('scour_level_at_abutment')?.invalid && bridgeForm.get('scour_level_at_abutment')?.touched}" id="scour_level_at_abutment" formControlName="scour_level_at_abutment" placeholder="Scour Level At Abutment">
+                        @if(bridgeForm.get('scour_level_at_abutment')?.invalid && bridgeForm.get('scour_level_at_abutment')?.touched){
+                            <span  class="text-danger">Please enter valid scour level at abutment</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="scour_level_of_superstructure">Scour Level Of Superstructure</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('scour_level_of_superstructure')?.invalid && bridgeForm.get('scour_level_of_superstructure')?.touched}" id="scour_level_of_superstructure" formControlName="scour_level_of_superstructure" placeholder="Scour Level Of Superstructure">
+                        @if(bridgeForm.get('scour_level_of_superstructure')?.invalid && bridgeForm.get('scour_level_of_superstructure')?.touched){
+                            <span  class="text-danger">Please enter valid scour level of superstructure</span>
+                        }
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Highway Geometry Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_width">Overall Width</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('highway_width')?.invalid && bridgeForm.get('highway_width')?.touched}" id="highway_width" formControlName="highway_width" placeholder="Overall Width">
+                        @if(bridgeForm.get('highway_width')?.invalid && bridgeForm.get('highway_width')?.touched){
+                            <span  class="text-danger">Please enter valid highway width</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_carriageway_width">Clear Carriageway Width</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('highway_carriageway_width')?.invalid && bridgeForm.get('highway_carriageway_width')?.touched}" id="highway_carriageway_width" formControlName="highway_carriageway_width" placeholder="Clear Carriageway Width">
+                        @if(bridgeForm.get('highway_carriageway_width')?.invalid && bridgeForm.get('highway_carriageway_width')?.touched){
+                            <span  class="text-danger">Please enter valid clear carriageway width</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_shoulder_width_appr">Shoulder Width For Approaches</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('highway_shoulder_width_appr')?.invalid && bridgeForm.get('highway_shoulder_width_appr')?.touched}" id="highway_shoulder_width_appr" formControlName="highway_shoulder_width_appr" placeholder="Shoulder Width For Approaches">
+                        @if(bridgeForm.get('highway_shoulder_width_appr')?.invalid && bridgeForm.get('highway_shoulder_width_appr')?.touched){
+                            <span  class="text-danger">Please enter valid shoulder width for approaches </span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="width_of_approach">Width Of Approach</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('width_of_approach')?.invalid && bridgeForm.get('width_of_approach')?.touched}" id="width_of_approach" formControlName="width_of_approach" placeholder="Width Of Approach">
+                        @if(bridgeForm.get('width_of_approach')?.invalid && bridgeForm.get('width_of_approach')?.touched){
+                            <span  class="text-danger">Please enter width of approach</span>
+                        }
+                    </div>
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_footpath_width">Footpath Width</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('highway_footpath_width')?.invalid && bridgeForm.get('highway_footpath_width')?.touched}" id="highway_footpath_width" formControlName="highway_footpath_width">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(bridgeForm.get('highway_footpath_width')?.invalid && bridgeForm.get('highway_footpath_width')?.touched){
+                            <span  class="text-danger">Please select footpath width</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_footpath_width_value">Footpath Width Value</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('highway_footpath_width_value')?.invalid && bridgeForm.get('highway_footpath_width_value')?.touched}" id="highway_footpath_width_value" formControlName="highway_footpath_width_value" placeholder="Footpath Width Value">
+                        @if(bridgeForm.get('highway_footpath_width_value')?.invalid && bridgeForm.get('highway_footpath_width_value')?.touched){
+                            <span  class="text-danger">Please enter valid footpath width value</span>
+                        }
+                    </div> -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_footpath_width">Footpath Width</label>
+                        <select 
+                            class="form-select" 
+                            [ngClass]="{ 'is-invalid': bridgeForm.get('highway_footpath_width')?.invalid && bridgeForm.get('highway_footpath_width')?.touched }" 
+                            id="highway_footpath_width" 
+                            formControlName="highway_footpath_width"
+                            (change)="onFootpathWidthChange($event)">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(bridgeForm.get('highway_footpath_width')?.invalid && bridgeForm.get('highway_footpath_width')?.touched){
+                            <span  class="text-danger">Please select footpath width</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_footpath_width_value">Footpath Width Value</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            [ngClass]="{ 'is-invalid': bridgeForm.get('highway_footpath_width_value')?.invalid && bridgeForm.get('highway_footpath_width_value')?.touched }" 
+                            id="highway_footpath_width_value" 
+                            formControlName="highway_footpath_width_value" 
+                            placeholder="Footpath Width Value" 
+                            [readonly]="!isFootpathWidthYes">
+                            @if(bridgeForm.get('highway_footpath_width_value')?.invalid && bridgeForm.get('highway_footpath_width_value')?.touched){
+                                <span  class="text-danger">Please enter valid footpath width value</span>
+                            }
+                    </div>
+                    
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_median_width">Median Width</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('highway_median_width')?.invalid && bridgeForm.get('highway_median_width')?.touched}" id="highway_median_width" formControlName="highway_median_width">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(bridgeForm.get('highway_median_width')?.invalid && bridgeForm.get('highway_median_width')?.touched){
+                            <span  class="text-danger">Please select median width</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_median_width_value">Median Width Value</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('highway_median_width_value')?.invalid && bridgeForm.get('highway_median_width_value')?.touched}" id="highway_median_width_value" formControlName="highway_median_width_value" placeholder="Median Width Value">
+                        @if(bridgeForm.get('highway_median_width_value')?.invalid && bridgeForm.get('highway_median_width_value')?.touched){
+                            <span  class="text-danger">Please enter validg median width value</span>
+                        }
+                    </div> -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_median_width">Median Width</label>
+                        <select 
+                            class="form-select" 
+                            [ngClass]="{ 'is-invalid': bridgeForm.get('highway_median_width')?.invalid && bridgeForm.get('highway_median_width')?.touched }" 
+                            id="highway_median_width" 
+                            formControlName="highway_median_width" 
+                            (change)="onMedianWidthChange($event)">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(bridgeForm.get('highway_median_width')?.invalid && bridgeForm.get('highway_median_width')?.touched){
+                            <span  class="text-danger">Please select median width</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_median_width_value">Median Width Value</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            [ngClass]="{ 'is-invalid': bridgeForm.get('highway_median_width_value')?.invalid && bridgeForm.get('highway_median_width_value')?.touched }" 
+                            id="highway_median_width_value" 
+                            formControlName="highway_median_width_value" 
+                            placeholder="Median Width Value" 
+                            [readonly]="!isMedianWidthEditable">
+                            @if(bridgeForm.get('highway_median_width_value')?.invalid && bridgeForm.get('highway_median_width_value')?.touched){
+                                <span  class="text-danger">Please enter validg median width value</span>
+                            }
+                    </div>
+                   
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridge_in_skew">Bridge In Skew</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('bridge_in_skew')?.invalid && bridgeForm.get('bridge_in_skew')?.touched}" id="bridge_in_skew" formControlName="bridge_in_skew">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(bridgeForm.get('bridge_in_skew')?.invalid && bridgeForm.get('bridge_in_skew')?.touched){
+                            <span  class="text-danger">Please select bridge in skew</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridge_skew_angle">Bridge Skew Angle</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('bridge_skew_angle')?.invalid && bridgeForm.get('bridge_skew_angle')?.touched}" id="bridge_skew_angle" formControlName="bridge_skew_angle" placeholder="Bridge Skew Angle">
+                        @if(bridgeForm.get('bridge_skew_angle')?.invalid && bridgeForm.get('bridge_skew_angle')?.touched){
+                            <span  class="text-danger">Please enter bridge skew angle</span>
+                        }
+                    </div>
+                 -->
+                   <div class="col-md-6 mb-3">
+                    <label class="form-label" for="bridge_in_skew">Bridge In Skew</label>
+                    <select 
+                        class="form-select" 
+                        [ngClass]="{ 'is-invalid': bridgeForm.get('bridge_in_skew')?.invalid && bridgeForm.get('bridge_in_skew')?.touched }" 
+                        id="bridge_in_skew" 
+                        formControlName="bridge_in_skew" 
+                        (change)="onBridgeInSkewChange($event)">
+                        <option value="" selected disabled>Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                    @if(bridgeForm.get('bridge_in_skew')?.invalid && bridgeForm.get('bridge_in_skew')?.touched){
+                        <span  class="text-danger">Please select bridge in skew</span>
+                    } 
+                   </div>
+                
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridge_skew_angle">Bridge Skew Angle</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            [ngClass]="{ 'is-invalid': bridgeForm.get('bridge_skew_angle')?.invalid && bridgeForm.get('bridge_skew_angle')?.touched }" 
+                            id="bridge_skew_angle" 
+                            formControlName="bridge_skew_angle" 
+                            placeholder="Bridge Skew Angle" 
+                            [readonly]="!isSkewAngleEditable">
+                            @if(bridgeForm.get('bridge_skew_angle')?.invalid && bridgeForm.get('bridge_skew_angle')?.touched){
+                                <span  class="text-danger">Please enter bridge skew angle</span>
+                            }
+                    </div>
+                
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="approaches_structure">Approaches Structure</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('approaches_structure')?.invalid && bridgeForm.get('approaches_structure')?.touched}" id="approaches_structure" formControlName="approaches_structure">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(bridgeForm.get('approaches_structure')?.invalid && bridgeForm.get('approaches_structure')?.touched){
+                            <span  class="text-danger">Please select approaches structure</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="approaches_no_of_structure">Approaches No Of Structure</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('approaches_no_of_structure')?.invalid && bridgeForm.get('approaches_no_of_structure')?.touched}" id="approaches_no_of_structure" formControlName="approaches_no_of_structure" placeholder="Approaches No Of Structure">
+                        @if(bridgeForm.get('approaches_no_of_structure')?.invalid && bridgeForm.get('approaches_no_of_structure')?.touched){
+                            <span  class="text-danger">Please enter approaches no of structure</span>
+                        }
+                    </div> -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="approaches_structure">Approaches Structure</label>
+                        <select 
+                            class="form-select" 
+                            [ngClass]="{ 'is-invalid': bridgeForm.get('approaches_structure')?.invalid && bridgeForm.get('approaches_structure')?.touched }" 
+                            id="approaches_structure" 
+                            formControlName="approaches_structure" 
+                            (change)="onApproachesStructureChange($event)">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(bridgeForm.get('approaches_structure')?.invalid && bridgeForm.get('approaches_structure')?.touched){
+                            <span  class="text-danger">Please select approaches structure</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="approaches_no_of_structure">Approaches No Of Structure</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            [ngClass]="{ 'is-invalid': bridgeForm.get('approaches_no_of_structure')?.invalid && bridgeForm.get('approaches_no_of_structure')?.touched }" 
+                            id="approaches_no_of_structure" 
+                            formControlName="approaches_no_of_structure" 
+                            placeholder="Approaches No Of Structure" 
+                            [readonly]="!isApproachesStructureEditable">
+                            @if(bridgeForm.get('approaches_no_of_structure')?.invalid && bridgeForm.get('approaches_no_of_structure')?.touched){
+                                <span  class="text-danger">Please enter approaches no of structure</span>
+                            }
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="safety_kerb_width">Safety Kerb Width</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('safety_kerb_width')?.invalid && bridgeForm.get('safety_kerb_width')?.touched}" id="safety_kerb_width" formControlName="safety_kerb_width" placeholder="Safety Kerb Width">
+                        @if(bridgeForm.get('safety_kerb_width')?.invalid && bridgeForm.get('safety_kerb_width')?.touched){
+                            <span  class="text-danger">Please enter safety kerb width</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_of_wall">Type Of Wall</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('type_of_wall')?.invalid && bridgeForm.get('type_of_wall')?.touched}" id="type_of_wall" formControlName="type_of_wall">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Retaining Wall">Retaining Wall</option>
+                            <option value="Breast Wall">Breast Wall</option>
+                            <option value="Toe Wall">Toe Wall</option>
+                            <option value="Wing Wall">Wing Wall</option>
+                        </select>
+                        @if(bridgeForm.get('type_of_wall')?.invalid && bridgeForm.get('type_of_wall')?.touched){
+                            <span  class="text-danger">Please select type of wall</span>
+                        } 
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Rating:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingOfDeckGeometry">Deck Geometry</label>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':bridgeForm.get('ratingOfDeckGeometry')?.invalid && bridgeForm.get('ratingOfDeckGeometry')?.touched}" id="ratingOfDeckGeometry" formControlName="ratingOfDeckGeometry" placeholder="Deck Geometry">
+                        @if(bridgeForm.get('ratingOfDeckGeometry')?.invalid && bridgeForm.get('ratingOfDeckGeometry')?.touched){
+                            <span  class="text-danger">Please enter valid rating of deck geometry</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingOfWaterwayAdequacy">Waterway Adequacy</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('ratingOfWaterwayAdequacy')?.invalid && bridgeForm.get('ratingOfWaterwayAdequacy')?.touched}" id="ratingOfWaterwayAdequacy" formControlName="ratingOfWaterwayAdequacy">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Bridge not over a waterway">Bridge not over a waterway</option>
+                            <option value="Bridge deck and roadway approaches above floodwater elevations">Bridge deck and roadway approaches above floodwater elevations </option>
+                            <option value="Bridge deck above roadway approaches">Bridge deck above roadway approaches </option> 
+                        </select>
+                        @if(bridgeForm.get('ratingOfWaterwayAdequacy')?.invalid && bridgeForm.get('ratingOfWaterwayAdequacy')?.touched){
+                            <span  class="text-danger">Please enter valid waterway adequacy</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingofAverageDailyTraffic">Average Daily Traffic</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('ratingofAverageDailyTraffic')?.invalid && bridgeForm.get('ratingofAverageDailyTraffic')?.touched}" id="ratingofAverageDailyTraffic" formControlName="ratingofAverageDailyTraffic">
+                            <option value="" selected disabled>Select</option>
+                            <option value="<300/<300"><300/<300</option>
+                            <option value="301 to 500 / 301 to 500">301 to 500 / 301 to 500</option>
+                            <option value="501 to 1000 / 501 to 1000">501 to 1000 / 501 to 1000</option>
+                            <option value="1001 to 2000/ 1001 to 2000">1001 to 2000/ 1001 to 2000</option>
+                            <option value="2001 to 3000/ 2001 to 3000">2001 to 3000/ 2001 to 3000</option>
+                            <option value="3001 to 4500 / 3001 to 5000">3001 to 4500 / 3001 to 5000</option>
+                            <option value="4501 to 6000 / 5001 to 6000">4501 to 6000 / 5001 to 6000</option>
+                            <option value="6001 to 7000 / 6001 to 7500">6001 to 7000 / 6001 to 7500</option>  
+                            <option value="7001 to 7500 / 7501 to 8500">7001 to 7500 / 7501 to 8500</option>  
+                            <option value=">7500 / > 8500">>7500 / > 8500</option>  
+                            <option value="Structure has been demolished">Structure has been demolished</option>  
+                            <option value="Structure is in under construction">Structure is in under construction </option>  
+                        </select>
+                        @if(bridgeForm.get('ratingofAverageDailyTraffic')?.invalid && bridgeForm.get('ratingofAverageDailyTraffic')?.touched){
+                            <span  class="text-danger">Please enter valid average daily traffic</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingForSocialImportance">Social Importance</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('ratingForSocialImportance')?.invalid && bridgeForm.get('ratingForSocialImportance')?.touched}" id="ratingForSocialImportance" formControlName="ratingForSocialImportance">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of socialImportanceDropdown; track $index) {
+                                <option value="{{row.social_imp_id}}">{{row.description}}</option>
+                            }
+                        </select>
+                        @if(bridgeForm.get('ratingForSocialImportance')?.invalid && bridgeForm.get('ratingForSocialImportance')?.touched){
+                            <span  class="text-danger">Please enter valid social importance</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingforEconomicGrowthPotential">Economic Growth Potential</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('ratingforEconomicGrowthPotential')?.invalid && bridgeForm.get('ratingforEconomicGrowthPotential')?.touched}" id="ratingforEconomicGrowthPotential" formControlName="ratingforEconomicGrowthPotential">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of economicGrowthDropdown; track $index) {
+                                <option value="{{row.economic_growth_potential_id}}">{{row.description}}</option>
+                            }
+                        </select>
+                        @if(bridgeForm.get('ratingforEconomicGrowthPotential')?.invalid && bridgeForm.get('ratingforEconomicGrowthPotential')?.touched){
+                            <span  class="text-danger">Please enter valid economic growth potential</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingAlternateRoute">Alternate Route</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('ratingAlternateRoute')?.invalid && bridgeForm.get('ratingAlternateRoute')?.touched}" id="ratingAlternateRoute" formControlName="ratingAlternateRoute">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of alternateRrouteDropdown; track $index) {
+                                <option value="{{row.alternate_route_id}}">{{row.description}}</option>
+                            }
+                        </select>
+                        @if(bridgeForm.get('ratingAlternateRoute')?.invalid && bridgeForm.get('ratingAlternateRoute')?.touched){
+                            <span  class="text-danger">Please enter valid rating alternate route</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="rating_environmental_impact">Environmental Impact</label>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':bridgeForm.get('rating_environmental_impact')?.invalid && bridgeForm.get('rating_environmental_impact')?.touched}" id="rating_environmental_impact" formControlName="rating_environmental_impact">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of environImpactDropdown; track $index) {
+                                <option value="{{row.environmental_impact_id}}">{{row.description}}</option>
+                            }
+                        </select>
+                        @if(bridgeForm.get('rating_environmental_impact')?.invalid && bridgeForm.get('rating_environmental_impact')?.touched){
+                            <span  class="text-danger">Please enter valid rating environmental impact</span>
+                        }
+                    </div>
+
+
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

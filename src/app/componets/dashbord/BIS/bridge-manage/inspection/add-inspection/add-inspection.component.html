@@ -1,0 +1,134 @@
+
+<app-page-header title="Add Inspection" title1="Add Inspection" activeTitle="Add Inspection"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Inspection of '+bridgeName" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="inspectionForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridgeName">Bridge Name</label>
+                        <input type="text" class="form-control" id="bridgeName" formControlName="bridgeName" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highwayNo">Road/ Highway No</label>
+                        <input type="text" class="form-control" id="highwayNo" formControlName="highwayNo" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="typeOfBridge">Type of Bridge</label>
+                        <input type="text" class="form-control" id="typeOfBridge" formControlName="typeOfBridge" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="duration_of_inspection">Duration Of Inspection</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inspectionForm.get('duration_of_inspection')?.invalid && inspectionForm.get('duration_of_inspection')?.touched}" id="duration_of_inspection" formControlName="duration_of_inspection" placeholder="Duration Of Inspection">
+                        @if(inspectionForm.get('duration_of_inspection')?.invalid && inspectionForm.get('duration_of_inspection')?.touched){
+                            <span  class="text-danger">Please enter valid duration of inspection</span>
+                        } 
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="erosionEmbankment">Erosion Embankment</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('erosionEmbankment')?.invalid && inspectionForm.get('erosionEmbankment')?.touched}" id="erosionEmbankment" formControlName="erosionEmbankment">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Erosion by rain">Erosion by rain</option>
+                            <option value="Other damage">Other damage</option>
+                            <option value="No erosion">No erosion</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('erosionEmbankment')?.invalid && inspectionForm.get('erosionEmbankment')?.touched){
+                            <span  class="text-danger">Please select valid erosion embankment</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label" for="erosion_of_embankment_image">Image</label>
+                        <input type="file" class="form-control" id="erosion_of_embankment_image" (change)="onFileChange($event, 'erosion_of_embankment_image')"  accept=".jpg, .jpeg, .png">
+                        <span *ngIf="inspectionForm.get('erosion_of_embankment_image')?.invalid && inspectionForm.get('erosion_of_embankment_image')?.touched" class="text-danger">
+                            Only .jpg, .jpeg, and .png are allowed.
+                          </span>
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="approachSlab">Approach Slab</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('approachSlab')?.invalid && inspectionForm.get('approachSlab')?.touched}" id="approachSlab"  formControlName="approachSlab">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Settlement cracks">Settlement cracks</option>
+                            <option value="Movement">Movement</option>
+                            <option value="Not visible">Not visible</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('approachSlab')?.invalid && inspectionForm.get('approachSlab')?.touched){
+                            <span  class="text-danger">Please select valid approach slab</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label" for="approach_slab_image">Image</label>
+                        <input type="file" class="form-control" id="approach_slab_image"  (change)="onFileChange($event, 'approach_slab_image')"  accept=".jpg, .jpeg, .png">
+                        <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
+                    </div>
+
+                   
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="approachGeometries">Approach Geometries</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('approachGeometries')?.invalid && inspectionForm.get('approachGeometries')?.touched}" id="approachGeometries"  formControlName="approachGeometries">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes, satisfies the standards">Yes, satisfies the standards</option>
+                            <option value="No,does not satisfy the standards">No,does not satisfy the standards</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('approachGeometries')?.invalid && inspectionForm.get('approachGeometries')?.touched){
+                            <span  class="text-danger">Please select valid approach geometries</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label" for="approach_geometry_image">Image</label>
+                        <input type="file" class="form-control" id="approach_geometry_image" (change)="onFileChange($event, 'approach_geometry_image')" accept=".jpg, .jpeg, .png">
+                        <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
+                    </div>
+                   
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="siltDebrisAccumulation">Silt And Debris On Submersible Approaches</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inspectionForm.get('siltDebrisAccumulation')?.invalid && inspectionForm.get('siltDebrisAccumulation')?.touched}" id="siltDebrisAccumulation" formControlName="siltDebrisAccumulation">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Submersible">Submersible</option>
+                            <option value="Non-submersible">Non-submersible</option>
+                            <option value="Not applicable">Not applicable</option>
+                        </select>
+                        @if(inspectionForm.get('siltDebrisAccumulation')?.invalid && inspectionForm.get('siltDebrisAccumulation')?.touched){
+                            <span  class="text-danger">Please select valid silt debris accumulation</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label" for="accumulation_on_approaches_image">Image</label>
+                        <input type="file" class="form-control" id="accumulation_on_approaches_image" (change)="onFileChange($event, 'accumulation_on_approaches_image')" accept=".jpg, .jpeg, .png">
+                        <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
+                    </div>
+                    
+                   
+
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+
+

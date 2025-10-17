@@ -1,0 +1,95 @@
+
+<app-page-header title="View Road" title1="View Road" activeTitle="View Road"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Road'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="roadForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="name_of_road">Name Of Road</label>
+                        <input type="text" class="form-control" id="name_of_road" formControlName="name_of_road" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_location">Road Location</label>
+                        <input type="text" class="form-control" id="road_location" formControlName="road_location" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_of_road">Type Of Road</label>
+                        <input type="text" class="form-control" id="type_of_road" formControlName="type_of_road" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="terrain">Terrain</label>
+                        <input type="text" class="form-control" id="terrain" formControlName="terrain" readonly>
+                    </div>        
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_section_no">Road Section No</label>
+                        <input type="text" class="form-control" id="road_section_no" formControlName="road_section_no" readonly>
+                        
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="length_of_road">Length Of Road</label>
+                        <input type="text" class="form-control" id="length_of_road" formControlName="length_of_road" readonly>
+                     
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="roadway_width">Roadway width</label>
+                        <input type="text" class="form-control" id="roadway_width" formControlName="roadway_width" readonly>
+                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="formation_width">Formation Width</label>
+                        <input type="text" class="form-control" id="formation_width" formControlName="formation_width" readonly>
+                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_type_increasing">Carriageway Width</label>
+                        <input type="text" class="form-control" id="carriageway_width" formControlName="carriageway_width" readonly>
+                     
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_type_increasing">Shoulder Type Increasing</label>
+                        <input type="text" class="form-control" id="shoulder_type_increasing" formControlName="shoulder_type_increasing" readonly>                    
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_type_decreasing">Shoulder Type Decreasing</label>
+                        <input type="text" class="form-control" id="shoulder_type_decreasing" formControlName="shoulder_type_decreasing" readonly>                    
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_width_increasing">Shoulder Width Increasing</label>
+                        <input type="text" class="form-control" id="shoulder_width_increasing" formControlName="shoulder_width_increasing">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_width_decreasing">Shoulder Width Decreasing</label>
+                        <input type="text" class="form-control" id="shoulder_width_decreasing" formControlName="shoulder_width_decreasing">
+                    </div>
+                    
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,226 @@
+
+<app-page-header title="Add Section" title1="Section Manage" activeTitle="Add Section"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Section'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="sectionForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Section Details:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="heading_count">Heading Count</label><span class="text-danger">*</span>
+                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':sectionForm.get('heading_count')?.invalid && sectionForm.get('heading_count')?.touched}" id="heading_count" formControlName="heading_count" placeholder="Heading Count"> 
+                        @if(sectionForm.get('heading_count')?.invalid && sectionForm.get('heading_count')?.touched){
+                            <span  class="text-danger">Please enter valid heading count</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="strategy_code">Strategy Code</label><span class="text-danger">*</span>
+                        
+                        <select class="form-select" [ngClass]="{ 'is-invalid':sectionForm.get('strategy_code')?.invalid && sectionForm.get('strategy_code')?.touched}" id="strategy_code" formControlName="strategy_code">
+                            <option value="" selected disabled>Select</option>
+                            <option value="High">High</option>
+                            <option value="High-Medium">High-Medium</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Medium-Low">Medium-Low</option>
+                            <option value="Low">Low</option>
+                        </select>   
+                        @if(sectionForm.get('strategy_code')?.invalid && sectionForm.get('strategy_code')?.touched){
+                            <span  class="text-danger">Please select valid Strategy Code</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road Code</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':sectionForm.get('road_code')?.invalid && sectionForm.get('road_code')?.touched}" id="road_code" formControlName="road_code" placeholder="Road Code">
+                        @if(sectionForm.get('road_code')?.invalid && sectionForm.get('road_code')?.touched){
+                            <span  class="text-danger">Please enter valid road code</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="jurisdiction_code">Jurisdiction Code</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':sectionForm.get('jurisdiction_code')?.invalid && sectionForm.get('jurisdiction_code')?.touched}" id="jurisdiction_code" formControlName="jurisdiction_code" placeholder="Jurisdiction Code">
+                        @if(sectionForm.get('jurisdiction_code')?.invalid && sectionForm.get('jurisdiction_code')?.touched){
+                            <span  class="text-danger">Please enter valid Jurisdiction Code</span>
+                        } 
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Chainage Details:</h1>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="start_chainage">Start Chainage</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':sectionForm.get('start_chainage')?.invalid && sectionForm.get('start_chainage')?.touched}" id="start_chainage" formControlName="start_chainage" placeholder="Start Chainage">
+                        @if(sectionForm.get('start_chainage')?.invalid && sectionForm.get('start_chainage')?.touched){
+                            <span  class="text-danger">Please enter valid Start Chainage</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="end_chainage">End Chainage</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':sectionForm.get('end_chainage')?.invalid && sectionForm.get('end_chainage')?.touched}" id="end_chainage" formControlName="end_chainage" placeholder="End Chainage">
+                        @if(sectionForm.get('end_chainage')?.invalid && sectionForm.get('end_chainage')?.touched){
+                            <span  class="text-danger">Please enter valid End Chainage</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction_flag">Direction Flag</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':sectionForm.get('direction_flag')?.invalid && sectionForm.get('direction_flag')?.touched}" id="direction_flag" formControlName="direction_flag">
+                            <option value="" selected disabled>Select Direction Flag</option>
+                            <option value="Increasing">Increasing</option>
+                            <option value="Decreasing">Decreasing</option>
+                        </select>
+                        @if(sectionForm.get('direction_flag')?.invalid && sectionForm.get('direction_flag')?.touched){
+                            <span  class="text-danger">Please select valid Direction Flag</span>
+                        } 
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Section Identification:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="section_id">Section ID</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':sectionForm.get('section_id')?.invalid && sectionForm.get('section_id')?.touched}" id="section_id" formControlName="section_id" placeholder="Section ID">
+                        @if(sectionForm.get('section_id')?.invalid && sectionForm.get('section_id')?.touched){
+                            <span  class="text-danger">Please enter valid Section ID</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="section_name">Section Name</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':sectionForm.get('section_name')?.invalid && sectionForm.get('section_name')?.touched}" id="section_name" formControlName="section_name" placeholder="Section Name">
+                        @if(sectionForm.get('section_name')?.invalid && sectionForm.get('section_name')?.touched){
+                            <span  class="text-danger">Please enter valid Section Name</span>
+                        } 
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Link Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="link_id">Link ID</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':sectionForm.get('link_id')?.invalid && sectionForm.get('link_id')?.touched}" id="link_id" formControlName="link_id" placeholder="Link ID">
+                        @if(sectionForm.get('link_id')?.invalid && sectionForm.get('link_id')?.touched){
+                            <span  class="text-danger">Please enter valid Link ID</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="link_name">Link Name</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':sectionForm.get('link_name')?.invalid && sectionForm.get('link_name')?.touched}" id="link_name" formControlName="link_name" placeholder="Link Name">
+                        @if(sectionForm.get('link_name')?.invalid && sectionForm.get('link_name')?.touched){
+                            <span  class="text-danger">Please enter valid Link Name</span>
+                        } 
+                    </div>
+                    
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Flow Information:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="speed_flow">Speed Flow</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':sectionForm.get('speed_flow')?.invalid && sectionForm.get('speed_flow')?.touched}" id="speed_flow" formControlName="speed_flow">
+                            <option value="" selected disabled>Select Speed Flow</option>
+                            <option value="Single Lane (SL)">Single Lane (SL)</option>
+                            <option value="Intermediate Lane (IL)">Intermediate Lane (IL)</option>
+                            <option value="Double Lane (DL)">Double Lane (DL)</option>
+                            <option value="Multi Lane (ML).">Multi Lane (ML).</option>
+                        </select>
+                        @if(sectionForm.get('speed_flow')?.invalid && sectionForm.get('speed_flow')?.touched){
+                            <span  class="text-danger">Please select valid Speed Flow</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="traffic_flow">Traffic Flow</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':sectionForm.get('traffic_flow')?.invalid && sectionForm.get('traffic_flow')?.touched}" id="traffic_flow" formControlName="traffic_flow">
+                            <option value="" selected disabled>Select Traffic Flow</option>
+                            <option value="Free-Flow">Free-Flow</option>
+                            <option value="Congested">Congested</option>
+                        </select>
+                        @if(sectionForm.get('traffic_flow')?.invalid && sectionForm.get('traffic_flow')?.touched){
+                            <span  class="text-danger">Please select valid Traffic Flow</span>
+                        } 
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Classification Information:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="accessibility_class">Accessibility Class</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':sectionForm.get('accessibility_class')?.invalid && sectionForm.get('accessibility_class')?.touched}" id="accessibility_class" formControlName="accessibility_class">
+                            <option value="" selected disabled>Select Accessibility Class</option>
+                            <option value="TR: Through Road">TR: Through Road</option>
+                            <option value="LR: Local Road ">LR: Local Road </option>
+                            <option value="VR: Village Road">VR: Village Road</option>
+                        </select>
+                        @if(sectionForm.get('accessibility_class')?.invalid && sectionForm.get('accessibility_class')?.touched){
+                            <span  class="text-danger">Please select valid Accessibility Class</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_class">Road Class</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':sectionForm.get('road_class')?.invalid && sectionForm.get('road_class')?.touched}" id="road_class" formControlName="road_class">
+                            <option value="" selected disabled>Select Road Class</option>
+                            <option value="TR: Through Road ">TR: Through Road </option>
+                            <option value="LR: Local Road">LR: Local Road</option>
+                            <option value="VR: Village Road">VR: Village Road</option>
+                        </select>
+                        @if(sectionForm.get('road_class')?.invalid && sectionForm.get('road_class')?.touched){
+                            <span  class="text-danger">Please select valid Road Class</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="climatic_zone">Climatic Zone</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':sectionForm.get('climatic_zone')?.invalid && sectionForm.get('climatic_zone')?.touched}" id="climatic_zone" formControlName="climatic_zone">
+                            <option value="" selected disabled>Select Climatic Zone</option>
+                            <option value="Tropical">Tropical</option>
+                            <option value="Dry">Dry</option>
+                            <option value="Temperate">Temperate</option>
+                            <option value="Cold">Cold</option>
+                            <option value="Polar">Polar</option>
+                        </select>
+                        @if(sectionForm.get('climatic_zone')?.invalid && sectionForm.get('climatic_zone')?.touched){
+                            <span  class="text-danger">Please select valid Climatic Zone</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="surface_class">Surface Class</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':sectionForm.get('surface_class')?.invalid && sectionForm.get('surface_class')?.touched}" id="surface_class" formControlName="surface_class">
+                            <option value="" selected disabled>Select Surface Class</option>
+                            <option value="Asphalt">Asphalt</option>
+                            <option value="Concrete">Concrete</option>
+                            <option value="Gravel">Gravel</option>
+                            <option value="Other types of pavement.">Other types of pavement.</option>
+                        </select>
+                        @if(sectionForm.get('surface_class')?.invalid && sectionForm.get('surface_class')?.touched){
+                            <span  class="text-danger">Please select valid Surface Class</span>
+                        } 
+                    </div>
+                                      
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

@@ -1,0 +1,64 @@
+
+<app-page-header title="View Rating" title1="View Rating" activeTitle="View Rating"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Rating'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="ratingForm" >
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="visual_inspection_rating">Visual Inspection Rating</label>
+                        <input type="text" class="form-control" id="visual_inspection_rating" formControlName="visual_inspection_rating" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="visual_inspection_remark">Remark</label>
+                        <input type="text" class="form-control" id="visual_inspection_remark" formControlName="visual_inspection_remark" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="assessment_of_damage_rating">Assessment Of Damage Rating</label>
+                        <input type="text" class="form-control" id="assessment_of_damage_rating" formControlName="assessment_of_damage_rating" readonly>  
+                    </div>
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="assessment_of_damage_remark">Remark</label>
+                        <input type="text" class="form-control" id="assessment_of_damage_remark" formControlName="assessment_of_damage_remark" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="operational_considerations_rating">Operational Considerations Rating</label>
+                        <input type="text" class="form-control" id="operational_considerations_rating" formControlName="operational_considerations_rating" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="operational_considerations_remark">Remark</label>
+                        <input type="text" class="form-control" id="operational_considerations_remark" formControlName="operational_considerations_remark" readonly>  
+                    </div>
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="safety_risk_factor_rating">Safety Risk Factor Rating</label>
+                        <input type="text" class="form-control" id="safety_risk_factor_rating" formControlName="safety_risk_factor_rating" readonly>  
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="safety_risk_factor_remark">Remark</label>
+                        <input type="text" class="form-control" id="safety_risk_factor_remark" formControlName="safety_risk_factor_remark" readonly>  
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

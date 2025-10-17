@@ -1,0 +1,107 @@
+
+<app-page-header title="Add Flexible Distress" title1="Add Flexible Distress" activeTitle="Add Flexible Distress"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Flexible Distress'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="distressForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="geometry_data_id">Road</label><span class="text-danger">*</span>
+                        <select  class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('geometry_data_id')?.invalid && distressForm.get('geometry_data_id')?.touched}" id="geometry_data_id" formControlName="geometry_data_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of geometryList; track $index) {
+                            <option value="{{row.geometry_data_id}}">{{row.name_of_road}}</option>
+                            }
+                        </select>   
+                        @if(distressForm.get('geometry_data_id')?.invalid && distressForm.get('geometry_data_id')?.touched){
+                            <span  class="text-danger">Please select valid Road</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label><span class="text-danger">*</span>
+                        <select (change)="getDistrctList(distressForm.get('state_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('state_id')?.invalid && distressForm.get('state_id')?.touched}" id="state_id" formControlName="state_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of stateList; track $index) {
+                            <option value="{{row.state_id}}">{{row.state_name}}</option>
+                            }
+                        </select>   
+                        
+                        @if(distressForm.get('state_id')?.invalid && distressForm.get('state_id')?.touched){
+                            <span  class="text-danger">Please select valid state</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label><span class="text-danger">*</span>
+                        <select  (change)="getCitytList(distressForm.get('district_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('district_id')?.invalid && distressForm.get('district_id')?.touched}" id="district_id" formControlName="district_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of districtList; track $index) {
+                              <option value="{{row.district_id}}">{{row.district_name}}</option> 
+                            }
+                        </select>   
+                        @if(distressForm.get('district_id')?.invalid && distressForm.get('district_id')?.touched){
+                            <span  class="text-danger">Please select valid district</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('city_id')?.invalid && distressForm.get('city_id')?.touched}" id="city_id" formControlName="city_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of cityList; track $index) {
+                                 <option value="{{row.city_id}}">{{row.city_name}}</option>  
+                            }
+                        </select>   
+                        @if(distressForm.get('city_id')?.invalid && distressForm.get('city_id')?.touched){
+                            <span  class="text-danger">Please select valid Block</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="village">Village</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('village')?.invalid && distressForm.get('village')?.touched}" id="village" formControlName="village" placeholder="Village">
+                        @if(distressForm.get('village')?.invalid && distressForm.get('village')?.touched){
+                            <span  class="text-danger">Please enter valid village</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_start">Chainage Start</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('chainage_start')?.invalid && distressForm.get('chainage_start')?.touched}" id="chainage_start" formControlName="chainage_start" placeholder="Chainage Start">
+                        @if(distressForm.get('chainage_start')?.invalid && distressForm.get('chainage_start')?.touched){
+                            <span  class="text-danger">Please enter valid chainage start</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_end">Chainage End</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('chainage_end')?.invalid && distressForm.get('chainage_end')?.touched}" id="chainage_end" formControlName="chainage_end" placeholder="Chainage End">
+                        @if(distressForm.get('chainage_end')?.invalid && distressForm.get('chainage_end')?.touched){
+                            <span  class="text-danger">Please enter valid chainage end</span>
+                        } 
+                    </div>
+
+                    
+
+
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+

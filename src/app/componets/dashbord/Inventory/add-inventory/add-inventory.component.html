@@ -1,0 +1,92 @@
+
+<app-page-header title="Add Equipment" title1="Equipment Manage" activeTitle="Add Equipment"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Equipment'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="inventoryForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="item_name">Item Name</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('item_name')?.invalid && inventoryForm.get('item_name')?.touched}"  id="item_name" formControlName="item_name" placeholder="Item Name">
+                        @if(inventoryForm.get('item_name')?.invalid && inventoryForm.get('item_name')?.touched){
+                            <span  class="text-danger">Please enter valid item name</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="yom">Year of Make</label><span class="text-danger">*</span>
+                        <input type="month" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('yom')?.invalid && inventoryForm.get('yom')?.touched}"  id="yom" formControlName="yom" placeholder="Year of Make">
+                        @if(inventoryForm.get('yom')?.invalid && inventoryForm.get('yom')?.touched){
+                            <span  class="text-danger">Please enter select valid year of make</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="make_and_model">Make and Model</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('make_and_model')?.invalid && inventoryForm.get('make_and_model')?.touched}"  id="make_and_model" formControlName="make_and_model" placeholder="Make and Model">
+                        @if(inventoryForm.get('make_and_model')?.invalid && inventoryForm.get('make_and_model')?.touched){
+                            <span  class="text-danger">Please enter valid make and model</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="equipment_code">Equipment Code</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('equipment_code')?.invalid && inventoryForm.get('equipment_code')?.touched}"  id="equipment_code" formControlName="equipment_code" placeholder="Equipment Code">
+                        @if(inventoryForm.get('equipment_code')?.invalid && inventoryForm.get('equipment_code')?.touched){
+                            <span  class="text-danger">Please enter valid equipment code</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="estimate_cost">Estimate cost</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('estimate_cost')?.invalid && inventoryForm.get('estimate_cost')?.touched}"  id="estimate_cost" formControlName="estimate_cost" placeholder="Estimate cost">
+                        @if(inventoryForm.get('estimate_cost')?.invalid && inventoryForm.get('estimate_cost')?.touched){
+                            <span  class="text-danger">Please enter select enter estimate cost</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="working_status">Status</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('working_status')?.invalid && inventoryForm.get('working_status')?.touched}" id="working_status" formControlName="working_status">
+                            <option value="" selected disabled>Select Status</option>
+                            <option value="Working">Working</option>
+                            <option value="Not-Working">Not-Working</option>
+                            <option value="Under-repair">Under-repair</option>
+                        </select>
+                        @if(inventoryForm.get('working_status')?.invalid && inventoryForm.get('working_status')?.touched){
+                            <span  class="text-danger">Please select valid status </span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="remark">Remark</label><span class="text-danger">*</span>
+                        <textarea class="form-control" 
+                                  [ngClass]="{ 'is-invalid': inventoryForm.get('remark')?.invalid && inventoryForm.get('remark')?.touched }"  
+                                  id="remark" 
+                                  formControlName="remark" 
+                                  placeholder="Remark">
+                        </textarea>
+                        @if(inventoryForm.get('remark')?.invalid && inventoryForm.get('remark')?.touched){
+                            <span class="text-danger">Please enter a valid remark</span>
+                        }
+                    </div>
+                     
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                        <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/inventory/inventory-management">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add</button>
+
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

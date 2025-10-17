@@ -1,0 +1,151 @@
+
+<app-page-header title="Add Road" title1="Add Road" activeTitle="Add Road"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Road'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="roadForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="name_of_road">Name Of Road</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':roadForm.get('name_of_road')?.invalid && roadForm.get('name_of_road')?.touched}" id="name_of_road" formControlName="name_of_road" placeholder="Name Of Road">
+                        @if(roadForm.get('name_of_road')?.invalid && roadForm.get('name_of_road')?.touched){
+                            <span  class="text-danger">Please enter valid name of road</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_location">Road Location</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':roadForm.get('road_location')?.invalid && roadForm.get('road_location')?.touched}" id="road_location" formControlName="road_location" placeholder="Road Location">
+                        @if(roadForm.get('road_location')?.invalid && roadForm.get('road_location')?.touched){
+                            <span  class="text-danger">Please enter valid road location</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_of_road">Type Of Road</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':roadForm.get('type_of_road')?.invalid && roadForm.get('type_of_road')?.touched}" id="type_of_road" formControlName="type_of_road">
+                            <option value="" selected disabled>Select</option>
+                            <option value="BT">BT</option>
+                            <option value="CC">CC</option>
+                        </select>
+                        @if(roadForm.get('type_of_road')?.invalid && roadForm.get('type_of_road')?.touched){
+                            <span  class="text-danger">Please select type of road</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="terrain">Terrain</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':roadForm.get('terrain')?.invalid && roadForm.get('terrain')?.touched}" id="terrain"  formControlName="terrain">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Plain">Plain</option>
+                            <option value="Plateau">Plateau</option>
+                            <option value="Valley">Valley</option>
+                        </select>
+                        @if(roadForm.get('terrain')?.invalid && roadForm.get('terrain')?.touched){
+                            <span  class="text-danger">Please select terrain</span>
+                        } 
+                    </div>          
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_section_no">Road Section No</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':roadForm.get('road_section_no')?.invalid && roadForm.get('road_section_no')?.touched}" id="road_section_no" formControlName="road_section_no" placeholder="Road Section No">
+                        @if(roadForm.get('road_section_no')?.invalid && roadForm.get('road_section_no')?.touched){
+                            <span  class="text-danger">Please enter valid road section no</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="length_of_road">Length Of Road</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':roadForm.get('length_of_road')?.invalid && roadForm.get('length_of_road')?.touched}" id="length_of_road" formControlName="length_of_road" placeholder="Length Of Road">
+                        @if(roadForm.get('length_of_road')?.invalid && roadForm.get('length_of_road')?.touched){
+                            <span  class="text-danger">Please enter valid length of road</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="roadway_width">Roadway width</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':roadForm.get('roadway_width')?.invalid && roadForm.get('roadway_width')?.touched}" id="roadway_width" formControlName="roadway_width" placeholder="Roadway width">
+                        @if(roadForm.get('roadway_width')?.invalid && roadForm.get('roadway_width')?.touched){
+                            <span  class="text-danger">Please enter valid roadway width</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="formation_width">Formation Width</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':roadForm.get('formation_width')?.invalid && roadForm.get('formation_width')?.touched}" id="formation_width" formControlName="formation_width" placeholder="Formation Width">
+                        @if(roadForm.get('formation_width')?.invalid && roadForm.get('formation_width')?.touched){
+                            <span  class="text-danger">Please enter valid formation width</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carriageway_width">Carriageway Width</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':roadForm.get('carriageway_width')?.invalid && roadForm.get('carriageway_width')?.touched}" id="carriageway_width" formControlName="carriageway_width" placeholder="Carriageway Width">
+                        @if(roadForm.get('carriageway_width')?.invalid && roadForm.get('carriageway_width')?.touched){
+                            <span  class="text-danger">Please enter valid carriageway width</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_type_increasing">Shoulder Type Increasing</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':roadForm.get('shoulder_type_increasing')?.invalid && roadForm.get('shoulder_type_increasing')?.touched}" id="shoulder_type_increasing"  formControlName="shoulder_type_increasing">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Soil">Soil</option>
+                            <option value="Grass">Grass</option>
+                            <option value="Paved">Paved</option>
+                            <option value="Gravel">Gravel</option>
+                        </select>
+                        @if(roadForm.get('shoulder_type_increasing')?.invalid && roadForm.get('shoulder_type_increasing')?.touched){
+                            <span  class="text-danger">Please select shoulder type increasing</span>
+                        } 
+                    </div>     
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_type_decreasing">Shoulder Type Decreasing</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':roadForm.get('shoulder_type_decreasing')?.invalid && roadForm.get('shoulder_type_decreasing')?.touched}" id="shoulder_type_decreasing"  formControlName="shoulder_type_decreasing">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Soil">Soil</option>
+                            <option value="Grass">Grass</option>
+                            <option value="Paved">Paved</option>
+                            <option value="Gravel">Gravel</option>
+                        </select>
+                        @if(roadForm.get('shoulder_type_decreasing')?.invalid && roadForm.get('shoulder_type_decreasing')?.touched){
+                            <span  class="text-danger">Please select shoulder type decreasing</span>
+                        } 
+                    </div>   
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_width_increasing">Shoulder Width Increasing</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':roadForm.get('shoulder_width_increasing')?.invalid && roadForm.get('shoulder_width_increasing')?.touched}" id="shoulder_width_increasing" formControlName="shoulder_width_increasing" placeholder="Shoulder Width Increasing">
+                        @if(roadForm.get('shoulder_width_increasing')?.invalid && roadForm.get('shoulder_width_increasing')?.touched){
+                            <span  class="text-danger">Please enter valid shoulder width increasing</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_width_decreasing">Shoulder Width Decreasing</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':roadForm.get('shoulder_width_decreasing')?.invalid && roadForm.get('shoulder_width_decreasing')?.touched}" id="shoulder_width_decreasing" formControlName="shoulder_width_decreasing" placeholder="Shoulder Width Decreasing">
+                        @if(roadForm.get('shoulder_width_decreasing')?.invalid && roadForm.get('shoulder_width_decreasing')?.touched){
+                            <span  class="text-danger">Please enter valid shoulder width decreasing</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+
+
+

@@ -1,0 +1,531 @@
+
+<app-page-header title="View Inventory" title1="View Inventory" activeTitle="View Inventory"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12" id="pdf-content">
+        <!-- <app-showcode-card [title]="'View Inventory of'+roadName" [prism]="prismCode.formlayouts10"> -->
+            <h3 style="text-align: center; font-weight: 600;" class="mt-5 mb-4">Inventory Report of - {{topTitle}} </h3>
+            <form [formGroup]="inventoryForm">
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label>
+                        <input type="text" class="form-control" id="state_id" formControlName="state_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label>
+                        <input type="text" class="form-control" id="district_id" formControlName="district_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label>
+                        <input type="text" class="form-control" id="city_id" formControlName="city_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="village">Village</label>
+                        <input type="text" class="form-control" id="village" formControlName="village" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_start">Chainage Start</label>
+                        <input type="text" class="form-control" id="chainage_start" formControlName="chainage_start" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_end">Chainage End</label>
+                        <input type="text" class="form-control" id="chainage_end" formControlName="chainage_end" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="terrain">Terrain</label>
+                        <input type="text" class="form-control" id="terrain" formControlName="terrain" readonly>
+                    </div>         
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="land_use_left">Land Use Left</label>
+                        <input type="text" class="form-control" id="land_use_left" formControlName="land_use_left" readonly>
+                    </div>   
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="land_use_right">Land Use Right</label>
+                        <input type="text" class="form-control" id="land_use_right" formControlName="land_use_right" readonly>
+                    </div>   
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainagewise_village">Chainage Wise Village</label>
+                        <input type="text" class="form-control" id="chainagewise_village" formControlName="chainagewise_village" readonly>
+                    </div>   
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="roadway_width">Roadway Width</label>
+                        <input type="text" class="form-control" id="roadway_width" formControlName="roadway_width" readonly>
+                    </div>  
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="formation_width">Formation Width</label>
+                        <input type="text" class="form-control" id="formation_width" formControlName="formation_width" readonly>
+                    </div>  
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carriageway_type">Carriageway Type</label>
+                        <input type="text" class="form-control" id="carriageway_type" formControlName="carriageway_type" readonly>
+                    </div>  
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carriageway_width">Carriageway Width</label>
+                        <input type="text" class="form-control" id="carriageway_width" formControlName="carriageway_width" readonly>
+                    </div>  
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_left_type">Shoulder Left Type</label>
+                        <input type="text" class="form-control" id="shoulder_left_type" formControlName="shoulder_left_type" readonly>
+                    </div>  
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_right_type">Shoulder Right Type</label>
+                        <input type="text" class="form-control" id="shoulder_right_type" formControlName="shoulder_right_type" readonly>
+                    </div>  
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_left_width">Shoulder Left Width</label>
+                        <input type="text" class="form-control" id="shoulder_left_width" formControlName="shoulder_left_width" readonly>
+                    </div>  
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_right_width">Shoulder Right Width</label>
+                        <input type="text" class="form-control" id="shoulder_right_width" formControlName="shoulder_right_width" readonly>
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="submergence">Submergence</label>
+                        <input type="text" class="form-control" id="submergence" formControlName="submergence" readonly>
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="embankment_height">Embankment Height</label>
+                        <input type="text" class="form-control" id="embankment_height" formControlName="embankment_height" readonly>
+                    </div> 
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="drainage_left">Drainage Left</label>
+                        <input type="text" class="form-control" id="drainage_left" formControlName="drainage_left" readonly>
+                        
+                        @if(inventoryData.drainage_left_image){
+                        <br>
+                        <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.drainage_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="drainage_right">Drainage Right</label>
+                        <input type="text" class="form-control" id="drainage_right" formControlName="drainage_right" readonly>
+                        @if(inventoryData.drainage_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.drainage_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                    
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="avenue_plantation_left">Avenue Plantation Left</label>
+                        <input type="text" class="form-control" id="avenue_plantation_left" formControlName="avenue_plantation_left" readonly>
+                        @if(inventoryData.avenue_plantation_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.avenue_plantation_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="avenue_plantation_right">Avenue Plantation Right</label>
+                        <input type="text" class="form-control" id="avenue_plantation_right" formControlName="avenue_plantation_right" readonly>
+                        @if(inventoryData.avenue_plantation_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.avenue_plantation_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="median_plants">Median Plants</label>
+                        <input type="text" class="form-control" id="median_plants" formControlName="median_plants" readonly>
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="solar_blinkers">Solar Blinkers</label>
+                        <input type="text" class="form-control" id="solar_blinkers" formControlName="solar_blinkers" readonly>
+                    </div> 
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="median_plants_value">Median Plants Value</label>
+                        <input type="text" class="form-control" id="median_plants_value" formControlName="median_plants_value" readonly>
+                        @if(inventoryData.median_plants_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.median_plants_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="sign_board_left">Sign Board Left</label>
+                        <input type="text" class="form-control" id="sign_board_left" formControlName="sign_board_left" readonly>
+                        @if(inventoryData.sign_board_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.sign_board_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="sign_board_right">Sign Board Right</label>
+                        <input type="text" class="form-control" id="sign_board_right" formControlName="sign_board_right" readonly>
+                        @if(inventoryData.sign_board_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.sign_board_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                  
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="sign_board_middle">Sign Board Middle</label>
+                        <input type="text" class="form-control" id="sign_board_middle" formControlName="sign_board_middle" readonly>
+                        @if(inventoryData.sign_board_middle_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.sign_board_middle_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="culverts_left">Culverts Left</label>
+                        <input type="text" class="form-control" id="culverts_left" formControlName="culverts_left" readonly>
+                        @if(inventoryData.culverts_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.culverts_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="culverts_right">Culverts Right</label>
+                        <input type="text" class="form-control" id="culverts_right" formControlName="culverts_right" readonly>
+                        @if(inventoryData.culverts_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.culverts_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="street_lights_left">Street Lights Left</label>
+                        <input type="text" class="form-control" id="street_lights_left" formControlName="street_lights_left" readonly>
+                        @if(inventoryData.street_lights_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.street_lights_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                     
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="street_lights_middle">Street Lights Middle</label>
+                        <input type="text" class="form-control" id="street_lights_middle" formControlName="street_lights_middle" readonly>
+                        @if(inventoryData.street_lights_middle_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.street_lights_middle_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="street_lights_right">Street Lights Right</label>
+                        <input type="text" class="form-control" id="street_lights_right" formControlName="street_lights_right" readonly>
+                        @if(inventoryData.street_lights_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.street_lights_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="junctions">Junctions</label>
+                        <input type="text" class="form-control" id="junctions" formControlName="junctions" readonly>
+                        @if(inventoryData.junctions_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.junctions_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="kilometer_stone_left">Kilometer Stone Left</label>
+                        <input type="text" class="form-control" id="kilometer_stone_left" formControlName="kilometer_stone_left" readonly>
+                        @if(inventoryData.kilometer_stone_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.kilometer_stone_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="kilometer_stone_middle">Kilometer Stone Middle</label>
+                        <input type="text" class="form-control" id="kilometer_stone_middle" formControlName="kilometer_stone_middle" readonly>
+                        @if(inventoryData.kilometer_stone_middle_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.kilometer_stone_middle_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                   
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="kilometer_stone_right">Kilometer Stone Right</label>
+                        <input type="text" class="form-control" id="kilometer_stone_right" formControlName="kilometer_stone_right" readonly>
+                        @if(inventoryData.kilometer_stone_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.kilometer_stone_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                     
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bus_top_left">Bus Top Left</label>
+                        <input type="text" class="form-control" id="bus_top_left" formControlName="bus_top_left" readonly>
+                        @if(inventoryData.bus_top_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.bus_top_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bus_top_right">Bus Top Right</label>
+                        <input type="text" class="form-control" id="bus_top_right" formControlName="bus_top_right" readonly>
+                        @if(inventoryData.bus_top_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.bus_top_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="truck_lay_bayes_left">Truck Lay Bayes Left</label>
+                        <input type="text" class="form-control" id="truck_lay_bayes_left" formControlName="truck_lay_bayes_left" readonly>
+                        @if(inventoryData.truck_lay_bayes_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.truck_lay_bayes_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                    
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="truck_lay_bayes_right">Truck Lay Bayes Right</label>
+                        <input type="text" class="form-control" id="truck_lay_bayes_right" formControlName="truck_lay_bayes_right" readonly>
+                        @if(inventoryData.truck_lay_bayes_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.truck_lay_bayes_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="toll_plaza">Toll Plaza</label>
+                        <input type="text" class="form-control" id="toll_plaza" formControlName="toll_plaza" readonly>
+                        @if(inventoryData.toll_plaza_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.toll_plaza_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="service_road_left">Service Road Left</label>
+                        <input type="text" class="form-control" id="service_road_left" formControlName="service_road_left" readonly>
+                        @if(inventoryData.service_road_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.service_road_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="service_road_right">Service Road Right</label>
+                        <input type="text" class="form-control" id="service_road_right" formControlName="service_road_right" readonly>
+                        @if(inventoryData.service_road_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.service_road_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="adjacent_roads_left">Adjacent Roads Left</label>
+                        <input type="text" class="form-control" id="adjacent_roads_left" formControlName="adjacent_roads_left" readonly>
+                        @if(inventoryData.adjacent_roads_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.adjacent_roads_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                    
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="adjacent_roads_right">Adjacent Roads Right</label>
+                        <input type="text" class="form-control" id="adjacent_roads_right" formControlName="adjacent_roads_right" readonly>
+                        @if(inventoryData.adjacent_roads_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.adjacent_roads_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="toilet_blocks_left">Toilet Blocks Left</label>
+                        <input type="text" class="form-control" id="toilet_blocks_left" formControlName="toilet_blocks_left" readonly>
+                        @if(inventoryData.toilet_blocks_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.toilet_blocks_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="toilet_blocks_right">Toilet Blocks Right</label>
+                        <input type="text" class="form-control" id="toilet_blocks_right" formControlName="toilet_blocks_right" readonly>
+                        @if(inventoryData.toilet_blocks_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.toilet_blocks_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                     
+                    
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="solar_blinkers_value">Solar Blinkers Value</label>
+                        <input type="text" class="form-control" id="solar_blinkers_value" formControlName="solar_blinkers_value" readonly>
+                        @if(inventoryData.solar_blinkers_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.solar_blinkers_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="rest_area_left">Rest Area Left</label>
+                        <input type="text" class="form-control" id="rest_area_left" formControlName="rest_area_left" readonly>
+                        @if(inventoryData.rest_area_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.rest_area_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="rest_area_right">Rest Area Right</label>
+                        <input type="text" class="form-control" id="rest_area_right" formControlName="rest_area_right" readonly>
+                        @if(inventoryData.rest_area_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.rest_area_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="row_fencing_left">Row Fencing Left</label>
+                        <input type="text" class="form-control" id="row_fencing_left" formControlName="row_fencing_left" readonly>
+                        @if(inventoryData.row_fencing_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.row_fencing_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="row_fencing_middle">Row Fencing Middle</label>
+                        <input type="text" class="form-control" id="row_fencing_middle" formControlName="row_fencing_middle" readonly>
+                        @if(inventoryData.row_fencing_middle_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.row_fencing_middle_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+            
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="row_fencing_right">Row Fencing Right</label>
+                        <input type="text" class="form-control" id="row_fencing_right" formControlName="row_fencing_right" readonly>
+                        @if(inventoryData.row_fencing_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.row_fencing_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                  
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="fuel_station_left">Fuel Station Left</label>
+                        <input type="text" class="form-control" id="fuel_station_left" formControlName="fuel_station_left" readonly>
+                        @if(inventoryData.fuel_station_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.fuel_station_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                  
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="fuel_station_right">Fuel Station Right</label>
+                        <input type="text" class="form-control" id="fuel_station_right" formControlName="fuel_station_right" readonly>
+                        @if(inventoryData.fuel_station_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.fuel_station_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="emergency_call_box_left">Emergency Call Box Left</label>
+                        <input type="text" class="form-control" id="emergency_call_box_left" formControlName="emergency_call_box_left" readonly>
+                        @if(inventoryData.emergency_call_box_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.emergency_call_box_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="emergency_call_box_right">Emergency Call Box Right</label>
+                        <input type="text" class="form-control" id="emergency_call_box_right" formControlName="emergency_call_box_right" readonly>
+                        @if(inventoryData.emergency_call_box_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.emergency_call_box_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                  
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="footpath_left">Footpath Left</label>
+                        <input type="text" class="form-control" id="footpath_left" formControlName="footpath_left" readonly>
+                        @if(inventoryData.footpath_left_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.footpath_left_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+                     
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="footpath_right">Footpath Right</label>
+                        <input type="text" class="form-control" id="footpath_right" formControlName="footpath_right" readonly>
+                        @if(inventoryData.footpath_right_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.footpath_right_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="divider_break">Divider Break</label>
+                        <input type="text" class="form-control" id="divider_break" formControlName="divider_break" readonly>
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="divider_break_value">Divider Break Value</label>
+                        <input type="text" class="form-control" id="divider_break_value" formControlName="divider_break_value" readonly>
+                        @if(inventoryData.divider_break_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.divider_break_image" alt="Image" width="70%" />
+                        }
+                    </div> 
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="remarks">Remark</label>
+                        <input type="text" class="form-control" id="remarks" formControlName="remarks" readonly>
+                        @if(inventoryData.remarks_image){
+                            <br>
+                            <img [src]="urlLive+'/upload/inspection_images/'+inventoryData.remarks_image" alt="Image" width="70%" />
+                        }
+                    </div>
+                </div>
+            </form>
+
+        <!-- </app-showcode-card> -->
+    </div>
+</div>
+
+<div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-3">
+    <a href="javascript:void(0);" title="Pdf" (click)="generatePDF()"class="btn btn btn-primary"> Download</a>
+  </div>
+
+
+
+
+

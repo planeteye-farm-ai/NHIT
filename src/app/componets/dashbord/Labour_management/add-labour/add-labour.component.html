@@ -1,0 +1,115 @@
+
+<app-page-header title="Add Labour" title1="Labour Manage" activeTitle="Add Labour"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Labour'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="labourForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="first_name">First Name</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':labourForm.get('first_name')?.invalid && labourForm.get('first_name')?.touched}"  id="first_name" formControlName="first_name" placeholder="First Name">
+                        @if(labourForm.get('first_name')?.invalid && labourForm.get('first_name')?.touched){
+                            <span  class="text-danger">Please enter valid name</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="last_name">Last Name</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':labourForm.get('last_name')?.invalid && labourForm.get('last_name')?.touched}"  id="last_name" formControlName="last_name" placeholder="Last Name">
+                        @if(labourForm.get('last_name')?.invalid && labourForm.get('last_name')?.touched){
+                            <span  class="text-danger">Please enter valid name</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="dob">Date of Brth</label><span class="text-danger">*</span>
+                        <input type="date" class="form-control" [ngClass]="{ 'is-invalid':labourForm.get('dob')?.invalid && labourForm.get('dob')?.touched}"  id="dob" formControlName="dob" placeholder="Date of Brth">
+                        @if(labourForm.get('dob')?.invalid && labourForm.get('dob')?.touched){
+                            <span  class="text-danger">Please select valid date</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="labour_type">Labour Type</label><span class="text-danger">*</span>
+                        <select class="form-select" (change)="resetOtherType()" [ngClass]="{ 'is-invalid':labourForm.get('labour_type')?.invalid && labourForm.get('labour_type')?.touched}" id="labour_type" formControlName="labour_type">
+                            <option value="" selected disabled>Select Type</option>
+                            <option value="Mason">Mason</option>
+                            <option value="Labourer">Labourer</option>
+                            <option value="Operator">Operator</option>
+                            <option value="Engineer">Engineer</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Surveyor">Surveyor</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        @if(labourForm.get('labour_type')?.invalid && labourForm.get('labour_type')?.touched){
+                            <span  class="text-danger">Please select valid Type </span>
+                        } 
+                    </div>
+                    @if(labourForm.get('labour_type')?.value === 'Other'){
+                        <div class="col-md-6 mb-3" >
+                            <label class="form-label" for="other_type">Other Labour Type</label>
+                            <input type="text" class="form-control" [ngClass]="{ 'is-invalid':labourForm.get('other_type')?.invalid && labourForm.get('other_type')?.touched}"  id="other_type" formControlName="other_type" placeholder="Other">
+                            @if(labourForm.get('other_type')?.invalid && labourForm.get('other_type')?.touched){
+                                <span  class="text-danger">Please enter valid other type </span>
+                            }
+                        </div>
+                    }
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="crew_id">CREW Id</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':labourForm.get('crew_id')?.invalid && labourForm.get('crew_id')?.touched}"  id="crew_id" formControlName="crew_id" placeholder="CREW Id">
+                        @if(labourForm.get('crew_id')?.invalid && labourForm.get('crew_id')?.touched){
+                            <span  class="text-danger">Please enter select enter crew id</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="gender">Gender</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':labourForm.get('gender')?.invalid && labourForm.get('gender')?.touched}" id="gender" formControlName="gender">
+                            <option value="" selected disabled>Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="feMale">FeMale</option>
+                        </select>
+                        @if(labourForm.get('gender')?.invalid && labourForm.get('gender')?.touched){
+                            <span  class="text-danger">Please select valid gender</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="contact_number">Contact Number</label><span class="text-danger">*</span>
+                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':labourForm.get('contact_number')?.invalid && labourForm.get('contact_number')?.touched}"  id="contact_number" formControlName="contact_number" placeholder="Contact Number">
+                        @if(labourForm.get('contact_number')?.invalid && labourForm.get('contact_number')?.touched){
+                            <span  class="text-danger">Please enter valid contact number</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="address">Address</label><span class="text-danger">*</span>
+                        <textarea class="form-control" 
+                                  [ngClass]="{ 'is-invalid': labourForm.get('address')?.invalid && labourForm.get('address')?.touched }"  
+                                  id="address" formControlName="address" placeholder="Address">
+                        </textarea>
+                        @if(labourForm.get('address')?.invalid && labourForm.get('address')?.touched){
+                            <span class="text-danger">Please enter a valid address</span>
+                        }
+                    </div>
+                     
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                        <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/labour-management/">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add</button>
+
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+<app-page-header [title]="title" title1="TIS" [activeTitle]="title" ></app-page-header>
+<!-- Start::row-1 -->
+<div class="row">
+    <div *ngIf="isLoading" class="loading-message">
+        <h4>Traffic Information System (TIS)</h4><br>
+        <p>
+            TIS is about traffic information on all roads under NHIT with KPI information including 
+            <br>
+            AADT (Average Annual ), CVD (Commercial Vehicle Damage), axle-wise and vehicle <br>type-wise frequency.
+           </p>
+          
+    </div>
+        <iframe [class.hidden]="isLoading" [src]="safeUrl" title="Details Link" width="120%" height="800"></iframe>
+</div>

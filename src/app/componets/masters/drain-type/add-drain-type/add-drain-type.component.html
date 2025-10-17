@@ -1,0 +1,48 @@
+<div class="col-xl-12">
+    <button type="button" class="btn btn-primary-light btn-wave me-2" data-bs-toggle="modal"
+            (click)="openVerticallyCentered(Content2)" data-bs-target="#exampleModalXls">
+      <i class="bx bx-plus align-middle"></i> Add Drain Type
+    </button>
+  
+    <div class="modal fade" id="exampleModalXl" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <ng-template #Content2 let-modal>
+          <div class="modal-content">
+            <form [formGroup]="drainForm" (ngSubmit)="onSubmit()">
+              <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalXlLabel">Add Drain Type</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="pavementType" placeholder=""
+                             formControlName="drainType">
+                      <label for="pavementType">Drain Type</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <select class="form-select" id="status" formControlName="status">
+                        <option selected disabled>Select Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Deactive">Deactive</option>
+                        <option value="Deleted">Deleted</option>
+                      </select>
+                      <label for="status">Select Status</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')" data-bs-dismiss="modal">Close</button>
+                <button type="submit" (click)="modal.close('Close click')" [disabled]="drainForm.invalid" class="btn btn-primary">Add</button>
+              </div>
+            </form>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+  

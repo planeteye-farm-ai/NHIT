@@ -1,0 +1,72 @@
+
+<app-page-header title="Add Work Order" title1="Work Order Manage" activeTitle="Add Work Order"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Work Order'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="workOrderForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="work_order_id">Work Order ID</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':workOrderForm.get('work_order_id')?.invalid && workOrderForm.get('work_order_id')?.touched}"  id="work_order_id" formControlName="work_order_id" placeholder="Work Order ID">
+                        @if(workOrderForm.get('work_order_id')?.invalid && workOrderForm.get('work_order_id')?.touched){
+                            <span  class="text-danger">Please enter valid work order id</span>
+                        }
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="type_of_work">Type of work</label><span class="text-danger">*</span>
+                        <select class="form-select"  [ngClass]="{ 'is-invalid':workOrderForm.get('type_of_work')?.invalid && workOrderForm.get('type_of_work')?.touched}" id="type_of_work" formControlName="type_of_work">
+                            <option value="" selected disabled>Select type</option>
+                            <option value="Routine Maintenance">Routine Maintenance</option>
+                            <option value="Special Repair">Special Repair</option>
+                            <option value="New Construction">New Construction</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        @if(workOrderForm.get('type_of_work')?.invalid && workOrderForm.get('type_of_work')?.touched){
+                            <span  class="text-danger">Please select valid type of work</span>
+                        } 
+                    </div>
+                        <div class="col-md-4 mb-3" >
+                            <label class="form-label"  for="other_type_of_work">Other Type</label>
+                            @if(workOrderForm.get('type_of_work')?.value === 'Other'){
+                                <input type="text" class="form-control" [ngClass]="{ 'is-invalid':workOrderForm.get('other_type_of_work')?.invalid && workOrderForm.get('other_type_of_work')?.touched}"  id="other_type_of_work" formControlName="other_type_of_work" placeholder="Other Type">
+                                @if(workOrderForm.get('other_type_of_work')?.invalid && workOrderForm.get('other_type_of_work')?.touched){
+                                    <span  class="text-danger">Please enter valid other type of work </span>
+                                }
+                            }
+                        </div>
+                    
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_km_from">Chainage km From</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':workOrderForm.get('chainage_km_from')?.invalid && workOrderForm.get('chainage_km_from')?.touched}"  id="chainage_km_from" formControlName="chainage_km_from" placeholder="Chainage km From">
+                        @if(workOrderForm.get('chainage_km_from')?.invalid && workOrderForm.get('chainage_km_from')?.touched){
+                            <span  class="text-danger">Please enter valid chainage km from</span>
+                        }
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_km_to">Chainage km To</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':workOrderForm.get('chainage_km_to')?.invalid && workOrderForm.get('chainage_km_to')?.touched}"  id="chainage_km_to" formControlName="chainage_km_to" placeholder="Chainage km To">
+                        @if(workOrderForm.get('chainage_km_to')?.invalid && workOrderForm.get('chainage_km_to')?.touched){
+                            <span  class="text-danger">Please enter valid chainage km to</span>
+                        }
+                    </div>
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                      <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/work-order">Cancel</a>
+                      <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

@@ -1,0 +1,240 @@
+
+<app-page-header title="Add Inventory" title1="Add Inventory" activeTitle="Add Inventory"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Inventory of'+roadName" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="inventoryForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label><span class="text-danger">*</span>
+                        <select (change)="getDistrctList(inventoryForm.get('state_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('state_id')?.invalid && inventoryForm.get('state_id')?.touched}" id="state_id" formControlName="state_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of stateList; track $index) {
+                            <option value="{{row.state_id}}">{{row.state_name}}</option>
+                            }
+                        </select>   
+                        
+                        @if(inventoryForm.get('state_id')?.invalid && inventoryForm.get('state_id')?.touched){
+                            <span  class="text-danger">Please select valid state</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label><span class="text-danger">*</span>
+                        <select  (change)="getCitytList(inventoryForm.get('district_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('district_id')?.invalid && inventoryForm.get('district_id')?.touched}" id="district_id" formControlName="district_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of districtList; track $index) {
+                              <option value="{{row.district_id}}">{{row.district_name}}</option> 
+                            }
+                        </select>   
+                        @if(inventoryForm.get('district_id')?.invalid && inventoryForm.get('district_id')?.touched){
+                            <span  class="text-danger">Please select valid district</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('city_id')?.invalid && inventoryForm.get('city_id')?.touched}" id="city_id" formControlName="city_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of cityList; track $index) {
+                                 <option value="{{row.city_id}}">{{row.city_name}}</option>  
+                            }
+                        </select>   
+                        @if(inventoryForm.get('city_id')?.invalid && inventoryForm.get('city_id')?.touched){
+                            <span  class="text-danger">Please select valid Block</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="village">Village</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('village')?.invalid && inventoryForm.get('village')?.touched}" id="village" formControlName="village" placeholder="Village">
+                        @if(inventoryForm.get('village')?.invalid && inventoryForm.get('village')?.touched){
+                            <span  class="text-danger">Please enter valid village</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_start">Chainage Start</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('chainage_start')?.invalid && inventoryForm.get('chainage_start')?.touched}" id="chainage_start" formControlName="chainage_start" placeholder="Chainage Start">
+                        @if(inventoryForm.get('chainage_start')?.invalid && inventoryForm.get('chainage_start')?.touched){
+                            <span  class="text-danger">Please enter valid chainage start</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_end">Chainage End</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('chainage_end')?.invalid && inventoryForm.get('chainage_end')?.touched}" id="chainage_end" formControlName="chainage_end" placeholder="Chainage End">
+                        @if(inventoryForm.get('chainage_end')?.invalid && inventoryForm.get('chainage_end')?.touched){
+                            <span  class="text-danger">Please enter valid chainage end</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="terrain">Terrain</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('terrain')?.invalid && inventoryForm.get('terrain')?.touched}" id="terrain"  formControlName="terrain">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Plain">Plain</option>
+                            <option value="Plateau">Plateau</option>
+                            <option value="Valley">Valley</option>
+                        </select>
+                        @if(inventoryForm.get('terrain')?.invalid && inventoryForm.get('terrain')?.touched){
+                            <span  class="text-danger">Please select terrain</span>
+                        } 
+                    </div>         
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="land_use_left">Land Use Left</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('land_use_left')?.invalid && inventoryForm.get('land_use_left')?.touched}" id="land_use_left"  formControlName="land_use_left">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Forest">Forest</option>
+                            <option value="Agricultural Land">Agricultural Land</option>
+                            <option value="Commercial">Commercial</option>
+                            <option value="Residential">Residential</option>
+                        </select>
+                        @if(inventoryForm.get('land_use_left')?.invalid && inventoryForm.get('land_use_left')?.touched){
+                            <span  class="text-danger">Please select land use left</span>
+                        } 
+                    </div>     
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="land_use_right">Land Use Right</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('land_use_right')?.invalid && inventoryForm.get('land_use_right')?.touched}" id="land_use_right"  formControlName="land_use_right">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Forest">Forest</option>
+                            <option value="Agricultural Land">Agricultural Land</option>
+                            <option value="Commercial">Commercial</option>
+                            <option value="Residential">Residential</option>
+                        </select>
+                        @if(inventoryForm.get('land_use_right')?.invalid && inventoryForm.get('land_use_right')?.touched){
+                            <span  class="text-danger">Please select land use right</span>
+                        } 
+                    </div>       
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainagewise_village">Chainage Wise Village</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('chainagewise_village')?.invalid && inventoryForm.get('chainagewise_village')?.touched}" id="chainagewise_village" formControlName="chainagewise_village" placeholder="Chainage Wise Village">
+                        @if(inventoryForm.get('chainagewise_village')?.invalid && inventoryForm.get('chainagewise_village')?.touched){
+                            <span  class="text-danger">Please enter valid chainage wise village</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="roadway_width">Roadway Width</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('roadway_width')?.invalid && inventoryForm.get('roadway_width')?.touched}" id="roadway_width" formControlName="roadway_width" placeholder="Roadway Width">
+                        @if(inventoryForm.get('roadway_width')?.invalid && inventoryForm.get('roadway_width')?.touched){
+                            <span  class="text-danger">Please enter valid roadway width</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="formation_width">Formation Width</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('formation_width')?.invalid && inventoryForm.get('formation_width')?.touched}" id="formation_width" formControlName="formation_width" placeholder="Formation Width">
+                        @if(inventoryForm.get('formation_width')?.invalid && inventoryForm.get('formation_width')?.touched){
+                            <span  class="text-danger">Please enter valid formation width</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carriageway_type">Carriageway Type</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('carriageway_type')?.invalid && inventoryForm.get('carriageway_type')?.touched}" id="carriageway_type" formControlName="carriageway_type">
+                            <option value="" selected disabled>Select</option>
+                            <option value="BT">BT</option>
+                            <option value="CC">CC</option>
+                        </select>
+                        @if(inventoryForm.get('carriageway_type')?.invalid && inventoryForm.get('carriageway_type')?.touched){
+                            <span  class="text-danger">Please select type of road</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carriageway_width">Carriageway Width</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('carriageway_width')?.invalid && inventoryForm.get('carriageway_width')?.touched}" id="carriageway_width" formControlName="carriageway_width" placeholder="Carriageway Width">
+                        @if(inventoryForm.get('carriageway_width')?.invalid && inventoryForm.get('carriageway_width')?.touched){
+                            <span  class="text-danger">Please enter valid carriageway width</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_left_type">Shoulder Left Type</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('shoulder_left_type')?.invalid && inventoryForm.get('shoulder_left_type')?.touched}" id="shoulder_left_type"  formControlName="shoulder_left_type">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Soil">Soil</option>
+                            <option value="Grass">Grass</option>
+                            <option value="Paved">Paved</option>
+                            <option value="Gravel">Gravel</option>
+                        </select>
+                        @if(inventoryForm.get('shoulder_left_type')?.invalid && inventoryForm.get('shoulder_left_type')?.touched){
+                            <span  class="text-danger">Please select shoulder type left</span>
+                        } 
+                    </div>     
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_right_type">Shoulder Right Type</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('shoulder_right_type')?.invalid && inventoryForm.get('shoulder_right_type')?.touched}" id="shoulder_right_type"  formControlName="shoulder_right_type">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Soil">Soil</option>
+                            <option value="Grass">Grass</option>
+                            <option value="Paved">Paved</option>
+                            <option value="Gravel">Gravel</option>
+                        </select>
+                        @if(inventoryForm.get('shoulder_right_type')?.invalid && inventoryForm.get('shoulder_right_type')?.touched){
+                            <span  class="text-danger">Please select shoulder right type</span>
+                        } 
+                    </div>   
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_left_width">Shoulder Left Width</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('shoulder_left_width')?.invalid && inventoryForm.get('shoulder_left_width')?.touched}" id="shoulder_left_width" formControlName="shoulder_left_width" placeholder="Shoulder Left Width">
+                        @if(inventoryForm.get('shoulder_left_width')?.invalid && inventoryForm.get('shoulder_left_width')?.touched){
+                            <span  class="text-danger">Please enter valid shoulder left width</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="shoulder_right_width">Shoulder Right Width</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('shoulder_right_width')?.invalid && inventoryForm.get('shoulder_right_width')?.touched}" id="shoulder_right_width" formControlName="shoulder_right_width" placeholder="Shoulder Right Width">
+                        @if(inventoryForm.get('shoulder_right_width')?.invalid && inventoryForm.get('shoulder_right_width')?.touched){
+                            <span  class="text-danger">Please enter valid shoulder right width</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="submergence">Submergence</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('submergence')?.invalid && inventoryForm.get('submergence')?.touched}" id="submergence"  formControlName="submergence">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        @if(inventoryForm.get('submergence')?.invalid && inventoryForm.get('submergence')?.touched){
+                            <span  class="text-danger">Please select submergence</span>
+                        } 
+                    </div>   
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="embankment_height">Embankment Height</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('embankment_height')?.invalid && inventoryForm.get('embankment_height')?.touched}" id="embankment_height" formControlName="embankment_height" placeholder="Embankment Height">
+                        @if(inventoryForm.get('embankment_height')?.invalid && inventoryForm.get('embankment_height')?.touched){
+                            <span  class="text-danger">Please enter valid embankment height</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+

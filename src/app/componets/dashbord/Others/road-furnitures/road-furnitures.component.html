@@ -1,0 +1,190 @@
+<app-page-header title="Road Furniture" title1="Road Furniture" activeTitle="Road Furniture"></app-page-header>
+
+<div class="row">
+    <div class="col-xl-12">
+
+        <app-showcode-card [title]="'Table Head Primary'" [prism]="prismCode.table18">
+            <div class="table-responsive">
+                <div class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2">
+                  <div >
+                    <h1 class="page-title fw-medium fs-18 mb-2">Road Furniture</h1>
+                  </div>
+                  <div class="btn-list">
+                    <app-add-road-furnitures></app-add-road-furnitures>
+                  </div>
+                  </div>
+                <table class="table text-nowrap">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">NH Number</th>
+                            <th scope="col">Section Code</th>
+                            <th scope="col">Latitude</th>
+                            <th scope="col">Longitude</th>
+                            <th scope="col">Chainage Start</th>
+                            <th scope="col">Chainage End</th>
+                            <th scope="col">Direction</th>
+                            <th scope="col">Asset Charcters</th>
+                            <th scope="col">Asset Type</th>
+                            <th scope="col">Action</th>                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of tableData; track $index) {
+                            <tr>
+                                <td>{{row.nhNumber}}</td>
+                                <td>{{row.sectionCode}}</td>
+                                <td>{{row.latitude}}</td>
+                                <td>{{row.longitude}}</td>
+                                <td>{{row.chainageStart}}</td>
+                                <td>{{row.chainageEnd}}</td>
+                                <td>{{row.direction}}</td>
+                                <td>{{row.assetCharcters}}</td>
+                                <td>{{row.assetType}}</td>
+                                <td>
+                                    <div class="hstack gap-2 fs-15">
+                                       
+                                        <a href="javascript:void(0);" data-bs-toggle="modal"
+                                        (click)="openVerticallyCentered(Content2)" data-bs-target="#exampleModalXls"
+                                            class="btn btn-icon btn-sm btn-info-transparent rounded-pill"><i
+                                                class="ri-edit-line"></i></a>
+                                        <a href="javascript:void(0);" data-bs-toggle="modal"
+                                        (click)="open(content)" data-bs-target="#exampleModal"
+                                            class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
+                                                class="ri-delete-bin-line"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    
+                    </tbody>
+                </table>
+            </div>
+        </app-showcode-card>
+    </div>
+  
+</div>
+
+<!-- edit -->
+
+<div class="modal fade" id="exampleModalXl" tabindex="-1" aria-labelledby="exampleModalXlLabel"
+style="display: none;" aria-hidden="true">
+<div class="modal-dialog modal-xl">
+    <ng-template #Content2 let-modal>
+        <form [formGroup]="roadForm" (ngSubmit)="onSubmit()">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="exampleModalXlLabel">Update Road Furniture</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="nhNumber" formControlName="nhNumber" placeholder="">
+                                <label for="nhNumber">NH Number</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="chainageStart" formControlName="chainageStart" placeholder="">
+                                <label for="chainageStart">Chainage Start</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="chainageEnd" formControlName="chainageEnd" placeholder="">
+                                <label for="chainageEnd">Chainage End</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="sectionCode" formControlName="sectionCode" placeholder="">
+                                <label for="sectionCode">Section Code</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                              <select class="form-select" id="direction" formControlName="direction">
+                                <option selected disabled>Select Direction</option>
+                                <option value="Increasing">Increasing</option>
+                                <option value="Decreasing">Decreasing</option>
+                                <option value="Median">Median</option>
+                              </select>
+                              <label for="status">Select Select Direction</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                              <select class="form-select" id="assetCharcters" formControlName="assetCharcters">
+                                <option selected disabled>Select Asset Charcters</option>
+                                <option value="Road Furnitures">Road Furnitures</option>
+                                <option value="Road Furnitures">Road Furnitures</option>
+                                <option value="Way Side Amenities">Way Side Amenities</option>
+                              </select>
+                              <label for="status">Select Asset Charcters</label>
+                            </div>
+                         </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <ng-select class="rounded-sm" formControlName="assetType" placeholder="Asset Type"[multiple]="true"  [hideSelected]="true"  [(ngModel)]="selectedAssetType">
+                                    <ng-option selected>Selecte Asset Type</ng-option>
+                                    <ng-option>Bridges</ng-option>
+                                    <ng-option>Traffic Signals</ng-option>
+                                    <ng-option>Kilometer Stones</ng-option>
+                                    <ng-option>Bus Stop</ng-option>
+                                    <ng-option>Tunnels</ng-option>
+                                    <ng-option>Footpath</ng-option>
+                                    <ng-option>Junction</ng-option>
+                                    <ng-option>Sign Boards</ng-option>
+
+                                </ng-select>
+                                <!-- <label for="distressType">Distress Type</label> -->
+                            </div>
+                        </div>
+                       
+                        
+                        
+                       
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"
+                        data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" (click)="modal.close('Close click')" [disabled]="roadForm.invalid">Update</button>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+</div>
+</div>
+
+
+   <!-- delete -->
+   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+   aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <ng-template #content let-c="close" let-d="dismiss">
+               <div class="modal-header">
+                   <h6 class="modal-title" id="exampleModalLabel1">Confirme</h6>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal"
+                       (click)="d('Cross click')" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                   Are you sure you want to delete?
+               </div>
+               <div class="modal-footer">
+                   <button type="button" class="btn btn-primary" (click)="c('Closelick')" (click)="delete()">Yes</button>
+                   <button type="button" class="btn btn-secondary" (click)="c('Closelick')"
+                       data-bs-dismiss="modal">No</button>
+               </div>
+           </ng-template>
+       </div>
+   </div>
+   </div>
+   
+   

@@ -1,0 +1,71 @@
+<div class="container">
+    <div class="row justify-content-center align-items-center authentication authentication-basic h-100">
+        <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-6 col-sm-8 col-12">
+
+            <div class="card custom-card my-4">
+                <div class="card-body p-5">
+                    <ul ngbNav #nav="ngbNav" [(activeId)]="active"
+                        class="nav-tabs  justify-content-center border-bottom-0 mb-2 mt-0">
+                        <li ngbNavItem="Angular">
+                            <ng-template ngbNavContent>
+
+                                <div class="mb-3 d-flex justify-content-center">
+                                    <a>
+                                        <h4><b>NHAI RAMS</b></h4>
+                                    </a>
+                                </div>
+                                <p class="h5 mb-2 text-center">Sign In</p>
+                                <p class="mb-4 text-muted op-7 fw-normal text-center"></p>
+                                <form [formGroup]="loginForm" (ngSubmit)="Submit()">
+                                    <div class="row gy-3">
+                                        <div class="col-xl-12">
+                                            <label for="signin-username" class="form-label text-default">User
+                                                Name</label>
+                                            <input type="text" class="form-control form-control-lg" id="signin-username"
+                                                autocomplete formControlName="username" [(ngModel)]="email" required
+                                                placeholder="user name">
+                                        </div>
+                                        <div class="col-xl-12 mb-2">
+                                            <label for="signin-password"
+                                                class="form-label text-default d-block">Password<a
+                                                    routerLink="/authentication/reset-password"
+                                                    class="float-end text-danger">Forget password ?</a></label>
+                                            <div class="position-relative">
+                                                <input type="password" class="form-control form-control-lg"
+                                                    id="signin-password" placeholder="password"
+                                                    [type]="showPassword ? 'text' : 'password'" autocomplete
+                                                    id="input-password" formControlName="password"
+                                                    [(ngModel)]="password" required>
+                                                <a href="javascript:void(0);" (click)="togglePassword()" class="show-password-button text-muted"
+                                                    id="button-addon2"><i
+                                                        class="{{toggleClass}} eye-icon align-middle"></i></a>
+                                            </div>
+                                            <!-- <div class="mt-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value=""
+                                                        id="defaultCheck1">
+                                                    <label class="form-check-label text-muted fw-normal"
+                                                        for="defaultCheck1">
+                                                        Remember password ?
+                                                    </label>
+                                                    <i class="las la-eye"></i>
+                                                </div>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-grid mt-4">
+                                     
+                                      <button type="submit" class="btn btn-lg btn-primary" autofocus>Sign In</button>
+                                    </div>
+                                </form>
+                            </ng-template>
+                        </li>
+                    </ul>
+
+                    <div [ngbNavOutlet]="nav"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

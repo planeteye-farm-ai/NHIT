@@ -1,0 +1,69 @@
+
+<app-page-header title="View Labour" title1="View Labour" activeTitle="View Labour"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Labour'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="labourForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="first_name">First Name</label>
+                        <input type="text" class="form-control" id="first_name" formControlName="first_name" readonly>  
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="last_name">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" formControlName="last_name" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="dob">Date of Brth</label>
+                        <input type="text" class="form-control" id="dob" formControlName="dob" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="labour_type">Labour Type</label>
+                        <input type="text" class="form-control" id="labour_type" formControlName="labour_type" readonly>
+                    </div>
+
+                    @if(labourForm.get('labour_type')?.value === 'Other'){
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="other_type">Other Labour Type</label>
+                            <input type="text" class="form-control" id="other_type" formControlName="other_type" readonly>
+                        </div>
+                    }
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="crew_id">CREW Id</label>
+                        <input type="text" class="form-control" id="crew_id" formControlName="crew_id" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="gender">Gender</label>
+                        <input type="text" class="form-control" id="gender" formControlName="gender" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="contact_number">Contact Number</label>
+                        <input type="text" class="form-control" id="contact_number" formControlName="contact_number" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="contact_number">Address</label>
+                        <input type="text" class="form-control" id="contact_number" formControlName="contact_number" readonly>
+                    </div>
+
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                        <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/labour-management/">Cancel</a>
+
+                    </div>
+ 
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

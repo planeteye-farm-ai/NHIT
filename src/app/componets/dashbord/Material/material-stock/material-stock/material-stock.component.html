@@ -1,0 +1,49 @@
+<app-page-header title="Material Manage" title1="Material Manage" activeTitle="Manage Stock"></app-page-header>
+
+<div class="row">
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Manage Stock'" [prism]="prismCode.table18">
+            <div class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2">
+                <div >
+                  <!-- <h1 class="page-title fw-medium fs-18 mb-2">Distress</h1> -->
+                </div>
+                <!-- <div class="btn-list">
+                    <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/material/add-transfer-stock">Transfer Stock</a>
+                     <app-add-distress></app-add-distress> 
+                </div> -->
+              </div>
+            <div class="table-responsive">
+                <table class="table text-nowrap">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col" style="width: 10%;">Sr No</th>
+                            <th scope="col" style="width: 30%;">Date</th>
+                            <th scope="col" style="width: 30%;">Product Name</th>
+                            <th scope="col" style="width: 20%;">Loaction</th>
+                            <th scope="col" style="width: 30%;">Batch No</th>
+                            <th scope="col" style="width: 30%;">Inward Qty</th>
+                            <th scope="col" style="width: 30%;">Outward Qty</th>
+                            <th scope="col" style="width: 30%;">Remark</th>
+                            <!-- <th scope="col" style="width: 10%;">Action</th>                             -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of tableData; track $index) {
+                            <tr [ngStyle]="{'color': row.outward_qty > 0 ? 'red' : ''}">
+                                <td>{{$index+1}}</td>
+                                <td>{{row.on_date}}</td>
+                                <td>{{row.product_name}}</td>
+                                <td>{{row.location ? row.location : '-' }}</td>
+                                <td>{{row.batch_no}}</td>
+                                <td>{{row.inw_qty}}</td>
+                                <td>{{row.outw_qty }}</td>
+                                <td>{{row.desc ? row.desc : '-' }}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </app-showcode-card>
+    </div>
+  
+</div>

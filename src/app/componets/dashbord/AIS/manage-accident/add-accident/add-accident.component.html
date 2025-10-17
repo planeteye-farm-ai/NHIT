@@ -1,0 +1,113 @@
+
+<app-page-header title="Add Accident" title1="Accident Manage" activeTitle="Add Accident"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Accident'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="accidentForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road Code</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':accidentForm.get('road_code')?.invalid && accidentForm.get('road_code')?.touched}" id="road_code" formControlName="road_code" placeholder="Road ID/Code">
+                        @if(accidentForm.get('road_code')?.invalid && accidentForm.get('road_code')?.touched){
+                            <span  class="text-danger">Please enter valid road code</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="start_chainage">Start Chainage</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':accidentForm.get('start_chainage')?.invalid && accidentForm.get('start_chainage')?.touched}" id="start_chainage" formControlName="start_chainage" placeholder="Start Chainage">
+                        @if(accidentForm.get('start_chainage')?.invalid && accidentForm.get('start_chainage')?.touched){
+                            <span  class="text-danger">Please enter valid start chainage</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction">Direction</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':accidentForm.get('direction')?.invalid && accidentForm.get('direction')?.touched}" id="direction" formControlName="direction">
+                            <option value="" selected disabled>Select Direction</option>
+                            <option value="Increasing">Increasing</option>
+                            <option value="Decreasing">Decreasing</option>
+                        </select>
+                        @if(accidentForm.get('direction')?.invalid && accidentForm.get('direction')?.touched){
+                            <span  class="text-danger">Please select valid direction</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="date_of_accident">Date of Accident</label><span class="text-danger">*</span>
+                        <input type="date" class="form-control" [ngClass]="{ 'is-invalid':accidentForm.get('date_of_accident')?.invalid && accidentForm.get('date_of_accident')?.touched}" id="date_of_accident" formControlName="date_of_accident" placeholder="Date of Accident">
+                        @if(accidentForm.get('date_of_accident')?.invalid && accidentForm.get('date_of_accident')?.touched){
+                            <span  class="text-danger">Please select valid date</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="day_of_week">Day of Week</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':accidentForm.get('day_of_week')?.invalid && accidentForm.get('day_of_week')?.touched}" id="day_of_week" formControlName="day_of_week">
+                            <option value="" selected disabled>Select Week</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                        @if(accidentForm.get('day_of_week')?.invalid && accidentForm.get('day_of_week')?.touched){
+                            <span  class="text-danger">Please select valid week</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="time">Time</label><span class="text-danger">*</span>
+                        <input type="time" class="form-control" [ngClass]="{ 'is-invalid':accidentForm.get('time')?.invalid && accidentForm.get('time')?.touched}" id="time" formControlName="time" placeholder="Time">
+                        @if(accidentForm.get('time')?.invalid && accidentForm.get('time')?.touched){
+                            <span  class="text-danger">Please select valid time</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="section_name">Section Name</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':accidentForm.get('section_name')?.invalid && accidentForm.get('section_name')?.touched}" id="section_name" formControlName="section_name" placeholder="Section Name">
+                        @if(accidentForm.get('section_name')?.invalid && accidentForm.get('section_name')?.touched){
+                            <span  class="text-danger">Please enter valid section name</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="police_station">Police Station</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':accidentForm.get('police_station')?.invalid && accidentForm.get('police_station')?.touched}" id="police_station" formControlName="police_station" placeholder="Police Station">
+                        @if(accidentForm.get('police_station')?.invalid && accidentForm.get('police_station')?.touched){
+                            <span  class="text-danger">Please enter valid police station</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="fir_no">FIR No</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':accidentForm.get('fir_no')?.invalid && accidentForm.get('fir_no')?.touched}" id="fir_no" formControlName="fir_no" placeholder="FIR No">
+                        @if(accidentForm.get('fir_no')?.invalid && accidentForm.get('fir_no')?.touched){
+                            <span  class="text-danger">Please enter valid FIR No</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

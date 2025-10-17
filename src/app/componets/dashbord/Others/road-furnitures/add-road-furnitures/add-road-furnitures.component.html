@@ -1,0 +1,104 @@
+<div class="col-xl-12">
+    <button type="button" class="btn btn-primary-light btn-wave me-2" data-bs-toggle="modal"
+        (click)="openVerticallyCentered(Content2)" data-bs-target="#exampleModalXl">
+        <i class="bx bx-plus align-middle"></i> Add Road Furniture
+    </button>
+
+    <div class="modal fade" id="exampleModalXl" tabindex="-1" aria-labelledby="exampleModalXlLabel"
+        style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <ng-template #Content2 let-modal>
+                <form [formGroup]="roadForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title" id="exampleModalXlLabel">Add Road Furniture</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="nhNumber" formControlName="nhNumber" placeholder="">
+                                        <label for="nhNumber">NH Number</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="sectionCode" formControlName="sectionCode" placeholder="">
+                                        <label for="sectionCode">Section Code</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="chainageStart" formControlName="chainageStart" placeholder="">
+                                        <label for="chainageStart">Chainage Start</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="chainageEnd" formControlName="chainageEnd" placeholder="">
+                                        <label for="chainageEnd">Chainage End</label>
+                                    </div>
+                                </div>
+                               
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                      <select class="form-select" id="direction" formControlName="direction">
+                                        <option selected disabled>Select Direction</option>
+                                        <option value="Increasing">Increasing</option>
+                                        <option value="Decreasing">Decreasing</option>
+                                        <option value="Median">Median</option>
+                                      </select>
+                                      <label for="status">Select Select Direction</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                      <select class="form-select" id="assetCharcters" formControlName="assetCharcters">
+                                        <option selected disabled>Select Asset Charcters</option>
+                                        <option value="Road Furnitures">Road Furnitures</option>
+                                        <option value="Way Side Amenities">Way Side Amenities</option>
+                                      </select>
+                                      <label for="status">Select Asset Charcters</label>
+                                    </div>
+                                 </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <ng-select class="rounded-sm" formControlName="assetType" placeholder="Asset Type"[multiple]="true"  [hideSelected]="true"  [(ngModel)]="selectedAssetType">
+                                            <ng-option selected>Selecte Asset Type</ng-option>
+                                            <ng-option>Bridges</ng-option>
+                                            <ng-option>Traffic Signals</ng-option>
+                                            <ng-option>Kilometer Stones</ng-option>
+                                            <ng-option>Bus Stop</ng-option>
+                                            <ng-option>Tunnels</ng-option>
+                                            <ng-option>Footpath</ng-option>
+                                            <ng-option>Junction</ng-option>
+                                            <ng-option>Sign Boards</ng-option>
+
+                                        </ng-select>
+                                        <!-- <label for="distressType">Distress Type</label> -->
+                                    </div>
+                                </div>
+                               
+                                
+                                
+                               
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"
+                                data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" (click)="modal.close('Close click')" [disabled]="roadForm.invalid">Add</button>
+                        </div>
+                    </div>
+                </form>
+            </ng-template>
+        </div>
+    </div>
+</div>
+

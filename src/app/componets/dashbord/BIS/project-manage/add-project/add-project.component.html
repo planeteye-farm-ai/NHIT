@@ -1,0 +1,95 @@
+
+<app-page-header title="Add Project" title1="Add Project" activeTitle="Add Project"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Project'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="projectName">Project Name</label><span class="text-danger">*</span>
+                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':projectForm.get('projectName')?.invalid && projectForm.get('projectName')?.touched}" id="projectName" formControlName="projectName" placeholder="Project Name">
+                        @if(projectForm.get('projectName')?.invalid && projectForm.get('projectName')?.touched){
+                            <span  class="text-danger">Please enter valid project name</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="projectId">Project Id</label><span class="text-danger">*</span>
+                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':projectForm.get('projectId')?.invalid && projectForm.get('projectId')?.touched}" id="projectId" formControlName="projectId" placeholder="Project Id">
+                        @if(projectForm.get('projectId')?.invalid && projectForm.get('projectId')?.touched){
+                            <span  class="text-danger">Please enter valid project id</span>
+                        }
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="no_of_packages">No Of Packages</label><span class="text-danger">*</span>
+                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':projectForm.get('no_of_packages')?.invalid && projectForm.get('no_of_packages')?.touched}" id="no_of_packages" formControlName="no_of_packages" placeholder="No Of Packages">
+                        @if(projectForm.get('no_of_packages')?.invalid && projectForm.get('no_of_packages')?.touched){
+                            <span  class="text-danger">Please enter valid No Of Packages</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="structureType">Structure Type</label><span class="text-danger">*</span>
+                        <select class="form-select" 
+                        [ngClass]="{ 'is-invalid':projectForm.get('structureType')?.invalid && projectForm.get('structureType')?.touched}" 
+                        id="structureType" formControlName="structureType">
+                            <option value="" selected disabled>Select</option>
+                            <option value="MJB">MJB</option>
+                            <option value="MNB">MNB</option>
+                            <option value="BC">BC</option>
+                            <option value="HPC">HPC</option>
+                            <option value="FO">FO</option>
+                            <option value="FOB">FOB</option>
+                            <option value="VUP">VUP</option>
+                        </select>   
+                        @if(projectForm.get('structureType')?.invalid && projectForm.get('structureType')?.touched){
+                            <span  class="text-danger">Please enter valid structure type</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="midChainage">Mid Chainage</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':projectForm.get('midChainage')?.invalid && projectForm.get('midChainage')?.touched}" id="midChainage" formControlName="midChainage" placeholder="Mid Chainage">
+                        @if(projectForm.get('midChainage')?.invalid && projectForm.get('midChainage')?.touched){
+                            <span  class="text-danger">Please enter valid mid chainage</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bmsStructure">BMS Structure</label><span class="text-danger">*</span>
+                        <select class="form-select" 
+                        [ngClass]="{ 'is-invalid':projectForm.get('bmsStructure')?.invalid && projectForm.get('bmsStructure')?.touched}" 
+                        id="bmsStructure" formControlName="bmsStructure">
+                            <option value="" selected disabled>Select</option>
+                            <option value="L2">L2</option>
+                            <option value="L3">L3</option>
+                            <option value="R1">R1</option>
+                            <option value="R2">R2</option>
+                            <option value="R3">R3</option>
+                            <option value="All">All</option>
+                        </select>   
+                        @if(projectForm.get('bmsStructure')?.invalid && projectForm.get('bmsStructure')?.touched){
+                            <span  class="text-danger">Please enter valid sBMS Structure</span>
+                        } 
+                    </div>
+
+
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

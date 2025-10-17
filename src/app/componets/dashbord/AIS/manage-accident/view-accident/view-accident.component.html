@@ -1,0 +1,170 @@
+
+<app-page-header title="View Accident" title1="View Accident" activeTitle="View Accident"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Accident'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="accidentForm">
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road Code</label>
+                        <input type="text" class="form-control" id="road_code" formControlName="road_code" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="start_chainage">Start Chainage</label>
+                        <input type="text" class="form-control" id="start_chainage" formControlName="start_chainage" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction">Direction</label>
+                        <input type="text" class="form-control" id="direction" formControlName="direction" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="date_of_accident">Date of Accident</label>
+                        <input type="text" class="form-control" id="date_of_accident" formControlName="date_of_accident" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="day_of_week">Day of Week</label>
+                        <input type="text" class="form-control" id="day_of_week" formControlName="day_of_week" readonly>
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="time">Time</label>
+                        <input type="text" class="form-control" id="time" formControlName="time" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="section_name">Section Name</label>
+                        <input type="text" class="form-control" id="section_name" formControlName="section_name" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="police_station">Police Station</label>
+                        <input type="text" class="form-control" id="police_station" formControlName="police_station" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="fir_no">FIR No</label>
+                        <input type="text" class="form-control" id="fir_no" formControlName="fir_no" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="name_of_place">Name of Place</label>
+                        <input type="text" class="form-control" id="name_of_place" formControlName="name_of_place" readonly>
+                    </div>
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="accident_spot">Accident Spot</label>
+                        <input type="text" class="form-control" id="accident_spot" formControlName="accident_spot" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="longitude">Longitude</label>
+                        <input type="text" class="form-control" id="longitude" formControlName="longitude" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="latitude">Latitude</label>
+                        <input type="text" class="form-control" id="latitude" formControlName="latitude" readonly>                        
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="area">Area</label>
+                        <input type="text" class="form-control"  id="area" formControlName="area" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="accident_category">Accident Category</label>
+                        <input type="email" class="form-control"  id="accident_category" formControlName="accident_category" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="vehicle_involved_no">Vehicle Involved</label>
+                        <input type="text" class="form-control"  id="vehicle_involved_no" formControlName="vehicle_involved_no" readonly>                      
+                    </div>
+                    
+                    
+                    <div class="col-md-6 mb-3" *ngFor="let row of vehicleInvolved.controls; let i = index">
+                        <label class="form-label" for="vehicleInvolved">Vehicle {{ i + 1 }} </label>
+                        <input type="number" class="form-control" [formControl]="row" readonly/>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="collision_type">Collision Type</label>
+                        <input type="text" class="form-control"  id="collision_type" formControlName="collision_type" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_one">Type 1</label>
+                        <input type="text" class="form-control"  id="type_one" formControlName="type_one" readonly>             
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_two">Type 2</label>
+                        <input type="text" class="form-control" id="type_two" formControlName="type_two" readonly>
+                       
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h2 class="page-title fw-medium fs-14 mb-2">Accident Victim:</h2>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="killed_if_any">Killed (if any)</label>
+                        <input type="text" class="form-control" id="killed_if_any" formControlName="killed_if_any" readonly>
+                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="injured_if_any">Injured (if any)</label>
+                        <input type="text" class="form-control"  id="injured_if_any" formControlName="injured_if_any" readonly>                       
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h2 class="page-title fw-medium fs-14 mb-2">Factors Involved:</h2>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cause_one">Cause 1</label>
+                        <input type="text" class="form-control"  id="cause_one" formControlName="cause_one" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_two">Cause 2</label>
+                        <input type="text" class="form-control" id="type_two" formControlName="type_two" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cause_three">Cause 3</label>
+                        <input type="text" class="form-control"  id="cause_three" formControlName="cause_three" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="remarks">Remarks</label>
+                        <input type="text" class="form-control"  id="remarks" formControlName="remarks" readonly>                       
+                    </div>
+                
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

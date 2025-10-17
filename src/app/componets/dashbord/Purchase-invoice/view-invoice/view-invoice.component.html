@@ -1,0 +1,77 @@
+<app-page-header title="View Purchase Invoice" title1="View Purchase Invoice" activeTitle="View Purchase Invoice"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Purchase Invoice ' + topTitle" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="purchaseForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supplier_id">Supplier Name</label>
+                        <input type="text" class="form-control" id="supplier_id" formControlName="supplier_id" readonly>  
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supplier_invoice_date">Supplier Invoice Date</label>
+                        <input type="text" class="form-control" id="supplier_invoice_date" formControlName="supplier_invoice_date" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supplier_invoice_no">Supplier Invoice Number</label>
+                        <input type="text" class="form-control" id="supplier_invoice_no" formControlName="supplier_invoice_no" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Manage Products :</h1>
+                    </div>
+
+                    <div class="table-responsive">
+                        <form [formGroup]="purchaseForm">
+                          <table class="table text-nowrap">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Rate</th>
+                                <th scope="col">Batch Number</th>
+                              </tr>
+                            </thead>
+                            <tbody formArrayName="purchaseInvoiceItems">
+                              <tr *ngFor="let item of purchaseInvoiceItems.controls; let i = index" [formGroupName]="i">
+                                <td>
+                                  <input type="text" class="form-control" id="prod_ref_name" formControlName="prod_ref_name" readonly>
+                                  </td>
+                                <td>
+                                  <input type="text" class="form-control" formControlName="po_qty" placeholder="Quantity" readonly />
+                                 
+                                </td>
+                                <td>
+                                  <input type="text" class="form-control" id="po_rate" formControlName="po_rate" readonly>
+                                </td>
+                                <td>
+                                  <input type="text" class="form-control" id="batch_no" formControlName="batch_no" readonly>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </form>
+                      </div>
+                </div>
+            </form>
+  
+            <div class="btn-list d-flex justify-content-end align-items-end">
+                <a href="javascript:void(0);" class="btn btn-primary-light btn-wave mt-2" routerLink="/purchase-invoice">Cancel</a>
+                @if(invoiceStatus == 'Pending'){
+                  <button type="submit" class="btn btn-primary" (click)="confirmInvoice()">Confirm</button>
+                }
+              </div>
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

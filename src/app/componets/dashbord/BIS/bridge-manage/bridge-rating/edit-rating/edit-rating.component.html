@@ -1,0 +1,117 @@
+
+<app-page-header title="Update Rating" title1="Update Rating" activeTitle="Update Rating"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Update Rating'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="ratingForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="visual_inspection_rating">Visual Inspection Rating</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':ratingForm.get('visual_inspection_rating')?.invalid && ratingForm.get('visual_inspection_rating')?.touched}" id="visual_inspection_rating" formControlName="visual_inspection_rating">
+                            <option value="" selected disabled>Select</option>
+                            <option value="5">Excellent condition</option>
+                            <option value="4">Good condition</option>
+                            <option value="3">Fair condition</option>
+                            <option value="2">Poor condition</option>
+                            <option value="1">Critical condition</option>
+                        </select>
+                        @if(ratingForm.get('visual_inspection_rating')?.invalid && ratingForm.get('visual_inspection_rating')?.touched){
+                            <span  class="text-danger">Please select valid visual inspection rating</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="visual_inspection_remark">Remark</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':ratingForm.get('visual_inspection_remark')?.invalid && ratingForm.get('visual_inspection_remark')?.touched}"  id="visual_inspection_remark" formControlName="visual_inspection_remark" placeholder="Remark">
+                        @if(ratingForm.get('visual_inspection_remark')?.invalid && ratingForm.get('visual_inspection_remark')?.touched){
+                            <span  class="text-danger">Please enter valid visual inspection remark</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="assessment_of_damage_rating">Assessment Of Damage Rating</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':ratingForm.get('assessment_of_damage_rating')?.invalid && ratingForm.get('assessment_of_damage_rating')?.touched}" id="assessment_of_damage_rating" formControlName="assessment_of_damage_rating">
+                            <option value="" selected disabled>Select</option>
+                            <option value="5">Excellent condition</option>
+                            <option value="4">Good condition</option>
+                            <option value="3">Fair condition</option>
+                            <option value="2">Poor condition</option>
+                            <option value="1">Critical condition</option>
+                        </select>
+                        @if(ratingForm.get('assessment_of_damage_rating')?.invalid && ratingForm.get('assessment_of_damage_rating')?.touched){
+                            <span  class="text-danger">Please select valid assessment of damage rating</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="assessment_of_damage_remark">Remark</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':ratingForm.get('assessment_of_damage_remark')?.invalid && ratingForm.get('assessment_of_damage_remark')?.touched}"  id="assessment_of_damage_remark" formControlName="assessment_of_damage_remark" placeholder="Remark">
+                        @if(ratingForm.get('assessment_of_damage_remark')?.invalid && ratingForm.get('assessment_of_damage_remark')?.touched){
+                            <span  class="text-danger">Please enter valid assessment of damage remark</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="operational_considerations_rating">Operational Considerations Rating</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':ratingForm.get('operational_considerations_rating')?.invalid && ratingForm.get('operational_considerations_rating')?.touched}" id="operational_considerations_rating" formControlName="operational_considerations_rating">
+                            <option value="" selected disabled>Select</option>
+                            <option value="5">Excellent condition</option>
+                            <option value="4">Good condition</option>
+                            <option value="3">Fair condition</option>
+                            <option value="2">Poor condition</option>
+                            <option value="1">Critical condition</option>
+                        </select>
+                        @if(ratingForm.get('operational_considerations_rating')?.invalid && ratingForm.get('operational_considerations_rating')?.touched){
+                            <span  class="text-danger">Please select valid operational considerations rating</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="operational_considerations_remark">Remark</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':ratingForm.get('operational_considerations_remark')?.invalid && ratingForm.get('operational_considerations_remark')?.touched}"  id="operational_considerations_remark" formControlName="operational_considerations_remark" placeholder="Remark">
+                        @if(ratingForm.get('operational_considerations_remark')?.invalid && ratingForm.get('operational_considerations_remark')?.touched){
+                            <span  class="text-danger">Please enter valid operational considerations remark</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="safety_risk_factor_rating">Safety Risk Factor Rating</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':ratingForm.get('safety_risk_factor_rating')?.invalid && ratingForm.get('safety_risk_factor_rating')?.touched}" id="safety_risk_factor_rating" formControlName="safety_risk_factor_rating">
+                            <option value="" selected disabled>Select</option>
+                            <option value="5">Excellent condition</option>
+                            <option value="4">Good condition</option>
+                            <option value="3">Fair condition</option>
+                            <option value="2">Poor condition</option>
+                            <option value="1">Critical condition</option>
+                        </select>
+                        @if(ratingForm.get('safety_risk_factor_rating')?.invalid && ratingForm.get('safety_risk_factor_rating')?.touched){
+                            <span  class="text-danger">Please select valid safety risk factor rating</span>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="safety_risk_factor_remark">Remark</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':ratingForm.get('safety_risk_factor_remark')?.invalid && ratingForm.get('safety_risk_factor_remark')?.touched}"  id="safety_risk_factor_remark" formControlName="safety_risk_factor_remark" placeholder="Remark">
+                        @if(ratingForm.get('safety_risk_factor_remark')?.invalid && ratingForm.get('safety_risk_factor_remark')?.touched){
+                            <span  class="text-danger">Please enter valid safetyrisk factor remark</span>
+                        }
+                    </div>
+
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

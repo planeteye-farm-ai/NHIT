@@ -1,0 +1,369 @@
+
+<app-page-header title="View Bridge" title1="View Bridge" activeTitle="View Bridge"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Bridge'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="bridgeForm">
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridgeName">Bridge Name</label>
+                        <input type="text" class="form-control" id="bridgeName" formControlName="bridgeName" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridgeNo">Bridge No</label>
+                        <input type="text" class="form-control" id="bridgeNo" formControlName="bridgeNo" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state">State</label>
+                        <input type="text" class="form-control" id="state" formControlName="state" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="zone">Zone</label>
+                        <input type="text" class="form-control" id="zone" formControlName="zone" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="roadType">Road Type</label>
+                        <input type="text" class="form-control" id="roadType" formControlName="roadType" readonly>
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highwayNo">Road/ Highway No</label>
+                        <input type="text" class="form-control" id="highwayNo" formControlName="highwayNo" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage">Chainage</label>
+                        <input type="text" class="form-control" id="chainage" formControlName="chainage" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="directionOfInventory">Direction Of Inventory</label>
+                        <input type="text" class="form-control" id="directionOfInventory" formControlName="directionOfInventory" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="latitude">Latitude</label>
+                        <input type="text" class="form-control" id="latitude" formControlName="latitude" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="longitude">Longitude</label>
+                        <input type="text" class="form-control" id="longitude" formControlName="longitude" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Administration Details:</h1>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="consultantName">Consultant Name</label>
+                        <input type="text" class="form-control" id="consultantName" formControlName="consultantName" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="administration_name_of_bridge">Popular Name Of Bridge</label>
+                        <input type="text" class="form-control" id="administration_name_of_bridge" formControlName="administration_name_of_bridge" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="custodian">Custodian</label>
+                        <input type="text" class="form-control" id="custodian" formControlName="custodian" readonly>                        
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="engineerDesignation">Engineer Designation</label>
+                        <input type="text" class="form-control" id="engineerDesignation" formControlName="engineerDesignation" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="contactDetails">Contact No</label>
+                        <input type="text" class="form-control"  id="contactDetails" formControlName="contactDetails" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="emailID">Email ID</label>
+                        <input type="email" class="form-control"  id="emailID" formControlName="emailID" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="departmentalChainage">Departmental Chainage</label>
+                        <input type="text" class="form-control"  id="departmentalChainage" formControlName="departmentalChainage" readonly>                      
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="departmentalBridgeNo">Departmental Bridge Number</label>
+                        <input type="text" class="form-control"  id="departmentalBridgeNo" formControlName="departmentalBridgeNo" readonly>                     
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Geometric Details:</h1>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="noOfSpan">No Of Span</label>
+                        <input type="number" class="form-control" id="noOfSpan" formControlName="noOfSpan" readonly/>
+                    </div>
+                      
+                    <div class="col-md-6 mb-3" *ngFor="let row of spanArrangement.controls; let i = index">
+                        <label class="form-label" for="spanArrangement">Span {{ i + 1 }} Length</label>
+                        <input type="number" class="form-control" [formControl]="row" readonly/>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="lengthOfBridge">Length Of Bridge</label>
+                        <input type="text" class="form-control"  id="lengthOfBridge" formControlName="lengthOfBridge" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="widthOfBridge">Width Of Bridge</label>
+                        <input type="text" class="form-control"  id="widthOfBridge" formControlName="widthOfBridge" readonly>             
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="height_of_bridge">Height Of Bridge</label>
+                        <input type="text" class="form-control" id="height_of_bridge" formControlName="height_of_bridge" readonly>
+                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="soffit_level_of_bridge">Soffit Level Of Bridge</label>
+                        <input type="text" class="form-control" id="soffit_level_of_bridge" formControlName="soffit_level_of_bridge" readonly>
+                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="trafficLaneOnBridge">Traffic Lane On Bridge</label>
+                        <input type="text" class="form-control"  id="trafficLaneOnBridge" formControlName="trafficLaneOnBridge" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="typeOfBridge">Type Of Bridge</label>
+                        <input type="text" class="form-control"  id="typeOfBridge" formControlName="typeOfBridge" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="year_of_construction">Year Of Construction</label>
+                        <input type="text" class="form-control" id="year_of_construction" formControlName="year_of_construction" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ageOfBridge">Age Of Bridge</label>
+                        <input type="text" class="form-control"  id="ageOfBridge" formControlName="ageOfBridge" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="structureOfBridge">Structure Of Bridge</label>
+                        <input type="text" class="form-control"  id="structureOfBridge" formControlName="structureOfBridge" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="material_foundation">Material Of Construction Foundation</label>
+                        <input type="text" class="form-control"  id="material_foundation" formControlName="material_foundation" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="material_substructure">Material Of Construction Substructure</label>
+                        <input type="text" class="form-control"  id="material_substructure" formControlName="material_substructure" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="material_superstructure">Material Of Construction Superstructure</label>
+                        <input type="text" class="form-control"  id="material_superstructure" formControlName="material_superstructure" readonly>                       
+                    </div>
+                
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="materialOfConstruction">Material Of Construction</label>
+                        <input type="text" class="form-control"  id="materialOfConstruction" formControlName="materialOfConstruction" readonly>                       
+                    </div> -->
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="loadingAsPerIRC">Loading As Per IRC</label>
+                        <input type="text" class="form-control"  id="loadingAsPerIRC" formControlName="loadingAsPerIRC" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridgeCrossingFeature">Bridge Crossing Feature</label>
+                        <input type="text" class="form-control"  id="bridgeCrossingFeature" formControlName="bridgeCrossingFeature" readonly>                       
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Hydraulic Data:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ground_level">Ground Level</label>
+                        <input type="text" class="form-control" id="ground_level" formControlName="ground_level" readonly> 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="design_discharge">Design Discharge</label>
+                        <input type="text" class="form-control" id="design_discharge" formControlName="design_discharge" readonly>  
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="design_hfl">Design HFL</label>
+                        <input type="text" class="form-control" id="design_hfl" formControlName="design_hfl" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="lowest_water_level">Lowest Water Level</label>
+                        <input type="text" class="form-control" id="lowest_water_level" formControlName="lowest_water_level" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="scour_level_at_pier">Scour Level At Pier</label>
+                        <input type="text" class="form-control" id="scour_level_at_pier" formControlName="scour_level_at_pier" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="scour_level_at_abutment">Scour Level At Abutment</label>
+                        <input type="text" class="form-control" id="scour_level_at_abutment" formControlName="scour_level_at_abutment" readonly>
+                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="scour_level_of_superstructure">Scour Level Of Superstructure</label>
+                        <input type="text" class="form-control" id="scour_level_of_superstructure" formControlName="scour_level_of_superstructure" placeholder="Scour Level Of Superstructure">
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Highway Geometry Details:</h1>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_width">Overall Width</label>
+                        <input type="text" class="form-control" id="highway_width" formControlName="highway_width" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_carriageway_width">Clear Carriageway Width</label>
+                        <input type="text" class="form-control" id="highway_carriageway_width" formControlName="highway_carriageway_width" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_shoulder_width_appr">Shoulder Width For Approaches</label>
+                        <input type="text" class="form-control" id="highway_shoulder_width_appr" formControlName="highway_shoulder_width_appr" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="width_of_approach">Width Of Approach</label>
+                        <input type="text" class="form-control" id="width_of_approach" formControlName="width_of_approach" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_footpath_width">Footpath Width</label>
+                        <input type="text" class="form-control" id="highway_footpath_width" formControlName="highway_footpath_width" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_footpath_width_value">Footpath Width Value</label>
+                        <input type="text" class="form-control" id="highway_footpath_width_value" formControlName="highway_footpath_width_value" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_median_width">Median Width</label>
+                        <input type="text" class="form-control" id="highway_median_width" formControlName="highway_median_width" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="highway_median_width_value">Median Width Value</label>
+                        <input type="text" class="form-control" id="highway_median_width_value" formControlName="highway_median_width_value" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridge_in_skew">Bridge In Skew</label>
+                        <input type="text" class="form-control" id="bridge_in_skew" formControlName="bridge_in_skew" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="bridge_skew_angle">Bridge Skew Angle</label>
+                        <input type="text" class="form-control" id="bridge_skew_angle" formControlName="bridge_skew_angle" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="approaches_structure">Approaches Structure</label>
+                        <input type="text" class="form-control" id="approaches_structure" formControlName="approaches_structure" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="approaches_no_of_structure">Approaches No Of Structure</label>
+                        <input type="text" class="form-control" id="approaches_no_of_structure" formControlName="approaches_no_of_structure" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="safety_kerb_width">Safety Kerb Width</label>
+                        <input type="text" class="form-control" id="safety_kerb_width" formControlName="safety_kerb_width" readonly>       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_of_wall">Type Of Wall</label>
+                        <input type="text" class="form-control" id="type_of_wall" formControlName="type_of_wall" readonly>       
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Rating:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingOfDeckGeometry">Deck Geometry</label>
+                        <input type="text" class="form-control"  id="ratingOfDeckGeometry" formControlName="ratingOfDeckGeometry" readonly>                       
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingOfWaterwayAdequacy">Waterway Adequacy</label>
+                        <input type="text" class="form-control"  id="ratingOfWaterwayAdequacy" formControlName="ratingOfWaterwayAdequacy" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingofAverageDailyTraffic">Average Daily Traffic</label>
+                        <input type="text" class="form-control"  id="ratingofAverageDailyTraffic" formControlName="ratingofAverageDailyTraffic" readonly>                       
+                    </div>
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingForSocialImportance">Social Importance</label>
+                        <input type="text" class="form-control"  id="ratingForSocialImportance" formControlName="ratingForSocialImportance" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingforEconomicGrowthPotential">Economic Growth Potential</label>
+                        <input type="text" class="form-control"  id="ratingforEconomicGrowthPotential" formControlName="ratingforEconomicGrowthPotential" readonly>                       
+                    </div>
+                
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingAlternateRoute">Alternate Route</label>
+                        <input type="text" class="form-control"  id="ratingAlternateRoute" formControlName="ratingAlternateRoute" readonly>                       
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="ratingEnvironmentalImpact">Environmental Impact</label>
+                        <input type="text" class="form-control"  id="ratingEnvironmentalImpact" formControlName="ratingEnvironmentalImpact" readonly>                       
+                    </div>
+                
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

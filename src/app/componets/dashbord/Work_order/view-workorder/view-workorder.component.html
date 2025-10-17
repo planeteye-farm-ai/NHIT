@@ -1,0 +1,79 @@
+<app-page-header title="Manage Work Order" title1="Manage Work Order" activeTitle="View Work Order"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Work Order'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="workOrderForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="work_order_id">Work Order ID</label>
+                        <input type="text" class="form-control" id="work_order_id" formControlName="work_order_id" readonly>  
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="type_of_work">Type of work</label>
+                        <input type="text" class="form-control" id="type_of_work" formControlName="type_of_work" readonly>
+                    </div>
+                    @if(workOrderForm.get('type_of_work')?.value === 'Other'){
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="other_type_of_work">Other Type</label>
+                            <input type="text" class="form-control" id="other_type_of_work" formControlName="other_type_of_work" readonly>
+                        </div>
+                    }
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_km_from">Chainage km From</label>
+                        <input type="text" class="form-control" id="chainage_km_from" formControlName="chainage_km_from" readonly>
+                    </div> 
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_km_to">Chainage km To</label>
+                        <input type="text" class="form-control" id="chainage_km_to" formControlName="chainage_km_to" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+
+                    <div class="table-responsive">
+                        <form [formGroup]="workOrderForm">
+                          <table class="table text-nowrap">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">BOQ Item Code</th>
+                                <th scope="col">Scope of Work</th>
+                                <th scope="col">Remark</th>
+                              </tr>
+                            </thead>
+                            <tbody formArrayName="workOrderItems">
+                                <tr>
+                                    <td>Item Code 1</td>
+                                    <td>Earthwork</td>
+                                    <td>Remark</td>
+                                </tr>
+                                <tr>
+                                    <td>Item Code 2</td>
+                                    <td>Earthwork</td>
+                                    <td>Remark</td>
+                                </tr>
+                            </tbody>
+                          </table>
+                        </form>
+                      </div>
+                      
+ 
+                </div>
+            </form>
+  
+            <div class="btn-list d-flex justify-content-end align-items-end">
+                <a href="javascript:void(0);" class="btn btn-primary-light btn-wave mt-2" routerLink="/work-order">Cancel</a>
+
+                <button type="submit" class="btn btn-primary">Confirm</button>
+
+              </div>
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

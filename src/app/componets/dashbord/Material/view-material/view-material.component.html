@@ -1,0 +1,53 @@
+<app-page-header title="View Material" title1="View Material" activeTitle="View Material"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Material'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="materialForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="product_name">Material Name</label>
+                        <input type="text" class="form-control" id="product_name" formControlName="product_name" readonly>  
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="prod_unit">Material Unit</label>
+                        <input type="text" class="form-control" id="prod_unit" formControlName="prod_unit" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="prod_type">Material Type</label>
+                        <input type="text" class="form-control" id="prod_type" formControlName="prod_type" readonly>
+                    </div>
+
+                    @if(materialForm.get('prod_type')?.value === 'Other'){
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="other_type">Other</label>
+                            <input type="text" class="form-control" id="other_type" formControlName="other_type" readonly>
+                        </div>
+                    }
+
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="batch_no">Batch No</label>
+                        <input type="text" class="form-control" id="batch_no" formControlName="batch_no" readonly>
+                    </div>  -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="product_desc">Material Description</label>
+                        <input type="text" class="form-control" id="product_desc" formControlName="product_desc" readonly>
+                    </div>
+                    
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                        <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/material/material-management">Cancel</a>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

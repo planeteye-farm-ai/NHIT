@@ -1,0 +1,101 @@
+
+<app-page-header title="Add Supplier" title1="Supplier Manage" activeTitle="Add Supplier"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Add Supplier'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="supplierForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_comp">Company Name</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':supplierForm.get('supl_comp')?.invalid && supplierForm.get('supl_comp')?.touched}"  id="supl_comp" formControlName="supl_comp" placeholder="Company Name">
+                        @if(supplierForm.get('supl_comp')?.invalid && supplierForm.get('supl_comp')?.touched){
+                            <span  class="text-danger">Please enter valid company name</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_conperson">Contact Person</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':supplierForm.get('supl_conperson')?.invalid && supplierForm.get('supl_conperson')?.touched}"  id="supl_conperson" formControlName="supl_conperson" placeholder="Contact Person">
+                        @if(supplierForm.get('supl_conperson')?.invalid && supplierForm.get('supl_conperson')?.touched){
+                            <span  class="text-danger">Please enter valid contact person</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_mobile">Mobile Number</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':supplierForm.get('supl_mobile')?.invalid && supplierForm.get('supl_mobile')?.touched}"  id="supl_mobile" formControlName="supl_mobile" placeholder="Mobile Number">
+                        @if(supplierForm.get('supl_mobile')?.invalid && supplierForm.get('supl_mobile')?.touched){
+                            <span  class="text-danger">Please enter valid mobile number</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_email">Email</label><span class="text-danger">*</span>
+                        <input type="email" class="form-control" [ngClass]="{ 'is-invalid':supplierForm.get('supl_email')?.invalid && supplierForm.get('supl_email')?.touched}"  id="supl_email" formControlName="supl_email" placeholder="Email">
+                        @if(supplierForm.get('supl_email')?.invalid && supplierForm.get('supl_email')?.touched){
+                            <span  class="text-danger">Please enter valid email</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_state_id">State</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':supplierForm.get('supl_state_id')?.invalid && supplierForm.get('supl_state_id')?.touched}" id="supl_state_id" formControlName="supl_state_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of stateList; track $index) {
+                            <option value="{{row.state_id}}">{{row.state_name}}</option>
+                            }
+                        </select>   
+                        @if(supplierForm.get('supl_state_id')?.invalid && supplierForm.get('supl_state_id')?.touched){
+                            <span  class="text-danger">Please select valid state</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_city">City</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':supplierForm.get('supl_city')?.invalid && supplierForm.get('supl_city')?.touched}"  id="supl_city" formControlName="supl_city" placeholder="City">
+                        @if(supplierForm.get('supl_city')?.invalid && supplierForm.get('supl_city')?.touched){
+                            <span  class="text-danger">Please enter valid city</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="supl_address">Address</label><span class="text-danger">*</span>
+                        <textarea class="form-control" 
+                                  [ngClass]="{ 'is-invalid': supplierForm.get('supl_address')?.invalid && supplierForm.get('supl_address')?.touched }"  
+                                  id="supl_address" 
+                                  formControlName="supl_address" 
+                                  placeholder="Address">
+                        </textarea>
+                        @if(supplierForm.get('supl_address')?.invalid && supplierForm.get('supl_address')?.touched){
+                            <span class="text-danger">Please enter a valid address</span>
+                        }
+                    </div>
+                     
+                    <!-- <div class="col-md-6 mb-3">
+                        <label class="form-label" for="gstin_num">GSTIN Number</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':supplierForm.get('gstin_num')?.invalid && supplierForm.get('gstin_num')?.touched}"  id="gstin_num" formControlName="gstin_num" placeholder="GSTIN Number">
+                        @if(supplierForm.get('gstin_num')?.invalid && supplierForm.get('gstin_num')?.touched){
+                            <span  class="text-danger">Please enter valid GSTIN number</span>
+                        }
+                    </div> -->
+                    
+
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                        <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/supplier/supplier-management">Cancel</a>
+
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                    
+                </div>
+            </form>
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

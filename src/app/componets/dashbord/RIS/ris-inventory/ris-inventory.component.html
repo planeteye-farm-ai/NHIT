@@ -1,0 +1,228 @@
+<div class="dashboard-container">
+  <!-- Main Content Area -->
+    <!-- Dashboard Content (always show) -->
+    <div>
+    <!-- Filter Containers -->
+    <div class="filters-container">
+      <!-- Main Filters Container (80% width) -->
+      <div class="main-filters-container">
+        <div class="filter-row-main">
+          <div class="filter-group">
+            <label>Project Name:</label>
+            <select [value]="filters.projectName" (change)="onProjectChange($event)" class="filter-select">
+              <option *ngFor="let project of availableProjects" [value]="project">{{ project }}</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label>Date:</label>
+            <select [value]="filters.date" (change)="onDateChange($event)" class="filter-select">
+              <option *ngFor="let date of availableDates" [value]="date">{{ date }}</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label>Direction:</label>
+            <select [value]="filters.direction" (change)="onDirectionChange($event)" class="filter-select">
+              <option *ngFor="let direction of availableDirections" [value]="direction">{{ direction }}</option>
+            </select>
+          </div>
+          
+          <div class="filter-group chainage-range-group">
+            <label class="chainage-range-label">Chainage Range: {{ filters.chainageRange.min.toFixed(3) }} - {{ filters.chainageRange.max.toFixed(3) }} KM</label>
+            <div class="chainage-inputs">
+              <input 
+                type="number" 
+                [min]="getChainageMin()" 
+                [max]="filters.chainageRange.max" 
+                [value]="filters.chainageRange.min"
+                (input)="onChainageMinChange($event)"
+                class="chainage-input"
+                step="0.001"
+                placeholder="Min"
+              >
+              <span class="chainage-separator">to</span>
+              <input 
+                type="number" 
+                [min]="filters.chainageRange.min" 
+                [max]="getChainageMax()" 
+                [value]="filters.chainageRange.max"
+                (input)="onChainageMaxChange($event)"
+                class="chainage-input"
+                step="0.001"
+                placeholder="Max"
+              >
+            </div>
+            <div class="chainage-slider-container">
+              <input 
+                type="range" 
+                [min]="getChainageMin()" 
+                [max]="getChainageMax()" 
+                [value]="filters.chainageRange.min"
+                (input)="onChainageMinSliderChange($event)"
+                class="chainage-slider min-slider"
+                step="0.001"
+              >
+              <input 
+                type="range" 
+                [min]="getChainageMin()" 
+                [max]="getChainageMax()" 
+                [value]="filters.chainageRange.max"
+                (input)="onChainageMaxSliderChange($event)"
+                class="chainage-slider max-slider"
+                step="0.001"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Summary Info -->
+    <!-- <div class="data-summary-info">
+      <div class="summary-item">
+        <span class="summary-label">Total Records:</span>
+        <span class="summary-value">{{ rawData.length }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Projects:</span>
+        <span class="summary-value">{{ availableProjects.length }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Chainage Range:</span>
+        <span class="summary-value">{{ filters.chainageRange.min.toFixed(3) }} - {{ filters.chainageRange.max.toFixed(3) }} KM</span>
+      </div>
+    </div> -->
+
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-content">
+      <!-- Main Dashboard Container -->
+      <div class="main-dashboard-container">
+        <!-- Left Side - Charts and Map (70% width) -->
+        <div class="left-panel">
+        <!-- Chainage Chart -->
+        <!-- <div class="chart-container">
+          <div class="chart-header">
+            <h3>Chainage Wise Assets Distribution</h3>
+            <div class="chart-info">
+              <span class="chart-data-points">{{ chainageData.length }} chainage points</span>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <div *ngIf="isBrowser && chainageData.length > 0" echarts [options]="chartOptions" class="echarts-chart"></div>
+            <div *ngIf="!isBrowser || chainageData.length === 0" class="chart-placeholder">
+              <p *ngIf="!isBrowser">Chart loading...</p>
+              <p *ngIf="isBrowser && chainageData.length === 0">No chainage data available</p>
+            </div>
+          </div>
+        </div> -->
+
+        <!-- Map -->
+        <div class="map-container">
+          <div class="chart-header">
+            <h3>Location wise Asset Distribution</h3>
+          </div>
+          <div class="map-wrapper">
+            <div *ngIf="!filters.date" class="map-placeholder">
+              <p>Select a date to view map data</p>
+            </div>
+            <div *ngIf="filters.date && rawData.length === 0" class="map-placeholder">
+              <div class="loading-spinner"></div>
+              <p>Loading map data...</p>
+            </div>
+            <div *ngIf="filters.date" #mapContainer class="map"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side - Asset Summary (30% width) -->
+      <div class="right-panel">
+        <div class="asset-summary">
+          <h3>Asset Summary</h3>
+          <div class="asset-grid">
+            <div *ngIf="!filters.date" class="asset-placeholder">
+              <p>Select a date to view asset data</p>
+            </div>
+            <div *ngIf="filters.date && rawData.length === 0" class="asset-placeholder">
+              <div class="loading-spinner"></div>
+              <p>Loading asset data...</p>
+            </div>
+            <div 
+              *ngFor="let asset of assetSummary" 
+              class="asset-card"
+              [class.selected]="selectedAssetType === asset.name"
+              [style.border-left-color]="asset.color"
+              (click)="onAssetCardClick(asset.name)"
+            >
+              <!-- <div class="asset-icon" [style.background-color]="asset.color">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </div> -->
+              <div class="asset-info">
+                <div class="asset-name">{{ asset.name }}</div>
+                <div class="asset-count">
+                  {{ formatAssetCount(asset) }}
+                  <span *ngIf="asset.unit" class="asset-unit">{{ asset.unit }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    
+    <!-- Date-wise Comparison Chart (Full Width) -->
+    <!-- <div *ngIf="filters.projectName" class="date-comparison-container">
+      <div class="date-comparison-chart">
+       
+        <div *ngIf="isLoadingComparisonChart" class="chart-placeholder">
+          <div class="loading-spinner"></div>
+          <p>Loading date comparison chart...</p>
+        </div>
+        
+        
+        <div *ngIf="!isLoadingComparisonChart && dateComparisonData.length > 0 && isBrowser" 
+             echarts 
+             [options]="dateComparisonChartOptions" 
+             class="echarts-chart date-chart"></div>
+        
+       
+        <div *ngIf="!isLoadingComparisonChart && dateComparisonData.length === 0" class="chart-placeholder">
+          <p>No data available for comparison</p>
+        </div>
+        
+       
+        <div *ngIf="!isBrowser && !isLoadingComparisonChart" class="chart-placeholder">
+          <p>Loading chart...</p>
+        </div>
+      </div>
+    </div> -->
+
+    <!-- Sub-Asset Modal -->
+    <div *ngIf="isSubAssetModalOpen" class="modal-backdrop" (click)="closeSubAssetModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>{{ selectedAssetForSubAssets }} - Sub-Assets</h3>
+          <button class="modal-close-btn" (click)="closeSubAssetModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="subAssetsList.length === 0" class="no-sub-assets">
+            <p>No sub-assets found for {{ selectedAssetForSubAssets }}</p>
+          </div>
+          <div *ngIf="subAssetsList.length > 0" class="sub-assets-grid">
+            <div *ngFor="let subAsset of subAssetsList" class="sub-asset-card">
+              <div class="sub-asset-name">{{ subAsset.name }}</div>
+              <div class="sub-asset-count">{{ subAsset.count }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

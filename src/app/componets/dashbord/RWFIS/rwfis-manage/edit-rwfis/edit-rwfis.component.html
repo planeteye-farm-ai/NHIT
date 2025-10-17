@@ -1,0 +1,290 @@
+
+<app-page-header title="Update RWFIS" title1="RWFIS Manage" activeTitle="Update RWFIS"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'Update RWFIS of '+topTitle" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="rwfisForm" (ngSubmit)="onSubmit()">  
+                <div class="row">
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Basic Details:</h1>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="state_id">State</label><span class="text-danger">*</span>
+                        <select (change)="getDistrctList(rwfisForm.get('state_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('state_id')?.invalid && rwfisForm.get('state_id')?.touched}" id="state_id" formControlName="state_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of stateList; track $index) {
+                            <option value="{{row.state_id}}">{{row.state_name}}</option>
+                            }
+                        </select>   
+                        @if(rwfisForm.get('state_id')?.invalid && rwfisForm.get('state_id')?.touched){
+                            <span  class="text-danger">Please select valid state</span>
+                        } 
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="district_id">District</label><span class="text-danger">*</span>
+                        <select  (change)="getCitytList(rwfisForm.get('district_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('district_id')?.invalid && rwfisForm.get('district_id')?.touched}" id="district_id" formControlName="district_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of districtList; track $index) {
+                              <option value="{{row.district_id}}">{{row.district_name}}</option> 
+                            }
+                        </select>   
+                        @if(rwfisForm.get('district_id')?.invalid && rwfisForm.get('district_id')?.touched){
+                            <span  class="text-danger">Please select valid district</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="city_id">Block</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('city_id')?.invalid && rwfisForm.get('city_id')?.touched}" id="city_id" formControlName="city_id">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of cityList; track $index) {
+                                 <option value="{{row.city_id}}">{{row.city_name}}</option>  
+                            }
+                        </select>   
+                        @if(rwfisForm.get('city_id')?.invalid && rwfisForm.get('city_id')?.touched){
+                            <span  class="text-danger">Please select valid Block</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_name"> Road Name</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('road_name')?.invalid && rwfisForm.get('road_name')?.touched}" id="road_name" formControlName="road_name">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of roadList; track $index) {
+                             <option value="{{row.geometry_data_id}}">{{row.name_of_road}}</option> 
+                            }  
+                        </select>   
+                        @if(rwfisForm.get('road_name')?.invalid && rwfisForm.get('road_name')?.touched){
+                            <span  class="text-danger">Please select valid Road name</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="road_code">Road Code</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('road_code')?.invalid && rwfisForm.get('road_code')?.touched}" id="road_code" formControlName="road_code" placeholder="Road Code">
+                        @if(rwfisForm.get('road_code')?.invalid && rwfisForm.get('road_code')?.touched){
+                            <span  class="text-danger">Please enter valid road code</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="total_length_km">Total Length (km)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('total_length_km')?.invalid && rwfisForm.get('total_length_km')?.touched}" id="total_length_km" formControlName="total_length_km" placeholder="Total Length (km)">
+                        @if(rwfisForm.get('total_length_km')?.invalid && rwfisForm.get('total_length_km')?.touched){
+                            <span  class="text-danger">Please enter valid total length (km)</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="survey_year">Survey Year</label><span class="text-danger">*</span>
+                        <input type="date" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('survey_year')?.invalid && rwfisForm.get('survey_year')?.touched}" id="survey_year" formControlName="survey_year" placeholder="Survey Year">
+                        @if(rwfisForm.get('survey_year')?.invalid && rwfisForm.get('survey_year')?.touched){
+                            <span  class="text-danger">Please select valid survey year</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="survey_date">Survey Date</label><span class="text-danger">*</span>
+                        <input type="date" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('survey_date')?.invalid && rwfisForm.get('survey_date')?.touched}" id="survey_date" formControlName="survey_date" placeholder="Survey Date">
+                        @if(rwfisForm.get('survey_date')?.invalid && rwfisForm.get('survey_date')?.touched){
+                            <span  class="text-danger">Please select valid survey date</span>
+                        } 
+                    </div>
+                    
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Chainage Information</h1>
+                    </div>
+                   
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="direction">Direction</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('direction')?.invalid && rwfisForm.get('direction')?.touched}" id="direction" formControlName="direction">
+                            <option value="" selected disabled>Select Direction</option>
+                            <option value="Increasing">Increasing</option>
+                            <option value="Decreasing">Decreasing</option>
+                        </select>
+                        @if(rwfisForm.get('direction')?.invalid && rwfisForm.get('direction')?.touched){
+                            <span  class="text-danger">Please select valid direction</span>
+                        } 
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_start">Chainage Start</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('chainage_start')?.invalid && rwfisForm.get('chainage_start')?.touched}" id="chainage_start" formControlName="chainage_start" placeholder="Chainage Start">
+                        @if(rwfisForm.get('chainage_start')?.invalid && rwfisForm.get('chainage_start')?.touched){
+                            <span class="text-danger">Please enter valid chainage start</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage_end">Chainage End</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('chainage_end')?.invalid && rwfisForm.get('chainage_end')?.touched}" id="chainage_end" formControlName="chainage_end" placeholder="Chainage End">
+                        @if(rwfisForm.get('chainage_end')?.invalid && rwfisForm.get('chainage_end')?.touched){
+                            <span  class="text-danger">Please enter valid chainage end</span>
+                        } 
+                    </div>
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Detailed Roadside Feature Data (For Each Chainage)</h1>
+                    </div>
+              
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="chainage">Chainage</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('chainage')?.invalid && rwfisForm.get('chainage')?.touched}" id="chainage" formControlName="chainage" placeholder="Chainage">
+                        @if(rwfisForm.get('chainage')?.invalid && rwfisForm.get('chainage')?.touched){
+                            <span  class="text-danger">Please enter valid chainage</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="cross_section_location">Cross Section Location</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('cross_section_location')?.invalid && rwfisForm.get('cross_section_location')?.touched}" id="cross_section_location" formControlName="cross_section_location">
+                            <option value="" selected disabled>Select</option>
+                            <option value="L (Left)">L (Left)</option>
+                            <option value="R (Right)">R (Right)</option>
+                        </select>
+                        @if(rwfisForm.get('cross_section_location')?.invalid && rwfisForm.get('cross_section_location')?.touched){
+                            <span  class="text-danger">Please select valid cross section location</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="offset_from_center_line">Offset From Center-Line (m)</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('offset_from_center_line')?.invalid && rwfisForm.get('offset_from_center_line')?.touched}" id="offset_from_center_line" formControlName="offset_from_center_line" placeholder="Offset From Center-Line (m)">
+                        @if(rwfisForm.get('offset_from_center_line')?.invalid && rwfisForm.get('offset_from_center_line')?.touched){
+                            <span  class="text-danger">Please enter valid offset from center line</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="feature_type">Feature Type</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('feature_type')?.invalid && rwfisForm.get('feature_type')?.touched}" id="feature_type" formControlName="feature_type">
+                            <option value="" selected disabled>Select</option>
+                            @for (row of featureTypeList; track $index) {
+                             <option value="{{row}}">{{row}}</option> 
+                            }  
+                        </select>   
+                        @if(rwfisForm.get('feature_type')?.invalid && rwfisForm.get('feature_type')?.touched){
+                            <span  class="text-danger">Please select valid feature type</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="material_type">Material Type</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('material_type')?.invalid && rwfisForm.get('material_type')?.touched}" id="material_type" formControlName="material_type">
+                            <option value="" selected disabled>Select</option>
+                            <option value="M (Metal)">M (Metal)</option>
+                            <option value="C (Concrete)">C (Concrete)</option>
+                        </select>
+                        @if(rwfisForm.get('material_type')?.invalid && rwfisForm.get('material_type')?.touched){
+                            <span  class="text-danger">Please select valid material type</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="feature_condition">Feature Condition</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('feature_condition')?.invalid && rwfisForm.get('feature_condition')?.touched}" id="feature_condition" formControlName="feature_condition">
+                            <option value="" selected disabled>Select</option>
+                            <option value="F (Functional)">F (Functional)</option>
+                            <option value="N (Non-functional)">N (Non-functional)</option>
+                        </select>
+                        @if(rwfisForm.get('feature_condition')?.invalid && rwfisForm.get('feature_condition')?.touched){
+                            <span  class="text-danger">Please select valid feature condition</span>
+                        } 
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="safety_hazard">Safety Hazard</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('safety_hazard')?.invalid && rwfisForm.get('safety_hazard')?.touched}" id="safety_hazard" formControlName="safety_hazard">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Y (Yes)">Y (Yes)</option>
+                            <option value="N (No)">N (No)</option>
+                        </select>
+                        @if(rwfisForm.get('safety_hazard')?.invalid && rwfisForm.get('safety_hazard')?.touched){
+                            <span  class="text-danger">Please select valid safety hazard</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="land_use">Land Use</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('land_use')?.invalid && rwfisForm.get('land_use')?.touched}" id="land_use" formControlName="land_use">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Built Up">Built Up</option>
+                            <option value="Agriculture">Agriculture</option>
+                            <option value="Forest Area">Forest Area</option>
+                            <option value="Industrial">Industrial</option>
+                            <option value="Residential">Residential</option>
+                            <option value="Barren Land">Barren Land</option>
+                            <option value="Water">Water</option>
+                        </select>
+                        @if(rwfisForm.get('land_use')?.invalid && rwfisForm.get('land_use')?.touched){
+                            <span  class="text-danger">Please select valid land use</span>
+                        } 
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="terrain">Terrain</label><span class="text-danger">*</span>
+                        <select class="form-select" [ngClass]="{ 'is-invalid':rwfisForm.get('terrain')?.invalid && rwfisForm.get('terrain')?.touched}" id="terrain" formControlName="terrain">
+                            <option value="" selected disabled>Select</option>
+                            <option value="Plain">Plain</option>
+                            <option value="Rolling">Rolling</option>
+                            <option value="Hilly">Forest Area</option>
+                        </select>
+                        @if(rwfisForm.get('terrain')?.invalid && rwfisForm.get('terrain')?.touched){
+                            <span  class="text-danger">Please select valid terrain</span>
+                        } 
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="latitude">Latitude</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('latitude')?.invalid && rwfisForm.get('latitude')?.touched}" id="latitude" formControlName="latitude" placeholder="Latitude">
+                        @if(rwfisForm.get('latitude')?.invalid && rwfisForm.get('latitude')?.touched){
+                            <span  class="text-danger">Please enter valid latitude</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="longitude">Longitude</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('longitude')?.invalid && rwfisForm.get('longitude')?.touched}" id="longitude" formControlName="longitude" placeholder="Longitude">
+                        @if(rwfisForm.get('longitude')?.invalid && rwfisForm.get('longitude')?.touched){
+                            <span  class="text-danger">Please enter valid longitude</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="altitude">Altitude</label><span class="text-danger">*</span>
+                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('altitude')?.invalid && rwfisForm.get('altitude')?.touched}" id="altitude" formControlName="altitude" placeholder="Altitude">
+                        @if(rwfisForm.get('altitude')?.invalid && rwfisForm.get('altitude')?.touched){
+                            <span  class="text-danger">Please enter valid altitude</span>
+                        }
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="remarks">Remarks</label><span class="text-danger">*</span>
+                        <textarea class="form-control" [ngClass]="{ 'is-invalid':rwfisForm.get('remarks')?.invalid && rwfisForm.get('remarks')?.touched}" id="remarks" formControlName="remarks" placeholder="Remarks"></textarea>
+                        @if(rwfisForm.get('remarks')?.invalid && rwfisForm.get('remarks')?.touched){
+                            <span  class="text-danger">Please enter valid remarks</span>
+                        }
+                    </div>
+                   
+                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

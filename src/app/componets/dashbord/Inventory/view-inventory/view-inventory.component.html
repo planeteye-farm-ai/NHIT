@@ -1,0 +1,58 @@
+
+<app-page-header title="View Inventory" title1="View Inventory" activeTitle="View Inventory"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Inventory'" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="inventoryForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="item_name">Item Name</label>
+                        <input type="text" class="form-control" id="item_name" formControlName="item_name" readonly>  
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="yom">Year of Make</label>
+                        <input type="text" class="form-control" id="yom" formControlName="yom" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="make_and_model">Make and Model</label>
+                        <input type="text" class="form-control" id="make_and_model" formControlName="make_and_model" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="equipment_code">Equipment Code</label>
+                        <input type="text" class="form-control" id="equipment_code" formControlName="equipment_code" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="estimate_cost">Estimate cost</label>
+                        <input type="text" class="form-control" id="estimate_cost" formControlName="estimate_cost" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="working_status">Status</label>
+                        <input type="text" class="form-control" id="working_status" formControlName="working_status" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="remark">Remark</label>
+                        <input type="text" class="form-control" id="remark" formControlName="remark" readonly>
+                    </div>
+
+                    <div class="btn-list d-flex justify-content-end align-items-end">
+                        <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" routerLink="/inventory/inventory-management">Cancel</a>
+
+                    </div>
+ 
+                </div>
+            </form>
+
+        </app-showcode-card>
+    </div>
+</div>
+
+
+
+
+
+

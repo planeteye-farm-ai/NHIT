@@ -1,0 +1,76 @@
+<app-page-header title="View Transfer Stock" title1="View Transfer Stock" activeTitle="View Transfer Stock"></app-page-header>
+
+<div class="row">
+
+    <div class="col-xl-12">
+        <app-showcode-card [title]="'View Transfer Stock '" [prism]="prismCode.formlayouts10">
+            <form [formGroup]="stockForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="client_id">Client Name</label>
+                        <input type="text" class="form-control" id="client_id" formControlName="client_id" readonly>  
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="date">Date</label>
+                        <input type="text" class="form-control" id="date" formControlName="date" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="location">Location</label>
+                        <input type="text" class="form-control" id="location" formControlName="location" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="remark">Remark</label>
+                        <input type="text" class="form-control" id="remark" formControlName="remark" readonly>
+                    </div>
+
+                    <br>
+                    <hr>
+                    <div >
+                        <h1 class="page-title fw-medium fs-14 mb-2">Manage Products :</h1>
+                    </div>
+
+                    <div class="table-responsive">
+                        <form [formGroup]="stockForm">
+                          <table class="table text-nowrap">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Rate</th>
+                                <th scope="col">Batch Number</th>
+                              </tr>
+                            </thead>
+                            <tbody formArrayName="transferStockItems">
+                              <tr *ngFor="let item of transferStockItems.controls; let i = index" [formGroupName]="i">
+                                <td>
+                                  <input type="text" class="form-control" id="prod_ref_name" formControlName="prod_ref_name" readonly>
+                                  </td>
+                                <td>
+                                  <input type="text" class="form-control" formControlName="transfer_qty" placeholder="Quantity" readonly />
+                                 
+                                </td>
+                                <td>
+                                  <input type="text" class="form-control" id="transfer_rate" formControlName="transfer_rate" readonly>
+                                </td>
+                                <td>
+                                  <input type="text" class="form-control" id="batch_no" formControlName="batch_no" readonly>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </form>
+                      </div>
+                </div>
+            </form>
+  
+            <div class="btn-list d-flex justify-content-end align-items-end">
+                <a href="javascript:void(0);" class="btn btn-primary-light btn-wave mt-2" routerLink="/material/transfer-stock">Cancel</a>
+                @if(status == 'Pending'){
+                  <button type="submit" class="btn btn-primary" (click)="confirmStock()">Confirm</button>
+                }
+              </div>
+        </app-showcode-card>
+    </div>
+</div>
+
