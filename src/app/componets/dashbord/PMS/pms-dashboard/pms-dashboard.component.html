@@ -1,14 +1,218 @@
-<app-page-header [title]="title" title1="PMS" [activeTitle]="title" ></app-page-header>
-<!-- Start::row-1 -->
-<div class="row">
-    <div *ngIf="isLoading" class="loading-message">
-        <h4>Pavement Management System (PMS)</h4><br>
-        <p>PMS is about all roads under NHIT with KPI information including <br>
-            RI (Roughness Index),LMT with date (last maintenance type),carriage type and width, CVD <br>
-            level(commercial vehicle damage),PCS (pavement condition score)<br>
-            These scores are estimated by satellite imagery and Ai
-        </p>
+<div class="dashboard-container">
+  <!-- Main Content Area -->
+  <!-- Dashboard Content (always show) -->
+  <div>
+    <!-- Filter Containers -->
+    <div class="filters-container">
+      <!-- Main Filters Container (80% width) -->
+      <div class="main-filters-container">
+        <div class="filter-row-main">
+          <div class="filter-group">
+            <label>Project Name:</label>
+            <select
+              [value]="filters.projectName"
+              (change)="onProjectChange($event)"
+              class="filter-select"
+            >
+              <option
+                *ngFor="let project of availableProjects"
+                [value]="project"
+              >
+                {{ project }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Date:</label>
+            <select
+              [value]="filters.date"
+              (change)="onDateChange($event)"
+              class="filter-select"
+            >
+              <option *ngFor="let date of availableDates" [value]="date">
+                {{ date }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Direction:</label>
+            <div class="direction-buttons">
+              <button
+                [class.active]="filters.direction === 'Increasing'"
+                (click)="onDirectionChange('Increasing')"
+                class="direction-btn"
+              >
+                Increasing
+              </button>
+              <button
+                [class.active]="filters.direction === 'Decreasing'"
+                (click)="onDirectionChange('Decreasing')"
+                class="direction-btn"
+              >
+                Decreasing
+              </button>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label>RI Index:</label>
+            <select
+              [value]="filters.riIndex"
+              (change)="onRiIndexChange($event)"
+              class="filter-select"
+            >
+              <option value="All">All</option>
+              <option *ngFor="let index of availableRiIndexes" [value]="index">
+                {{ index }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Pavement Type and Lane filters hidden for TIS API as they are not available in TIS data -->
+          <!-- <div class="filter-group">
+            <label>Pavement Type:</label>
+            <select [value]="filters.pavementType" (change)="onPavementTypeChange($event)" class="filter-select">
+              <option value="All">All</option>
+              <option *ngFor="let type of availablePavementTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label>Lane:</label>
+            <select [value]="filters.lane" (change)="onLaneChange($event)" class="filter-select">
+              <option value="All">All</option>
+              <option *ngFor="let lane of availableLanes" [value]="lane">{{ lane }}</option>
+            </select>
+          </div> -->
+
+          <div class="filter-group chainage-range-group">
+            <label class="chainage-range-label"
+              >Chainage: {{ filters.chainageRange.min.toFixed(3) }} -
+              {{ filters.chainageRange.max.toFixed(3) }}</label
+            >
+            <div class="chainage-inputs">
+              <input
+                type="number"
+                [min]="getChainageMin()"
+                [max]="filters.chainageRange.max"
+                [value]="filters.chainageRange.min"
+                (input)="onChainageMinChange($event)"
+                class="chainage-input"
+                step="0.001"
+              />
+              <input
+                type="number"
+                [min]="filters.chainageRange.min"
+                [max]="getChainageMax()"
+                [value]="filters.chainageRange.max"
+                (input)="onChainageMaxChange($event)"
+                class="chainage-input"
+                step="0.001"
+              />
+            </div>
+            <div class="chainage-slider-container">
+              <input
+                type="range"
+                [min]="getChainageMin()"
+                [max]="getChainageMax()"
+                [value]="filters.chainageRange.min"
+                (input)="onChainageMinSliderChange($event)"
+                class="chainage-slider"
+              />
+              <input
+                type="range"
+                [min]="getChainageMin()"
+                [max]="getChainageMax()"
+                [value]="filters.chainageRange.max"
+                (input)="onChainageMaxSliderChange($event)"
+                class="chainage-slider"
+              />
+            </div>
+          </div>
+
+          <!-- <div class="filter-group">
+            <label>Distress Type:</label>
+            <select [value]="filters.distressType" (change)="onDistressTypeChange($event)" class="filter-select">
+              <option value="All">All</option>
+              <option *ngFor="let type of availableDistressTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div> -->
+        </div>
+      </div>
     </div>
-        <iframe [class.hidden]="isLoading" [src]="safeUrl" title="Details Link" width="120%" height="800"></iframe>
-        
+
+    <!-- Mobile Sidebar Toggle -->
+    <!-- <button class="sidebar-toggle" (click)="toggleSidebar()">
+      <span class="hamburger-icon">☰</span>
+    </button> -->
+
+    <!-- Mobile Sidebar Overlay -->
+    <div
+      class="sidebar-overlay"
+      [class.active]="isSidebarOpen"
+      (click)="toggleSidebar()"
+    ></div>
+
+    <!-- Main Dashboard Container -->
+    <div class="main-dashboard-container">
+      <!-- Left Panel (70% width) -->
+      <div class="left-panel">
+        <!-- Chainage Wise Distress Chart -->
+        <!-- <div class="chart-container">
+          <div class="chart-wrapper">
+            <div echarts [options]="chartOptions" class="echarts-chart"></div>
+          </div>
+        </div> -->
+
+        <!-- Actual Distress Map -->
+        <div class="map-container">
+          <div class="chart-header">
+            <h3>Location wise PMS Distribution</h3>
+          </div>
+          <div class="map-wrapper">
+            <div *ngIf="!filters.date" class="map-placeholder">
+              <p>Select a date to view map data</p>
+            </div>
+            <div
+              *ngIf="filters.date && rawData.length === 0"
+              class="map-placeholder"
+            >
+              <div class="loading-spinner"></div>
+              <p>Loading map data...</p>
+            </div>
+            <div *ngIf="filters.date" id="mapContainer" class="map"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel (30% width) -->
+      <div class="right-panel" [class.sidebar-open]="isSidebarOpen">
+        <div class="asset-summary">
+          <h3>Pavement Information Summary</h3>
+          <div class="asset-grid mobile-grid">
+            <div *ngIf="!filters.date" class="asset-placeholder">
+              <p>Select a date to view pavement information</p>
+            </div>
+            <div
+              *ngIf="filters.date && rawData.length === 0"
+              class="asset-placeholder"
+            >
+              <div class="loading-spinner"></div>
+              <p>Loading pavement information...</p>
+            </div>
+            <div *ngFor="let info of pavementInfoData" class="asset-card">
+              <div class="asset-info">
+                <div class="asset-name">{{ info.title }}</div>
+                <div class="asset-count">
+                  {{ info.value }}{{ info.unit ? " " + info.unit : "" }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
