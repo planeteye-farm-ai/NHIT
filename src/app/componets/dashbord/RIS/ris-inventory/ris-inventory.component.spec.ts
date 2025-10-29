@@ -8,10 +8,9 @@ describe('RisInventoryComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RisInventoryComponent]
-    })
-    .compileComponents();
-    
+      imports: [RisInventoryComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(RisInventoryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -21,5 +20,3 @@ describe('RisInventoryComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-
-

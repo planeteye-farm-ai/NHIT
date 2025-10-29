@@ -143,7 +143,14 @@
               <div class="loading-spinner"></div>
               <p>Loading map data...</p>
             </div>
-            <div *ngIf="filters.date" id="mapContainer" class="map"></div>
+            <div *ngIf="filters.date" id="mapContainer" class="map">
+              <!-- Data size indicator -->
+              <div class="data-size-indicator" *ngIf="showDataSizeIndicator">
+                <i class="fa fa-info-circle"></i>
+                Showing {{ displayedMarkersCount }} of {{ totalDataCount }} markers
+                <span *ngIf="isDataLimited" class="limited-text">(Performance optimized)</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
