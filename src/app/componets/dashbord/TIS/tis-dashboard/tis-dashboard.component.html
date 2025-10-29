@@ -188,7 +188,14 @@
               <div class="loading-spinner"></div>
               <p>Loading traffic information...</p>
             </div>
-            <div *ngFor="let info of trafficInfoData" class="asset-card">
+            <div 
+              *ngFor="let info of trafficInfoData" 
+              class="asset-card clickable-card"
+              [class.selected]="selectedInfoCard === info.title"
+              (click)="onInfoCardClick(info)"
+              style="cursor: pointer;"
+              title="Click to highlight on map"
+            >
               <div class="asset-info">
                 <div class="asset-name">{{ info.title }}</div>
                 <div class="asset-count">

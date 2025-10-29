@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgxEchartsModule } from 'ngx-echarts';
+import { NgxEchartsModule, provideEcharts } from 'ngx-echarts';
 
 interface DistressData {
   name: string;
@@ -64,6 +64,7 @@ interface PredictedDistressData {
   selector: 'app-distress-prediction-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule, NgxEchartsModule],
+  providers: [provideEcharts()],
   templateUrl: './distress-prediction-dashboard.component.html',
   styleUrl: './distress-prediction-dashboard.component.scss',
 })
@@ -103,6 +104,12 @@ export class DistressPredictionDashboardComponent
 
   // Cracks and rutting array - calculated once to avoid repeated filtering
   cracksAndRutting: DistressData[] = [];
+
+  // Chainage comparison chart modal properties
+  isChainageComparisonModalOpen: boolean = false;
+  selectedDistressesForComparison: string[] = [];
+  chainageComparisonChartOptions: any = {};
+  availableDistressesForComparison: string[] = [];
 
   public map: any;
   public isBrowser: boolean;
@@ -155,6 +162,366 @@ export class DistressPredictionDashboardComponent
     if (this.isBrowser && this.map) {
       this.map.remove();
     }
+  }
+
+  // ============================================
+  // CHAINAGE COMPARISON CHART METHODS
+  // ============================================
+
+  // Open chainage comparison chart modal
+  openChainageComparisonModal() {
+    // Initialize available distresses for comparison
+    this.availableDistressesForComparison = this.distressSummary
+      .filter(distress => distress.count > 0)
+      .map(distress => distress.name);
+    
+    // Start with first 3 distresses selected by default
+    this.selectedDistressesForComparison = this.availableDistressesForComparison.slice(0, 3);
+    
+    // Open modal first
+    this.isChainageComparisonModalOpen = true;
+    
+    // Generate chart after a short delay to ensure DOM is ready
+    setTimeout(() => {
+      this.generateChainageComparisonChart();
+      console.log('✅ Distress Prediction: Generated chainage comparison chart');
+    }, 100);
+    
+    console.log('✅ Distress Prediction: Opened chainage comparison chart modal with distresses:', this.selectedDistressesForComparison);
+  }
+
+  // Close chainage comparison chart modal
+  closeChainageComparisonModal() {
+    this.isChainageComparisonModalOpen = false;
+    this.selectedDistressesForComparison = [];
+    console.log('✅ Distress Prediction: Closed chainage comparison chart modal');
+  }
+
+  // Toggle distress selection for comparison chart
+  toggleDistressForComparison(distressName: string) {
+    const index = this.selectedDistressesForComparison.indexOf(distressName);
+    
+    if (index > -1) {
+      // Distress already selected, remove it
+      this.selectedDistressesForComparison.splice(index, 1);
+    } else {
+      // Distress not selected, add it (limit to 5 for readability)
+      if (this.selectedDistressesForComparison.length < 5) {
+        this.selectedDistressesForComparison.push(distressName);
+      } else {
+        console.warn('⚠️ Maximum 5 distresses can be compared at once');
+        return;
+      }
+    }
+    
+    console.log('✅ Distress Prediction: Selected distresses for comparison:', this.selectedDistressesForComparison);
+    
+    // Regenerate chart with new selection
+    setTimeout(() => {
+      this.generateChainageComparisonChart();
+    }, 50);
+  }
+
+  // Check if distress is selected for comparison
+  isDistressSelectedForComparison(distressName: string): boolean {
+    return this.selectedDistressesForComparison.includes(distressName);
+  }
+
+  // Get distress color for template
+  getDistressColorForChip(distressName: string): string {
+    return this.distressSummary.find(d => d.name === distressName)?.color || '#4CAF50';
+  }
+
+  // Get distress background color for chip
+  getDistressChipBackgroundColor(distressName: string): string {
+    return this.isDistressSelectedForComparison(distressName) 
+      ? this.getDistressColorForChip(distressName)
+      : 'transparent';
+  }
+
+  // Generate chainage comparison chart
+  generateChainageComparisonChart() {
+    if (!this.rawData || this.rawData.length === 0) {
+      console.log('No data available for chainage comparison chart');
+      return;
+    }
+
+    const filteredData = this.getFilteredData();
+
+    if (filteredData.length === 0) {
+      console.log('No filtered data for chainage comparison chart');
+      return;
+    }
+
+    // Create chainage bins
+    const chainageMin = this.getChainageMin();
+    const chainageMax = this.getChainageMax();
+    const binCount = 20;
+    const binSize = (chainageMax - chainageMin) / binCount;
+
+    const chainageBins: number[] = [];
+    for (let i = 0; i <= binCount; i++) {
+      chainageBins.push(chainageMin + (i * binSize));
+    }
+
+    // Generate series data for each selected distress
+    const series: any[] = [];
+
+    console.log('🔍 Generating chart for distresses:', this.selectedDistressesForComparison);
+    console.log('🔍 Chainage range:', chainageMin, 'to', chainageMax);
+
+    this.selectedDistressesForComparison.forEach(distressName => {
+      const distressColor = this.distressSummary.find(d => d.name === distressName)?.color || '#4CAF50';
+      
+      // Calculate distress count for each chainage bin
+      const binData: number[] = new Array(binCount).fill(0);
+
+      filteredData.forEach(item => {
+        if (item.distress_type === distressName) {
+          const itemChainage = (item.chainage_start + item.chainage_end) / 2;
+          const binIndex = Math.floor((itemChainage - chainageMin) / binSize);
+          
+          if (binIndex >= 0 && binIndex < binCount) {
+            binData[binIndex] += 1; // Count distress occurrences
+          }
+        }
+      });
+
+      const totalCount = binData.reduce((sum, val) => sum + val, 0);
+      console.log(`📊 ${distressName}: Total count = ${totalCount}, Color = ${distressColor}`);
+
+      series.push({
+        name: distressName,
+        type: 'bar',
+        data: binData,
+        itemStyle: { 
+          color: distressColor,
+          borderRadius: [4, 4, 0, 0],
+          shadowBlur: 10,
+          shadowColor: 'rgba(0, 0, 0, 0.3)',
+          shadowOffsetY: 3
+        },
+        emphasis: {
+          focus: 'series',
+          itemStyle: {
+            color: distressColor,
+            shadowBlur: 20,
+            shadowColor: distressColor,
+            borderWidth: 2,
+            borderColor: '#fff'
+          }
+        },
+        barGap: '10%',
+        barCategoryGap: '20%'
+      });
+    });
+
+    console.log('📈 Generated series count:', series.length);
+
+    // Generate X-axis labels
+    const xAxisLabels = chainageBins.slice(0, binCount).map(chainage => 
+      chainage.toFixed(2) + ' KM'
+    );
+
+    // Configure chart options
+    this.chainageComparisonChartOptions = Object.assign({}, {
+      title: {
+        // text: 'Predicted Distress Distribution Along Chainage (Bar Chart)',
+        left: 'center',
+        textStyle: {
+          color: '#fff',
+          fontSize: 18,
+          fontWeight: 'bold'
+        },
+        // subtext: 'Interactive comparison of predicted distress types across road sections',
+        subtextStyle: {
+          color: 'rgba(255, 255, 255, 0.6)',
+          fontSize: 12
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow',
+          shadowStyle: {
+            color: 'rgba(102, 126, 234, 0.2)'
+          }
+        },
+        backgroundColor: 'rgba(30, 30, 46, 0.95)',
+        borderColor: '#667eea',
+        borderWidth: 2,
+        textStyle: {
+          color: '#fff',
+          fontSize: 13
+        },
+        formatter: (params: any) => {
+          if (!params || params.length === 0) return '';
+          
+          let tooltip = `<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #667eea;">
+            📍 ${params[0].axisValue}
+          </div>`;
+          
+          const sortedParams = params.sort((a: any, b: any) => b.value - a.value);
+          
+          sortedParams.forEach((param: any) => {
+            if (param.value > 0) {
+              tooltip += `<div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
+                <span style="display: inline-block; width: 12px; height: 12px; background: ${param.color}; border-radius: 3px;"></span>
+                <span style="font-weight: 600;">${param.seriesName}:</span>
+                <span style="color: ${param.color}; font-weight: bold;">${param.value}</span>
+              </div>`;
+            }
+          });
+          
+          return tooltip;
+        }
+      },
+      legend: {
+        data: this.selectedDistressesForComparison,
+        top: '10%',
+        textStyle: {
+          color: '#fff',
+          fontSize: 12,
+          fontWeight: '500'
+        },
+        itemGap: 20,
+        itemWidth: 25,
+        itemHeight: 14,
+        icon: 'roundRect',
+        selectedMode: true,
+        inactiveColor: 'rgba(255, 255, 255, 0.3)'
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '15%',
+        top: '20%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        boundaryGap: true,
+        data: xAxisLabels,
+        name: 'Chainage',
+        nameLocation: 'middle',
+        nameGap: 40,
+        nameTextStyle: {
+          color: '#fff',
+          fontSize: 13,
+          fontWeight: 'bold'
+        },
+        axisLabel: {
+          color: '#fff',
+          rotate: 45,
+          fontSize: 10,
+          interval: 0,
+          margin: 10
+        },
+        axisLine: {
+          lineStyle: { 
+            color: 'rgba(255, 255, 255, 0.3)',
+            width: 2
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.2)'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Predicted Distress Count',
+        nameTextStyle: {
+          color: '#fff',
+          fontSize: 13,
+          fontWeight: 'bold'
+        },
+        axisLabel: {
+          color: '#fff',
+          fontSize: 11,
+          formatter: '{value}'
+        },
+        axisLine: {
+          show: true,
+          lineStyle: { 
+            color: 'rgba(255, 255, 255, 0.3)',
+            width: 2
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.2)'
+          }
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.1)',
+            type: 'dashed'
+          }
+        },
+        min: 0
+      },
+      series: series,
+      backgroundColor: 'transparent',
+      animationDuration: 1000,
+      animationEasing: 'cubicOut',
+      animationDelay: (idx: number) => idx * 50,
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 0,
+          end: 100
+        },
+        {
+          type: 'slider',
+          start: 0,
+          end: 100,
+          height: 20,
+          bottom: 5,
+          borderColor: '#667eea',
+          fillerColor: 'rgba(102, 126, 234, 0.3)',
+          handleStyle: {
+            color: '#667eea'
+          },
+          textStyle: {
+            color: '#fff'
+          }
+        }
+      ],
+      toolbox: {
+        feature: {
+          dataZoom: {
+            yAxisIndex: 'none',
+            title: {
+              zoom: 'Zoom',
+              back: 'Reset'
+            }
+          },
+          restore: { title: 'Restore' },
+          saveAsImage: { 
+            title: 'Save as Image',
+            backgroundColor: '#1e1e2e',
+            pixelRatio: 2
+          }
+        },
+        iconStyle: {
+          borderColor: '#fff'
+        },
+        emphasis: {
+          iconStyle: {
+            borderColor: '#667eea'
+          }
+        },
+        top: '3%',
+        right: '5%'
+      }
+    });
+
+    console.log('✅ Distress Prediction: Generated chainage comparison chart with', series.length, 'distresses');
   }
 
   private async loadProjectsAndDates() {
@@ -807,7 +1174,8 @@ export class DistressPredictionDashboardComponent
       this.map.on('zoomend', () => {
         if (this.map) {
           this.currentZoomLevel = this.map.getZoom();
-          this.updateMapVisualization();
+          // Use updateMapMarkersOnly to preserve selected distress filter and not refit bounds
+          this.updateMapMarkersOnly();
         }
       });
 
@@ -862,6 +1230,37 @@ export class DistressPredictionDashboardComponent
     }
   }
 
+  // Method to update map markers WITHOUT refitting bounds (for distress selection)
+  async updateMapMarkersOnly() {
+    if (!this.map || !this.isBrowser) {
+      return;
+    }
+
+    try {
+      const L = await import('leaflet');
+
+      this.clearMapMarkers();
+
+      const filteredData = this.getFilteredDataForMap();
+
+      // Check current zoom level and decide what to show
+      this.currentZoomLevel = this.map.getZoom();
+
+      if (this.currentZoomLevel >= this.zoomThreshold) {
+        // Zoomed in - show Font Awesome icons
+        await this.showIconMarkers(filteredData, L);
+      } else {
+        // Zoomed out - show colorful circle markers
+        await this.showColorfulPoints(filteredData, L);
+      }
+
+      // DON'T FIT MAP BOUNDS - Keep current zoom and position
+      console.log(`✅ Updated map markers for ${this.selectedDistressType || 'All Distresses'} without refitting bounds`);
+    } catch (error) {
+      console.error('Error updating map markers:', error);
+    }
+  }
+
   // Method to show colorful circle markers (zoomed out view) - optimized for large data
   private async showColorfulPoints(
     filteredData: PredictedDistressData[],
@@ -875,18 +1274,21 @@ export class DistressPredictionDashboardComponent
       `Rendering ${filteredData.length} markers (limited from larger dataset)`
     );
 
+    // Get color for selected distress type from summary (for consistency)
+    const selectedColor = this.selectedDistressType 
+      ? (this.distressSummary.find(d => d.name === this.selectedDistressType)?.color || this.getDistressColor(this.selectedDistressType))
+      : null;
+
     // Determine marker size once before loop (moved outside for performance)
-    const markerRadius = this.selectedDistressType ? 5 : 4;
+    const markerRadius = this.selectedDistressType ? 8 : 5; // Larger when filtering
     const markerOpacity = this.selectedDistressType ? 0.9 : 0.7;
 
     // Use for loop instead of forEach for better performance with large data
     for (let i = 0; i < filteredData.length; i++) {
       const item = filteredData[i];
       if (item.latitude && item.longitude) {
-        // If a specific distress type is selected, only show that color
-        const color = this.selectedDistressType
-          ? this.getDistressColor(this.selectedDistressType) // Use selected distress color
-          : this.getDistressColor(item.distress_type); // Use original distress color
+        // Use selected distress color if filtering, otherwise use item's color
+        const color = selectedColor || this.getDistressColor(item.distress_type);
 
         const marker = L.circleMarker([item.latitude, item.longitude], {
           radius: markerRadius,
@@ -1091,12 +1493,16 @@ export class DistressPredictionDashboardComponent
   }
 
   onDistressCardClick(distress: DistressData) {
+    // Toggle selection - if clicking same distress, deselect it
     this.selectedDistressType =
       this.selectedDistressType === distress.name ? null : distress.name;
 
     if (this.isBrowser) {
-      this.addDistressMarkers();
+      // Update chart
       this.updateChart();
+      
+      // Update map markers WITHOUT refitting bounds
+      this.updateMapMarkersOnly();
     }
   }
 

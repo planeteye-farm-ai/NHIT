@@ -154,11 +154,11 @@
     max-width: 160px;
     flex: 1;
     padding: 1px;
-    background: rgba(255, 255, 255, 0.08);
+    // background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    // border: 1px solid rgba(255, 255, 255, 0.15);
+    // border-radius: 10px;
+    // box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -184,15 +184,15 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800, #9C27B0);
-    opacity: 0.8;
+    // background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800, #9C27B0);
+    // opacity: 0.8;
   }
 
-  .filter-group:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-    border-color: rgba(255, 255, 255, 0.25);
-  }
+  // .filter-group:hover {
+  //   transform: translateY(-2px);
+  //   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  //   border-color: rgba(255, 255, 255, 0.25);
+  // }
 
 .filter-group label {
   font-size: 8px;

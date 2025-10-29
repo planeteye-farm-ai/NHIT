@@ -140,6 +140,9 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private chainageData: any[] = [];
   private chartOptions: any = {};
   private selectedDistressType: string | null = null;
+  
+  // Selected info card for interactive filtering
+  public selectedInfoCard: string | null = null;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -790,7 +793,8 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.map.on('zoomend', () => {
         if (this.map) {
           this.currentZoomLevel = this.map.getZoom();
-          this.updateMapVisualization();
+          // Use updateMapMarkersOnly to preserve selected card filter and not refit bounds
+          this.updateMapMarkersOnly();
         }
       });
 
@@ -844,27 +848,123 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  // Method to update map markers WITHOUT refitting bounds (for info card clicks)
+  async updateMapMarkersOnly() {
+    if (!this.map || !this.isBrowser) return;
+
+    try {
+      const L = await import('leaflet');
+
+      this.clearMapMarkers();
+      // Use filtered accident data based on selected card
+      let filteredData = this.getFilteredAccidentData();
+
+      // Check current zoom level and decide what to show
+      this.currentZoomLevel = this.map.getZoom();
+
+      if (this.currentZoomLevel >= this.zoomThreshold) {
+        // Zoomed in - show Font Awesome icons
+        await this.showAccidentMarkers(filteredData, L);
+      } else {
+        // Zoomed out - show colorful circle markers
+        await this.showColorfulPoints(filteredData, L);
+      }
+
+      // DON'T ADJUST MAP BOUNDS - Keep current zoom and position
+      const markerCount = filteredData.length;
+      console.log(`✅ AIS: Showing ${markerCount} locations for ${this.selectedInfoCard || 'All Accidents'} without refitting bounds`);
+    } catch (error) {
+      console.error('Error updating map markers:', error);
+    }
+  }
+
+  // Handle info card click for interactive selection
+  onInfoCardClick(info: AccidentInfoData) {
+    // Toggle selection - if clicking same card, deselect it
+    if (this.selectedInfoCard === info.title) {
+      this.selectedInfoCard = null;
+      console.log('✅ AIS: Deselected card - showing all accidents');
+    } else {
+      this.selectedInfoCard = info.title;
+      console.log(`✅ AIS: Selected card: ${info.title}`);
+    }
+
+    // Update map WITHOUT refitting bounds
+    if (this.map) {
+      this.updateMapMarkersOnly();
+    }
+  }
+
+  // Get filtered accident data based on selected info card
+  private getFilteredAccidentData(): AccidentData[] {
+    const baseFilteredData = this.getFilteredData();
+    
+    // If no card is selected, return all data
+    if (!this.selectedInfoCard) {
+      return baseFilteredData;
+    }
+
+    // Map card titles to accident statistics fields
+    const cardToFieldMap: { [key: string]: keyof AccidentStatistics } = {
+      'Non-Injured Accident': 'non_injured_accident',
+      'Major Accident': 'major_accident',
+      'Minor Injury': 'minor_injury',
+      'Minor Accident': 'minor_accident',
+      'Fatal Accident': 'fatal_accident',
+      'Major Injury': 'major_injury',
+      'Total Accident': 'total_accident',
+      'Fatal Injury': 'fatal_injury',
+      'Grievous Injury': 'grievous_injury',
+      'Fatalities': 'fatalities',
+      'Grievous Accident': 'grievous_accident',
+    };
+
+    const fieldName = cardToFieldMap[this.selectedInfoCard];
+    
+    // Filter to show only locations with this accident type
+    if (fieldName) {
+      return baseFilteredData.filter((item) => {
+        const value = item.accident_statistics[fieldName];
+        // Convert to number to handle both string and number types
+        const numValue = typeof value === 'number' ? value : parseFloat(value as string) || 0;
+        return numValue > 0;
+      });
+    }
+
+    return baseFilteredData;
+  }
+
   // Method to show colorful circle markers (zoomed out view)
   private async showColorfulPoints(filteredData: AccidentData[], L: any) {
+    // Get color for selected accident type
+    const selectedColor = this.selectedInfoCard ? this.getColorForSelectedCard() : null;
+    
     filteredData.forEach((item) => {
       if (item.latitude && item.longitude) {
-        // Use accident severity to determine color
-        const color = this.getAccidentColor(item);
+        // Use selected card color if available, otherwise use accident severity color
+        const color = selectedColor || this.getAccidentColor(item);
 
         const marker = L.circleMarker([item.latitude, item.longitude], {
-          radius: 6,
+          radius: this.selectedInfoCard ? 8 : 6, // Larger when filtering
           fillColor: color,
           color: color,
           weight: 0,
           opacity: 1,
-          fillOpacity: 0.8,
+          fillOpacity: this.selectedInfoCard ? 0.9 : 0.8, // More opaque when filtering
         }).addTo(this.map);
 
-        marker.bindPopup(`
-          <div style="font-family: Arial, sans-serif; min-width: 200px;">
-            <h4 style="margin: 0 0 10px 0; color: ${color}; font-size: 14px;">
-              Accident Data
+        // Enhanced popup with selected accident type highlighted
+        const selectedCount = this.selectedInfoCard ? this.getSelectedAccidentCount(item) : 0;
+        const popupContent = `
+          <div style="font-family: Arial, sans-serif; min-width: 220px;">
+            <h4 style="margin: 0 0 10px 0; color: ${color}; font-size: 14px; font-weight: bold;">
+              ${this.selectedInfoCard || 'Accident Data'}
             </h4>
+            ${this.selectedInfoCard ? `
+              <p style="margin: 5px 0; font-size: 13px; font-weight: bold; color: ${color};">
+                <strong>Count:</strong> ${selectedCount}
+              </p>
+            ` : ''}
             <p style="margin: 5px 0; font-size: 12px;">
               <strong>Project:</strong> ${item.project_name}
             </p>
@@ -876,23 +976,22 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             <p style="margin: 5px 0; font-size: 12px;">
               <strong>Direction:</strong> ${item.direction || 'N/A'}
             </p>
-            <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Total Accidents:</strong> ${
-                item.accident_statistics.total_accident
-              }
-            </p>
-            <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Fatalities:</strong> ${
-                item.accident_statistics.fatalities
-              }
-            </p>
-            <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Total Injuries:</strong> ${
-                item.accident_statistics.total_injury
-              }
-            </p>
+            ${!this.selectedInfoCard ? `
+              <hr style="margin: 8px 0; border: none; border-top: 1px solid #ddd;">
+              <p style="margin: 5px 0; font-size: 11px;">
+                <strong>Total Accidents:</strong> ${item.accident_statistics.total_accident}
+              </p>
+              <p style="margin: 5px 0; font-size: 11px;">
+                <strong>Fatalities:</strong> ${item.accident_statistics.fatalities}
+              </p>
+              <p style="margin: 5px 0; font-size: 11px;">
+                <strong>Total Injuries:</strong> ${item.accident_statistics.total_injury}
+              </p>
+            ` : ''}
           </div>
-        `);
+        `;
+        
+        marker.bindPopup(popupContent);
 
         this.distressMarkers.push(marker);
       }
@@ -915,34 +1014,82 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  // Get color based on selected info card (accident type)
+  private getColorForSelectedCard(): string {
+    const colorMap: { [key: string]: string } = {
+      'Fatal Accident': '#CC0000',        // Dark Red
+      'Fatal Injury': '#DC143C',          // Crimson
+      'Fatalities': '#8B0000',            // Dark Red
+      'Grievous Accident': '#FF4500',     // Orange Red
+      'Grievous Injury': '#FF6347',       // Tomato
+      'Major Accident': '#FF8C00',        // Dark Orange
+      'Major Injury': '#FFA500',          // Orange
+      'Minor Accident': '#FFD700',        // Gold
+      'Minor Injury': '#FFFF00',          // Yellow
+      'Non-Injured Accident': '#90EE90',  // Light Green
+      'Total Accident': '#4169E1',        // Royal Blue
+    };
+
+    return colorMap[this.selectedInfoCard || ''] || '#4CAF50';
+  }
+
+  // Get specific accident count for selected card
+  private getSelectedAccidentCount(item: AccidentData): number {
+    if (!this.selectedInfoCard) return 0;
+
+    const cardToFieldMap: { [key: string]: keyof AccidentStatistics } = {
+      'Non-Injured Accident': 'non_injured_accident',
+      'Major Accident': 'major_accident',
+      'Minor Injury': 'minor_injury',
+      'Minor Accident': 'minor_accident',
+      'Fatal Accident': 'fatal_accident',
+      'Major Injury': 'major_injury',
+      'Total Accident': 'total_accident',
+      'Fatal Injury': 'fatal_injury',
+      'Grievous Injury': 'grievous_injury',
+      'Fatalities': 'fatalities',
+      'Grievous Accident': 'grievous_accident',
+    };
+
+    const fieldName = cardToFieldMap[this.selectedInfoCard];
+    return fieldName ? (item.accident_statistics[fieldName] as number) : 0;
+  }
+
   // Method to show accident markers (zoomed in view)
   private async showAccidentMarkers(filteredData: AccidentData[], L: any) {
+    // Get color for selected accident type
+    const selectedColor = this.selectedInfoCard ? this.getColorForSelectedCard() : null;
+    
     filteredData.forEach((item) => {
       if (item.latitude && item.longitude) {
         // Use accident severity to determine icon
         const iconClass = this.getAccidentIcon(item);
+        // Use selected color if filtering, otherwise use severity color
+        const color = selectedColor || this.getAccidentColor(item);
 
         const customIcon = L.divIcon({
-          html: `<i class="fas ${iconClass}" style="color: ${this.getAccidentColor(
-            item
-          )}; font-size: 20px;"></i>`,
+          html: `<i class="fas ${iconClass}" style="color: ${color}; font-size: ${this.selectedInfoCard ? '24px' : '20px'};"></i>`,
           className: 'custom-div-icon',
-          iconSize: [20, 20],
-          iconAnchor: [10, 10],
+          iconSize: this.selectedInfoCard ? [24, 24] : [20, 20],
+          iconAnchor: this.selectedInfoCard ? [12, 12] : [10, 10],
         });
 
         const marker = L.marker([item.latitude, item.longitude], {
           icon: customIcon,
         });
 
-        // Create popup content for accident data
+        // Enhanced popup content for accident data
+        const selectedCount = this.selectedInfoCard ? this.getSelectedAccidentCount(item) : 0;
         const popupContent = `
-          <div style="font-family: Arial, sans-serif; min-width: 200px;">
-            <h4 style="margin: 0 0 10px 0; color: ${this.getAccidentColor(
-              item
-            )}; font-size: 14px;">
-              Accident Data
+          <div style="font-family: Arial, sans-serif; min-width: 220px;">
+            <h4 style="margin: 0 0 10px 0; color: ${color}; font-size: 14px; font-weight: bold;">
+              ${this.selectedInfoCard || 'Accident Data'}
             </h4>
+            ${this.selectedInfoCard ? `
+              <p style="margin: 5px 0; font-size: 13px; font-weight: bold; color: ${color};">
+                <strong>Count:</strong> ${selectedCount}
+              </p>
+            ` : ''}
             <p style="margin: 5px 0; font-size: 12px;">
               <strong>Project:</strong> ${item.project_name}
             </p>
@@ -954,21 +1101,18 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             <p style="margin: 5px 0; font-size: 12px;">
               <strong>Direction:</strong> ${item.direction || 'N/A'}
             </p>
-            <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Total Accidents:</strong> ${
-                item.accident_statistics.total_accident
-              }
-            </p>
-            <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Fatalities:</strong> ${
-                item.accident_statistics.fatalities
-              }
-            </p>
-            <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Total Injuries:</strong> ${
-                item.accident_statistics.total_injury
-              }
-            </p>
+            ${!this.selectedInfoCard ? `
+              <hr style="margin: 8px 0; border: none; border-top: 1px solid #ddd;">
+              <p style="margin: 5px 0; font-size: 11px;">
+                <strong>Total Accidents:</strong> ${item.accident_statistics.total_accident}
+              </p>
+              <p style="margin: 5px 0; font-size: 11px;">
+                <strong>Fatalities:</strong> ${item.accident_statistics.fatalities}
+              </p>
+              <p style="margin: 5px 0; font-size: 11px;">
+                <strong>Total Injuries:</strong> ${item.accident_statistics.total_injury}
+              </p>
+            ` : ''}
           </div>
         `;
 

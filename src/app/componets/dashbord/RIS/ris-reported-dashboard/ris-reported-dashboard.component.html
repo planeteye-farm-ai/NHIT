@@ -127,6 +127,14 @@
         <div class="map-container">
           <div class="chart-header">
             <h3>Location wise Distress Distribution</h3>
+            <button 
+              class="comparison-chart-btn"
+              (click)="openChainageComparisonModal()"
+              title="View Chainage Comparison Chart"
+            >
+              <i class="fas fa-chart-line"></i>
+              Chainage Comparison
+            </button>
           </div>
           <div class="map-wrapper">
             <div *ngIf="!filters.date" class="map-placeholder">
@@ -166,6 +174,74 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chainage Comparison Chart Modal -->
+    <div *ngIf="isChainageComparisonModalOpen" class="modal-backdrop comparison-modal-backdrop" (click)="closeChainageComparisonModal()">
+      <div class="modal-content comparison-modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>
+            <i class="fas fa-chart-line"></i>
+            Distress Distribution Along Chainage
+          </h3>
+          <button class="modal-close-btn" (click)="closeChainageComparisonModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="modal-body comparison-modal-body">
+          <!-- Distress Selection Chips -->
+          <div class="asset-selection-section">
+            <div class="asset-selection-header">
+              <h4>Select Distress Types to Compare (Max 5):</h4>
+              <span class="selection-count">{{ selectedDistressesForComparison.length }}/5 Selected</span>
+            </div>
+            <div class="asset-chips-container">
+              <button
+                *ngFor="let distress of availableDistressesForComparison"
+                class="asset-chip"
+                [class.selected]="isDistressSelectedForComparison(distress)"
+                [style.border-color]="getDistressColorForChip(distress)"
+                [style.background-color]="getDistressChipBackgroundColor(distress)"
+                (click)="toggleDistressForComparison(distress)"
+              >
+                <span class="chip-color-indicator" [style.background-color]="getDistressColorForChip(distress)"></span>
+                {{ distress }}
+                <i *ngIf="isDistressSelectedForComparison(distress)" class="fas fa-check"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Comparison Chart -->
+          <div class="comparison-chart-container">
+            <div *ngIf="selectedDistressesForComparison.length === 0" class="no-assets-selected">
+              <p>Please select at least one distress type to view the comparison chart</p>
+            </div>
+            <div 
+              *ngIf="selectedDistressesForComparison.length > 0 && chainageComparisonChartOptions && chainageComparisonChartOptions.series" 
+              echarts 
+              [options]="chainageComparisonChartOptions" 
+              class="comparison-echarts-chart"
+              style="width: 100%; height: 500px; background: rgba(0,0,0,0.2);"
+            ></div>
+            <div *ngIf="selectedDistressesForComparison.length > 0 && (!chainageComparisonChartOptions || !chainageComparisonChartOptions.series)" class="loading-chart">
+              <div class="loading-spinner"></div>
+              <p>Generating chart...</p>
+            </div>
+          </div>
+
+          <!-- Chart Legend Info -->
+          <div *ngIf="selectedDistressesForComparison.length > 0" class="chart-info">
+            <p>
+              <i class="fas fa-info-circle"></i>
+              Showing distribution from <strong>{{ getChainageMin().toFixed(2) }} KM</strong> to 
+              <strong>{{ getChainageMax().toFixed(2) }} KM</strong>
+            </p>
           </div>
         </div>
       </div>
