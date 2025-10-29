@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgxEchartsModule } from 'ngx-echarts';
+import { NgxEchartsModule, provideEcharts } from 'ngx-echarts';
 
 interface AssetData {
   name: string;
@@ -74,6 +74,7 @@ interface InfrastructureData {
   selector: 'app-ris-inventory',
   standalone: true,
   imports: [CommonModule, FormsModule, NgxEchartsModule],
+  providers: [provideEcharts()],
   templateUrl: './ris-inventory.component.html',
   styleUrl: './ris-inventory.component.scss',
 })
@@ -140,6 +141,12 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
   isSubAssetModalOpen: boolean = false;
   selectedAssetForSubAssets: string = '';
   subAssetsList: { name: string; count: number }[] = [];
+
+  // Chainage comparison chart modal properties
+  isChainageComparisonModalOpen: boolean = false;
+  selectedAssetsForComparison: string[] = [];
+  chainageComparisonChartOptions: any = {};
+  availableAssetsForComparison: string[] = [];
 
   private map: any;
   public isBrowser: boolean;
@@ -517,15 +524,30 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.openSubAssetModal(assetType);
 
     if (this.selectedAssetType === assetType) {
-      // If clicking the same asset, deselect it
+      // If clicking the same asset, deselect it (show all assets)
       this.selectedAssetType = null;
     } else {
-      // Select the new asset
+      // Select the new asset (show only this asset)
       this.selectedAssetType = assetType;
     }
 
-    // Update the map and chart in the background (skip slow comparison chart)
-    this.updateDashboard(true); // Skip comparison chart for instant response
+    // Update the map and chart WITHOUT refitting bounds
+    // Update asset summary based on current filters
+    this.calculateAssetSummary();
+
+    // Update chainage chart data based on current filters
+    this.generateChainageData();
+
+    // Reinitialize chart options with new data
+    this.initChartOptions();
+
+    // Force chart refresh to ensure tooltip works properly
+    this.refreshChart();
+
+    // Update map markers WITHOUT changing zoom/position
+    if (this.map) {
+      await this.updateMapMarkersOnly();
+    }
   }
 
   async onSubAssetTypeChange(event: any) {
@@ -1309,7 +1331,8 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       this.map.on('zoomend', () => {
         if (this.map) {
           this.currentZoomLevel = this.map.getZoom();
-          this.updateMapVisualization();
+          // Use updateMapMarkersOnly to preserve selected asset filter and not refit bounds
+          this.updateMapMarkersOnly();
         }
       });
 
@@ -1394,6 +1417,41 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     } catch (error) {
       console.error('Error adding infrastructure markers:', error);
+    }
+  }
+
+  // Method to update map markers WITHOUT refitting bounds (for asset selection)
+  private async updateMapMarkersOnly() {
+    if (!this.map || !this.rawData || this.rawData.length === 0) {
+      console.log('Map or data not available');
+      return;
+    }
+
+    try {
+      // Dynamically import Leaflet only on browser side
+      const L = await import('leaflet');
+
+      // Get filtered data based on current filters
+      const filteredData = this.getFilteredData();
+
+      // Clear existing markers
+      await this.clearMapMarkers();
+
+      // Check current zoom level and decide what to show
+      this.currentZoomLevel = this.map.getZoom();
+
+      if (this.currentZoomLevel >= this.zoomThreshold) {
+        // Zoomed in - show Font Awesome icons
+        await this.showIconMarkers(filteredData, L);
+      } else {
+        // Zoomed out - show colorful circle markers
+        await this.showColorfulPoints(filteredData, L);
+      }
+
+      // DON'T FIT BOUNDS - Keep current zoom and position
+      console.log(`✅ Updated map markers for ${this.selectedAssetType || 'All Assets'} without refitting bounds`);
+    } catch (error) {
+      console.error('Error updating map markers:', error);
     }
   }
 
@@ -1486,50 +1544,94 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       this.projectPolyline = null;
     }
 
-    // Group data by asset_type for better visualization
-    const assetGroups = new Map<string, InfrastructureData[]>();
+    // Map asset display names to field names (used for filtering and popup)
+    const assetFieldMap: { [key: string]: string } = {
+      'Trees': 'trees',
+      'Culvert': 'culvert',
+      'Street Lights': 'street_lights',
+      'Bridges': 'bridges',
+      'Traffic Signals': 'traffic_signals',
+      'Bus Stop': 'bus_stop',
+      'Truck Layby': 'truck_layby',
+      'Toll Plaza': 'toll_plaza',
+      'Adjacent Road': 'adjacent_road',
+      'Toilet Block': 'toilet_blocks',
+      'Rest Area': 'rest_area',
+      'RCC Drain': 'rcc_drain',
+      'Fuel Station': 'fuel_station',
+      'Emergency Call': 'emergency_call_box',
+      'Tunnels': 'tunnels',
+      'Footpath': 'footpath',
+      'Junction': 'junction',
+      'Sign Boards': 'sign_boards',
+      'Solar Blinker': 'solar_blinker',
+      'Median Plants': 'median_plants',
+      'Service Road': 'service_road',
+      'KM Stones': 'km_stones',
+      'Crash Barrier': 'crash_barrier',
+      'Median Opening': 'median_opening',
+    };
 
-    filteredData.forEach((item) => {
-      if (item.latitude && item.longitude && item.asset_type) {
-        if (!assetGroups.has(item.asset_type)) {
-          assetGroups.set(item.asset_type, []);
-        }
-        assetGroups.get(item.asset_type)?.push(item);
+    // If a specific asset is selected, filter to only show points with that asset
+    let pointsToShow: InfrastructureData[] = filteredData;
+    
+    if (this.selectedAssetType) {
+      const fieldName = assetFieldMap[this.selectedAssetType];
+      
+      // Filter to only include points that have this asset
+      if (fieldName) {
+        pointsToShow = filteredData.filter((item) => {
+          const count = item[fieldName as keyof InfrastructureData] as number;
+          return count && count > 0;
+        });
       }
-    });
+    }
 
-    // Create colorful circle markers for each asset
-    assetGroups.forEach((assets, assetType) => {
-      const color = this.getDistressColor(assetType);
+    // Get the color for the selected asset (or use default for multiple assets)
+    const selectedColor = this.selectedAssetType 
+      ? (this.assetSummary.find(a => a.name === this.selectedAssetType)?.color || '#4CAF50')
+      : null;
 
-      assets.forEach((asset) => {
-        const circleMarker = L.circleMarker([asset.latitude, asset.longitude], {
-          radius: 6,
+    // Create colorful circle markers for each point
+    pointsToShow.forEach((item) => {
+      if (item.latitude && item.longitude) {
+        // Use selected asset color if filtering, otherwise use road type color
+        const color = selectedColor || this.getDistressColor(item.asset_type || 'General');
+
+        const circleMarker = L.circleMarker([item.latitude, item.longitude], {
+          radius: this.selectedAssetType ? 8 : 6, // Larger radius when filtering specific asset
           fillColor: color,
           color: color,
           weight: 0,
           opacity: 1,
-          fillOpacity: 0.8,
+          fillOpacity: this.selectedAssetType ? 0.9 : 0.8, // More opaque when filtering
         });
 
         // Add popup with asset information
         const popupContent = `
           <div style="font-family: Arial, sans-serif; min-width: 200px;">
             <h4 style="margin: 0 0 10px 0; color: ${color}; font-size: 14px;">
-              ${assetType}
+              ${this.selectedAssetType || item.asset_type}
             </h4>
             <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Chainage:</strong> ${asset.chainage_start?.toFixed(
+              <strong>Chainage:</strong> ${item.chainage_start?.toFixed(
                 2
-              )} - ${asset.chainage_end?.toFixed(2)} km
+              )} - ${item.chainage_end?.toFixed(2)} km
             </p>
             <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Direction:</strong> ${asset.direction || 'N/A'}
+              <strong>Direction:</strong> ${item.direction || 'N/A'}
             </p>
             ${
-              asset.sub_asset_type && asset.sub_asset_type !== 'Not Specified'
+              this.selectedAssetType
                 ? `<p style="margin: 5px 0; font-size: 12px;">
-                <strong>Sub-Asset:</strong> ${asset.sub_asset_type}
+                <strong>Count:</strong> ${item[assetFieldMap[this.selectedAssetType] as keyof InfrastructureData] || 0}
+              </p>`
+                : ''
+            }
+            ${
+              item.sub_asset_type && item.sub_asset_type !== 'Not Specified'
+                ? `<p style="margin: 5px 0; font-size: 12px;">
+                <strong>Sub-Asset:</strong> ${item.sub_asset_type}
               </p>`
                 : ''
             }
@@ -1539,8 +1641,10 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
         circleMarker.bindPopup(popupContent);
         circleMarker.addTo(this.map!);
         this.iconMarkers.push(circleMarker);
-      });
+      }
     });
+
+    console.log(`✅ Showing ${pointsToShow.length} colorful points for ${this.selectedAssetType || 'All Assets'}`);
   }
 
   // Method to show project polyline (zoomed out view)
@@ -2550,6 +2654,420 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isSubAssetModalOpen = false;
     this.selectedAssetForSubAssets = '';
     this.subAssetsList = [];
+  }
+
+  // Open chainage comparison chart modal
+  openChainageComparisonModal() {
+    // Initialize available assets for comparison
+    this.availableAssetsForComparison = this.assetSummary
+      .filter(asset => asset.count > 0)
+      .map(asset => asset.name);
+    
+    // Start with first 3 assets selected by default
+    this.selectedAssetsForComparison = this.availableAssetsForComparison.slice(0, 3);
+    
+    // Open modal first
+    this.isChainageComparisonModalOpen = true;
+    
+    // Generate chart after a short delay to ensure DOM is ready
+    setTimeout(() => {
+      this.generateChainageComparisonChart();
+      console.log('✅ Generated chainage comparison chart');
+    }, 100);
+    
+    console.log('✅ Opened chainage comparison chart modal with assets:', this.selectedAssetsForComparison);
+  }
+
+  // Close chainage comparison chart modal
+  closeChainageComparisonModal() {
+    this.isChainageComparisonModalOpen = false;
+    this.selectedAssetsForComparison = [];
+    console.log('✅ Closed chainage comparison chart modal');
+  }
+
+  // Toggle asset selection for comparison chart
+  toggleAssetForComparison(assetName: string) {
+    const index = this.selectedAssetsForComparison.indexOf(assetName);
+    
+    if (index > -1) {
+      // Asset already selected, remove it
+      this.selectedAssetsForComparison.splice(index, 1);
+    } else {
+      // Asset not selected, add it (limit to 5 assets for readability)
+      if (this.selectedAssetsForComparison.length < 5) {
+        this.selectedAssetsForComparison.push(assetName);
+      } else {
+        console.warn('⚠️ Maximum 5 assets can be compared at once');
+        return;
+      }
+    }
+    
+    console.log('✅ Selected assets for comparison:', this.selectedAssetsForComparison);
+    
+    // Regenerate chart with new selection (with small delay for smooth update)
+    setTimeout(() => {
+      this.generateChainageComparisonChart();
+    }, 50);
+  }
+
+  // Check if asset is selected for comparison
+  isAssetSelectedForComparison(assetName: string): boolean {
+    return this.selectedAssetsForComparison.includes(assetName);
+  }
+
+  // Get asset color for template (helper method to avoid arrow functions in template)
+  getAssetColor(assetName: string): string {
+    return this.assetSummary.find(a => a.name === assetName)?.color || '#4CAF50';
+  }
+
+  // Get asset background color for chip (selected or transparent)
+  getAssetChipBackgroundColor(assetName: string): string {
+    return this.isAssetSelectedForComparison(assetName) 
+      ? this.getAssetColor(assetName)
+      : 'transparent';
+  }
+
+  // Generate chainage comparison chart
+  generateChainageComparisonChart() {
+    if (!this.rawData || this.rawData.length === 0) {
+      console.log('No data available for chainage comparison chart');
+      return;
+    }
+
+    // Get filtered data based on current filters
+    const filteredData = this.getFilteredData();
+
+    if (filteredData.length === 0) {
+      console.log('No filtered data for chainage comparison chart');
+      return;
+    }
+
+    // Create chainage bins (divide chainage range into segments)
+    const chainageMin = this.filters.chainageRange.min;
+    const chainageMax = this.filters.chainageRange.max;
+    const binCount = 20; // Number of segments along the chainage
+    const binSize = (chainageMax - chainageMin) / binCount;
+
+    // Initialize bins
+    const chainageBins: number[] = [];
+    for (let i = 0; i <= binCount; i++) {
+      chainageBins.push(chainageMin + (i * binSize));
+    }
+
+    // Map asset display names to field names
+    const assetFieldMap: { [key: string]: string } = {
+      'Trees': 'trees',
+      'Culvert': 'culvert',
+      'Street Lights': 'street_lights',
+      'Bridges': 'bridges',
+      'Traffic Signals': 'traffic_signals',
+      'Bus Stop': 'bus_stop',
+      'Truck Layby': 'truck_layby',
+      'Toll Plaza': 'toll_plaza',
+      'Adjacent Road': 'adjacent_road',
+      'Toilet Block': 'toilet_blocks',
+      'Rest Area': 'rest_area',
+      'RCC Drain': 'rcc_drain',
+      'Fuel Station': 'fuel_station',
+      'Emergency Call': 'emergency_call_box',
+      'Tunnels': 'tunnels',
+      'Footpath': 'footpath',
+      'Junction': 'junction',
+      'Sign Boards': 'sign_boards',
+      'Solar Blinker': 'solar_blinker',
+      'Median Plants': 'median_plants',
+      'Service Road': 'service_road',
+      'KM Stones': 'km_stones',
+      'Crash Barrier': 'crash_barrier',
+      'Median Opening': 'median_opening',
+    };
+
+    // Generate series data for each selected asset
+    const series: any[] = [];
+
+    console.log('🔍 Generating chart for assets:', this.selectedAssetsForComparison);
+    console.log('🔍 Chainage range:', chainageMin, 'to', chainageMax);
+    console.log('🔍 Bin size:', binSize, 'Bin count:', binCount);
+    console.log('🔍 Filtered data items:', filteredData.length);
+
+    this.selectedAssetsForComparison.forEach(assetName => {
+      const fieldName = assetFieldMap[assetName];
+      const assetColor = this.assetSummary.find(a => a.name === assetName)?.color || '#4CAF50';
+      
+      if (!fieldName) {
+        console.warn('⚠️ No field name found for asset:', assetName);
+        return;
+      }
+
+      // Calculate asset count for each chainage bin
+      const binData: number[] = new Array(binCount).fill(0);
+
+      filteredData.forEach(item => {
+        const itemChainage = (item.chainage_start + item.chainage_end) / 2;
+        
+        // Find which bin this item belongs to
+        const binIndex = Math.floor((itemChainage - chainageMin) / binSize);
+        
+        if (binIndex >= 0 && binIndex < binCount) {
+          const assetCount = item[fieldName as keyof InfrastructureData] as number;
+          binData[binIndex] += assetCount || 0;
+        }
+      });
+
+      const totalCount = binData.reduce((sum, val) => sum + val, 0);
+      console.log(`📊 ${assetName}: Total count = ${totalCount}, Color = ${assetColor}`);
+
+      series.push({
+        name: assetName,
+        type: 'bar',
+        data: binData,
+        itemStyle: { 
+          color: assetColor,
+          borderRadius: [4, 4, 0, 0], // Rounded top corners
+          shadowBlur: 10,
+          shadowColor: 'rgba(0, 0, 0, 0.3)',
+          shadowOffsetY: 3
+        },
+        emphasis: {
+          focus: 'series',
+          itemStyle: {
+            color: assetColor,
+            shadowBlur: 20,
+            shadowColor: assetColor,
+            borderWidth: 2,
+            borderColor: '#fff'
+          }
+        },
+        barGap: '10%', // Gap between bars in same category
+        barCategoryGap: '20%' // Gap between categories
+      });
+    });
+
+    console.log('📈 Generated series count:', series.length);
+
+    // Generate X-axis labels (chainage values)
+    const xAxisLabels = chainageBins.slice(0, binCount).map(chainage => 
+      chainage.toFixed(2) + ' KM'
+    );
+
+    // Configure chart options (create new object to trigger change detection)
+    this.chainageComparisonChartOptions = Object.assign({}, {
+      title: {
+        // text: 'Asset Distribution Along Chainage (Bar Chart)',
+        left: 'center',
+        textStyle: {
+          color: '#fff',
+          fontSize: 18,
+          fontWeight: 'bold'
+        },
+        // subtext: 'Interactive comparison of assets across road sections',
+        subtextStyle: {
+          color: 'rgba(255, 255, 255, 0.6)',
+          fontSize: 12
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow',
+          shadowStyle: {
+            color: 'rgba(102, 126, 234, 0.2)'
+          }
+        },
+        backgroundColor: 'rgba(30, 30, 46, 0.95)',
+        borderColor: '#667eea',
+        borderWidth: 2,
+        textStyle: {
+          color: '#fff',
+          fontSize: 13
+        },
+        formatter: (params: any) => {
+          if (!params || params.length === 0) return '';
+          
+          let tooltip = `<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #667eea;">
+            📍 ${params[0].axisValue}
+          </div>`;
+          
+          // Sort by value descending
+          const sortedParams = params.sort((a: any, b: any) => b.value - a.value);
+          
+          sortedParams.forEach((param: any) => {
+            if (param.value > 0) {
+              tooltip += `<div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
+                <span style="display: inline-block; width: 12px; height: 12px; background: ${param.color}; border-radius: 3px;"></span>
+                <span style="font-weight: 600;">${param.seriesName}:</span>
+                <span style="color: ${param.color}; font-weight: bold;">${param.value}</span>
+              </div>`;
+            }
+          });
+          
+          return tooltip;
+        }
+      },
+      legend: {
+        data: this.selectedAssetsForComparison,
+        top: '10%',
+        textStyle: {
+          color: '#fff',
+          fontSize: 12,
+          fontWeight: '500'
+        },
+        itemGap: 20,
+        itemWidth: 25,
+        itemHeight: 14,
+        icon: 'roundRect',
+        selectedMode: true, // Allow clicking legend to show/hide series
+        inactiveColor: 'rgba(255, 255, 255, 0.3)'
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '15%',
+        top: '20%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        boundaryGap: true, // Changed to true for bar charts
+        data: xAxisLabels,
+        name: 'Chainage',
+        nameLocation: 'middle',
+        nameGap: 40,
+        nameTextStyle: {
+          color: '#fff',
+          fontSize: 13,
+          fontWeight: 'bold'
+        },
+        axisLabel: {
+          color: '#fff',
+          rotate: 45,
+          fontSize: 10,
+          interval: 0, // Show all labels
+          margin: 10
+        },
+        axisLine: {
+          lineStyle: { 
+            color: 'rgba(255, 255, 255, 0.3)',
+            width: 2
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.2)'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Asset Count',
+        nameTextStyle: {
+          color: '#fff',
+          fontSize: 13,
+          fontWeight: 'bold'
+        },
+        axisLabel: {
+          color: '#fff',
+          fontSize: 11,
+          formatter: '{value}'
+        },
+        axisLine: {
+          show: true,
+          lineStyle: { 
+            color: 'rgba(255, 255, 255, 0.3)',
+            width: 2
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.2)'
+          }
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.1)',
+            type: 'dashed'
+          }
+        },
+        min: 0 // Start from 0 for better bar visualization
+      },
+      series: series,
+      backgroundColor: 'transparent',
+      animationDuration: 1000,
+      animationEasing: 'cubicOut',
+      animationDelay: (idx: number) => idx * 50, // Stagger animation for each bar
+      dataZoom: [
+        {
+          type: 'inside', // Allow zooming with mouse wheel
+          start: 0,
+          end: 100
+        },
+        {
+          type: 'slider', // Show zoom slider at bottom
+          start: 0,
+          end: 100,
+          height: 20,
+          bottom: 5,
+          borderColor: '#667eea',
+          fillerColor: 'rgba(102, 126, 234, 0.3)',
+          handleStyle: {
+            color: '#667eea'
+          },
+          textStyle: {
+            color: '#fff'
+          }
+        }
+      ],
+      toolbox: {
+        feature: {
+          dataZoom: {
+            yAxisIndex: 'none',
+            title: {
+              zoom: 'Zoom',
+              back: 'Reset'
+            }
+          },
+          restore: { title: 'Restore' },
+          saveAsImage: { 
+            title: 'Save as Image',
+            backgroundColor: '#1e1e2e',
+            pixelRatio: 2
+          }
+        },
+        iconStyle: {
+          borderColor: '#fff'
+        },
+        emphasis: {
+          iconStyle: {
+            borderColor: '#667eea'
+          }
+        },
+        top: '3%',
+        right: '5%'
+      }
+    });
+
+    console.log('✅ Generated chainage comparison chart with', series.length, 'assets');
+    console.log('📊 Chart options:', this.chainageComparisonChartOptions);
+    console.log('📊 Series data sample:', series.length > 0 ? series[0] : 'No series');
+    
+    // Force chart refresh
+    if (this.isBrowser && typeof window !== 'undefined') {
+      setTimeout(() => {
+        const chartElements = document.querySelectorAll('.comparison-echarts-chart');
+        chartElements.forEach((element) => {
+          const echartsInstance = (element as any).__echarts_instance__;
+          if (echartsInstance) {
+            echartsInstance.setOption(this.chainageComparisonChartOptions, true);
+            console.log('✅ Force refreshed ECharts instance');
+          } else {
+            console.warn('⚠️ ECharts instance not found on element');
+          }
+        });
+      }, 100);
+    }
   }
 
   ngOnDestroy() {

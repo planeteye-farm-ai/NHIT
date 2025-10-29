@@ -109,6 +109,9 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private chainageData: any[] = [];
   private chartOptions: any = {};
   private selectedDistressType: string | null = null;
+  
+  // Selected info card for interactive filtering
+  public selectedInfoCard: string | null = null;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -683,7 +686,8 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.map.on('zoomend', () => {
         if (this.map) {
           this.currentZoomLevel = this.map.getZoom();
-          this.updateMapVisualization();
+          // Use updateMapMarkersOnly to preserve selected card filter and not refit bounds
+          this.updateMapMarkersOnly();
         }
       });
 
@@ -741,6 +745,51 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.adjustMapBounds();
     } catch (error) {
       console.error('Error adding distress markers:', error);
+    }
+  }
+
+  // Method to update map markers WITHOUT refitting bounds (for info card clicks)
+  async updateMapMarkersOnly() {
+    if (!this.map || !this.isBrowser) return;
+
+    try {
+      const L = await import('leaflet');
+
+      this.clearMapMarkers();
+      let filteredData = this.getFilteredData();
+
+      // Check current zoom level and decide what to show
+      this.currentZoomLevel = this.map.getZoom();
+
+      if (this.currentZoomLevel >= this.zoomThreshold) {
+        // Zoomed in - show Font Awesome icons
+        await this.showIconMarkers(filteredData, L);
+      } else {
+        // Zoomed out - show colorful circle markers
+        await this.showColorfulPoints(filteredData, L);
+      }
+
+      // DON'T ADJUST MAP BOUNDS - Keep current zoom and position
+      console.log(`✅ PMS: Updated map markers for ${this.selectedInfoCard || 'All Data'} without refitting bounds`);
+    } catch (error) {
+      console.error('Error updating map markers:', error);
+    }
+  }
+
+  // Handle info card click for interactive selection
+  onInfoCardClick(info: PavementInfoData) {
+    // Toggle selection - if clicking same card, deselect it
+    if (this.selectedInfoCard === info.title) {
+      this.selectedInfoCard = null;
+      console.log('✅ PMS: Deselected card');
+    } else {
+      this.selectedInfoCard = info.title;
+      console.log(`✅ PMS: Selected card: ${info.title}`);
+    }
+
+    // Update map WITHOUT refitting bounds
+    if (this.map) {
+      this.updateMapMarkersOnly();
     }
   }
 
