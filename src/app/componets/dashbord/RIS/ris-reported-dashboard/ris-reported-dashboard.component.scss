@@ -9,7 +9,7 @@
 
 /* Dashboard Container */
 .dashboard-container {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: rgb(32, 32, 37); /* Match sidebar dark mode background */
   min-height: 100vh;
   color: #dfdfdf;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -554,7 +554,7 @@
 
 /* Right Panel Asset Summary */
 .right-panel .asset-summary {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(43, 43, 48); /* Match dark mode body background */
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -590,7 +590,7 @@
 }
 
 .right-panel .asset-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03); /* Slightly darker for better contrast */
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-left: 3px solid;
   border-radius: 6px;
@@ -607,13 +607,13 @@
 }
 
 .right-panel .asset-card:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   transform: translateY(-2px);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
 }
 
 .right-panel .asset-card.selected {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   transform: translateY(-2px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   border: 2px solid rgba(255, 255, 255, 0.3);
@@ -709,7 +709,7 @@
 
 .chart-container,
 .map-container {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(43, 43, 48); /* Match dark mode body background */
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
