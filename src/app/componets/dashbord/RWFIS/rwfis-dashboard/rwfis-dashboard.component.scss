@@ -11,7 +11,7 @@
 
 /* Main Content Area */
 .main-content {
-  padding: 10px;
+  // padding: 10px;
   min-height: 100vh;
   box-sizing: border-box;
   overflow-x: auto;
@@ -120,39 +120,45 @@
   flex-wrap: nowrap;
   gap: 2px;
   align-items: stretch;
-  justify-content: space-evenly;
+  justify-content: flex-start;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 1px;
   width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 
 /* Custom scrollbar for filter row */
-.filter-row::-webkit-scrollbar {
+.filter-row::-webkit-scrollbar,
+.filter-row-main::-webkit-scrollbar {
   height: 6px;
 }
 
-.filter-row::-webkit-scrollbar-track {
+.filter-row::-webkit-scrollbar-track,
+.filter-row-main::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
 }
 
-.filter-row::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+.filter-row::-webkit-scrollbar-thumb,
+.filter-row-main::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
   border-radius: 3px;
 }
 
-.filter-row::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+.filter-row::-webkit-scrollbar-thumb:hover,
+.filter-row-main::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.7);
 }
 
   .filter-group {
     display: flex;
     flex-direction: column;
     gap: 0.5px;
-    min-width: 120px;
-    max-width: 160px;
-    flex: 1;
+    min-width: 80px;
+    max-width: 100px;
+    flex: 0 0 auto;
     padding: 1px;
     // background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
@@ -175,6 +181,7 @@
     min-width: 200px;
     max-width: 250px;
     padding: 2px;
+    flex: 0 0 auto;
   }
 
   .filter-group::before {
@@ -1206,6 +1213,24 @@
   appearance: none;
 }
 
+/* Style the track for Webkit browsers (Chrome, Safari, Edge) */
+.chainage-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* Style the track for Mozilla Firefox */
+.chainage-slider::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
 .chainage-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -1217,6 +1242,7 @@
   pointer-events: auto;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
+  margin-top: -7px;
 }
 
 .chainage-slider::-webkit-slider-thumb:hover {
@@ -1264,8 +1290,8 @@
   }
   
   .filter-group {
-    min-width: 160px;
-    max-width: 200px;
+    min-width: 140px;
+    max-width: 155px;
     padding: 8px;
     gap: 8px;
   }

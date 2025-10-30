@@ -26,6 +26,8 @@ interface FilterData {
   chainageRange: { min: number; max: number };
   assetType: string;
   subAssetType: string;
+  pavementType: string;
+  lane: string;
 }
 
 // Interface for the projects-dates API response
@@ -68,6 +70,9 @@ interface InfrastructureData {
   longitude: number;
   date: string;
   sub_asset_type: string | null;
+  pavement_type?: string;
+  lane?: string;
+  carriage_type?: string;
 }
 
 @Component({
@@ -92,12 +97,16 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     chainageRange: { min: 0, max: 100 },
     assetType: 'All',
     subAssetType: 'All',
+    pavementType: 'All',
+    lane: 'All',
   };
 
   // Available filter options
   availableProjects: string[] = [];
   availableDirections: string[] = [];
   availableDates: string[] = [];
+  availablePavementTypes: string[] = [];
+  availableLanes: string[] = [];
 
   // Project dates mapping from API
   projectDatesMap: ProjectDatesResponse = {};
@@ -355,6 +364,16 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log(
         `✅ Loaded ${this.rawData.length} records for ${this.filters.projectName} - ${this.filters.date}`
       );
+      
+      // Debug: Check if pavement_type and lane exist in the data
+      if (this.rawData.length > 0) {
+        const firstItem = this.rawData[0];
+        console.log('First data item fields:', Object.keys(firstItem));
+        console.log('First data item:', firstItem);
+        console.log('Pavement type in data:', firstItem.pavement_type);
+        console.log('Lane in data:', firstItem.lane);
+        console.log('Carriage type in data:', firstItem.carriage_type);
+      }
 
       // Process data (fast operations)
       this.extractFilterOptions();
@@ -410,6 +429,33 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.filters.direction && this.availableDirections.length > 0) {
       this.filters.direction = this.availableDirections[0];
     }
+
+    // Extract unique pavement types from data
+    // Try to get pavement_type, fallback to carriage_type if not available
+    const uniquePavementTypes = [
+      ...new Set(
+        this.rawData.map((item) => item.pavement_type || item.carriage_type).filter((p): p is string => !!p)
+      ),
+    ];
+    console.log('Extracted pavement types:', uniquePavementTypes);
+    if (uniquePavementTypes.length > 0) {
+      this.availablePavementTypes = ['All', ...uniquePavementTypes];
+    } else {
+      this.availablePavementTypes = ['All'];
+    }
+    console.log('Available pavement types:', this.availablePavementTypes);
+
+    // Extract unique lanes from data
+    const uniqueLanes = [
+      ...new Set(this.rawData.map((item) => item.lane).filter((l): l is string => !!l)),
+    ];
+    console.log('Extracted lanes:', uniqueLanes);
+    if (uniqueLanes.length > 0) {
+      this.availableLanes = ['All', ...uniqueLanes];
+    } else {
+      this.availableLanes = ['All'];
+    }
+    console.log('Available lanes:', this.availableLanes);
 
     // Update filter ranges based on current data
     const chainages = Array.isArray(this.rawData)
@@ -478,6 +524,16 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async onDirectionChange(event: any) {
     this.filters.direction = event.target.value;
+    await this.updateDashboard(true); // Skip comparison chart for faster response
+  }
+
+  async onPavementTypeChange(event: any) {
+    this.filters.pavementType = event.target.value;
+    await this.updateDashboard(true); // Skip comparison chart for faster response
+  }
+
+  async onLaneChange(event: any) {
+    this.filters.lane = event.target.value;
     await this.updateDashboard(true); // Skip comparison chart for faster response
   }
 
@@ -817,6 +873,20 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.filters.subAssetType && this.filters.subAssetType !== 'All') {
       filteredData = filteredData.filter(
         (item) => item.sub_asset_type === this.filters.subAssetType
+      );
+    }
+
+    // Filter by Pavement Type
+    if (this.filters.pavementType && this.filters.pavementType !== 'All') {
+      filteredData = filteredData.filter(
+        (item) => (item.pavement_type || item.carriage_type) === this.filters.pavementType
+      );
+    }
+
+    // Filter by Lane
+    if (this.filters.lane && this.filters.lane !== 'All') {
+      filteredData = filteredData.filter(
+        (item) => item.lane === this.filters.lane
       );
     }
 
@@ -2742,6 +2812,9 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    // Detect mobile view for responsive chart layout
+    const isMobileView = window.innerWidth <= 768;
+
     // Create chainage bins (divide chainage range into segments)
     const chainageMin = this.filters.chainageRange.min;
     const chainageMax = this.filters.chainageRange.max;
@@ -2847,7 +2920,7 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Generate X-axis labels (chainage values)
     const xAxisLabels = chainageBins.slice(0, binCount).map(chainage => 
-      chainage.toFixed(2) + ' KM'
+      chainage.toFixed(2) 
     );
 
     // Configure chart options (create new object to trigger change detection)
@@ -2906,24 +2979,24 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       legend: {
         data: this.selectedAssetsForComparison,
-        top: '10%',
+        top: isMobileView ? '15%' : '10%',
         textStyle: {
           color: '#fff',
-          fontSize: 12,
+          fontSize: isMobileView ? 10 : 12,
           fontWeight: '500'
         },
-        itemGap: 20,
-        itemWidth: 25,
-        itemHeight: 14,
+        itemGap: isMobileView ? 10 : 20,
+        itemWidth: isMobileView ? 20 : 25,
+        itemHeight: isMobileView ? 12 : 14,
         icon: 'roundRect',
         selectedMode: true, // Allow clicking legend to show/hide series
         inactiveColor: 'rgba(255, 255, 255, 0.3)'
       },
       grid: {
-        left: '3%',
+        left: isMobileView ? '15%' : '3%',
         right: '4%',
-        bottom: '15%',
-        top: '20%',
+        bottom: isMobileView ? '20%' : '15%',
+        top: isMobileView ? '25%' : '20%',
         containLabel: true
       },
       xAxis: {
@@ -2932,18 +3005,20 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
         data: xAxisLabels,
         name: 'Chainage',
         nameLocation: 'middle',
-        nameGap: 40,
+        nameGap: isMobileView ? 20 : 40,
         nameTextStyle: {
           color: '#fff',
-          fontSize: 13,
+          fontSize: isMobileView ? 11 : 13,
           fontWeight: 'bold'
         },
         axisLabel: {
           color: '#fff',
-          rotate: 45,
-          fontSize: 10,
-          interval: 0, // Show all labels
-          margin: 10
+          rotate: isMobileView ? 90 : 45,
+          fontSize: isMobileView ? 8 : 10,
+          interval: isMobileView ? 'auto' : 0, // Auto interval on mobile to reduce congestion
+          margin: isMobileView ? 5 : 10,
+          width: isMobileView ? 35 : undefined,
+          overflow: isMobileView ? 'truncate' : 'none'
         },
         axisLine: {
           lineStyle: { 
@@ -2963,12 +3038,12 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
         name: 'Asset Count',
         nameTextStyle: {
           color: '#fff',
-          fontSize: 13,
+          fontSize: isMobileView ? 11 : 13,
           fontWeight: 'bold'
         },
         axisLabel: {
           color: '#fff',
-          fontSize: 11,
+          fontSize: isMobileView ? 9 : 11,
           formatter: '{value}'
         },
         axisLine: {

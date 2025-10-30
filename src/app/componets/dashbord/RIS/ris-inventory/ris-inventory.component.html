@@ -27,6 +27,20 @@
               <option *ngFor="let direction of availableDirections" [value]="direction">{{ direction }}</option>
             </select>
           </div>
+
+          <div class="filter-group">
+            <label>Pavement Type:</label>
+            <select [value]="filters.pavementType" (change)="onPavementTypeChange($event)" class="filter-select">
+              <option *ngFor="let pavementType of availablePavementTypes" [value]="pavementType">{{ pavementType }}</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Lane:</label>
+            <select [value]="filters.lane" (change)="onLaneChange($event)" class="filter-select">
+              <option *ngFor="let lane of availableLanes" [value]="lane">{{ lane }}</option>
+            </select>
+          </div>
           
           <div class="filter-group chainage-range-group">
             <label class="chainage-range-label">Chainage Range: {{ filters.chainageRange.min.toFixed(3) }} - {{ filters.chainageRange.max.toFixed(3) }} KM</label>
@@ -290,13 +304,13 @@
           </div>
 
           <!-- Chart Legend Info -->
-          <div *ngIf="selectedAssetsForComparison.length > 0" class="chart-info">
+          <!-- <div *ngIf="selectedAssetsForComparison.length > 0" class="chart-info">
             <p>
               <i class="fas fa-info-circle"></i>
               Showing distribution from <strong>{{ filters.chainageRange.min.toFixed(2) }} KM</strong> to 
               <strong>{{ filters.chainageRange.max.toFixed(2) }} KM</strong>
             </p>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>

@@ -253,6 +253,9 @@ export class DistressPredictionDashboardComponent
       return;
     }
 
+    // Detect mobile view for responsive chart layout
+    const isMobileView = window.innerWidth <= 768;
+
     // Create chainage bins
     const chainageMin = this.getChainageMin();
     const chainageMax = this.getChainageMax();
@@ -320,7 +323,7 @@ export class DistressPredictionDashboardComponent
 
     // Generate X-axis labels
     const xAxisLabels = chainageBins.slice(0, binCount).map(chainage => 
-      chainage.toFixed(2) + ' KM'
+      chainage.toFixed(2)
     );
 
     // Configure chart options
@@ -378,24 +381,24 @@ export class DistressPredictionDashboardComponent
       },
       legend: {
         data: this.selectedDistressesForComparison,
-        top: '10%',
+        top: isMobileView ? '15%' : '10%',
         textStyle: {
           color: '#fff',
-          fontSize: 12,
+          fontSize: isMobileView ? 10 : 12,
           fontWeight: '500'
         },
-        itemGap: 20,
-        itemWidth: 25,
-        itemHeight: 14,
+        itemGap: isMobileView ? 10 : 20,
+        itemWidth: isMobileView ? 20 : 25,
+        itemHeight: isMobileView ? 12 : 14,
         icon: 'roundRect',
         selectedMode: true,
         inactiveColor: 'rgba(255, 255, 255, 0.3)'
       },
       grid: {
-        left: '3%',
+        left: isMobileView ? '15%' : '3%',
         right: '4%',
-        bottom: '15%',
-        top: '20%',
+        bottom: isMobileView ? '20%' : '15%',
+        top: isMobileView ? '25%' : '20%',
         containLabel: true
       },
       xAxis: {
@@ -404,18 +407,20 @@ export class DistressPredictionDashboardComponent
         data: xAxisLabels,
         name: 'Chainage',
         nameLocation: 'middle',
-        nameGap: 40,
+        nameGap: isMobileView ? 20 : 40,
         nameTextStyle: {
           color: '#fff',
-          fontSize: 13,
+          fontSize: isMobileView ? 11 : 13,
           fontWeight: 'bold'
         },
         axisLabel: {
           color: '#fff',
-          rotate: 45,
-          fontSize: 10,
-          interval: 0,
-          margin: 10
+          rotate: isMobileView ? 90 : 45,
+          fontSize: isMobileView ? 8 : 10,
+          interval: isMobileView ? 'auto' : 0, // Auto interval on mobile to reduce congestion
+          margin: isMobileView ? 5 : 10,
+          width: isMobileView ? 35 : undefined,
+          overflow: isMobileView ? 'truncate' : 'none'
         },
         axisLine: {
           lineStyle: { 
@@ -435,12 +440,12 @@ export class DistressPredictionDashboardComponent
         name: 'Predicted Distress Count',
         nameTextStyle: {
           color: '#fff',
-          fontSize: 13,
+          fontSize: isMobileView ? 11 : 13,
           fontWeight: 'bold'
         },
         axisLabel: {
           color: '#fff',
-          fontSize: 11,
+          fontSize: isMobileView ? 9 : 11,
           formatter: '{value}'
         },
         axisLine: {
