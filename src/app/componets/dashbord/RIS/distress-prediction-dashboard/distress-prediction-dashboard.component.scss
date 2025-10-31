@@ -257,7 +257,7 @@
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 6px;
   padding: 0.5px 2px;
-  color: #f06a0b;
+  color: #ffffff;
   font-size: 8px;
   font-weight: 700;
   backdrop-filter: blur(15px);
@@ -525,12 +525,100 @@
   min-height: 0;
 }
 
+// Asset Summary Header with Toggle Button
+.asset-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
 .right-panel .asset-summary h3 {
-  margin: 0 0 16px 0;
+  margin: 0;
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
-  text-align: center;
+  flex: 1;
+}
+
+// Month Comparison Toggle Button (same styles as other components)
+.month-comparison-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(255, 75, 75, 0.2), rgba(255, 100, 100, 0.2));
+  border: 2px solid rgba(255, 75, 75, 0.5);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  i {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+  }
+
+  .toggle-label {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(255, 75, 75, 0.3), rgba(255, 100, 100, 0.3));
+    border-color: rgba(255, 75, 75, 0.7);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 75, 75, 0.3);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(129, 199, 132, 0.3));
+    border-color: rgba(76, 175, 80, 0.8);
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+
+    i {
+      transform: scale(1.1);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.4), rgba(129, 199, 132, 0.4));
+      border-color: rgba(76, 175, 80, 1);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+    }
+  }
+
+  &.loading {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+    border-color: rgba(102, 126, 234, 0.8);
+    cursor: wait;
+    
+    i {
+      animation: none;
+      transform: none;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+      transform: none;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* Distress sections container */

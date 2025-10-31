@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgxEchartsModule } from 'ngx-echarts';
+import { NgxEchartsModule, provideEcharts } from 'ngx-echarts';
 
 interface AccidentInfoData {
   title: string;
@@ -88,6 +88,7 @@ interface DistressReportData {
   selector: 'app-ais-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule, NgxEchartsModule],
+  providers: [provideEcharts()],
   templateUrl: './ais-dashboard.component.html',
   styleUrl: './ais-dashboard.component.scss',
 })
@@ -143,6 +144,19 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   
   // Selected info card for interactive filtering
   public selectedInfoCard: string | null = null;
+
+  // Month-wise comparison chart modal properties
+  isMonthComparisonModalOpen: boolean = false;
+  selectedMetricsForMonthComparison: string[] = [];
+  monthComparisonChartOptions: any = {};
+  availableMonthsForComparison: string[] = [];
+  isLoadingMonthChart: boolean = false;
+  monthDataCache: { [month: string]: any } = {};
+  showMetricSelectionInModal: boolean = true;
+  
+  // Toggle for month comparison mode
+  isMonthComparisonMode: boolean = false;
+  isPreloadingMonthData: boolean = false;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -880,7 +894,13 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Handle info card click for interactive selection
   onInfoCardClick(info: AccidentInfoData) {
-    // Toggle selection - if clicking same card, deselect it
+    // If month comparison mode is ON, open the month comparison modal
+    if (this.isMonthComparisonMode) {
+      this.openMonthComparisonModalForMetric(info.title);
+      return;
+    }
+
+    // Original behavior: Toggle selection - if clicking same card, deselect it
     if (this.selectedInfoCard === info.title) {
       this.selectedInfoCard = null;
       console.log('✅ AIS: Deselected card - showing all accidents');
@@ -1325,6 +1345,7 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     // Clear old data first
     this.rawData = [];
     this.accidentInfoData = [];
+    this.monthDataCache = {};
 
     this.filters.projectName = event.target.value;
 
@@ -1451,5 +1472,361 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.map.invalidateSize();
       }
     }, 300);
+  }
+
+  // ============= Month-wise Comparison Chart Methods =============
+  
+  toggleMonthComparisonMode() {
+    this.isMonthComparisonMode = !this.isMonthComparisonMode;
+    console.log('Month Comparison Mode:', this.isMonthComparisonMode ? 'ON' : 'OFF');
+    
+    if (this.isMonthComparisonMode) {
+      this.preloadMonthData();
+    }
+  }
+
+  async preloadMonthData() {
+    const availableMonths = this.projectDatesMap[this.filters.projectName] || [];
+    const cacheKey = this.filters.projectName;
+    
+    const monthsToFetch = availableMonths.filter(month => {
+      const monthCacheKey = `${cacheKey}_${month}`;
+      return !this.monthDataCache[monthCacheKey];
+    });
+    
+    if (monthsToFetch.length === 0) return;
+    
+    this.isPreloadingMonthData = true;
+    
+    try {
+      const fetchPromises = monthsToFetch.map(async (month) => {
+        const monthCacheKey = `${cacheKey}_${month}`;
+        
+        const requestBody = {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date: month,
+          direction: ['All'],
+          project_name: [this.filters.projectName.trim()],
+        };
+
+        try {
+          const response = await fetch(
+            'https://fantastic-reportapi-production.up.railway.app/ais_filter',
+            {
+              method: 'POST',
+              headers: {
+                accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          const apiResponse = await response.json();
+          // AIS API returns double-nested array: [[{...}, {...}], [{...}, {...}], ...]
+          // Flatten the nested arrays
+          const flatData: any[] = [];
+          if (Array.isArray(apiResponse)) {
+            apiResponse.forEach((group) => {
+              if (Array.isArray(group)) {
+                flatData.push(...group);
+              } else {
+                flatData.push(group);
+              }
+            });
+          }
+          
+          this.monthDataCache[monthCacheKey] = flatData;
+          console.log(`✅ AIS: Cached ${flatData.length} items for ${monthCacheKey}`);
+        } catch (error) {
+          console.error(`❌ Error pre-loading data for ${month}:`, error);
+        }
+      });
+
+      await Promise.all(fetchPromises);
+    } finally {
+      this.isPreloadingMonthData = false;
+    }
+  }
+
+  async openMonthComparisonModalForMetric(metricTitle: string) {
+    this.availableMonthsForComparison = this.projectDatesMap[this.filters.projectName] || [];
+    this.selectedMetricsForMonthComparison = [metricTitle];
+    this.showMetricSelectionInModal = false;
+    this.isMonthComparisonModalOpen = true;
+    this.isLoadingMonthChart = true;
+    
+    if (Object.keys(this.monthDataCache).length === 0) {
+      await this.preloadMonthData();
+    }
+    
+    setTimeout(() => {
+      this.generateMonthComparisonChart();
+    }, 100);
+  }
+
+  closeMonthComparisonModal() {
+    this.isMonthComparisonModalOpen = false;
+    this.selectedMetricsForMonthComparison = [];
+    this.isLoadingMonthChart = false;
+    this.showMetricSelectionInModal = true;
+  }
+
+  toggleMetricForMonthComparison(metricName: string) {
+    const index = this.selectedMetricsForMonthComparison.indexOf(metricName);
+    
+    if (index > -1) {
+      this.selectedMetricsForMonthComparison.splice(index, 1);
+    } else {
+      if (this.selectedMetricsForMonthComparison.length < 5) {
+        this.selectedMetricsForMonthComparison.push(metricName);
+      } else {
+        return;
+      }
+    }
+    
+    setTimeout(() => {
+      this.generateMonthComparisonChart();
+    }, 50);
+  }
+
+  isMetricSelectedForMonthComparison(metricName: string): boolean {
+    return this.selectedMetricsForMonthComparison.includes(metricName);
+  }
+
+  getMetricChipBackgroundColorForMonth(metricName: string): string {
+    return this.isMetricSelectedForMonthComparison(metricName) 
+      ? this.getMetricColor(metricName)
+      : 'transparent';
+  }
+
+  getMetricColor(metricName: string): string {
+    const metricColorMap: { [key: string]: string } = {
+      'Non-Injured Accident': '#FF6B6B',
+      'Major Accident': '#FFA07A',
+      'Minor Injury': '#FFD93D',
+      'Minor Accident': '#6BCF7F',
+      'Fatal Accident': '#4D96FF',
+      'Major Injury': '#9D84B7',
+      'Total Accident': '#FF69B4',
+      'Fatal Injury': '#F59E0B',
+      'Grievous Injury': '#06B6D4',
+      'Fatalities': '#EF4444',
+      'Total Injury': '#8B5CF6',
+      'Skidding': '#F97316',
+      'Fault of driver': '#14B8A6',
+      'Mechanical Fault': '#EC4899',
+      'Hit & Run': '#F43F5E',
+      'Grievous Accident': '#A855F7',
+      'Pedestrian Related': '#10B981',
+      'Head-tail': '#FBBF24',
+      'Vehicle lost Control': '#22D3EE'
+    };
+    return metricColorMap[metricName] || '#667EEA';
+  }
+
+  async generateMonthComparisonChart() {
+    if (!this.filters.projectName || this.selectedMetricsForMonthComparison.length === 0) {
+      this.isLoadingMonthChart = false;
+      return;
+    }
+
+    this.isLoadingMonthChart = true;
+
+    try {
+      const monthDataMap: { [month: string]: any } = {};
+      const cacheKey = this.filters.projectName;
+      
+      const metricFieldMap: { [key: string]: string } = {
+        'Non-Injured Accident': 'non-injured_accident',
+        'Major Accident': 'major_accident',
+        'Minor Injury': 'minor_injury',
+        'Minor Accident': 'minor_accident',
+        'Fatal Accident': 'fatal_accident',
+        'Major Injury': 'major_injury',
+        'Total Accident': 'total_accident',
+        'Fatal Injury': 'fatal_injury',
+        'Grievous Injury': 'grievous_injury',
+        'Fatalities': 'fatalities',
+        'Total Injury': 'total_injury',
+        'Skidding': 'skidding',
+        'Fault of driver': 'fault_of_driver',
+        'Mechanical Fault': 'mechanical_fault',
+        'Hit & Run': 'hit_and_run',
+        'Grievous Accident': 'grievous_accident',
+        'Pedestrian Related': 'pedestrian_related',
+        'Head-tail': 'head-tail',
+        'Vehicle lost Control': 'vehicle_lost_control'
+      };
+      
+      const fetchPromises = this.availableMonthsForComparison.map(async (month) => {
+        const monthCacheKey = `${cacheKey}_${month}`;
+        
+        if (this.monthDataCache[monthCacheKey]) {
+          return { month, data: this.monthDataCache[monthCacheKey] };
+        }
+
+        const requestBody = {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date: month,
+          direction: ['All'],
+          project_name: [this.filters.projectName.trim()],
+        };
+
+        try {
+          const response = await fetch(
+            'https://fantastic-reportapi-production.up.railway.app/ais_filter',
+            {
+              method: 'POST',
+              headers: {
+                accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          const apiResponse = await response.json();
+          // AIS API returns double-nested array: [[{...}, {...}], [{...}, {...}], ...]
+          // Flatten the nested arrays
+          const flatData: any[] = [];
+          if (Array.isArray(apiResponse)) {
+            apiResponse.forEach((group) => {
+              if (Array.isArray(group)) {
+                flatData.push(...group);
+              } else {
+                flatData.push(group);
+              }
+            });
+          }
+          
+          this.monthDataCache[monthCacheKey] = flatData;
+          return { month, data: flatData };
+        } catch (error) {
+          console.error(`❌ Error fetching data for ${month}:`, error);
+          return { month, data: [] };
+        }
+      });
+
+      const results = await Promise.all(fetchPromises);
+      results.forEach(({ month, data }) => {
+        monthDataMap[month] = data;
+      });
+
+      const series: any[] = [];
+
+      this.selectedMetricsForMonthComparison.forEach(metricName => {
+        const metricColor = this.getMetricColor(metricName);
+        const fieldName = metricFieldMap[metricName];
+        const monthData: number[] = [];
+        
+        console.log(`📊 AIS: Processing metric: ${metricName}, field: ${fieldName}`);
+        
+        this.availableMonthsForComparison.forEach(month => {
+          const monthCacheKey = `${cacheKey}_${month}`;
+          const cachedData = this.monthDataCache[monthCacheKey];
+          
+          let value = 0;
+          
+          // AIS data is an array of flat objects (no nested accident_statistics)
+          if (Array.isArray(cachedData)) {
+            console.log(`  ${month}: ${cachedData.length} items in cache`);
+            
+            // Debug: Log first item's keys to check available fields
+            if (cachedData.length > 0) {
+              const sampleItem = cachedData[0];
+              const sampleValue = sampleItem[fieldName];
+              console.log(`    🔍 Sample item has "${fieldName}": ${sampleValue !== undefined ? sampleValue : 'UNDEFINED'}`);
+            }
+            
+            // Sum up the field values across all items
+            let foundCount = 0;
+            value = cachedData.reduce((sum, item, index) => {
+              const itemValue = parseFloat(item[fieldName]) || 0;
+              if (itemValue > 0) {
+                foundCount++;
+                if (foundCount <= 3) { // Log first 3 non-zero values
+                  console.log(`    Item ${index}: ${fieldName} = ${item[fieldName]} (parsed: ${itemValue})`);
+                }
+              }
+              return sum + itemValue;
+            }, 0);
+            console.log(`  ${month}: Total ${fieldName} = ${value} (found ${foundCount} non-zero items)`);
+          }
+          
+          // Round up to ensure small values show on chart
+          monthData.push(Math.ceil(value));
+        });
+
+        console.log(`✅ AIS: Series data for ${metricName}:`, monthData);
+
+        series.push({
+          name: metricName,
+          type: 'bar',
+          data: monthData,
+          itemStyle: { 
+            color: metricColor,
+            borderRadius: [4, 4, 0, 0]
+          }
+        });
+      });
+
+      const isMobileView = window.innerWidth <= 768;
+
+      this.monthComparisonChartOptions = {
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: 'rgba(30, 30, 46, 0.95)',
+          borderColor: 'rgba(102, 126, 234, 0.5)',
+          borderWidth: 2,
+          textStyle: { color: '#fff' }
+        },
+        legend: {
+          data: this.selectedMetricsForMonthComparison,
+          top: isMobileView ? 30 : 40,
+          textStyle: { color: '#fff', fontSize: isMobileView ? 11 : 13 }
+        },
+        grid: {
+          left: isMobileView ? '15%' : '10%',
+          right: isMobileView ? '8%' : '5%',
+          bottom: isMobileView ? '25%' : '20%',
+          top: isMobileView ? '25%' : '20%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: this.availableMonthsForComparison,
+          axisLabel: {
+            color: '#fff',
+            rotate: isMobileView ? 45 : 0,
+            fontSize: isMobileView ? 10 : 12,
+            interval: 0
+          },
+          axisLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.3)' } }
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: {
+            color: '#fff',
+            fontSize: isMobileView ? 10 : 12,
+            formatter: (value: number) => {
+              if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+              if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+              return value;
+            }
+          },
+          axisLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.3)' } },
+          splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.1)' } }
+        },
+        series: series
+      };
+
+      this.isLoadingMonthChart = false;
+    } catch (error) {
+      console.error('Error generating month comparison chart:', error);
+      this.isLoadingMonthChart = false;
+    }
   }
 }

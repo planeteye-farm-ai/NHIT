@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgxEchartsModule } from 'ngx-echarts';
+import { NgxEchartsModule, provideEcharts } from 'ngx-echarts';
 
 interface RoadInfoData {
   title: string;
@@ -53,6 +53,7 @@ interface DistressReportData {
   selector: 'app-pis-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule, NgxEchartsModule],
+  providers: [provideEcharts()],
   templateUrl: './pis-dashboard.component.html',
   styleUrl: './pis-dashboard.component.scss',
 })
@@ -108,6 +109,19 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   
   // Selected info card for interactive filtering
   public selectedInfoCard: string | null = null;
+
+  // Month-wise comparison chart modal properties
+  isMonthComparisonModalOpen: boolean = false;
+  selectedMetricsForMonthComparison: string[] = [];
+  monthComparisonChartOptions: any = {};
+  availableMonthsForComparison: string[] = [];
+  isLoadingMonthChart: boolean = false;
+  monthDataCache: { [month: string]: any } = {};
+  showMetricSelectionInModal: boolean = true;
+  
+  // Toggle for month comparison mode
+  isMonthComparisonMode: boolean = false;
+  isPreloadingMonthData: boolean = false;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -783,7 +797,13 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Handle info card click for interactive selection
   onInfoCardClick(info: RoadInfoData) {
-    // Toggle selection - if clicking same card, deselect it
+    // If month comparison mode is ON, open the month comparison modal
+    if (this.isMonthComparisonMode) {
+      this.openMonthComparisonModalForMetric(info.title);
+      return;
+    }
+
+    // Original behavior: Toggle selection - if clicking same card, deselect it
     if (this.selectedInfoCard === info.title) {
       this.selectedInfoCard = null;
       console.log('✅ PIS: Deselected card');
@@ -1099,6 +1119,7 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     // Clear old data first
     this.rawData = [];
     this.roadInfoData = [];
+    this.monthDataCache = {};
 
     this.filters.projectName = event.target.value;
 
@@ -1227,5 +1248,343 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.map.invalidateSize();
       }
     }, 300);
+  }
+
+  // ============= Month-wise Comparison Chart Methods =============
+  
+  toggleMonthComparisonMode() {
+    this.isMonthComparisonMode = !this.isMonthComparisonMode;
+    console.log('Month Comparison Mode:', this.isMonthComparisonMode ? 'ON' : 'OFF');
+    
+    if (this.isMonthComparisonMode) {
+      this.preloadMonthData();
+    }
+  }
+
+  async preloadMonthData() {
+    const availableMonths = this.projectDatesMap[this.filters.projectName] || [];
+    const cacheKey = this.filters.projectName;
+    
+    const monthsToFetch = availableMonths.filter(month => {
+      const monthCacheKey = `${cacheKey}_${month}`;
+      return !this.monthDataCache[monthCacheKey];
+    });
+    
+    if (monthsToFetch.length === 0) return;
+    
+    this.isPreloadingMonthData = true;
+    
+    try {
+      const fetchPromises = monthsToFetch.map(async (month) => {
+        const monthCacheKey = `${cacheKey}_${month}`;
+        
+        const requestBody = {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date: month,
+          direction: ['All'],
+          project_name: [this.filters.projectName.trim()],
+        };
+
+        try {
+          const response = await fetch(
+            'https://fantastic-reportapi-production.up.railway.app/pis_filter',
+            {
+              method: 'POST',
+              headers: {
+                accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          const apiResponse = await response.json();
+          // PIS API returns double-nested array: [[{...}, {...}], [{...}, {...}], ...]
+          // Flatten the nested arrays
+          const flatData: any[] = [];
+          if (Array.isArray(apiResponse)) {
+            apiResponse.forEach((group) => {
+              if (Array.isArray(group)) {
+                flatData.push(...group);
+              } else {
+                flatData.push(group);
+              }
+            });
+          }
+          
+          this.monthDataCache[monthCacheKey] = flatData;
+          console.log(`✅ Cached ${flatData.length} items for ${monthCacheKey}`);
+        } catch (error) {
+          console.error(`❌ Error pre-loading data for ${month}:`, error);
+        }
+      });
+
+      await Promise.all(fetchPromises);
+    } finally {
+      this.isPreloadingMonthData = false;
+    }
+  }
+
+  async openMonthComparisonModalForMetric(metricTitle: string) {
+    this.availableMonthsForComparison = this.projectDatesMap[this.filters.projectName] || [];
+    this.selectedMetricsForMonthComparison = [metricTitle];
+    this.showMetricSelectionInModal = false;
+    this.isMonthComparisonModalOpen = true;
+    this.isLoadingMonthChart = true;
+    
+    if (Object.keys(this.monthDataCache).length === 0) {
+      await this.preloadMonthData();
+    }
+    
+    setTimeout(() => {
+      this.generateMonthComparisonChart();
+    }, 100);
+  }
+
+  closeMonthComparisonModal() {
+    this.isMonthComparisonModalOpen = false;
+    this.selectedMetricsForMonthComparison = [];
+    this.isLoadingMonthChart = false;
+    this.showMetricSelectionInModal = true;
+  }
+
+  toggleMetricForMonthComparison(metricName: string) {
+    const index = this.selectedMetricsForMonthComparison.indexOf(metricName);
+    
+    if (index > -1) {
+      this.selectedMetricsForMonthComparison.splice(index, 1);
+    } else {
+      if (this.selectedMetricsForMonthComparison.length < 5) {
+        this.selectedMetricsForMonthComparison.push(metricName);
+      } else {
+        return;
+      }
+    }
+    
+    setTimeout(() => {
+      this.generateMonthComparisonChart();
+    }, 50);
+  }
+
+  isMetricSelectedForMonthComparison(metricName: string): boolean {
+    return this.selectedMetricsForMonthComparison.includes(metricName);
+  }
+
+  getMetricChipBackgroundColorForMonth(metricName: string): string {
+    return this.isMetricSelectedForMonthComparison(metricName) 
+      ? this.getMetricColor(metricName)
+      : 'transparent';
+  }
+
+  getMetricColor(metricName: string): string {
+    const metricColorMap: { [key: string]: string } = {
+      'Road Length (KM)': '#FF6B6B',
+      'AADT': '#FFA07A',
+      'ROB': '#6BCF7F',
+      'FlyOver': '#4D96FF',
+      'MJB': '#9D84B7',
+      'MNB': '#FF69B4',
+      'PUP': '#F59E0B',
+      'VUP': '#06B6D4'
+    };
+    return metricColorMap[metricName] || '#667EEA';
+  }
+
+  async generateMonthComparisonChart() {
+    if (!this.filters.projectName || this.selectedMetricsForMonthComparison.length === 0) {
+      this.isLoadingMonthChart = false;
+      return;
+    }
+
+    this.isLoadingMonthChart = true;
+
+    try {
+      const monthDataMap: { [month: string]: any } = {};
+      const cacheKey = this.filters.projectName;
+      
+      const metricFieldMap: { [key: string]: string } = {
+        'Road Length (KM)': 'kilometer',
+        'AADT': 'aadt',
+        'ROB': 'rob',
+        'FlyOver': 'flyover',
+        'MJB': 'mjb',
+        'MNB': 'mnb',
+        'PUP': 'pup',
+        'VUP': 'vup'
+      };
+      
+      const fetchPromises = this.availableMonthsForComparison.map(async (month) => {
+        const monthCacheKey = `${cacheKey}_${month}`;
+        
+        if (this.monthDataCache[monthCacheKey]) {
+          return { month, data: this.monthDataCache[monthCacheKey] };
+        }
+
+        const requestBody = {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date: month,
+          direction: ['All'],
+          project_name: [this.filters.projectName.trim()],
+        };
+
+        try {
+          const response = await fetch(
+            'https://fantastic-reportapi-production.up.railway.app/pis_filter',
+            {
+              method: 'POST',
+              headers: {
+                accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          const apiResponse = await response.json();
+          // PIS API returns double-nested array: [[{...}, {...}], [{...}, {...}], ...]
+          // Flatten the nested arrays
+          const flatData: any[] = [];
+          if (Array.isArray(apiResponse)) {
+            apiResponse.forEach((group) => {
+              if (Array.isArray(group)) {
+                flatData.push(...group);
+              } else {
+                flatData.push(group);
+              }
+            });
+          }
+          
+          this.monthDataCache[monthCacheKey] = flatData;
+          return { month, data: flatData };
+        } catch (error) {
+          console.error(`❌ Error fetching data for ${month}:`, error);
+          return { month, data: [] };
+        }
+      });
+
+      const results = await Promise.all(fetchPromises);
+      results.forEach(({ month, data }) => {
+        monthDataMap[month] = data;
+      });
+
+      const series: any[] = [];
+
+      // Define which metrics should be counted (not summed)
+      const countMetrics = ['ROB', 'FlyOver', 'MJB', 'MNB', 'PUP', 'VUP'];
+
+      this.selectedMetricsForMonthComparison.forEach(metricName => {
+        const metricColor = this.getMetricColor(metricName);
+        const fieldName = metricFieldMap[metricName];
+        const monthData: number[] = [];
+        const shouldCount = countMetrics.includes(metricName);
+        
+        console.log(`📊 Processing metric: ${metricName}, field: ${fieldName}, mode: ${shouldCount ? 'COUNT' : 'SUM'}`);
+        
+        this.availableMonthsForComparison.forEach(month => {
+          const monthCacheKey = `${cacheKey}_${month}`;
+          const cachedData = this.monthDataCache[monthCacheKey];
+          
+          let value = 0;
+          
+          // Check if cached data is an array (multiple items) or single object
+          if (Array.isArray(cachedData)) {
+            console.log(`  ${month}: ${cachedData.length} items in cache`);
+            
+            if (shouldCount) {
+              // Count items where field value > 0
+              value = cachedData.filter(item => {
+                const itemValue = parseFloat(item[fieldName]) || 0;
+                return itemValue > 0;
+              }).length;
+              console.log(`  ${month}: Count of ${fieldName} > 0 = ${value}`);
+            } else {
+              // Sum up values from all items
+              value = cachedData.reduce((sum, item) => {
+                const itemValue = parseFloat(item[fieldName]) || 0;
+                return sum + itemValue;
+              }, 0);
+              console.log(`  ${month}: Total ${fieldName} = ${value}`);
+            }
+          } else if (cachedData && typeof cachedData === 'object') {
+            // Single object
+            if (shouldCount) {
+              const itemValue = parseFloat(cachedData[fieldName]) || 0;
+              value = itemValue > 0 ? 1 : 0;
+            } else {
+              value = parseFloat(cachedData[fieldName]) || 0;
+            }
+            console.log(`  ${month}: Single object, ${fieldName} = ${value}`);
+          } else {
+            console.log(`  ${month}: No data`);
+          }
+          
+          monthData.push(value);
+        });
+
+        console.log(`✅ Series data for ${metricName}:`, monthData);
+
+        series.push({
+          name: metricName,
+          type: 'bar',
+          data: monthData,
+          itemStyle: { 
+            color: metricColor,
+            borderRadius: [4, 4, 0, 0]
+          }
+        });
+      });
+
+      const isMobileView = window.innerWidth <= 768;
+
+      this.monthComparisonChartOptions = {
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: 'rgba(30, 30, 46, 0.95)',
+          borderColor: 'rgba(102, 126, 234, 0.5)',
+          borderWidth: 2,
+          textStyle: { color: '#fff' }
+        },
+        legend: {
+          data: this.selectedMetricsForMonthComparison,
+          top: isMobileView ? 30 : 40,
+          textStyle: { color: '#fff', fontSize: isMobileView ? 11 : 13 }
+        },
+        grid: {
+          left: isMobileView ? '15%' : '10%',
+          right: isMobileView ? '8%' : '5%',
+          bottom: isMobileView ? '25%' : '20%',
+          top: isMobileView ? '25%' : '20%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: this.availableMonthsForComparison,
+          axisLabel: {
+            color: '#fff',
+            rotate: isMobileView ? 45 : 0,
+            fontSize: isMobileView ? 10 : 12,
+            interval: 0
+          },
+          axisLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.3)' } }
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: {
+            color: '#fff',
+            fontSize: isMobileView ? 10 : 12
+          },
+          axisLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.3)' } },
+          splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.1)' } }
+        },
+        series: series
+      };
+
+      this.isLoadingMonthChart = false;
+    } catch (error) {
+      console.error('Error generating month comparison chart:', error);
+      this.isLoadingMonthChart = false;
+    }
   }
 }

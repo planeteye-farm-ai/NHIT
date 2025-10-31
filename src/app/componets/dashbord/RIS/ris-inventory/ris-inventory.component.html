@@ -135,14 +135,16 @@
         <div class="map-container">
           <div class="chart-header">
             <h3>Location wise Asset Distribution</h3>
-            <button 
-              class="comparison-chart-btn"
-              (click)="openChainageComparisonModal()"
-              title="View Chainage Comparison Chart"
-            >
-              <i class="fas fa-chart-line"></i>
-              Chainage Comparison
-            </button>
+            <div class="chart-buttons">
+              <button 
+                class="comparison-chart-btn"
+                (click)="openChainageComparisonModal()"
+                title="View Chainage Comparison Chart"
+              >
+                <i class="fas fa-chart-line"></i>
+                Chainage Comparison
+              </button>
+            </div>
           </div>
           <div class="map-wrapper">
             <div *ngIf="!filters.date" class="map-placeholder">
@@ -160,7 +162,20 @@
       <!-- Right Side - Asset Summary (30% width) -->
       <div class="right-panel">
         <div class="asset-summary">
-          <h3>Asset Summary</h3>
+          <div class="asset-summary-header">
+            <h3>Asset Summary</h3>
+            <button 
+              class="month-comparison-toggle"
+              [class.active]="isMonthComparisonMode"
+              [class.loading]="isPreloadingMonthData"
+              (click)="toggleMonthComparisonMode()"
+              title="{{ isMonthComparisonMode ? 'Click to disable month comparison mode' : 'Click to enable month comparison mode' }}"
+            >
+              <i *ngIf="!isPreloadingMonthData" class="fas fa-calendar-alt"></i>
+              <i *ngIf="isPreloadingMonthData" class="fas fa-spinner fa-spin"></i>
+              <span class="toggle-label">{{ isMonthComparisonMode ? 'ON' : 'OFF' }}</span>
+            </button>
+          </div>
           <div class="asset-grid">
             <div *ngIf="!filters.date" class="asset-placeholder">
               <p>Select a date to view asset data</p>
@@ -311,6 +326,81 @@
               <strong>{{ filters.chainageRange.max.toFixed(2) }} KM</strong>
             </p>
           </div> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Month-wise Comparison Chart Modal -->
+    <div *ngIf="isMonthComparisonModalOpen" class="modal-backdrop comparison-modal-backdrop" (click)="closeMonthComparisonModal()">
+      <div class="modal-content comparison-modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>
+            <i class="fas fa-calendar-alt"></i>
+            <span *ngIf="selectedAssetsForMonthComparison.length === 1">{{ selectedAssetsForMonthComparison[0] }} - Month-wise Comparison</span>
+            <span *ngIf="selectedAssetsForMonthComparison.length !== 1">Asset Distribution - Month-wise Comparison</span>
+          </h3>
+          <button class="modal-close-btn" (click)="closeMonthComparisonModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="modal-body comparison-modal-body">
+          <!-- Asset Selection Chips (only show when showAssetSelectionInModal is true) -->
+          <div *ngIf="showAssetSelectionInModal" class="asset-selection-section">
+            <div class="asset-selection-header">
+              <h4>Select Assets to Compare (Max 5):</h4>
+              <span class="selection-count">{{ selectedAssetsForMonthComparison.length }}/5 Selected</span>
+            </div>
+            <div class="asset-chips-container">
+              <button
+                *ngFor="let asset of availableAssetsForComparison"
+                class="asset-chip"
+                [class.selected]="isAssetSelectedForMonthComparison(asset)"
+                [style.border-color]="getAssetColor(asset)"
+                [style.background-color]="getAssetChipBackgroundColorForMonth(asset)"
+                (click)="toggleAssetForMonthComparison(asset)"
+              >
+                <span class="chip-color-indicator" [style.background-color]="getAssetColor(asset)"></span>
+                {{ asset }}
+                <i *ngIf="isAssetSelectedForMonthComparison(asset)" class="fas fa-check"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Comparison Chart -->
+          <div class="comparison-chart-container">
+            <div *ngIf="selectedAssetsForMonthComparison.length === 0" class="no-assets-selected">
+              <p>Please select at least one asset to view the month-wise comparison chart</p>
+            </div>
+            <div *ngIf="isLoadingMonthChart" class="loading-chart">
+              <div class="loading-spinner"></div>
+              <p>Loading month-wise data...</p>
+              <p style="font-size: 12px; color: rgba(255, 255, 255, 0.6); margin-top: 10px;">
+                Fetching data for {{ availableMonthsForComparison.length }} months...
+              </p>
+            </div>
+            <div 
+              *ngIf="!isLoadingMonthChart && selectedAssetsForMonthComparison.length > 0 && monthComparisonChartOptions && monthComparisonChartOptions.series" 
+              echarts 
+              [options]="monthComparisonChartOptions" 
+              class="comparison-echarts-chart"
+              style="width: 100%; height: 500px;"
+            ></div>
+            <div *ngIf="!isLoadingMonthChart && selectedAssetsForMonthComparison.length > 0 && (!monthComparisonChartOptions || !monthComparisonChartOptions.series)" class="loading-chart">
+              <div class="loading-spinner"></div>
+              <p>Generating chart...</p>
+            </div>
+          </div>
+
+          <!-- Chart Legend Info -->
+          <div *ngIf="selectedAssetsForMonthComparison.length > 0" class="chart-info">
+            <p>
+              <i class="fas fa-info-circle"></i>
+              Comparing asset counts across <strong>{{ availableMonthsForComparison.length }} months</strong> for project <strong>{{ filters.projectName }}</strong>
+            </p>
+          </div>
         </div>
       </div>
     </div>

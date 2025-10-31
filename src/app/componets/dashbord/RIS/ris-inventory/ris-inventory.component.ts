@@ -157,6 +157,19 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
   chainageComparisonChartOptions: any = {};
   availableAssetsForComparison: string[] = [];
 
+  // Month-wise comparison chart modal properties
+  isMonthComparisonModalOpen: boolean = false;
+  selectedAssetsForMonthComparison: string[] = [];
+  monthComparisonChartOptions: any = {};
+  availableMonthsForComparison: string[] = [];
+  isLoadingMonthChart: boolean = false;
+  monthDataCache: { [month: string]: InfrastructureData[] } = {};
+  showAssetSelectionInModal: boolean = true; // Flag to show/hide asset selection chips
+  
+  // Toggle for month comparison mode
+  isMonthComparisonMode: boolean = false; // When true, clicking asset opens modal; when false, only filters map
+  isPreloadingMonthData: boolean = false; // Track if data is being pre-loaded
+
   private map: any;
   public isBrowser: boolean;
 
@@ -495,6 +508,10 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     // Reset flag to show icons on initial view of new project
     this.showInitialIcons = true;
 
+    // Clear month data cache when project changes
+    this.monthDataCache = {};
+    console.log('🗑️ Cleared month data cache');
+
     // Update available dates for the selected project
     this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
     console.log('Available dates for project:', this.availableDates);
@@ -576,9 +593,14 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Handle asset card click for map filtering
   async onAssetCardClick(assetType: string) {
-    // Open sub-asset modal FIRST (instantly, no waiting)
-    this.openSubAssetModal(assetType);
+    // Check if month comparison mode is enabled
+    if (this.isMonthComparisonMode) {
+      // Open month comparison modal with only the clicked asset
+      this.openMonthComparisonModalForAsset(assetType);
+      return; // Exit early, don't update map
+    }
 
+    // Default behavior: Filter map only
     if (this.selectedAssetType === assetType) {
       // If clicking the same asset, deselect it (show all assets)
       this.selectedAssetType = null;
@@ -603,6 +625,84 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     // Update map markers WITHOUT changing zoom/position
     if (this.map) {
       await this.updateMapMarkersOnly();
+    }
+  }
+
+  // Toggle month comparison mode
+  toggleMonthComparisonMode() {
+    this.isMonthComparisonMode = !this.isMonthComparisonMode;
+    console.log('Month Comparison Mode:', this.isMonthComparisonMode ? 'ON' : 'OFF');
+    
+    // Pre-load month data when toggle is turned ON for faster subsequent access
+    if (this.isMonthComparisonMode && this.filters.projectName) {
+      this.preloadMonthData();
+    }
+  }
+
+  // Pre-load month data in background for faster chart loading
+  async preloadMonthData() {
+    const availableMonths = this.projectDatesMap[this.filters.projectName] || [];
+    const cacheKey = this.filters.projectName;
+    
+    console.log(`🚀 Pre-loading data for ${availableMonths.length} months in background...`);
+    
+    // Only fetch months that are not already cached
+    const monthsToFetch = availableMonths.filter(month => {
+      const monthCacheKey = `${cacheKey}_${month}`;
+      return !this.monthDataCache[monthCacheKey];
+    });
+    
+    if (monthsToFetch.length === 0) {
+      console.log('✅ All month data already cached');
+      return;
+    }
+    
+    this.isPreloadingMonthData = true;
+    console.log(`🔄 Fetching ${monthsToFetch.length} uncached months...`);
+    
+    try {
+      // Fetch all uncached months in parallel
+      const fetchPromises = monthsToFetch.map(async (month) => {
+        const monthCacheKey = `${cacheKey}_${month}`;
+        
+        const requestBody = {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date: month,
+          direction: ['All'],
+          project_name: [this.filters.projectName.trim()],
+          asset_type: ['All'],
+        };
+
+        try {
+          const response = await fetch(
+            'https://fantastic-reportapi-production.up.railway.app/inventory_filter',
+            {
+              method: 'POST',
+              headers: {
+                accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          const apiResponse = await response.json();
+          const monthData = Array.isArray(apiResponse) ? apiResponse.flat() : [];
+          
+          // Cache the data
+          this.monthDataCache[monthCacheKey] = monthData;
+          
+          console.log(`✅ Pre-loaded data for ${month}: ${monthData.length} records`);
+        } catch (error) {
+          console.error(`❌ Error pre-loading data for ${month}:`, error);
+        }
+      });
+
+      await Promise.all(fetchPromises);
+      console.log('✅ All month data pre-loaded successfully');
+    } finally {
+      this.isPreloadingMonthData = false;
     }
   }
 
@@ -3142,6 +3242,421 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         });
       }, 100);
+    }
+  }
+
+  // ============= Month-wise Comparison Chart Methods =============
+  
+  openMonthComparisonModalForAsset(assetType: string) {
+    // Get all available dates/months from the project
+    this.availableMonthsForComparison = this.projectDatesMap[this.filters.projectName] || [];
+    
+    // Initialize available assets for comparison (but only select the clicked asset)
+    this.availableAssetsForComparison = this.assetSummary
+      .filter(asset => asset.count > 0)
+      .map(asset => asset.name);
+    
+    // Only select the clicked asset
+    this.selectedAssetsForMonthComparison = [assetType];
+    
+    // Hide asset selection chips when opened from asset card click
+    this.showAssetSelectionInModal = false;
+    
+    this.isMonthComparisonModalOpen = true;
+    this.isLoadingMonthChart = true;
+    
+    // Generate chart after DOM is ready
+    setTimeout(() => {
+      this.generateMonthComparisonChart();
+    }, 100);
+    
+    console.log('✅ Opened month-wise comparison chart modal for asset:', assetType);
+    console.log('✅ Available months:', this.availableMonthsForComparison);
+  }
+
+  openMonthComparisonModal() {
+    // Get all available dates/months from the project
+    this.availableMonthsForComparison = this.projectDatesMap[this.filters.projectName] || [];
+    
+    // Initialize available assets for comparison (same as chainage modal)
+    this.availableAssetsForComparison = this.assetSummary
+      .filter(asset => asset.count > 0)
+      .map(asset => asset.name);
+    
+    // Pre-select up to 5 assets
+    this.selectedAssetsForMonthComparison = this.assetSummary
+      .filter(asset => asset.count > 0)
+      .slice(0, 5)
+      .map(asset => asset.name);
+    
+    // Show asset selection chips when opened manually
+    this.showAssetSelectionInModal = true;
+    
+    this.isMonthComparisonModalOpen = true;
+    this.isLoadingMonthChart = true;
+    
+    // Generate chart after DOM is ready
+    setTimeout(() => {
+      this.generateMonthComparisonChart();
+    }, 100);
+    
+    console.log('✅ Opened month-wise comparison chart modal with assets:', this.selectedAssetsForMonthComparison);
+    console.log('✅ Available months:', this.availableMonthsForComparison);
+  }
+
+  closeMonthComparisonModal() {
+    this.isMonthComparisonModalOpen = false;
+    this.selectedAssetsForMonthComparison = [];
+    this.isLoadingMonthChart = false;
+    this.showAssetSelectionInModal = true; // Reset flag
+    console.log('✅ Closed month-wise comparison chart modal');
+  }
+
+  // Toggle asset selection for month comparison chart
+  toggleAssetForMonthComparison(assetName: string) {
+    const index = this.selectedAssetsForMonthComparison.indexOf(assetName);
+    
+    if (index > -1) {
+      // Asset already selected, remove it
+      this.selectedAssetsForMonthComparison.splice(index, 1);
+    } else {
+      // Asset not selected, add it (max 5 assets)
+      if (this.selectedAssetsForMonthComparison.length < 5) {
+        this.selectedAssetsForMonthComparison.push(assetName);
+      } else {
+        console.warn('Maximum 5 assets can be selected for comparison');
+        return;
+      }
+    }
+    
+    // Regenerate chart with new selection
+    setTimeout(() => {
+      this.generateMonthComparisonChart();
+    }, 50);
+  }
+
+  // Check if asset is selected for month comparison
+  isAssetSelectedForMonthComparison(assetName: string): boolean {
+    return this.selectedAssetsForMonthComparison.includes(assetName);
+  }
+
+  // Get asset background color for month comparison chip
+  getAssetChipBackgroundColorForMonth(assetName: string): string {
+    return this.isAssetSelectedForMonthComparison(assetName) 
+      ? this.getAssetColor(assetName)
+      : 'transparent';
+  }
+
+  // Generate month-wise comparison chart
+  async generateMonthComparisonChart() {
+    if (!this.filters.projectName) {
+      console.log('No project selected for month comparison chart');
+      this.isLoadingMonthChart = false;
+      return;
+    }
+
+    if (this.selectedAssetsForMonthComparison.length === 0) {
+      console.log('No assets selected for month comparison');
+      this.monthComparisonChartOptions = {};
+      this.isLoadingMonthChart = false;
+      return;
+    }
+
+    this.isLoadingMonthChart = true;
+
+    try {
+      // Fetch data for all available months (with caching) - PARALLEL REQUESTS
+      const monthDataMap: { [month: string]: InfrastructureData[] } = {};
+      const cacheKey = this.filters.projectName;
+      
+      console.log(`🔄 Fetching data for ${this.availableMonthsForComparison.length} months in parallel...`);
+      
+      // Prepare all fetch promises in parallel
+      const fetchPromises = this.availableMonthsForComparison.map(async (month) => {
+        const monthCacheKey = `${cacheKey}_${month}`;
+        
+        // Check cache first
+        if (this.monthDataCache[monthCacheKey]) {
+          console.log(`✅ Using cached data for ${month}`);
+          return { month, data: this.monthDataCache[monthCacheKey] };
+        }
+
+        const requestBody = {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date: month,
+          direction: ['All'],
+          project_name: [this.filters.projectName.trim()],
+          asset_type: ['All'],
+        };
+
+        try {
+          const response = await fetch(
+            'https://fantastic-reportapi-production.up.railway.app/inventory_filter',
+            {
+              method: 'POST',
+              headers: {
+                accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          const apiResponse = await response.json();
+          const monthData = Array.isArray(apiResponse) ? apiResponse.flat() : [];
+          
+          // Cache the data
+          this.monthDataCache[monthCacheKey] = monthData;
+          
+          console.log(`✅ Fetched data for ${month}: ${monthData.length} records`);
+          return { month, data: monthData };
+        } catch (error) {
+          console.error(`❌ Error fetching data for ${month}:`, error);
+          return { month, data: [] };
+        }
+      });
+
+      // Wait for all requests to complete
+      const results = await Promise.all(fetchPromises);
+      
+      // Map results back to monthDataMap
+      results.forEach(({ month, data }) => {
+        monthDataMap[month] = data;
+      });
+      
+      console.log(`✅ All month data fetched successfully`);
+
+      // Asset field mapping
+      const assetFieldMap: { [key: string]: string } = {
+        'Trees': 'trees',
+        'Culvert': 'culvert',
+        'Street Lights': 'street_lights',
+        'Bridges': 'bridges',
+        'Traffic Signals': 'traffic_signals',
+        'Bus Stop': 'bus_stop',
+        'Truck Layby': 'truck_layby',
+        'Toll Plaza': 'toll_plaza',
+        'Adjacent Road': 'adjacent_road',
+        'Toilet Block': 'toilet_blocks',
+        'Rest Area': 'rest_area',
+        'RCC Drain': 'rcc_drain',
+        'Fuel Station': 'fuel_station',
+        'Emergency Call': 'emergency_call_box',
+        'Tunnels': 'tunnels',
+        'Footpath': 'footpath',
+        'Junction': 'junction',
+        'Sign Boards': 'sign_boards',
+        'Solar Blinker': 'solar_blinker',
+        'Median Plants': 'median_plants',
+        'Service Road': 'service_road',
+        'KM Stones': 'km_stones',
+        'Crash Barrier': 'crash_barrier',
+        'Median Opening': 'median_opening',
+      };
+
+      // Generate series data for each selected asset
+      const series: any[] = [];
+
+      this.selectedAssetsForMonthComparison.forEach(assetName => {
+        const fieldName = assetFieldMap[assetName];
+        const assetColor = this.assetSummary.find(a => a.name === assetName)?.color || '#4CAF50';
+        
+        if (!fieldName) {
+          console.warn('⚠️ No field name found for asset:', assetName);
+          return;
+        }
+
+        // Calculate total count for each month
+        const monthData: number[] = [];
+        
+        this.availableMonthsForComparison.forEach(month => {
+          const data = monthDataMap[month] || [];
+          
+          // Count unique asset occurrences (where asset count > 0)
+          const totalCount = data.reduce((count, item) => {
+            const assetCount = item[fieldName as keyof InfrastructureData];
+            const numericCount = typeof assetCount === 'number' ? assetCount : parseFloat(assetCount as string) || 0;
+            
+            // Only count if the asset exists (count > 0)
+            return count + (numericCount > 0 ? 1 : 0);
+          }, 0);
+          
+          monthData.push(totalCount);
+        });
+
+        console.log(`📊 Month comparison - ${assetName}: Data = ${monthData}`);
+
+        series.push({
+          name: assetName,
+          type: 'bar',
+          data: monthData,
+          itemStyle: { 
+            color: assetColor,
+            borderRadius: [4, 4, 0, 0],
+            shadowBlur: 10,
+            shadowColor: 'rgba(0, 0, 0, 0.3)',
+            shadowOffsetY: 3
+          },
+          emphasis: {
+            focus: 'series',
+            itemStyle: {
+              color: assetColor,
+              shadowBlur: 20,
+              shadowColor: assetColor,
+              borderWidth: 2,
+              borderColor: '#fff'
+            }
+          },
+          barGap: '10%',
+          barCategoryGap: '20%'
+        });
+      });
+
+      const isMobileView = window.innerWidth <= 768;
+
+      // Configure chart options
+      this.monthComparisonChartOptions = {
+        title: {
+          left: 'center',
+          textStyle: {
+            color: '#fff',
+            fontSize: 18,
+            fontWeight: 'bold'
+          }
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow',
+            shadowStyle: {
+              color: 'rgba(102, 126, 234, 0.2)'
+            }
+          },
+          backgroundColor: 'rgba(30, 30, 46, 0.95)',
+          borderColor: 'rgba(102, 126, 234, 0.5)',
+          borderWidth: 2,
+          textStyle: {
+            color: '#fff',
+            fontSize: 13
+          },
+          padding: [12, 16],
+          formatter: (params: any) => {
+            if (!Array.isArray(params)) return '';
+            
+            const month = params[0].axisValue;
+            let result = `<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #667eea;">${month}</div>`;
+            
+            params.forEach((param: any) => {
+              result += `
+                <div style="display: flex; align-items: center; margin: 5px 0;">
+                  <span style="display: inline-block; width: 12px; height: 12px; background-color: ${param.color}; border-radius: 3px; margin-right: 8px;"></span>
+                  <span style="flex: 1;">${param.seriesName}:</span>
+                  <strong style="color: #fff; margin-left: 10px;">${param.value}</strong>
+                </div>
+              `;
+            });
+            
+            return result;
+          }
+        },
+        legend: {
+          data: this.selectedAssetsForMonthComparison,
+          top: isMobileView ? 30 : 40,
+          textStyle: {
+            color: '#fff',
+            fontSize: isMobileView ? 11 : 13
+          },
+          itemGap: isMobileView ? 8 : 15,
+          itemWidth: isMobileView ? 20 : 25,
+          itemHeight: isMobileView ? 12 : 14
+        },
+        grid: {
+          left: isMobileView ? '15%' : '10%',
+          right: isMobileView ? '8%' : '5%',
+          bottom: isMobileView ? '25%' : '20%',
+          top: isMobileView ? '25%' : '20%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: this.availableMonthsForComparison,
+          name: 'Month',
+          nameLocation: 'middle',
+          nameGap: isMobileView ? 40 : 35,
+          nameTextStyle: {
+            color: '#fff',
+            fontSize: isMobileView ? 11 : 13,
+            fontWeight: 'bold'
+          },
+          axisLine: {
+            lineStyle: {
+              color: 'rgba(255, 255, 255, 0.3)',
+              width: 2
+            }
+          },
+          axisLabel: {
+            color: '#fff',
+            fontSize: isMobileView ? 9 : 11,
+            rotate: isMobileView ? 45 : 30,
+            interval: isMobileView ? 'auto' : 0,
+            margin: isMobileView ? 12 : 10,
+            width: isMobileView ? 60 : 80,
+            overflow: 'truncate'
+          },
+          axisTick: {
+            show: true,
+            lineStyle: {
+              color: 'rgba(255, 255, 255, 0.2)'
+            }
+          }
+        },
+        yAxis: {
+          type: 'value',
+          name: 'Asset Count',
+          nameLocation: 'end',
+          nameGap: 15,
+          nameTextStyle: {
+            color: '#fff',
+            fontSize: isMobileView ? 11 : 13,
+            fontWeight: 'bold'
+          },
+          axisLine: {
+            lineStyle: {
+              color: 'rgba(255, 255, 255, 0.3)',
+              width: 2
+            }
+          },
+          axisLabel: {
+            color: '#fff',
+            fontSize: isMobileView ? 10 : 12,
+            formatter: (value: number) => {
+              if (value >= 1000000) {
+                return (value / 1000000).toFixed(1) + 'M';
+              } else if (value >= 1000) {
+                return (value / 1000).toFixed(1) + 'K';
+              }
+              return Math.round(value).toString();
+            }
+          },
+          splitLine: {
+            lineStyle: {
+              color: 'rgba(255, 255, 255, 0.1)',
+              type: 'dashed'
+            }
+          }
+        },
+        series: series,
+        animationDuration: 1000,
+        animationEasing: 'cubicOut'
+      };
+
+      console.log('📈 Generated month comparison chart with', series.length, 'assets');
+    } catch (error) {
+      console.error('Error generating month comparison chart:', error);
+      this.monthComparisonChartOptions = {};
+    } finally {
+      this.isLoadingMonthChart = false;
     }
   }
 

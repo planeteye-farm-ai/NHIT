@@ -176,7 +176,20 @@
       <!-- Right Panel (30% width) -->
       <div class="right-panel" [class.sidebar-open]="isSidebarOpen">
         <div class="asset-summary">
-          <h3>Accident Information Summary</h3>
+          <div class="asset-summary-header">
+            <h3>Accident Information Summary</h3>
+            <button 
+              class="month-comparison-toggle"
+              [class.active]="isMonthComparisonMode"
+              [class.loading]="isPreloadingMonthData"
+              (click)="toggleMonthComparisonMode()"
+              title="{{ isMonthComparisonMode ? 'Click to disable month comparison mode' : 'Click to enable month comparison mode' }}"
+            >
+              <i *ngIf="!isPreloadingMonthData" class="fas fa-calendar-alt"></i>
+              <i *ngIf="isPreloadingMonthData" class="fas fa-spinner fa-spin"></i>
+              <span class="toggle-label">{{ isMonthComparisonMode ? 'ON' : 'OFF' }}</span>
+            </button>
+          </div>
           <div class="asset-grid mobile-grid">
             <div *ngIf="!filters.date" class="asset-placeholder">
               <p>Select a date to view accident information</p>
@@ -204,6 +217,68 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Month Comparison Modal -->
+<div *ngIf="isMonthComparisonModalOpen" class="comparison-modal-backdrop" (click)="closeMonthComparisonModal()">
+  <div class="comparison-modal-content" (click)="$event.stopPropagation()">
+    <div class="comparison-modal-header">
+      <h2>
+        {{ selectedMetricsForMonthComparison.length === 1 ? selectedMetricsForMonthComparison[0] : 'Accident Metrics' }} - Month-wise Comparison
+      </h2>
+      <button class="close-btn" (click)="closeMonthComparisonModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="comparison-modal-body">
+      <!-- Metric Selection -->
+      <div class="asset-selection-section" *ngIf="showMetricSelectionInModal">
+        <h3>Select Metrics to Compare (Max 5)</h3>
+        <div class="asset-chips-container">
+          <div
+            *ngFor="let metric of ['Non-Injured Accident', 'Major Accident', 'Minor Injury', 'Minor Accident', 'Fatal Accident', 'Major Injury', 'Total Accident', 'Fatal Injury', 'Grievous Injury', 'Fatalities', 'Total Injury', 'Skidding', 'Fault of driver', 'Mechanical Fault', 'Hit & Run', 'Grievous Accident', 'Pedestrian Related', 'Head-tail', 'Vehicle lost Control']"
+            class="asset-chip"
+            [class.selected]="isMetricSelectedForMonthComparison(metric)"
+            [style.border-color]="getMetricColor(metric)"
+            [style.background-color]="getMetricChipBackgroundColorForMonth(metric)"
+            (click)="toggleMetricForMonthComparison(metric)"
+          >
+            <span class="chip-color-indicator" [style.background-color]="getMetricColor(metric)"></span>
+            <span class="chip-label">{{ metric }}</span>
+            <i class="bi bi-check-circle-fill chip-checkmark" *ngIf="isMetricSelectedForMonthComparison(metric)"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Container -->
+      <div class="comparison-chart-container">
+        <div *ngIf="isLoadingMonthChart" class="chart-loading">
+          <div class="loading-spinner"></div>
+          <p>Loading month-wise data...</p>
+        </div>
+
+        <div *ngIf="!isLoadingMonthChart && selectedMetricsForMonthComparison.length === 0" class="chart-empty">
+          <i class="bi bi-bar-chart-line"></i>
+          <p>Please select at least one metric to compare</p>
+        </div>
+
+        <div
+          *ngIf="!isLoadingMonthChart && selectedMetricsForMonthComparison.length > 0"
+          class="comparison-echarts-chart"
+          echarts
+          [options]="monthComparisonChartOptions"
+          [loading]="isLoadingMonthChart"
+        ></div>
+      </div>
+
+      <!-- Info Banner -->
+      <div class="chart-info" *ngIf="!isLoadingMonthChart && selectedMetricsForMonthComparison.length > 0">
+        <i class="bi bi-info-circle"></i>
+        <span>Showing {{ selectedMetricsForMonthComparison.length }} metric(s) across {{ availableMonthsForComparison.length }} month(s)</span>
       </div>
     </div>
   </div>

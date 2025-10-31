@@ -105,6 +105,19 @@ export class RisReportedDashboardComponent
   chainageComparisonChartOptions: any = {};
   availableDistressesForComparison: string[] = [];
 
+  // Month-wise comparison chart modal properties
+  isMonthComparisonModalOpen: boolean = false;
+  selectedDistressesForMonthComparison: string[] = [];
+  monthComparisonChartOptions: any = {};
+  availableMonthsForComparison: string[] = [];
+  isLoadingMonthChart: boolean = false;
+  monthDataCache: { [month: string]: DistressReportData[] } = {};
+  showDistressSelectionInModal: boolean = true;
+  
+  // Toggle for month comparison mode
+  isMonthComparisonMode: boolean = false;
+  isPreloadingMonthData: boolean = false;
+
   private map: any;
   public isBrowser: boolean;
   public isLoading: boolean = false;
@@ -990,7 +1003,7 @@ export class RisReportedDashboardComponent
     return 'Low';
   }
 
-  private getDistressColor(distressType: string): string {
+  getDistressColor(distressType: string): string {
     const colorMap: { [key: string]: string } = {
       'Alligator crack': '#8B0000', // Dark red
       Bleeding: '#000066', // Dark navy blue
@@ -1408,6 +1421,12 @@ export class RisReportedDashboardComponent
   }
 
   onDistressCardClick(distress: DistressData) {
+    // Check if month comparison mode is enabled
+    if (this.isMonthComparisonMode) {
+      this.openMonthComparisonModalForDistress(distress.name);
+      return;
+    }
+
     // Toggle selection - if clicking same distress, deselect it
     this.selectedDistressType =
       this.selectedDistressType === distress.name ? null : distress.name;
@@ -1418,6 +1437,80 @@ export class RisReportedDashboardComponent
       
       // Update map markers WITHOUT refitting bounds
       this.updateMapMarkersOnly();
+    }
+  }
+
+  // Toggle month comparison mode
+  toggleMonthComparisonMode() {
+    this.isMonthComparisonMode = !this.isMonthComparisonMode;
+    console.log('Month Comparison Mode:', this.isMonthComparisonMode ? 'ON' : 'OFF');
+    
+    if (this.isMonthComparisonMode && this.filters.projectName) {
+      this.preloadMonthData();
+    }
+  }
+
+  // Pre-load month data in background
+  async preloadMonthData() {
+    const availableMonths = this.projectDatesMap[this.filters.projectName] || [];
+    const cacheKey = this.filters.projectName;
+    
+    const monthsToFetch = availableMonths.filter(month => {
+      const monthCacheKey = `${cacheKey}_${month}`;
+      return !this.monthDataCache[monthCacheKey];
+    });
+    
+    if (monthsToFetch.length === 0) return;
+    
+    this.isPreloadingMonthData = true;
+    
+    try {
+      const fetchPromises = monthsToFetch.map(async (month) => {
+        const monthCacheKey = `${cacheKey}_${month}`;
+        
+        const requestBody = {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date: month,
+          direction: ['All'],
+          project_name: [this.filters.projectName.trim()],
+          distress_type: ['All'],
+        };
+
+        console.log(`📥 Preloading data for month ${month}, request:`, requestBody);
+
+        try {
+          const response = await fetch(
+            'https://fantastic-reportapi-production.up.railway.app/distress_report_filter',
+            {
+              method: 'POST',
+              headers: {
+                accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          const apiResponse = await response.json();
+          console.log(`📥 API response for ${month}:`, apiResponse);
+          const monthData = Array.isArray(apiResponse) ? apiResponse.flat() : [];
+          
+          this.monthDataCache[monthCacheKey] = monthData;
+          console.log(`✅ Pre-loaded data for ${month}: ${monthData.length} records`);
+          if (monthData.length > 0) {
+            console.log(`   Sample data:`, monthData.slice(0, 2));
+            const uniqueDistresses = [...new Set(monthData.map(d => d.distress_type))];
+            console.log(`   Unique distress types in ${month}:`, uniqueDistresses);
+          }
+        } catch (error) {
+          console.error(`❌ Error pre-loading data for ${month}:`, error);
+        }
+      });
+
+      await Promise.all(fetchPromises);
+    } finally {
+      this.isPreloadingMonthData = false;
     }
   }
 
@@ -1491,6 +1584,9 @@ export class RisReportedDashboardComponent
     if (this.filters.date) {
       await this.loadDistressData();
     }
+
+    // Clear month data cache when project changes
+    this.monthDataCache = {};
 
     this.isProjectChanging = false;
   }
@@ -1598,5 +1694,224 @@ export class RisReportedDashboardComponent
         this.map.invalidateSize();
       }
     }, 300);
+  }
+
+  // ============= Month-wise Comparison Chart Methods =============
+  
+  async openMonthComparisonModalForDistress(distressName: string) {
+    this.availableMonthsForComparison = this.projectDatesMap[this.filters.projectName] || [];
+    this.selectedDistressesForMonthComparison = [distressName];
+    this.showDistressSelectionInModal = false;
+    this.isMonthComparisonModalOpen = true;
+    this.isLoadingMonthChart = true;
+    
+    // Ensure data is loaded
+    if (Object.keys(this.monthDataCache).length === 0) {
+      console.log('📥 Cache is empty, preloading month data first...');
+      await this.preloadMonthData();
+    }
+    
+    setTimeout(() => {
+      this.generateMonthComparisonChart();
+    }, 100);
+  }
+
+  closeMonthComparisonModal() {
+    this.isMonthComparisonModalOpen = false;
+    this.selectedDistressesForMonthComparison = [];
+    this.isLoadingMonthChart = false;
+    this.showDistressSelectionInModal = true;
+  }
+
+  toggleDistressForMonthComparison(distressName: string) {
+    const index = this.selectedDistressesForMonthComparison.indexOf(distressName);
+    
+    if (index > -1) {
+      this.selectedDistressesForMonthComparison.splice(index, 1);
+    } else {
+      if (this.selectedDistressesForMonthComparison.length < 5) {
+        this.selectedDistressesForMonthComparison.push(distressName);
+      } else {
+        return;
+      }
+    }
+    
+    setTimeout(() => {
+      this.generateMonthComparisonChart();
+    }, 50);
+  }
+
+  isDistressSelectedForMonthComparison(distressName: string): boolean {
+    return this.selectedDistressesForMonthComparison.includes(distressName);
+  }
+
+  getDistressChipBackgroundColorForMonth(distressName: string): string {
+    return this.isDistressSelectedForMonthComparison(distressName) 
+      ? this.getDistressColor(distressName)
+      : 'transparent';
+  }
+
+  async generateMonthComparisonChart() {
+    if (!this.filters.projectName || this.selectedDistressesForMonthComparison.length === 0) {
+      this.isLoadingMonthChart = false;
+      return;
+    }
+
+    this.isLoadingMonthChart = true;
+
+    try {
+      const monthDataMap: { [month: string]: DistressReportData[] } = {};
+      const cacheKey = this.filters.projectName;
+      
+      const fetchPromises = this.availableMonthsForComparison.map(async (month) => {
+        const monthCacheKey = `${cacheKey}_${month}`;
+        
+        if (this.monthDataCache[monthCacheKey]) {
+          return { month, data: this.monthDataCache[monthCacheKey] };
+        }
+
+        const requestBody = {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date: month,
+          direction: ['All'],
+          project_name: [this.filters.projectName.trim()],
+          distress_type: ['All'],
+        };
+
+        try {
+          const response = await fetch(
+            'https://fantastic-reportapi-production.up.railway.app/distress_report_filter',
+            {
+              method: 'POST',
+              headers: {
+                accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          const apiResponse = await response.json();
+          const monthData = Array.isArray(apiResponse) ? apiResponse.flat() : [];
+          
+          this.monthDataCache[monthCacheKey] = monthData;
+          return { month, data: monthData };
+        } catch (error) {
+          console.error(`❌ Error fetching data for ${month}:`, error);
+          return { month, data: [] };
+        }
+      });
+
+      const results = await Promise.all(fetchPromises);
+      results.forEach(({ month, data }) => {
+        monthDataMap[month] = data;
+      });
+
+      const series: any[] = [];
+
+      this.selectedDistressesForMonthComparison.forEach(distressName => {
+        const distressColor = this.getDistressColor(distressName);
+        const monthData: number[] = [];
+        
+        console.log(`📊 Processing distress: ${distressName}`);
+        
+        this.availableMonthsForComparison.forEach(month => {
+          const data = monthDataMap[month] || [];
+          console.log(`  Month ${month}: ${data.length} total records`);
+          
+          // Log first few items to see the actual distress_type values
+          if (data.length > 0) {
+            console.log(`    Sample distress types:`, data.slice(0, 3).map(d => d.distress_type));
+          }
+          
+          const totalCount = data.reduce((count, item) => {
+            // Case-insensitive comparison
+            const itemDistressType = (item.distress_type || '').toLowerCase().trim();
+            const searchDistressType = (distressName || '').toLowerCase().trim();
+            
+            if (itemDistressType === searchDistressType) {
+              return count + 1;
+            }
+            return count;
+          }, 0);
+          
+          console.log(`  ${month}: Count = ${totalCount}`);
+          monthData.push(totalCount);
+        });
+
+        console.log(`📊 Final data for ${distressName}:`, monthData);
+
+        series.push({
+          name: distressName,
+          type: 'bar',
+          data: monthData,
+          itemStyle: { 
+            color: distressColor,
+            borderRadius: [4, 4, 0, 0]
+          }
+        });
+      });
+
+      console.log('📈 Generated series:', series);
+      console.log(`📈 Series count: ${series.length}`);
+      
+      const isMobileView = window.innerWidth <= 768;
+
+      this.monthComparisonChartOptions = {
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: 'rgba(30, 30, 46, 0.95)',
+          borderColor: 'rgba(102, 126, 234, 0.5)',
+          borderWidth: 2,
+          textStyle: { color: '#fff' }
+        },
+        legend: {
+          data: this.selectedDistressesForMonthComparison,
+          top: isMobileView ? 30 : 40,
+          textStyle: { color: '#fff', fontSize: isMobileView ? 11 : 13 }
+        },
+        grid: {
+          left: isMobileView ? '15%' : '10%',
+          right: isMobileView ? '8%' : '5%',
+          bottom: isMobileView ? '25%' : '20%',
+          top: isMobileView ? '25%' : '20%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: this.availableMonthsForComparison,
+          name: 'Month',
+          nameLocation: 'middle',
+          nameGap: isMobileView ? 40 : 35,
+          nameTextStyle: { color: '#fff', fontSize: isMobileView ? 11 : 13, fontWeight: 'bold' },
+          axisLabel: {
+            color: '#fff',
+            fontSize: isMobileView ? 9 : 11,
+            rotate: isMobileView ? 45 : 30
+          }
+        },
+        yAxis: {
+          type: 'value',
+          name: 'Distress Count',
+          nameTextStyle: { color: '#fff', fontSize: isMobileView ? 11 : 13, fontWeight: 'bold' },
+          axisLabel: {
+            color: '#fff',
+            fontSize: isMobileView ? 10 : 12,
+            formatter: (value: number) => {
+              if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+              if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+              return Math.round(value).toString();
+            }
+          },
+          splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.1)' } }
+        },
+        series: series
+      };
+    } catch (error) {
+      console.error('Error generating month comparison chart:', error);
+    } finally {
+      this.isLoadingMonthChart = false;
+    }
   }
 }
