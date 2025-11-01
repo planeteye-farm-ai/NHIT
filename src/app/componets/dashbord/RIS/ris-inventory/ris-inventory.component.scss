@@ -285,7 +285,7 @@
 
 .asset-summary-full-width .asset-summary h3 {
   margin: 0 0 20px 0;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 600;
   color: #ffffff;
   text-align: center;
@@ -373,7 +373,7 @@
 }
 
 .asset-summary-full-width .asset-count {
-  font-size: 25px;
+  font-size: 15px;
   font-weight: 700;
   color: #ffffff;
   display: flex;
@@ -506,7 +506,7 @@
 
 .right-panel .asset-summary h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 600;
   color: #ffffff;
   flex: 1;
@@ -665,7 +665,7 @@
 }
 
 .right-panel .asset-count {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
   color: #ffffff;
   display: flex;
@@ -770,7 +770,7 @@
 
 .chart-header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 600;
   color: #ffffff;
 }
@@ -905,7 +905,7 @@
 
 .asset-summary h3 {
   margin: 0 0 20px 0;
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 600;
   color: #ffffff;
 }
@@ -951,7 +951,7 @@
 }
 
 .asset-name {
-  font-size: 25px;
+  font-size: 15px;
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 4px;
@@ -961,7 +961,7 @@
 }
 
 .asset-count {
-  font-size: 30px;
+  font-size: 25px;
   font-weight: 700;
   color: #ffffff;
   display: flex;
@@ -970,7 +970,7 @@
 }
 
 .asset-unit {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 400;
   color: #b0b0b0;
 }
@@ -1175,7 +1175,7 @@
   }
   
   .right-panel .asset-count {
-    font-size: 18px;
+    font-size: 13px;
   }
   
   .asset-summary-full-width .asset-grid {
@@ -1310,12 +1310,12 @@
 
 .chainage-input {
   flex: 1;
-  padding: 0.5px 1px;
+  padding: 5px 10px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 500;
   backdrop-filter: blur(15px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1772,7 +1772,7 @@
   }
   
   .right-panel .asset-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 4px;
   }
 }
@@ -1916,7 +1916,7 @@
 
 .modal-header h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 600;
   color: #ffffff;
   display: flex;
@@ -2010,7 +2010,7 @@
   }
 
   .modal-header h3 {
-    font-size: 18px;
+    font-size: 13px;
   }
 
   .sub-asset-card {
@@ -2018,7 +2018,7 @@
   }
 
   .sub-asset-count {
-    font-size: 20px;
+    font-size: 15px;
   }
 }
 
@@ -2119,7 +2119,7 @@
 }
 
 .comparison-chart-btn i {
-  font-size: 18px;
+  font-size: 13px;
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -2244,7 +2244,7 @@
 .asset-selection-header h4 {
   margin: 0;
   color: #ffffff;
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
@@ -2401,7 +2401,7 @@
   text-align: center;
   padding: 100px 20px;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 500;
 }
 
@@ -2475,7 +2475,7 @@
 
 .chart-info i {
   color: #667eea;
-  font-size: 18px;
+  font-size: 13px;
   flex-shrink: 0;
 }
 
@@ -2535,7 +2535,7 @@
   }
 
   .comparison-modal-content .modal-header h3 {
-    font-size: 18px;
+    font-size: 13px;
   }
 
   .comparison-modal-body {
@@ -2695,7 +2695,7 @@
 
 .chart-header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 600;
   color: #ffffff;
   flex: 1;
@@ -2718,7 +2718,7 @@
   }
 
   .comparison-modal-content .modal-header h3 {
-    font-size: 20px;
+    font-size: 15px;
   }
 
   .comparison-modal-body {
@@ -2761,12 +2761,12 @@
   }
 
   .comparison-modal-content .modal-header h3 {
-    font-size: 18px;
+    font-size: 13px;
     gap: 8px;
   }
 
   .comparison-modal-content .modal-header h3 i {
-    font-size: 20px;
+    font-size: 15px;
   }
 
   .comparison-modal-body {
@@ -2913,7 +2913,7 @@
   }
 
   .comparison-modal-content .modal-header h3 i {
-    font-size: 18px;
+    font-size: 13px;
   }
 
   .comparison-modal-body {

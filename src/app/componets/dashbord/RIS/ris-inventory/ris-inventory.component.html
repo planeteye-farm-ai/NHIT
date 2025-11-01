@@ -43,7 +43,7 @@
           </div>
           
           <div class="filter-group chainage-range-group">
-            <label class="chainage-range-label">Chainage Range: {{ filters.chainageRange.min.toFixed(3) }} - {{ filters.chainageRange.max.toFixed(3) }} KM</label>
+            <!-- <label class="chainage-range-label">Chainage Range: {{ filters.chainageRange.min.toFixed(3) }} - {{ filters.chainageRange.max.toFixed(3) }} KM</label> -->
             <div class="chainage-inputs">
               <input 
                 type="number" 
@@ -395,12 +395,12 @@
           </div>
 
           <!-- Chart Legend Info -->
-          <div *ngIf="selectedAssetsForMonthComparison.length > 0" class="chart-info">
+          <!-- <div *ngIf="selectedAssetsForMonthComparison.length > 0" class="chart-info">
             <p>
               <i class="fas fa-info-circle"></i>
               Comparing asset counts across <strong>{{ availableMonthsForComparison.length }} months</strong> for project <strong>{{ filters.projectName }}</strong>
             </p>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>

@@ -644,7 +644,7 @@
 }
 
 .right-panel .asset-count {
-  font-size: 19px;
+  font-size: 14px;
   font-weight: 700;
   color: #ffffff;
   display: flex;
@@ -1149,12 +1149,12 @@
 
 .chainage-input {
   flex: 1;
-  padding: 0.5px 1px;
+  padding: 5px 10px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 500;
   backdrop-filter: blur(15px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1535,7 +1535,7 @@
   }
   
   .right-panel .asset-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 4px;
   }
 }
@@ -1668,9 +1668,9 @@
     height: auto;
   }
 
-  /* Make chainage-range-group span all 3 columns */
+  /* Place Direction and Chainage side by side on mobile */
   .filter-group.chainage-range-group {
-    grid-column: 1 / -1;
+    grid-column: auto; /* Remove full-width span - keep in normal grid flow */
   }
   
   .map-container {
@@ -1825,9 +1825,9 @@
     gap: 10px;
   }
   
-  /* Make chainage-range-group span all 3 columns */
+  /* Place Direction and Chainage side by side on mobile */
   .filter-group.chainage-range-group {
-    grid-column: 1 / -1;
+    grid-column: auto; /* Remove full-width span - keep in normal grid flow */
   }
   
   .filter-group {
@@ -1878,9 +1878,9 @@
     gap: 8px;
   }
   
-  /* Make chainage-range-group span all 3 columns */
+  /* Place Direction and Chainage side by side on mobile */
   .filter-group.chainage-range-group {
-    grid-column: 1 / -1;
+    grid-column: auto; /* Remove full-width span - keep in normal grid flow */
   }
   
   .filter-group {
@@ -1915,9 +1915,9 @@
     font-size: 12px;
   }
   
-  /* Make chainage-range-group span all 3 columns */
+  /* Place Direction and Chainage side by side on mobile */
   .filter-group.chainage-range-group {
-    grid-column: 1 / -1;
+    grid-column: auto; /* Remove full-width span - keep in normal grid flow */
   }
   
   .map-container {
@@ -1973,9 +1973,9 @@
     gap: 6px;
   }
   
-  /* Make chainage-range-group span all 3 columns */
+  /* Place Direction and Chainage side by side on mobile */
   .filter-group.chainage-range-group {
-    grid-column: 1 / -1;
+    grid-column: auto; /* Remove full-width span - keep in normal grid flow */
   }
   
   .filter-group {
@@ -1999,9 +1999,9 @@
     min-height: 34px;
   }
   
-  /* Make chainage-range-group span all 3 columns */
+  /* Place Direction and Chainage side by side on mobile */
   .filter-group.chainage-range-group {
-    grid-column: 1 / -1;
+    grid-column: auto; /* Remove full-width span - keep in normal grid flow */
   }
   
   .map-container {
@@ -2020,7 +2020,7 @@
   }
   
   .right-panel .asset-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 4px;
   }
   

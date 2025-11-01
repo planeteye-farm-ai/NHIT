@@ -3598,7 +3598,7 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
           axisLabel: {
             color: '#fff',
             fontSize: isMobileView ? 9 : 11,
-            rotate: isMobileView ? 45 : 30,
+            rotate: isMobileView ? 90 : 30,
             interval: isMobileView ? 'auto' : 0,
             margin: isMobileView ? 12 : 10,
             width: isMobileView ? 60 : 80,

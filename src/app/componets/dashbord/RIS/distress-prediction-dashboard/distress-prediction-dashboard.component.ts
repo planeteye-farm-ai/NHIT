@@ -1962,7 +1962,9 @@ export class DistressPredictionDashboardComponent
           axisLabel: {
             color: '#fff',
             fontSize: isMobileView ? 9 : 11,
-            rotate: isMobileView ? 45 : 30
+            rotate: isMobileView ? 90 : 30,
+            interval: isMobileView ? 'auto' : 0,
+            margin: isMobileView ? 10 : 8
           }
         },
         yAxis: {

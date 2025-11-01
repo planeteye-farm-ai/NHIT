@@ -1595,9 +1595,10 @@ export class RwfisDashboardComponent
           data: this.availableMonthsForComparison,
           axisLabel: {
             color: '#fff',
-            rotate: isMobileView ? 45 : 0,
-            fontSize: isMobileView ? 10 : 12,
-            interval: 0
+            rotate: isMobileView ? 90 : 0,
+            fontSize: isMobileView ? 9 : 12,
+            interval: isMobileView ? 'auto' : 0,
+            margin: isMobileView ? 10 : 8
           },
           axisLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.3)' } }
         },

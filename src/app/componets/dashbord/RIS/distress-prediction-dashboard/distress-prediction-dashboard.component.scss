@@ -329,12 +329,12 @@
 
 .chainage-input {
   flex: 1;
-  padding: 0.5px 1px;
+  padding: 5px 10px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 500;
   backdrop-filter: blur(15px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -719,7 +719,7 @@
 }
 
 .right-panel .asset-count {
-  font-size: 19px;
+  font-size: 14px;
   font-weight: 700;
   color: #ffffff;
   display: flex;
@@ -1230,7 +1230,7 @@
   }
   
   .right-panel .asset-count {
-    font-size: 21px;
+    font-size: 16px;
   }
 }
 
@@ -1309,7 +1309,7 @@
   }
   
   .right-panel .asset-count {
-    font-size: 17px;
+    font-size: 12px;
   }
   
   .filter-group {
