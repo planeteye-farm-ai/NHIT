@@ -1,91 +1,168 @@
-<app-page-header title="Road Inventory" title1="Road Inventory" activeTitle="Road Inventory"></app-page-header>
+<app-page-header
+  title="Road Inventory"
+  title1="Road Inventory"
+  activeTitle="Road Inventory"
+></app-page-header>
 
 <div class="row">
-    <div class="col-xl-12">
+  <div class="col-xl-12">
+    <app-showcode-card
+      [title]="'Road Inventory' + roadName"
+      [prism]="prismCode.table18"
+    >
+      <div
+        class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2"
+      >
+        <div>
+          <!-- <h1 class="page-title fw-medium fs-18 mb-2">Distress</h1> -->
+        </div>
+        <div class="btn-list">
+          <a
+            href="javascript:void(0);"
+            class="btn btn-primary-light btn-wave me-2"
+            [routerLink]="['/ris/road-manage/add-inventory', roadId]"
+          >
+            <i class="bx bx-plus align-middle"></i> Add Inventory</a
+          >
+          <!-- <app-add-distress></app-add-distress> -->
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table text-nowrap">
+          <thead class="table-primary">
+            <tr>
+              <th scope="col">Chainage Range</th>
+              <th scope="col">Direction</th>
+              <th scope="col">Asset Action</th>
+              <th scope="col">Asset Type</th>
+              <th scope="col">Sub Asset Type</th>
+              <th scope="col">Lat</th>
+              <th scope="col">Long</th>
+              <th scope="col">No.</th>
+              <th scope="col">Created On</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of tableData; track $index) {
+            <tr>
+              <td>
+                <span class="fw-semibold">{{ row.chainage_start }}</span>
+                <span class="text-muted mx-1">-</span>
+                <span class="fw-semibold">{{ row.chainage_end }}</span>
+              </td>
+              <td>{{ row.direction || "-" }}</td>
+              <td>
+                @if(row.asset_action === 'add') {
+                <span class="badge bg-success">Add Asset</span>
+                } @else if(row.asset_action === 'report_missing') {
+                <span class="badge bg-warning">Missing</span>
+                } @else {
+                <span>-</span>
+                }
+              </td>
+              <td>{{ row.asset_type || "-" }}</td>
+              <td>{{ row.sub_asset_type || "-" }}</td>
+              <td>{{ row.latitude || "-" }}</td>
+              <td>{{ row.longitude || "-" }}</td>
+              <td>{{ row.numbers_inventory || "-" }}</td>
+              <td>{{ row.created_on | date : "yyyy-MM-dd" }}</td>
+              <td>
+                <div class="hstack gap-2 fs-15">
+                  <a
+                    href="javascript:void(0);"
+                    title="View"
+                    [routerLink]="[
+                      '/ris/road-manage/view-inventory',
+                      row.road_inventory_id
+                    ]"
+                    class="btn btn-icon btn-sm btn-success-transparent rounded-pill"
+                    ><i class="ri-eye-line"></i
+                  ></a>
 
-        <app-showcode-card [title]="'Road Inventory'+roadName" [prism]="prismCode.table18">
-            <div class="d-flex align-items-center justify-content-between my-1 page-header-breadcrumb flex-wrap gap-2">
-                <div >
-                  <!-- <h1 class="page-title fw-medium fs-18 mb-2">Distress</h1> -->
+                  <a
+                    href="javascript:void(0);"
+                    title="Edit"
+                    [routerLink]="[
+                      '/ris/road-manage/edit-inventory',
+                      row.road_inventory_id
+                    ]"
+                    class="btn btn-icon btn-sm btn-info-transparent rounded-pill"
+                    ><i class="ri-edit-line"></i
+                  ></a>
+
+                  <a
+                    href="javascript:void(0);"
+                    title="Pdf"
+                    [routerLink]="[
+                      '/ris/road-manage/road-inventory-pdf',
+                      row.road_inventory_id
+                    ]"
+                    class="btn btn-icon btn-sm btn-info-transparent rounded-pill"
+                    ><i class="ri-file-line"></i
+                  ></a>
+
+                  <a
+                    href="javascript:void(0);"
+                    title="Delete"
+                    data-bs-toggle="modal"
+                    (click)="open(content, row.road_inventory_id)"
+                    data-bs-target="#exampleModal"
+                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"
+                    ><i class="ri-delete-bin-line"></i
+                  ></a>
                 </div>
-                <div class="btn-list">
-                    <a href="javascript:void(0);" class="btn btn-primary-light btn-wave me-2" [routerLink]="['/ris/road-manage/add-inventory',roadId]"> <i class="bx bx-plus align-middle"></i> Add Inventory</a>
-                  <!-- <app-add-distress></app-add-distress> -->
-                </div>
-              </div>
-            <div class="table-responsive">
-                <table class="table text-nowrap">
-                    <thead class="table-primary">
-                        <tr>
-                            <th scope="col">State</th>
-                            <th scope="col">Chainage Start</th>
-                            <th scope="col">Chainage End</th>
-                            <th scope="col">Carriageway Type</th>
-                            <th scope="col">Carriageway Width</th>
-                            <th scope="col">Created On</th>
-                            <th scope="col">Action</th>                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (row of tableData; track $index) {
-                            <tr>
-                                <td>{{row.state_name}}</td>
-                                <td>{{row.chainage_start}}</td>
-                                <td>{{row.chainage_end}}</td>
-                                <td>{{row.carriageway_type}}</td>
-                                <td>{{row.carriageway_width}}</td>
-                                <td>{{row.created_on | date:'yyyy-MM-dd'}}</td>
-                                <td>
-                                    <div class="hstack gap-2 fs-15">
-                                        <a href="javascript:void(0);" title="View" [routerLink]="['/ris/road-manage/view-inventory', row.road_inventory_id]"
-                                            class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                            class="ri-eye-line"></i></a>
-
-                                        <a href="javascript:void(0);" title="Edit" [routerLink]="['/ris/road-manage/edit-inventory', row.road_inventory_id]"
-                                            class="btn btn-icon btn-sm btn-info-transparent rounded-pill"><i
-                                            class="ri-edit-line"></i></a>
-
-                                        <a href="javascript:void(0);" title="Pdf" [routerLink]="['/ris/road-manage/road-inventory-pdf', row.road_inventory_id]"
-                                            class="btn btn-icon btn-sm btn-info-transparent rounded-pill"><i 
-                                            class="ri-file-line"></i></a>
-
-                                        <a href="javascript:void(0);" title="Delete" data-bs-toggle="modal"
-                                        (click)="open(content,row.road_inventory_id)" data-bs-target="#exampleModal"
-                                            class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                            class="ri-delete-bin-line"></i></a> 
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </app-showcode-card>
-    </div>
-  
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </app-showcode-card>
+  </div>
 </div>
 
-    <!-- delete -->
-   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-   aria-hidden="true">
-   <div class="modal-dialog">
-       <div class="modal-content">
-           <ng-template #content let-c="close" let-d="dismiss">
-               <div class="modal-header">
-                   <h6 class="modal-title" id="exampleModalLabel1">Confirme</h6>
-                   <button type="button" class="btn-close" data-bs-dismiss="modal"
-                       (click)="d('Cross click')" aria-label="Close"></button>
-               </div>
-               <div class="modal-body">
-                   Are you sure you want to delete?
-               </div>
-               <div class="modal-footer">
-                   <button type="button" class="btn btn-primary" (click)="c('Closelick')" (click)="delete()">Yes</button>
-                   <button type="button" class="btn btn-secondary" (click)="c('Closelick')"
-                       data-bs-dismiss="modal">No</button>
-               </div>
-           </ng-template>
-       </div>
-   </div>
-   </div>
-
+<!-- delete -->
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <ng-template #content let-c="close" let-d="dismiss">
+        <div class="modal-header">
+          <h6 class="modal-title" id="exampleModalLabel1">Confirme</h6>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            (click)="d('Cross click')"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">Are you sure you want to delete?</div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="c('Closelick')"
+            (click)="delete()"
+          >
+            Yes
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="c('Closelick')"
+            data-bs-dismiss="modal"
+          >
+            No
+          </button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

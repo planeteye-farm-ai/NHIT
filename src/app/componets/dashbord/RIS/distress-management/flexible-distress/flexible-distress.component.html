@@ -94,14 +94,13 @@
         <table class="table text-nowrap">
           <thead class="table-primary">
             <tr>
+              <th scope="col">ID</th>
               <th scope="col">Road Name</th>
-              <th scope="col">Chainage Start</th>
-              <th scope="col">Chainage End</th>
+              <th scope="col">Chainage Start (KM)</th>
+              <th scope="col">Chainage End (KM)</th>
               <th scope="col">Direction</th>
-              <th scope="col">No. of Lanes</th>
-              <th scope="col">Distress Type</th>
               <th scope="col">Total Length (KM)</th>
-              <th scope="col">Lat/Long</th>
+              <th scope="col">No. of Entries</th>
               <th scope="col">Created On</th>
               <th scope="col">Action</th>
             </tr>
@@ -109,17 +108,18 @@
           <tbody>
             @for (row of tableData; track $index) {
             <tr>
+              <td>{{ row.flexible_distress_id }}</td>
               <td>{{ row.name_of_road || "N/A" }}</td>
               <td>{{ row.chainage_start }}</td>
               <td>{{ row.chainage_end }}</td>
               <td>{{ row.direction || "N/A" }}</td>
-              <td>{{ row.carriage_way_lanes || "N/A" }}</td>
-              <td>{{ row.distress_type || "N/A" }}</td>
               <td>{{ row.total_length || "N/A" }}</td>
               <td>
-                <small>{{ row.latitude }}, {{ row.longitude }}</small>
+                <span class="badge bg-info"
+                  >{{ row.entries_count || 0 }} entries</span
+                >
               </td>
-              <td>{{ row.created_on | date : "yyyy-MM-dd" }}</td>
+              <td>{{ row.created_on | date : "yyyy-MM-dd HH:mm" }}</td>
               <td>
                 <div class="hstack gap-2 fs-15">
                   <a

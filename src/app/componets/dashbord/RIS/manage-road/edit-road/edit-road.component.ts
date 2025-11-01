@@ -1,13 +1,21 @@
 import { Component } from '@angular/core';
 import { ShowcodeCardComponent } from '../../../../../shared/common/includes/showcode-card/showcode-card.component';
-import * as prismCodeData from '../../../../../shared/prismData/forms/form_layouts'
+import * as prismCodeData from '../../../../../shared/prismData/forms/form_layouts';
 import { SharedModule } from '../../../../../shared/common/sharedmodule';
-import { NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import { FormBuilder, FormGroup, FormArray, FormsModule, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {
+  FormBuilder,
+  FormGroup,
+  FormArray,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+  FormControl,
+} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CommonModule } from '@angular/common';
-import { CustomValidators } from '../../../../../shared/common/custom-validators'; 
+import { CustomValidators } from '../../../../../shared/common/custom-validators';
 import { Router } from '@angular/router';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RoadService } from '../road.service';
@@ -15,153 +23,216 @@ import { RoadService } from '../road.service';
 @Component({
   selector: 'app-edit-road',
   standalone: true,
-  imports: [SharedModule,NgSelectModule,FormsModule,CommonModule,ShowcodeCardComponent,ReactiveFormsModule],
+  imports: [
+    SharedModule,
+    NgSelectModule,
+    FormsModule,
+    CommonModule,
+    ShowcodeCardComponent,
+    ReactiveFormsModule,
+  ],
   templateUrl: './edit-road.component.html',
-  styleUrl: './edit-road.component.scss'
+  styleUrl: './edit-road.component.scss',
 })
 export class EditRoadComponent {
-
   roadForm!: FormGroup;
   prismCode = prismCodeData;
-  roadId:any;
-  roadData:any;
+  roadId: any;
+  roadData: any;
 
   constructor(
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private modalService: NgbModal,
     private toastr: ToastrService,
-    private roadService:RoadService,
-    private router: Router,
-    ) {
-      // this.roadForm = this.fb.group({
-      //   inspectionItems: this.fb.array([]) // Create an empty FormArray
-      // });
-
-      
+    private roadService: RoadService,
+    private router: Router
+  ) {
+    // this.roadForm = this.fb.group({
+    //   inspectionItems: this.fb.array([]) // Create an empty FormArray
+    // });
   }
 
   ngOnInit(): void {
-
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       this.roadId = Number(params.get('id'));
       if (this.roadId) {
         this.loadRoadDetails(this.roadId);
       }
-     });
-     
+    });
 
     this.roadForm = this.fb.group({
-      name_of_road:['',[Validators.required,CustomValidators.noWhitespaceValidator()]],
-      road_location:['',[Validators.required,CustomValidators.noWhitespaceValidator()]],
+      name_of_road: [
+        '',
+        [Validators.required, CustomValidators.noWhitespaceValidator()],
+      ],
       type_of_road: ['', Validators.required],
-      terrain:['', Validators.required],
-      road_section_no: ['',[Validators.required,CustomValidators.noWhitespaceValidator()]],
-      length_of_road: ['',[Validators.required, CustomValidators.numberValidator()]],
-      roadway_width: ['',[Validators.required, CustomValidators.numberValidator()]],
-      formation_width: ['',[Validators.required, CustomValidators.numberValidator()]],
-      carriageway_width: ['',[Validators.required, CustomValidators.numberValidator()]],
-      shoulder_type_increasing: ['', Validators.required],
-      shoulder_type_decreasing: ['', Validators.required],
-      shoulder_width_increasing: ['',[Validators.required, CustomValidators.numberValidator()]],
-      shoulder_width_decreasing: ['',[Validators.required, CustomValidators.numberValidator()]]
+      length_of_road: [
+        '',
+        [Validators.required, CustomValidators.numberValidator()],
+      ],
+      carriage_way_lanes: ['', Validators.required],
     });
-   
   }
 
   onSubmit(): void {
     // const formData: Suggestion = this.roadForm.value;
     // console.log('Form submitted:', formData);
-    if (this.roadForm.invalid)
-    {
+    if (this.roadForm.invalid) {
       this.roadForm.markAllAsTouched();
       return;
-    }
-
-    else{
-      let bridgeObj:any ={ 
+    } else {
+      let bridgeObj: any = {
         name_of_road: this.roadForm.get('name_of_road')?.value,
-        road_location: this.roadForm.get('road_location')?.value,
         type_of_road: this.roadForm.get('type_of_road')?.value,
-        terrain: this.roadForm.get('terrain')?.value,
-        road_section_no: this.roadForm.get('road_section_no')?.value,
         length_of_road: this.roadForm.get('length_of_road')?.value,
-        roadway_width: this.roadForm.get('roadway_width')?.value,
-        formation_width: this.roadForm.get('formation_width')?.value,
-        carriageway_width: this.roadForm.get('carriageway_width')?.value,
-        shoulder_type_increasing: this.roadForm.get('shoulder_type_increasing')?.value,
-        shoulder_width_increasing: this.roadForm.get('shoulder_width_increasing')?.value,
-        shoulder_type_decreasing: this.roadForm.get('shoulder_type_decreasing')?.value,
-        shoulder_width_decreasing: this.roadForm.get('shoulder_width_decreasing')?.value,
-      } 
+        carriage_way_lanes: this.roadForm.get('carriage_way_lanes')?.value,
+      };
 
       // console.log("inspection form details",formData);
 
-      this.roadService.updateRoad(bridgeObj,this.roadId).subscribe((res)=>{
-        // console.log(res);
-        if(res.status){
-         this.loadRoadDetails(this.roadId);
-          this.toastr.success(res.msg, 'NHAI RAMS', {
+      // TESTING MODE: Update in localStorage
+      let testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
+      const roadIndex = testRoads.findIndex(
+        (r: any) => r.geometry_data_id === this.roadId
+      );
+
+      if (roadIndex !== -1) {
+        // Update the road
+        testRoads[roadIndex] = {
+          geometry_data_id: this.roadId,
+          ...bridgeObj,
+        };
+
+        // Save back to localStorage
+        localStorage.setItem('test_roads', JSON.stringify(testRoads));
+
+        // Reload the road details
+        this.loadRoadDetails(this.roadId);
+
+        this.toastr.success(
+          'Road updated successfully!',
+          'NHAI RAMS (Test Mode)',
+          {
             timeOut: 3000,
             positionClass: 'toast-top-right',
-          });
+          }
+        );
+
+        console.log('Road updated in localStorage:', testRoads[roadIndex]);
+      } else {
+        // Not found in localStorage, use API
+        this.toastr.warning(
+          'Road not found in localStorage. Using API...',
+          'NHAI RAMS',
+          {
+            timeOut: 2000,
+            positionClass: 'toast-top-right',
+          }
+        );
+
+        this.roadService.updateRoad(bridgeObj, this.roadId).subscribe(
+          (res) => {
+            // console.log(res);
+            if (res.status) {
+              this.loadRoadDetails(this.roadId);
+              this.toastr.success(res.msg, 'NHAI RAMS', {
+                timeOut: 3000,
+                positionClass: 'toast-top-right',
+              });
               // this.bridgeForm.reset();
-        }
-        else {
-            this.toastr.error(res.msg, 'NHAI RAMS', {
+            } else {
+              this.toastr.error(res.msg, 'NHAI RAMS', {
+                timeOut: 3000,
+                positionClass: 'toast-top-right',
+              });
+            }
+          },
+          (err) => {
+            this.toastr.error(err.msg, 'NHAI RAMS', {
               timeOut: 3000,
               positionClass: 'toast-top-right',
             });
-        }
-      },
-    (err)=>{
-      this.toastr.error(err.msg, 'NHAI RAMS', {
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
-      });
-    });    
-  }   
+          }
+        );
+      }
+
+      // PRODUCTION MODE: Uncomment below to use API
+      // this.roadService.updateRoad(bridgeObj, this.roadId).subscribe(
+      //   (res) => {
+      //     // console.log(res);
+      //     if (res.status) {
+      //       this.loadRoadDetails(this.roadId);
+      //       this.toastr.success(res.msg, 'NHAI RAMS', {
+      //         timeOut: 3000,
+      //         positionClass: 'toast-top-right',
+      //       });
+      //       // this.bridgeForm.reset();
+      //     } else {
+      //       this.toastr.error(res.msg, 'NHAI RAMS', {
+      //         timeOut: 3000,
+      //         positionClass: 'toast-top-right',
+      //       });
+      //     }
+      //   },
+      //   (err) => {
+      //     this.toastr.error(err.msg, 'NHAI RAMS', {
+      //       timeOut: 3000,
+      //       positionClass: 'toast-top-right',
+      //     });
+      //   }
+      // );
+    }
   }
 
   loadRoadDetails(id: number): void {
-    this.roadService.getDetailsById(id).subscribe((road: any) => {
-      console.log("get road details",road);
-      if (road) {
-        this.roadData = road.data;
-        this.patchValue(road);
-      }
-    },(err)=>{
-      this.toastr.error(err.msg, 'NHAI RAMS', {
-        timeOut: 3000,
+    // TESTING MODE: Load from localStorage
+    const testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
+    const foundRoad = testRoads.find((r: any) => r.geometry_data_id === id);
+
+    if (foundRoad) {
+      console.log('Road loaded from localStorage:', foundRoad);
+      this.roadData = [foundRoad];
+      this.patchValue({ data: [foundRoad] });
+      this.toastr.info('Loaded from Test Mode (localStorage)', 'NHAI RAMS', {
+        timeOut: 2000,
         positionClass: 'toast-top-right',
       });
-    });
-    
+    } else {
+      this.toastr.warning(
+        'Road not found in localStorage. Using API...',
+        'NHAI RAMS',
+        {
+          timeOut: 2000,
+          positionClass: 'toast-top-right',
+        }
+      );
+
+      // Fallback to API if not found in localStorage
+      this.roadService.getDetailsById(id).subscribe(
+        (road: any) => {
+          console.log('get road details', road);
+          if (road) {
+            this.roadData = road.data;
+            this.patchValue(road);
+          }
+        },
+        (err) => {
+          this.toastr.error(err.msg, 'NHAI RAMS', {
+            timeOut: 3000,
+            positionClass: 'toast-top-right',
+          });
+        }
+      );
+    }
   }
 
-  patchValue(road:any){
-    
+  patchValue(road: any) {
     this.roadForm.patchValue({
-      reportAnyvisualInspection: road.data[0].aesthetics_condition,
       name_of_road: road.data[0].name_of_road,
-      road_location: road.data[0].road_location,
       type_of_road: road.data[0].type_of_road,
-      terrain: road.data[0].terrain,
-      road_section_no: road.data[0].road_section_no,
       length_of_road: road.data[0].length_of_road,
-      roadway_width: road.data[0].roadway_width,
-      formation_width: road.data[0].formation_width,
-      carriageway_width: road.data[0].carriageway_width,
-      shoulder_type_increasing: road.data[0].shoulder_type_increasing,
-      shoulder_type_decreasing: road.data[0].shoulder_type_decreasing,
-      shoulder_width_increasing: road.data[0].shoulder_width_increasing,
-      shoulder_width_decreasing: road.data[0].shoulder_width_decreasing
-      
+      carriage_way_lanes: road.data[0].carriage_way_lanes,
     });
-    
-   
   }
-
-
-
 }

@@ -103,10 +103,7 @@ export class AddFlexibleDistressComponent {
   // Create a new distress entry FormGroup
   createDistressEntry(): FormGroup {
     return this.fb.group({
-      carriage_way_lanes: [
-        '',
-        [Validators.required, CustomValidators.numberValidator()],
-      ],
+      carriage_way_lanes: ['', Validators.required],
       distress_type: ['', Validators.required],
       latitude: ['', [Validators.required, CustomValidators.numberValidator()]],
       longitude: [
@@ -148,10 +145,47 @@ export class AddFlexibleDistressComponent {
   }
 
   getGeometryList() {
-    this.roadService.getGeometryList().subscribe((res) => {
-      this.geometryList = res.data;
-      console.log(this.geometryList);
-    });
+    // TESTING MODE: Load test roads from localStorage
+    const testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
+
+    if (testRoads.length > 0) {
+      // Format test roads for dropdown
+      const formattedTestRoads = testRoads.map((road: any) => ({
+        geometry_data_id: road.geometry_data_id,
+        name_of_road: road.name_of_road + ' (Test)',
+      }));
+
+      // Try to get API data and merge
+      this.roadService.getGeometryList().subscribe(
+        (res) => {
+          // Merge test roads with API roads (test roads first)
+          this.geometryList = [...formattedTestRoads, ...(res.data || [])];
+          console.log('Road dropdown (localStorage + API):', this.geometryList);
+
+          if (formattedTestRoads.length > 0) {
+            this.toastr.info(
+              `${formattedTestRoads.length} test road(s) available in dropdown`,
+              'NHAI RAMS',
+              {
+                timeOut: 2000,
+                positionClass: 'toast-top-right',
+              }
+            );
+          }
+        },
+        (err) => {
+          // If API fails, just show test roads
+          console.log('API failed, showing only localStorage roads');
+          this.geometryList = formattedTestRoads;
+        }
+      );
+    } else {
+      // No test roads, load from API only
+      this.roadService.getGeometryList().subscribe((res) => {
+        this.geometryList = res.data;
+        console.log(this.geometryList);
+      });
+    }
   }
 
   // Handle image file selection for specific entry
@@ -265,6 +299,7 @@ export class AddFlexibleDistressComponent {
     const formData = new FormData();
 
     // Add common fields
+    formData.append('carriage_type', 'Flexible');
     formData.append(
       'geometry_data_id',
       this.distressForm.get('geometry_data_id')?.value
@@ -317,46 +352,101 @@ export class AddFlexibleDistressComponent {
     formData.append('distress_entries', JSON.stringify(distressEntriesData));
     formData.append('entries_count', this.distressEntries.length.toString());
 
-    console.log(
-      'Submitting flexible distress data with',
-      this.distressEntries.length,
-      'entries...'
+    // TESTING MODE: Store in localStorage
+    let existingFlexibleDistress = JSON.parse(
+      localStorage.getItem('test_flexible_distress') || '[]'
     );
 
-    this.roadService.addFlexibleDistress(formData).subscribe(
-      (res) => {
-        console.log(res);
-        if (res.status) {
-          this.router.navigate([
-            '/ris/road-manage/edit-flexible-distress',
-            res.flexible_distress_id,
-          ]);
-          this.toastr.success(
-            res.msg ||
-              `Flexible distress added successfully with ${this.distressEntries.length} entries`,
-            'NHAI RAMS',
-            {
-              timeOut: 3000,
-              positionClass: 'toast-top-right',
-            }
-          );
-        } else {
-          this.toastr.error(
-            res.msg || 'Failed to add flexible distress',
-            'NHAI RAMS',
-            {
-              timeOut: 3000,
-              positionClass: 'toast-top-right',
-            }
-          );
-        }
-      },
-      (err) => {
-        this.toastr.error(err.msg || 'An error occurred', 'NHAI RAMS', {
-          timeOut: 3000,
-          positionClass: 'toast-top-right',
-        });
+    // Generate a mock ID
+    const mockId =
+      existingFlexibleDistress.length > 0
+        ? Math.max(
+            ...existingFlexibleDistress.map((d: any) => d.flexible_distress_id)
+          ) + 1
+        : 1;
+
+    // Create the flexible distress object
+    const flexibleDistressObj = {
+      flexible_distress_id: mockId,
+      carriage_type: 'Flexible',
+      geometry_data_id: this.distressForm.get('geometry_data_id')?.value,
+      chainage_start: this.distressForm.get('chainage_start')?.value,
+      chainage_end: this.distressForm.get('chainage_end')?.value,
+      direction: this.distressForm.get('direction')?.value,
+      total_length: this.distressForm.get('total_length')?.value,
+      entries_count: this.distressEntries.length,
+      distress_entries: distressEntriesData,
+      created_on: new Date().toISOString(),
+    };
+
+    // Add to existing distress records
+    existingFlexibleDistress.push(flexibleDistressObj);
+
+    // Save back to localStorage
+    localStorage.setItem(
+      'test_flexible_distress',
+      JSON.stringify(existingFlexibleDistress)
+    );
+
+    // Show success message
+    this.toastr.success(
+      `Flexible distress added successfully! ID: ${mockId} with ${this.distressEntries.length} entries`,
+      'NHAI RAMS (Test Mode)',
+      {
+        timeOut: 3000,
+        positionClass: 'toast-top-right',
       }
     );
+
+    // Navigate to flexible distress list
+    this.router.navigate(['/ris/road-manage/flexible-distress']);
+
+    // Log the JSON response
+    console.log('=== FLEXIBLE DISTRESS JSON RESPONSE ===');
+    console.log(JSON.stringify(flexibleDistressObj, null, 2));
+    console.log('All flexible distress records:', existingFlexibleDistress);
+
+    // PRODUCTION MODE: Uncomment below to use API
+    // console.log(
+    //   'Submitting flexible distress data with',
+    //   this.distressEntries.length,
+    //   'entries...'
+    // );
+    //
+    // this.roadService.addFlexibleDistress(formData).subscribe(
+    //   (res) => {
+    //     console.log(res);
+    //     if (res.status) {
+    //       this.router.navigate([
+    //         '/ris/road-manage/edit-flexible-distress',
+    //         res.flexible_distress_id,
+    //       ]);
+    //       this.toastr.success(
+    //         res.msg ||
+    //           `Flexible distress added successfully with ${this.distressEntries.length} entries`,
+    //         'NHAI RAMS',
+    //         {
+    //           timeOut: 3000,
+    //           positionClass: 'toast-top-right',
+    //         }
+    //       );
+    //     } else {
+    //       this.toastr.error(
+    //         res.msg || 'Failed to add flexible distress',
+    //         'NHAI RAMS',
+    //         {
+    //           timeOut: 3000,
+    //           positionClass: 'toast-top-right',
+    //         }
+    //       );
+    //     }
+    //   },
+    //   (err) => {
+    //     this.toastr.error(err.msg || 'An error occurred', 'NHAI RAMS', {
+    //       timeOut: 3000,
+    //       positionClass: 'toast-top-right',
+    //     });
+    //   }
+    // );
   }
 }

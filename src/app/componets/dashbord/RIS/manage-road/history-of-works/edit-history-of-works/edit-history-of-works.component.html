@@ -1,152 +1,484 @@
-
-<app-page-header title="Update History Of Works" title1="Update History Of Works" activeTitle="Update History Of Works"></app-page-header>
+<app-page-header
+  title="Update History Of Works"
+  title1="Update History Of Works"
+  activeTitle="Update History Of Works"
+></app-page-header>
 
 <div class="row">
+  <div class="col-xl-12">
+    <app-showcode-card
+      [title]="'Update History Of Works - ' + roadName"
+      [prism]="prismCode.formlayouts10"
+    >
+      <form [formGroup]="historyDataForm" (ngSubmit)="onSubmit()">
+        <div class="card custom-card">
+          <div class="card-header bg-primary text-white">
+            <h6 class="card-title mb-0">
+              <i class="ri-tools-line me-2"></i>Work Information
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <!-- Road Dropdown (Read-only) -->
+              <div class="col-md-12 mb-3">
+                <label class="form-label" for="geometry_data_id">Road</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="geometry_data_id"
+                  [value]="roadName"
+                  readonly
+                />
+                <small class="text-muted">
+                  <i class="ri-information-line"></i> Road cannot be changed
+                </small>
+              </div>
 
-    <div class="col-xl-12">
-        <app-showcode-card [title]="'Update History Of Works'" [prism]="prismCode.formlayouts10">
-            <form [formGroup]="historyDataForm" (ngSubmit)="onSubmit()">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="name_of_road">Name Of Road</label>
-                        <input type="text" class="form-control"  id="name_of_road" formControlName="name_of_road" readonly>                      
-                    </div>
+              <!-- Chainage Start -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="chainage_start"
+                  >Chainage Start (KM)</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  step="0.001"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('chainage_start')?.invalid &&
+                      historyDataForm.get('chainage_start')?.touched
+                  }"
+                  id="chainage_start"
+                  formControlName="chainage_start"
+                  placeholder="0.000"
+                />
+                @if(historyDataForm.get('chainage_start')?.invalid &&
+                historyDataForm.get('chainage_start')?.touched){
+                <span class="text-danger">Please enter chainage start</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="road_location">Road Location</label>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':historyDataForm.get('road_location')?.invalid && historyDataForm.get('road_location')?.touched}" id="road_location" formControlName="road_location" placeholder="Road Location">
-                        @if(historyDataForm.get('road_location')?.invalid && historyDataForm.get('road_location')?.touched){
-                            <span  class="text-danger">Please select type of road</span>
-                        } 
-                    </div>
+              <!-- Chainage End -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="chainage_end"
+                  >Chainage End (KM)</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  step="0.001"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('chainage_end')?.invalid &&
+                      historyDataForm.get('chainage_end')?.touched
+                  }"
+                  id="chainage_end"
+                  formControlName="chainage_end"
+                  placeholder="0.000"
+                />
+                @if(historyDataForm.get('chainage_end')?.invalid &&
+                historyDataForm.get('chainage_end')?.touched){
+                <span class="text-danger">Please enter chainage end</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="type_of_road">Type Of Road</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':historyDataForm.get('type_of_road')?.invalid && historyDataForm.get('type_of_road')?.touched}" id="type_of_road" formControlName="type_of_road">
-                            <option value="" selected disabled>Select</option>
-                            <option value="BT">BT</option>
-                            <option value="CC">CC</option>
-                        </select>
-                        @if(historyDataForm.get('type_of_road')?.invalid && historyDataForm.get('type_of_road')?.touched){
-                            <span  class="text-danger">Please select type of road</span>
-                        } 
-                    </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="road_section_no">Road Section No</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':historyDataForm.get('road_section_no')?.invalid && historyDataForm.get('road_section_no')?.touched}" id="road_section_no" formControlName="road_section_no" placeholder="Road Section No">
-                        @if(historyDataForm.get('road_section_no')?.invalid && historyDataForm.get('road_section_no')?.touched){
-                            <span  class="text-danger">Please enter valid road section no</span>
-                        } 
-                    </div>
+              <!-- Direction -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="direction">Direction</label
+                ><span class="text-danger">*</span>
+                <select
+                  class="form-select"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('direction')?.invalid &&
+                      historyDataForm.get('direction')?.touched
+                  }"
+                  id="direction"
+                  formControlName="direction"
+                >
+                  <option value="" selected disabled>Select Direction</option>
+                  @for (dir of directionOptions; track $index) {
+                  <option value="{{ dir }}">{{ dir }}</option>
+                  }
+                </select>
+                @if(historyDataForm.get('direction')?.invalid &&
+                historyDataForm.get('direction')?.touched){
+                <span class="text-danger">Please select direction</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="name_of_contractor">Name Of Contractor</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':historyDataForm.get('name_of_contractor')?.invalid && historyDataForm.get('name_of_contractor')?.touched}" id="name_of_contractor" formControlName="name_of_contractor" placeholder="Name Of Contractor">
-                        @if(historyDataForm.get('name_of_contractor')?.invalid && historyDataForm.get('name_of_contractor')?.touched){
-                            <span  class="text-danger">Please enter valid name of contractor</span>
-                        } 
-                    </div>
+              <!-- Type of Work -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="type_of_work">Type of Work</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('type_of_work')?.invalid &&
+                      historyDataForm.get('type_of_work')?.touched
+                  }"
+                  id="type_of_work"
+                  formControlName="type_of_work"
+                  placeholder="Enter type of work"
+                />
+                @if(historyDataForm.get('type_of_work')?.invalid &&
+                historyDataForm.get('type_of_work')?.touched){
+                <span class="text-danger">Please enter type of work</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="old_road_length">Old Road Length</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':historyDataForm.get('old_road_length')?.invalid && historyDataForm.get('old_road_length')?.touched}" id="old_road_length" formControlName="old_road_length" placeholder="Old Road Length">
-                        @if(historyDataForm.get('old_road_length')?.invalid && historyDataForm.get('old_road_length')?.touched){
-                            <span  class="text-danger">Please enter valid old road length</span>
-                        } 
-                    </div>
+              <!-- Name of Contractor -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="name_of_contractor"
+                  >Name of Contractor</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('name_of_contractor')?.invalid &&
+                      historyDataForm.get('name_of_contractor')?.touched
+                  }"
+                  id="name_of_contractor"
+                  formControlName="name_of_contractor"
+                  placeholder="Enter contractor name"
+                />
+                @if(historyDataForm.get('name_of_contractor')?.invalid &&
+                historyDataForm.get('name_of_contractor')?.touched){
+                <span class="text-danger">Please enter contractor name</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="old_road_width">Old Road Width</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':historyDataForm.get('old_road_width')?.invalid && historyDataForm.get('old_road_width')?.touched}" id="old_road_width" formControlName="old_road_width" placeholder="Old Road Width">
-                        @if(historyDataForm.get('old_road_width')?.invalid && historyDataForm.get('old_road_width')?.touched){
-                            <span  class="text-danger">Please enter valid old road width</span>
-                        } 
-                    </div>
+              <!-- Asset Type -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="asset_type">Asset Type</label
+                ><span class="text-danger">*</span>
+                <select
+                  class="form-select"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('asset_type')?.invalid &&
+                      historyDataForm.get('asset_type')?.touched
+                  }"
+                  id="asset_type"
+                  formControlName="asset_type"
+                  (change)="onAssetTypeChange($any($event.target).value)"
+                >
+                  <option value="" selected disabled>Select Asset Type</option>
+                  @for (asset of assetTypes; track $index) {
+                  <option value="{{ asset }}">{{ asset }}</option>
+                  }
+                </select>
+                @if(historyDataForm.get('asset_type')?.invalid &&
+                historyDataForm.get('asset_type')?.touched){
+                <span class="text-danger">Please select asset type</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="cons_starting_date">Construction Start Date</label><span class="text-danger">*</span>
-                        <input type="date" [max]="currentDate" class="form-control" [ngClass]="{ 'is-invalid':historyDataForm.get('cons_starting_date')?.invalid && historyDataForm.get('cons_starting_date')?.touched}" id="cons_starting_date" formControlName="cons_starting_date">
-                        @if(historyDataForm.get('cons_starting_date')?.invalid && historyDataForm.get('cons_starting_date')?.touched){
-                            <span  class="text-danger">Please enter valid cons start date</span>
-                        } 
-                    </div>
+              <!-- Sub Asset Type -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="sub_asset_type"
+                  >Sub Asset Type</label
+                ><span class="text-danger">*</span>
+                <select
+                  class="form-select"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('sub_asset_type')?.invalid &&
+                      historyDataForm.get('sub_asset_type')?.touched
+                  }"
+                  id="sub_asset_type"
+                  formControlName="sub_asset_type"
+                  [disabled]="subAssetTypes.length === 0"
+                >
+                  <option value="" selected disabled>
+                    Select Sub Asset Type
+                  </option>
+                  @for (subAsset of subAssetTypes; track $index) {
+                  <option value="{{ subAsset }}">{{ subAsset }}</option>
+                  }
+                </select>
+                @if(historyDataForm.get('sub_asset_type')?.invalid &&
+                historyDataForm.get('sub_asset_type')?.touched){
+                <span class="text-danger">Please select sub asset type</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="cons_ending_date">Construction End Date</label><span class="text-danger">*</span>
-                        <input type="date" [max]="currentDate" class="form-control" [ngClass]="{ 'is-invalid':historyDataForm.get('cons_ending_date')?.invalid && historyDataForm.get('cons_ending_date')?.touched}" id="cons_ending_date" formControlName="cons_ending_date">
-                        @if(historyDataForm.get('cons_ending_date')?.invalid && historyDataForm.get('cons_ending_date')?.touched){
-                            <span  class="text-danger">Please enter valid cons end date</span>
-                        } 
-                    </div> 
+              <!-- Latitude -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="latitude">Latitude</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  step="0.000001"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('latitude')?.invalid &&
+                      historyDataForm.get('latitude')?.touched
+                  }"
+                  id="latitude"
+                  formControlName="latitude"
+                  placeholder="e.g., 26.515600"
+                />
+                @if(historyDataForm.get('latitude')?.invalid &&
+                historyDataForm.get('latitude')?.touched){
+                <span class="text-danger">Please enter valid latitude</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="last_routing_inspe_date">Last Routine Inspection Date</label><span class="text-danger">*</span>
-                        <input type="date" [max]="currentDate" class="form-control" [ngClass]="{ 'is-invalid':historyDataForm.get('last_routing_inspe_date')?.invalid && historyDataForm.get('last_routing_inspe_date')?.touched}" id="last_routing_inspe_date" formControlName="last_routing_inspe_date">
-                        @if(historyDataForm.get('last_routing_inspe_date')?.invalid && historyDataForm.get('last_routing_inspe_date')?.touched){
-                            <span  class="text-danger">Please enter valid last routine inspection date</span>
-                        } 
-                    </div> 
+              <!-- Longitude -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="longitude">Longitude</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  step="0.000001"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('longitude')?.invalid &&
+                      historyDataForm.get('longitude')?.touched
+                  }"
+                  id="longitude"
+                  formControlName="longitude"
+                  placeholder="e.g., 77.812300"
+                />
+                @if(historyDataForm.get('longitude')?.invalid &&
+                historyDataForm.get('longitude')?.touched){
+                <span class="text-danger">Please enter valid longitude</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="type_of_last_inspection">Type Of Last Inspection</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':historyDataForm.get('type_of_last_inspection')?.invalid && historyDataForm.get('type_of_last_inspection')?.touched}" id="type_of_last_inspection"  formControlName="type_of_last_inspection">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Routine">Routine</option>
-                            <option value="Resurfacing">Resurfacing</option>
-                            <option value="Reconstruction">Reconstruction</option>
-                        </select>
-                        @if(historyDataForm.get('type_of_last_inspection')?.invalid && historyDataForm.get('type_of_last_inspection')?.touched){
-                            <span  class="text-danger">Please select type of last inspection</span>
-                        } 
-                    </div>   
-                
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="comments_observations">Comments Observations</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':historyDataForm.get('comments_observations')?.invalid && historyDataForm.get('comments_observations')?.touched}" id="comments_observations" formControlName="comments_observations" placeholder="Comments Observations">
-                        @if(historyDataForm.get('comments_observations')?.invalid && historyDataForm.get('comments_observations')?.touched){
-                            <span  class="text-danger">Please enter valid comments observations</span>
-                        } 
-                    </div>
+              <!-- Numbers/Lengths -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="numbers_lengths"
+                  >Numbers/Lengths (Inventories)</label
+                >
+                <input
+                  type="number"
+                  step="0.01"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('numbers_lengths')?.invalid &&
+                      historyDataForm.get('numbers_lengths')?.touched
+                  }"
+                  id="numbers_lengths"
+                  formControlName="numbers_lengths"
+                  placeholder="Enter quantity or length"
+                />
+                @if(historyDataForm.get('numbers_lengths')?.invalid &&
+                historyDataForm.get('numbers_lengths')?.touched){
+                <span class="text-danger"
+                  >Please enter valid number/length</span
+                >
+                }
+              </div>
 
-                    @if(!historyData.comments_observations_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'comments_observations_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-    
-                        @if(historyData.comments_observations_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('comments_observations_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('comments_observations_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                        }
+              <!-- Work Status -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="work_status">Work Status</label
+                ><span class="text-danger">*</span>
+                <select
+                  class="form-select"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('work_status')?.invalid &&
+                      historyDataForm.get('work_status')?.touched
+                  }"
+                  id="work_status"
+                  formControlName="work_status"
+                >
+                  <option value="" selected disabled>Select Work Status</option>
+                  @for (status of workStatusOptions; track $index) {
+                  <option value="{{ status }}">{{ status }}</option>
+                  }
+                </select>
+                @if(historyDataForm.get('work_status')?.invalid &&
+                historyDataForm.get('work_status')?.touched){
+                <span class="text-danger">Please select work status</span>
+                }
+              </div>
 
-                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
-                        <button type="submit" class="btn btn-primary">Update</button>
-                    </div>
+              <!-- Work Start Date -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="work_start_date"
+                  >Work Start Date</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="date"
+                  [max]="currentDate"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('work_start_date')?.invalid &&
+                      historyDataForm.get('work_start_date')?.touched
+                  }"
+                  id="work_start_date"
+                  formControlName="work_start_date"
+                />
+                @if(historyDataForm.get('work_start_date')?.invalid &&
+                historyDataForm.get('work_start_date')?.touched){
+                <span class="text-danger">Please select work start date</span>
+                }
+              </div>
+
+              <!-- Work End Date -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="work_end_date"
+                  >Work End Date</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="date"
+                  [max]="currentDate"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('work_end_date')?.invalid &&
+                      historyDataForm.get('work_end_date')?.touched
+                  }"
+                  id="work_end_date"
+                  formControlName="work_end_date"
+                />
+                @if(historyDataForm.get('work_end_date')?.invalid &&
+                historyDataForm.get('work_end_date')?.touched){
+                <span class="text-danger">Please select work end date</span>
+                }
+              </div>
+
+              <!-- Comments -->
+              <div class="col-md-12 mb-3">
+                <label class="form-label" for="comments">Comments</label
+                ><span class="text-danger">*</span>
+                <textarea
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      historyDataForm.get('comments')?.invalid &&
+                      historyDataForm.get('comments')?.touched
+                  }"
+                  id="comments"
+                  formControlName="comments"
+                  rows="3"
+                  placeholder="Enter comments about the work"
+                ></textarea>
+                @if(historyDataForm.get('comments')?.invalid &&
+                historyDataForm.get('comments')?.touched){
+                <span class="text-danger">Please enter comments</span>
+                }
+              </div>
+
+              <!-- Image Upload -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="work_image"
+                  >Work Image (JPG/PNG)</label
+                >
+                <input
+                  type="file"
+                  class="form-control"
+                  id="work_image"
+                  accept=".jpg,.jpeg,.png"
+                  (change)="onImageSelected($event)"
+                />
+                @if(historyDataForm.get('image_preview')?.value) {
+                <div class="mt-2 position-relative" style="max-width: 200px">
+                  <img
+                    [src]="historyDataForm.get('image_preview')?.value"
+                    alt="Image Preview"
+                    class="img-thumbnail"
+                    style="max-width: 100%"
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                    (click)="removeImage()"
+                    style="margin: 5px"
+                  >
+                    <i class="ri-close-line"></i>
+                  </button>
                 </div>
-            </form>
+                } @else if(historyData?.work_image) {
+                <div class="mt-2">
+                  <p class="text-muted">
+                    <i class="ri-image-fill text-success me-2"></i>
+                    Current: {{ historyData.work_image }}
+                  </p>
+                </div>
+                }
+              </div>
 
-        </app-showcode-card>
-    </div>
+              <!-- Video Upload -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="work_video"
+                  >Work Video (MP4/AVI/MOV/WMV)</label
+                >
+                <input
+                  type="file"
+                  class="form-control"
+                  id="work_video"
+                  accept=".mp4,.avi,.mov,.wmv"
+                  (change)="onVideoSelected($event)"
+                />
+                @if(historyDataForm.get('video_preview')?.value) {
+                <div class="mt-2 position-relative" style="max-width: 300px">
+                  <video
+                    [src]="historyDataForm.get('video_preview')?.value"
+                    controls
+                    class="img-thumbnail"
+                    style="max-width: 100%"
+                  ></video>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                    (click)="removeVideo()"
+                    style="margin: 5px"
+                  >
+                    <i class="ri-close-line"></i>
+                  </button>
+                </div>
+                } @else if(historyData?.work_video) {
+                <div class="mt-2">
+                  <p class="text-muted">
+                    <i class="ri-video-fill text-primary me-2"></i>
+                    Current: {{ historyData.work_video }}
+                  </p>
+                </div>
+                }
+              </div>
+
+              <!-- Submit Button -->
+              <div
+                class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2"
+              >
+                <div class="d-flex gap-2">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    [disabled]="historyDataForm.invalid"
+                  >
+                    <i class="ri-save-line me-1"></i> Update
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    [routerLink]="[
+                      '/ris/road-manage/history-of-work',
+                      historyData?.geometry_data_id
+                    ]"
+                  >
+                    <i class="ri-close-line me-1"></i> Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </app-showcode-card>
+  </div>
 </div>
-
-
-
-
-
-
-
-

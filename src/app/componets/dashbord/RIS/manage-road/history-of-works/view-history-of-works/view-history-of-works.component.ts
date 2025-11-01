@@ -1,13 +1,19 @@
 import { Component } from '@angular/core';
 import { ShowcodeCardComponent } from '../../../../../../shared/common/includes/showcode-card/showcode-card.component';
-import * as prismCodeData from '../../../../../../shared/prismData/forms/form_layouts'
+import * as prismCodeData from '../../../../../../shared/prismData/forms/form_layouts';
 import { SharedModule } from '../../../../../../shared/common/sharedmodule';
-import { NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import { FormBuilder, FormGroup, FormArray, FormsModule, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CommonModule } from '@angular/common';
-import { CustomValidators } from '../../../../../../shared/common/custom-validators'; 
+import { CustomValidators } from '../../../../../../shared/common/custom-validators';
 import { Router } from '@angular/router';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RoadService } from '../../road.service';
@@ -16,109 +22,147 @@ import { ApiUrl } from '../../../../../../shared/const';
 @Component({
   selector: 'app-view-history-of-works',
   standalone: true,
-  imports: [SharedModule,NgSelectModule,FormsModule,CommonModule,ShowcodeCardComponent,ReactiveFormsModule],
+  imports: [
+    SharedModule,
+    NgSelectModule,
+    FormsModule,
+    CommonModule,
+    ShowcodeCardComponent,
+    ReactiveFormsModule,
+    RouterLink,
+  ],
   templateUrl: './view-history-of-works.component.html',
-  styleUrl: './view-history-of-works.component.scss'
+  styleUrl: './view-history-of-works.component.scss',
 })
 export class ViewHistoryOfWorksComponent {
-
   historyDataForm!: FormGroup;
   prismCode = prismCodeData;
-  historyId:any;
-  roadData:any;
-  roadName:any;
-  historyData:any;
-  urlLive = ApiUrl.API_URL_fOR_iMAGE;
+  historyId: any;
+  historyData: any;
+  roadName: any;
 
   constructor(
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private modalService: NgbModal,
     private toastr: ToastrService,
-    private roadService:RoadService,
-    private router: Router,
-    ) {
-      // this.roadForm = this.fb.group({
-      //   inspectionItems: this.fb.array([]) // Create an empty FormArray
-      // });
-
-      
-  }
+    private roadService: RoadService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      this.historyId = Number(params.get('id'));
-     });
-     
-     
     this.historyDataForm = this.fb.group({
-      name_of_road: [''],
-      road_location: [''],
-      type_of_road: ['', Validators.required],
-      road_section_no: ['',[Validators.required,CustomValidators.noWhitespaceValidator()]],
-      name_of_contractor: ['',[Validators.required,CustomValidators.noWhitespaceValidator()]],
-      old_road_length: ['',[Validators.required, CustomValidators.numberValidator()]],
-      old_road_width: ['',[Validators.required, CustomValidators.numberValidator()]],
-      cons_starting_date: ['', Validators.required],
-      cons_ending_date: ['', Validators.required],
-      last_routing_inspe_date: ['', Validators.required],
-      type_of_last_inspection: ['', Validators.required],
-      comments_observations: ['',[Validators.required,CustomValidators.noWhitespaceValidator()]],
+      road_name: [{ value: '', disabled: true }],
+      geometry_data_id: [{ value: '', disabled: true }],
+      chainage_start: [{ value: '', disabled: true }],
+      chainage_end: [{ value: '', disabled: true }],
+      direction: [{ value: '', disabled: true }],
+      type_of_work: [{ value: '', disabled: true }],
+      name_of_contractor: [{ value: '', disabled: true }],
+      asset_type: [{ value: '', disabled: true }],
+      sub_asset_type: [{ value: '', disabled: true }],
+      latitude: [{ value: '', disabled: true }],
+      longitude: [{ value: '', disabled: true }],
+      numbers_lengths: [{ value: '', disabled: true }],
+      work_status: [{ value: '', disabled: true }],
+      work_start_date: [{ value: '', disabled: true }],
+      work_end_date: [{ value: '', disabled: true }],
+      comments: [{ value: '', disabled: true }],
+      work_image: [{ value: '', disabled: true }],
+      work_video: [{ value: '', disabled: true }],
     });
-   
-    this.route.paramMap.subscribe(params => {
+
+    this.route.paramMap.subscribe((params) => {
       this.historyId = Number(params.get('id'));
-      // console.log("bridge id in add",this.inspectionId)
       if (this.historyId) {
-        this.loadBridgeDetails(this.historyId);
+        this.loadHistoryDetails(this.historyId);
       }
     });
   }
 
+  loadHistoryDetails(id: number): void {
+    // TESTING MODE: Check localStorage first
+    const testHistoryWorks = JSON.parse(
+      localStorage.getItem('test_history_of_works') || '[]'
+    );
+    const testHistory = testHistoryWorks.find(
+      (h: any) => h.history_of_work_id === id
+    );
 
-  loadBridgeDetails(id: number): void {
-    this.roadService.getHistoryDataById(id).subscribe((history: any) => {
-      console.log("get history details",history);
-      if (history) {
-        this.historyData = history.data[0];
-        this.patchValue(history);
-      }
-    },(err)=>{
-      this.toastr.error(err.msg, 'NHAI RAMS', {
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
-      });
-    });
-    
+    if (testHistory) {
+      // Load from localStorage
+      this.historyData = testHistory;
+      this.roadName = testHistory.road_name;
+      this.patchValue(testHistory);
+      console.log('History loaded from localStorage:', testHistory);
+    } else {
+      // Fallback to API
+      this.roadService.getHistoryDataById(id).subscribe(
+        (history: any) => {
+          console.log('get history details', history);
+          if (history && history.data && history.data.length > 0) {
+            this.historyData = history.data[0];
+            this.roadName = this.historyData.name_of_road;
+            this.patchValueFromAPI(history);
+          }
+        },
+        (err) => {
+          this.toastr.error('Failed to load history details', 'NHAI RAMS', {
+            timeOut: 3000,
+            positionClass: 'toast-top-right',
+          });
+        }
+      );
+    }
   }
 
-  patchValue(history:any){
+  patchValue(history: any): void {
     this.historyDataForm.patchValue({
-      name_of_road : history.data[0].name_of_road !== "" ? history.data[0].name_of_road : history.data[0].geometry_name_of_road,
-      road_location: history.data[0].road_location !== "" ? history.data[0].road_location : history.data[0].geometry_road_location,
-      type_of_road: history.data[0].type_of_road !== "" ? history.data[0].type_of_road : history.data[0].geometry_type_of_road,
-      road_section_no: history.data[0].road_section_no !== "" ? history.data[0].road_section_no : history.data[0].geometry_road_section_no,
-      name_of_contractor: history.data[0].name_of_contractor,
-      old_road_length: history.data[0].old_road_length,
-      old_road_width: history.data[0].old_road_width,
-      cons_starting_date: history.data[0].cons_starting_date,
-      cons_ending_date: history.data[0].cons_ending_date,
-      last_routing_inspe_date: history.data[0].last_routing_inspe_date,
-      type_of_last_inspection: history.data[0].type_of_last_inspection,
-      comments_observations: history.data[0].comments_observations
-      
+      road_name: history.road_name || '',
+      geometry_data_id: history.geometry_data_id || '',
+      chainage_start: history.chainage_start || '',
+      chainage_end: history.chainage_end || '',
+      direction: history.direction || '',
+      type_of_work: history.type_of_work || '',
+      name_of_contractor: history.name_of_contractor || '',
+      asset_type: history.asset_type || '',
+      sub_asset_type: history.sub_asset_type || '',
+      latitude: history.latitude || '',
+      longitude: history.longitude || '',
+      numbers_lengths: history.numbers_lengths || '',
+      work_status: history.work_status || '',
+      work_start_date: history.work_start_date || '',
+      work_end_date: history.work_end_date || '',
+      comments: history.comments || '',
+      work_image: history.work_image || '',
+      work_video: history.work_video || '',
     });
   }
 
-  downloadImage(fieldName: string): void {
-    const imageUrl = `${this.urlLive}/upload/inspection_images/${this.historyData[fieldName]}`;    
-    const anchor = document.createElement('a');
-    anchor.href = imageUrl;
-    anchor.download = ''; // Let the browser decide the file name
-    anchor.target = '_blank'; // Optional: Open in a new tab if needed
-
-    anchor.click();
-
-    anchor.remove();
-}
+  patchValueFromAPI(history: any): void {
+    const data = history.data[0];
+    this.historyDataForm.patchValue({
+      road_name:
+        data.name_of_road !== ''
+          ? data.name_of_road
+          : data.geometry_name_of_road,
+      geometry_data_id: data.geometry_data_id || '',
+      chainage_start: data.chainage_start || '',
+      chainage_end: data.chainage_end || '',
+      direction: data.direction || '',
+      type_of_work: data.type_of_work || '',
+      name_of_contractor: data.name_of_contractor || '',
+      asset_type: data.asset_type || '',
+      sub_asset_type: data.sub_asset_type || '',
+      latitude: data.latitude || '',
+      longitude: data.longitude || '',
+      numbers_lengths: data.numbers_lengths || '',
+      work_status: data.work_status || '',
+      work_start_date: data.work_start_date || '',
+      work_end_date: data.work_end_date || '',
+      comments: data.comments || data.comments_observations || '',
+      work_image: data.work_image || data.comments_observations_image || '',
+      work_video: data.work_video || '',
+    });
+  }
 }

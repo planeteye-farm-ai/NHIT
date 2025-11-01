@@ -1,94 +1,264 @@
-
-<app-page-header title="View History Of Works" title1="View History Of Works" activeTitle="View History Of Works"></app-page-header>
+<app-page-header
+  title="View History Of Works"
+  title1="View History Of Works"
+  activeTitle="View History Of Works"
+></app-page-header>
 
 <div class="row">
+  <div class="col-xl-12">
+    <app-showcode-card
+      [title]="'View History Of Works - ' + roadName"
+      [prism]="prismCode.formlayouts10"
+    >
+      <form [formGroup]="historyDataForm">
+        <div class="card custom-card">
+          <div class="card-header bg-info text-white">
+            <h6 class="card-title mb-0">
+              <i class="ri-information-line me-2"></i>Work Details
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <!-- Road Name -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="road_name">Road Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="road_name"
+                  formControlName="road_name"
+                  readonly
+                />
+              </div>
 
-    <div class="col-xl-12">
-        <app-showcode-card [title]="'View History Of Works'" [prism]="prismCode.formlayouts10">
-            <form [formGroup]="historyDataForm">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="name_of_road">Name Of Road</label>
-                        <input type="text" class="form-control"  id="name_of_road" formControlName="name_of_road" readonly>                      
-                    </div>
+              <!-- Chainage Range -->
+              <div class="col-md-3 mb-3">
+                <label class="form-label" for="chainage_start"
+                  >Chainage Start (KM)</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="chainage_start"
+                  formControlName="chainage_start"
+                  readonly
+                />
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="road_location">Road Location</label>
-                        <input type="text" class="form-control" id="road_location" formControlName="road_location" readonly>
-                    </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label" for="chainage_end"
+                  >Chainage End (KM)</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="chainage_end"
+                  formControlName="chainage_end"
+                  readonly
+                />
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="type_of_road">Type Of Road</label>
-                        <input type="text" class="form-control" id="type_of_road" formControlName="type_of_road" readonly>
-                    </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="road_section_no">Road Section No</label>
-                        <input type="text" class="form-control" id="road_section_no" formControlName="road_section_no" readonly>   
-                    </div>
+              <!-- Direction -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="direction">Direction</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="direction"
+                  formControlName="direction"
+                  readonly
+                />
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="name_of_contractor">Name Of Contractor</label>
-                        <input type="text" class="form-control" id="name_of_contractor" formControlName="name_of_contractor" readonly>
-                    </div>
+              <!-- Type of Work -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="type_of_work"
+                  >Type of Work</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="type_of_work"
+                  formControlName="type_of_work"
+                  readonly
+                />
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="old_road_length">Old Road Length</label>
-                        <input type="text" class="form-control" id="old_road_length" formControlName="old_road_length" readonly>
-                    </div>
+              <!-- Name of Contractor -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="name_of_contractor"
+                  >Name of Contractor</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name_of_contractor"
+                  formControlName="name_of_contractor"
+                  readonly
+                />
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="old_road_width">Old Road Width</label>
-                        <input type="text" class="form-control" id="old_road_width" formControlName="old_road_width" readonly>
-                    </div>
+              <!-- Asset Type -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="asset_type">Asset Type</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="asset_type"
+                  formControlName="asset_type"
+                  readonly
+                />
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="cons_starting_date">Construction Start Date</label>
-                        <input type="text" class="form-control" id="cons_starting_date" formControlName="cons_starting_date" readonly>
-                    </div>
+              <!-- Sub Asset Type -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="sub_asset_type"
+                  >Sub Asset Type</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="sub_asset_type"
+                  formControlName="sub_asset_type"
+                  readonly
+                />
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="cons_ending_date">Construction End Date</label>
-                        <input type="text" class="form-control" id="cons_ending_date" formControlName="cons_ending_date" readonly>
-                    </div> 
+              <!-- Latitude -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="latitude">Latitude</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="latitude"
+                  formControlName="latitude"
+                  readonly
+                />
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="last_routing_inspe_date">Last Routine Inspection Date</label>
-                        <input type="text" class="form-control" id="last_routing_inspe_date" formControlName="last_routing_inspe_date" readonly>
-                    </div> 
+              <!-- Longitude -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="longitude">Longitude</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="longitude"
+                  formControlName="longitude"
+                  readonly
+                />
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="type_of_last_inspection">Type Of Last Inspection</label>
-                        <input type="text" class="form-control" id="type_of_last_inspection" formControlName="type_of_last_inspection" readonly>
-                    </div> 
-                
-                    <div [ngClass]="{'col-md-6 mb-3': !historyData?.comments_observations_image, 'col-md-4 mb-3': historyData?.comments_observations_image}">
-                        <label class="form-label" for="comments_observations">Comments Observations</label>
-                        <input type="text" class="form-control" id="comments_observations" formControlName="comments_observations" readonly>
-                    </div>
+              <!-- Numbers/Lengths -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="numbers_lengths"
+                  >Numbers/Lengths</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="numbers_lengths"
+                  formControlName="numbers_lengths"
+                  readonly
+                />
+              </div>
 
-                    @if(historyData.comments_observations_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('comments_observations_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                            </div>
-                        </div>
-                     }
+              <!-- Work Status -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="work_status">Work Status</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="work_status"
+                  formControlName="work_status"
+                  readonly
+                />
+              </div>
+
+              <!-- Work Start Date -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="work_start_date"
+                  >Work Start Date</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="work_start_date"
+                  formControlName="work_start_date"
+                  readonly
+                />
+              </div>
+
+              <!-- Work End Date -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="work_end_date"
+                  >Work End Date</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="work_end_date"
+                  formControlName="work_end_date"
+                  readonly
+                />
+              </div>
+
+              <!-- Comments -->
+              <div class="col-md-12 mb-3">
+                <label class="form-label" for="comments">Comments</label>
+                <textarea
+                  class="form-control"
+                  id="comments"
+                  formControlName="comments"
+                  rows="3"
+                  readonly
+                ></textarea>
+              </div>
+
+              <!-- Image Display -->
+              @if(historyData?.work_image) {
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Work Image</label>
+                <div class="border rounded p-2">
+                  <p class="mb-0">
+                    <i class="ri-image-fill text-success me-2"></i>
+                    {{ historyData.work_image }}
+                  </p>
                 </div>
-            </form>
+              </div>
+              }
 
-        </app-showcode-card>
-    </div>
+              <!-- Video Display -->
+              @if(historyData?.work_video) {
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Work Video</label>
+                <div class="border rounded p-2">
+                  <p class="mb-0">
+                    <i class="ri-video-fill text-primary me-2"></i>
+                    {{ historyData.work_video }}
+                  </p>
+                </div>
+              </div>
+              }
+
+              <!-- Back Button -->
+              <div
+                class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2"
+              >
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  [routerLink]="[
+                    '/ris/road-manage/history-of-work',
+                    historyData?.geometry_data_id
+                  ]"
+                >
+                  <i class="ri-arrow-left-line me-1"></i> Back to List
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </app-showcode-card>
+  </div>
 </div>
-
-
-
-
-
-
-
-

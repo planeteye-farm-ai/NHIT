@@ -1,446 +1,583 @@
 import { Component } from '@angular/core';
 import { ShowcodeCardComponent } from '../../../../../../shared/common/includes/showcode-card/showcode-card.component';
-import * as prismCodeData from '../../../../../../shared/prismData/forms/form_layouts'
+import * as prismCodeData from '../../../../../../shared/prismData/forms/form_layouts';
 import { SharedModule } from '../../../../../../shared/common/sharedmodule';
-import { NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import { FormBuilder, FormGroup, FormArray, FormsModule, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CommonModule } from '@angular/common';
-import { CustomValidators } from '../../../../../../shared/common/custom-validators'; 
+import { CustomValidators } from '../../../../../../shared/common/custom-validators';
 import { Router } from '@angular/router';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RoadService } from '../../road.service';
-import { Inventory, InventoryEdit } from '../inventory';
-import { ApiUrl } from '../../../../../../shared/const';
-
 
 @Component({
   selector: 'app-edit-inventory',
   standalone: true,
-  imports: [SharedModule,NgSelectModule,FormsModule,CommonModule,ShowcodeCardComponent,ReactiveFormsModule],
+  imports: [
+    SharedModule,
+    NgSelectModule,
+    FormsModule,
+    CommonModule,
+    ShowcodeCardComponent,
+    ReactiveFormsModule,
+    RouterLink,
+  ],
   templateUrl: './edit-inventory.component.html',
-  styleUrl: './edit-inventory.component.scss'
+  styleUrl: './edit-inventory.component.scss',
 })
 export class EditInventoryComponent {
-
-  
   inventoryForm!: FormGroup;
   prismCode = prismCodeData;
-  // roadId:any;
-  stateList:any;
-  districtList:any;
-  cityList:any;
-  roadData:any;
-  roadName:any;
-  inventoryId:any;
-  inventoryData:any;
-  urlLive = ApiUrl.API_URL_fOR_iMAGE;
+  roadId: any;
+  inventoryId: any;
+  inventoryData: any;
+
+  // Direction options
+  directionOptions = ['Increasing (LHS)', 'Decreasing (RHS)', 'Median'];
+
+  // Asset Types (Complete list from Inventory Report)
+  assetTypes = [
+    'Adjacent Road',
+    'Bridges',
+    'Bus Stop',
+    'Crash Barrier',
+    'Culvert',
+    'Emergency Call Box',
+    'Footpath',
+    'Fuel Station',
+    'Junction',
+    'KM Stones',
+    'Median Opening',
+    'Median Plants',
+    'RCC Drain',
+    'Rest Area',
+    'Service Road',
+    'Sign Boards',
+    'Solar Blinker',
+    'Street Lights',
+    'Toilet Blocks',
+    'Toll Plaza',
+    'Traffic Signals',
+    'Trees',
+    'Truck LayBy',
+    'Tunnels',
+  ];
+
+  // Sub Asset Types (will be populated based on selected Asset Type)
+  subAssetTypes: string[] = [];
+
+  // Asset Type to Sub Asset Type mapping (Comprehensive)
+  assetSubTypeMap: { [key: string]: string[] } = {
+    'Adjacent Road': [
+      'Parallel Road',
+      'Cross Road',
+      'Access Road',
+      'Connecting Road',
+    ],
+    Bridges: [
+      'RCC Bridge',
+      'Steel Bridge',
+      'Cable Stayed',
+      'Suspension Bridge',
+      'Arch Bridge',
+      'Beam Bridge',
+    ],
+    'Bus Stop': [
+      'Covered Shelter',
+      'Open Shelter',
+      'With Seating',
+      'Basic Stand',
+    ],
+    'Crash Barrier': [
+      'Metal Beam Barrier',
+      'Concrete Barrier',
+      'Cable Barrier',
+      'Water Filled Barrier',
+    ],
+    Culvert: ['Box Culvert', 'Pipe Culvert', 'Slab Culvert', 'Arch Culvert'],
+    'Emergency Call Box': [
+      'SOS Box',
+      'Call Pillar',
+      'Digital Panel',
+      'Emergency Telephone',
+    ],
+    Footpath: [
+      'Paved Footpath',
+      'Unpaved Footpath',
+      'Elevated Walkway',
+      'Pedestrian Crossing',
+    ],
+    'Fuel Station': [
+      'Petrol Pump',
+      'Diesel Pump',
+      'CNG Station',
+      'EV Charging Station',
+      'Multi-Fuel',
+    ],
+    Junction: [
+      'T-Junction',
+      'Y-Junction',
+      'Roundabout',
+      'Intersection',
+      'Interchange',
+    ],
+    'KM Stones': [
+      'Concrete Post',
+      'Metal Post',
+      'Reflective Marker',
+      'Mile Stone',
+    ],
+    'Median Opening': [
+      'Emergency Opening',
+      'U-Turn Opening',
+      'Service Vehicle Access',
+      'Crossover',
+    ],
+    'Median Plants': [
+      'Shrubs',
+      'Flowering Plants',
+      'Grass',
+      'Ornamental Plants',
+      'Trees',
+    ],
+    'RCC Drain': ['Covered Drain', 'Open Drain', 'Grated Drain', 'Side Drain'],
+    'Rest Area': [
+      'Parking Bay',
+      'Picnic Spot',
+      'Food Court',
+      'Tourist Rest Area',
+    ],
+    'Service Road': [
+      'Left Side Service Road',
+      'Right Side Service Road',
+      'Both Sides',
+      'Frontage Road',
+    ],
+    'Sign Boards': [
+      'Informatory Signs',
+      'Regulatory Signs',
+      'Warning Signs',
+      'Direction Signs',
+      'Tourist Signs',
+    ],
+    'Solar Blinker': [
+      'Red Blinker',
+      'Yellow Blinker',
+      'White Blinker',
+      'Amber Blinker',
+    ],
+    'Street Lights': [
+      'LED Lights',
+      'Sodium Vapor Lights',
+      'Halogen Lights',
+      'Solar Lights',
+      'High Mast',
+    ],
+    'Toilet Blocks': [
+      'Public Toilet',
+      'Staff Toilet',
+      'Disabled Access',
+      'Male Toilet',
+      'Female Toilet',
+      'Unisex',
+    ],
+    'Toll Plaza': [
+      'Manual Toll',
+      'FASTag Toll',
+      'Hybrid Toll',
+      'Automated Toll',
+    ],
+    'Traffic Signals': [
+      '3-Light Signal',
+      '4-Light Signal',
+      'Pedestrian Signal',
+      'Countdown Timer',
+    ],
+    Trees: [
+      'Roadside Trees',
+      'Median Trees',
+      'Avenue Trees',
+      'Landscaping Trees',
+    ],
+    'Truck LayBy': [
+      'Single Lane Bay',
+      'Double Lane Bay',
+      'Truck Parking Area',
+      'Rest Bay',
+    ],
+    Tunnels: [
+      'Road Tunnel',
+      'Underpass',
+      'Flyover Underpass',
+      'Pedestrian Tunnel',
+    ],
+  };
 
   constructor(
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private modalService: NgbModal,
     private toastr: ToastrService,
-    private roadService:RoadService,
-    private router: Router,
-    ) {
-      // this.inventoryForm = this.fb.group({
-      //   inspectionItems: this.fb.array([]) // Create an empty FormArray
-      // });
-
-      
-  }
+    private roadService: RoadService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-  
-    this.inventoryForm = this.fb.group({
-      state_id: ['', Validators.required],
-      district_id: ['', Validators.required],
-      city_id: ['', Validators.required],
-      village: ['',[Validators.required,CustomValidators.noWhitespaceValidator()]],
-      chainage_start: ['',[Validators.required, CustomValidators.numberValidator()]],
-      chainage_end: ['',[Validators.required, CustomValidators.numberValidator()]],
-      terrain: ['', Validators.required],
-      land_use_left: ['', Validators.required],
-      land_use_right: ['', Validators.required],
-      chainagewise_village: ['',[Validators.required,CustomValidators.noWhitespaceValidator()]],
-      roadway_width: ['',[Validators.required, CustomValidators.numberValidator()]],
-      formation_width: ['',[Validators.required, CustomValidators.numberValidator()]],
-      carriageway_type: ['', Validators.required],
-      carriageway_width: ['',[Validators.required, CustomValidators.numberValidator()]],
-      shoulder_left_type: ['', Validators.required],
-      shoulder_right_type: ['', Validators.required],
-      shoulder_left_width: ['',[Validators.required, CustomValidators.numberValidator()]],
-      shoulder_right_width: ['',[Validators.required, CustomValidators.numberValidator()]],
-      submergence: ['',[Validators.required]],
-      embankment_height: ['',[Validators.required, CustomValidators.numberValidator()]], 
-
-      drainage_left: ['',[Validators.required]],
-      drainage_right: ['',[Validators.required]],
-
-      avenue_plantation_left: [0,[Validators.required]],
-      avenue_plantation_right:[0,[Validators.required]],
-
-      median_plants: ['',[Validators.required]],
-      median_plants_value: [0,[Validators.required]],
-
-      sign_board_left: [0,[Validators.required]],
-      sign_board_right: [0,[Validators.required]],
-      sign_board_middle:[0,[Validators.required]],
-
-      culverts_left: [0,[Validators.required]],
-      culverts_right: [0,[Validators.required]],
-
-      street_lights_left: [0,[Validators.required]],
-      street_lights_middle: [0,[Validators.required]],
-      street_lights_right: [0,[Validators.required]],
-
-      junctions: [0,[Validators.required]],
-      kilometer_stone_left: [0,[Validators.required]],
-      kilometer_stone_middle: [0,[Validators.required]],
-      kilometer_stone_right: [0,[Validators.required]],
-
-      bus_top_left: [0,[Validators.required]],
-      bus_top_right: [0,[Validators.required]],
-
-      truck_lay_bayes_left:[0,[Validators.required]],
-      truck_lay_bayes_right:[0,[Validators.required]],
-
-      toll_plaza: ['',[Validators.required]],
-
-      service_road_left: [0,[Validators.required]],
-      service_road_right: [0,[Validators.required]],
-      adjacent_roads_left: [0,[Validators.required]],
-      adjacent_roads_right: [0,[Validators.required]],
-      
-      toilet_blocks_left: [0,[Validators.required]],
-      toilet_blocks_right: [0,[Validators.required]],
-
-      solar_blinkers: ['',[Validators.required]],
-      solar_blinkers_value: [0,[Validators.required]],
-
-      rest_area_left: [0,[Validators.required]],
-      rest_area_right: [0,[Validators.required]],
-      row_fencing_left: [0,[Validators.required]],
-      row_fencing_middle: [0,[Validators.required]],
-      row_fencing_right: [0,[Validators.required]],
-      fuel_station_left: [0,[Validators.required]],
-      fuel_station_right: [0,[Validators.required]],
-      emergency_call_box_left: [0,[Validators.required]],
-      emergency_call_box_right: [0,[Validators.required]],
-      footpath_left: ['',[Validators.required]],
-      footpath_right:['',[Validators.required]],
-
-      divider_break: ['',[Validators.required]],
-      divider_break_value: [0,[Validators.required]],
-      remarks: ['',[Validators.required,CustomValidators.noWhitespaceValidator()]]
-    });
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
+      this.roadId = Number(params.get('id'));
       this.inventoryId = Number(params.get('id'));
-      // console.log("bridge id in add",this.inspectionId)
       if (this.inventoryId) {
-        this.loadBridgeDetails(this.inventoryId);
+        this.loadInventoryDetails(this.inventoryId);
       }
     });
 
-    this.getStateList();
+    this.inventoryForm = this.fb.group({
+      chainage_start: [
+        '',
+        [Validators.required, CustomValidators.numberValidator()],
+      ],
+      chainage_end: [
+        '',
+        [Validators.required, CustomValidators.numberValidator()],
+      ],
+      direction: ['', Validators.required],
+      asset_action: ['add', Validators.required], // 'add' or 'report_missing'
+      asset_type: ['', Validators.required],
+      sub_asset_type: ['', Validators.required],
+      latitude: ['', [Validators.required, CustomValidators.numberValidator()]],
+      longitude: [
+        '',
+        [Validators.required, CustomValidators.numberValidator()],
+      ],
+      numbers_inventory: ['', CustomValidators.numberValidator()],
+      inventory_image: [''],
+      inventory_video: [''],
+      image_file: [null],
+      video_file: [null],
+      image_preview: [null],
+      video_preview: [null],
+    });
   }
 
-  getStateList(){
-    this.roadService.getStateList().subscribe((res)=>{
-      this.stateList = res.data;
-    })
-  }
-  getDistrctList(id:any){
-    this.roadService.getDistrctList(id).subscribe((res) =>{
-      this.districtList = res.data;
-    })
+  // Update sub asset types when asset type changes
+  onAssetTypeChange(assetType: string): void {
+    this.subAssetTypes = this.assetSubTypeMap[assetType] || [];
+    this.inventoryForm.patchValue({ sub_asset_type: '' });
   }
 
-  getCitytList(id:any){
-    this.roadService.getCitytList(id).subscribe((res) =>{
-      this.cityList = res.data;
-    })
+  loadInventoryDetails(id: number): void {
+    // TESTING MODE: Load from localStorage first
+    const testInventory = JSON.parse(
+      localStorage.getItem('test_inventory') || '[]'
+    );
+    const foundInventory = testInventory.find(
+      (inv: any) => inv.road_inventory_id === id
+    );
+
+    if (foundInventory) {
+      console.log('Inventory loaded from localStorage:', foundInventory);
+      this.inventoryData = foundInventory;
+      this.patchValue({ data: [foundInventory] });
+      this.toastr.info('Loaded from Test Mode (localStorage)', 'NHAI RAMS', {
+        timeOut: 2000,
+        positionClass: 'toast-top-right',
+      });
+    } else {
+      // Fallback to API if not found in localStorage
+      this.toastr.warning(
+        'Inventory not found in localStorage. Using API...',
+        'NHAI RAMS',
+        {
+          timeOut: 2000,
+          positionClass: 'toast-top-right',
+        }
+      );
+
+      this.roadService.getInventoryById(id).subscribe(
+        (inventory: any) => {
+          console.log('get inventory details', inventory);
+          if (inventory && inventory.data && inventory.data.length > 0) {
+            this.inventoryData = inventory.data[0];
+            this.patchValue(inventory);
+          }
+        },
+        (err) => {
+          this.toastr.error(
+            err.msg || 'Failed to load inventory',
+            'NHAI RAMS',
+            {
+              timeOut: 3000,
+              positionClass: 'toast-top-right',
+            }
+          );
+        }
+      );
+    }
+  }
+
+  patchValue(inventory: any): void {
+    const data = inventory.data[0];
+
+    // Set sub asset types based on asset type
+    if (data.asset_type) {
+      this.subAssetTypes = this.assetSubTypeMap[data.asset_type] || [];
+    }
+
+    this.inventoryForm.patchValue({
+      chainage_start: data.chainage_start,
+      chainage_end: data.chainage_end,
+      direction: data.direction,
+      asset_action: data.asset_action || 'add',
+      asset_type: data.asset_type,
+      sub_asset_type: data.sub_asset_type,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      numbers_inventory: data.numbers_inventory,
+      inventory_image: data.inventory_image,
+      inventory_video: data.inventory_video,
+    });
+  }
+
+  // Handle image file selection
+  onImageSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        this.toastr.error(
+          'Only JPG and PNG images are allowed',
+          'Invalid File'
+        );
+        event.target.value = '';
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
+        event.target.value = '';
+        return;
+      }
+
+      this.inventoryForm.patchValue({
+        inventory_image: file.name,
+        image_file: file,
+      });
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.inventoryForm.patchValue({ image_preview: e.target.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Handle video file selection
+  onVideoSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
+      if (!validTypes.includes(file.type)) {
+        this.toastr.error(
+          'Only MP4, AVI, MOV, and WMV videos are allowed',
+          'Invalid File'
+        );
+        event.target.value = '';
+        return;
+      }
+
+      if (file.size > 50 * 1024 * 1024) {
+        this.toastr.error(
+          'Video size should not exceed 50MB',
+          'File Too Large'
+        );
+        event.target.value = '';
+        return;
+      }
+
+      this.inventoryForm.patchValue({
+        inventory_video: file.name,
+        video_file: file,
+      });
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.inventoryForm.patchValue({ video_preview: e.target.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Remove image
+  removeImage(): void {
+    this.inventoryForm.patchValue({
+      inventory_image: '',
+      image_file: null,
+      image_preview: null,
+    });
+  }
+
+  // Remove video
+  removeVideo(): void {
+    this.inventoryForm.patchValue({
+      inventory_video: '',
+      video_file: null,
+      video_preview: null,
+    });
   }
 
   onSubmit(): void {
-    // const formData: Suggestion = this.inventoryForm.value;
-    console.log('Form submitted:',this.inventoryForm);
-    if (this.inventoryForm.invalid)
-    {
+    if (this.inventoryForm.invalid) {
       this.inventoryForm.markAllAsTouched();
+      this.toastr.error('Please fill all required fields', 'Validation Error');
       return;
     }
 
-    else{
-      let inventoryObj: InventoryEdit={ 
-        state_id: this.inventoryForm.get('state_id')?.value,
-        district_id: this.inventoryForm.get('district_id')?.value,
-        city_id: this.inventoryForm.get('city_id')?.value,
-        village: this.inventoryForm.get('village')?.value,
+    // TESTING MODE: Update in localStorage
+    let testInventory = JSON.parse(
+      localStorage.getItem('test_inventory') || '[]'
+    );
+    const inventoryIndex = testInventory.findIndex(
+      (inv: any) => inv.road_inventory_id === this.inventoryId
+    );
+
+    if (inventoryIndex !== -1) {
+      // Update the inventory in localStorage
+      testInventory[inventoryIndex] = {
+        road_inventory_id: this.inventoryId,
+        geometry_data_id: testInventory[inventoryIndex].geometry_data_id,
         chainage_start: this.inventoryForm.get('chainage_start')?.value,
         chainage_end: this.inventoryForm.get('chainage_end')?.value,
-        terrain: this.inventoryForm.get('terrain')?.value,
-        land_use_left: this.inventoryForm.get('land_use_left')?.value,
-        land_use_right: this.inventoryForm.get('land_use_right')?.value,
-        chainagewise_village: this.inventoryForm.get('chainagewise_village')?.value,
-        roadway_width: this.inventoryForm.get('roadway_width')?.value,
-        formation_width: this.inventoryForm.get('formation_width')?.value,
-        carriageway_type: this.inventoryForm.get('carriageway_type')?.value,
-        carriageway_width: this.inventoryForm.get('carriageway_width')?.value,
-        shoulder_left_type: this.inventoryForm.get('shoulder_left_type')?.value,
-        shoulder_right_type: this.inventoryForm.get('shoulder_right_type')?.value,
-        shoulder_left_width: this.inventoryForm.get('shoulder_left_width')?.value,
-        shoulder_right_width: this.inventoryForm.get('shoulder_right_width')?.value,
-        submergence: this.inventoryForm.get('submergence')?.value,
-        embankment_height: this.inventoryForm.get('embankment_height')?.value,
-        
-        drainage_left: this.inventoryForm.get('drainage_left')?.value,
-        drainage_right: this.inventoryForm.get('drainage_right')?.value,
+        direction: this.inventoryForm.get('direction')?.value,
+        asset_action: this.inventoryForm.get('asset_action')?.value,
+        asset_type: this.inventoryForm.get('asset_type')?.value,
+        sub_asset_type: this.inventoryForm.get('sub_asset_type')?.value,
+        latitude: this.inventoryForm.get('latitude')?.value,
+        longitude: this.inventoryForm.get('longitude')?.value,
+        numbers_inventory:
+          this.inventoryForm.get('numbers_inventory')?.value || '',
+        inventory_image:
+          this.inventoryForm.get('image_file')?.value?.name ||
+          testInventory[inventoryIndex].inventory_image,
+        inventory_video:
+          this.inventoryForm.get('video_file')?.value?.name ||
+          testInventory[inventoryIndex].inventory_video,
+        created_on: testInventory[inventoryIndex].created_on,
+      };
 
-        avenue_plantation_left: this.inventoryForm.get('avenue_plantation_left')?.value,
-        avenue_plantation_right: this.inventoryForm.get('avenue_plantation_right')?.value,
+      // Save back to localStorage
+      localStorage.setItem('test_inventory', JSON.stringify(testInventory));
 
-        median_plants: this.inventoryForm.get('median_plants')?.value,
-        median_plants_value: this.inventoryForm.get('median_plants_value')?.value,
+      // Reload the inventory details
+      this.loadInventoryDetails(this.inventoryId);
 
-        sign_board_left: this.inventoryForm.get('sign_board_left')?.value,
-        sign_board_right: this.inventoryForm.get('sign_board_right')?.value,
-        sign_board_middle:this.inventoryForm.get('sign_board_middle')?.value,
+      this.toastr.success(
+        'Inventory updated successfully!',
+        'NHAI RAMS (Test Mode)',
+        {
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
+        }
+      );
 
-        culverts_left: this.inventoryForm.get('culverts_left')?.value,
-        culverts_right: this.inventoryForm.get('culverts_right')?.value,
+      console.log(
+        'Inventory updated in localStorage:',
+        testInventory[inventoryIndex]
+      );
+    } else {
+      // Not found in localStorage, use API
+      this.toastr.warning(
+        'Inventory not found in localStorage. Using API...',
+        'NHAI RAMS',
+        {
+          timeOut: 2000,
+          positionClass: 'toast-top-right',
+        }
+      );
 
-        street_lights_left: this.inventoryForm.get('street_lights_left')?.value,
-        street_lights_middle: this.inventoryForm.get('street_lights_middle')?.value,
-        street_lights_right: this.inventoryForm.get('street_lights_right')?.value,
+      const formData = new FormData();
 
-        junctions: this.inventoryForm.get('junctions')?.value,
-        kilometer_stone_left: this.inventoryForm.get('kilometer_stone_left')?.value,
-        kilometer_stone_middle: this.inventoryForm.get('kilometer_stone_middle')?.value,
-        kilometer_stone_right: this.inventoryForm.get('kilometer_stone_right')?.value,
+      // Add all form fields
+      formData.append(
+        'chainage_start',
+        this.inventoryForm.get('chainage_start')?.value
+      );
+      formData.append(
+        'chainage_end',
+        this.inventoryForm.get('chainage_end')?.value
+      );
+      formData.append('direction', this.inventoryForm.get('direction')?.value);
+      formData.append(
+        'asset_action',
+        this.inventoryForm.get('asset_action')?.value
+      );
+      formData.append(
+        'asset_type',
+        this.inventoryForm.get('asset_type')?.value
+      );
+      formData.append(
+        'sub_asset_type',
+        this.inventoryForm.get('sub_asset_type')?.value
+      );
+      formData.append('latitude', this.inventoryForm.get('latitude')?.value);
+      formData.append('longitude', this.inventoryForm.get('longitude')?.value);
+      formData.append(
+        'numbers_inventory',
+        this.inventoryForm.get('numbers_inventory')?.value || ''
+      );
 
-        bus_top_left: this.inventoryForm.get('bus_top_left')?.value,
-        bus_top_right: this.inventoryForm.get('bus_top_right')?.value,
+      // Add image file if selected
+      const imageFile = this.inventoryForm.get('image_file')?.value;
+      if (imageFile) {
+        formData.append('inventory_image', imageFile, imageFile.name);
+      }
 
-        truck_lay_bayes_left:this.inventoryForm.get('truck_lay_bayes_left')?.value,
-        truck_lay_bayes_right:this.inventoryForm.get('truck_lay_bayes_right')?.value,
+      // Add video file if selected
+      const videoFile = this.inventoryForm.get('video_file')?.value;
+      if (videoFile) {
+        formData.append('inventory_video', videoFile, videoFile.name);
+      }
 
-        toll_plaza: this.inventoryForm.get('toll_plaza')?.value,
+      console.log('Submitting inventory update...');
 
-        service_road_left: this.inventoryForm.get('service_road_left')?.value,
-        service_road_right: this.inventoryForm.get('service_road_right')?.value,
-        adjacent_roads_left: this.inventoryForm.get('adjacent_roads_left')?.value,
-        adjacent_roads_right: this.inventoryForm.get('adjacent_roads_right')?.value,
-        
-        toilet_blocks_left: this.inventoryForm.get('toilet_blocks_left')?.value,
-        toilet_blocks_right: this.inventoryForm.get('toilet_blocks_right')?.value,
-
-        solar_blinkers: this.inventoryForm.get('solar_blinkers')?.value,
-        solar_blinkers_value: this.inventoryForm.get('solar_blinkers_value')?.value,
-
-        rest_area_left: this.inventoryForm.get('rest_area_left')?.value,
-        rest_area_right: this.inventoryForm.get('rest_area_right')?.value,
-        row_fencing_left: this.inventoryForm.get('row_fencing_left')?.value,
-        row_fencing_middle: this.inventoryForm.get('row_fencing_middle')?.value,
-        row_fencing_right: this.inventoryForm.get('row_fencing_right')?.value,
-        fuel_station_left: this.inventoryForm.get('fuel_station_left')?.value,
-        fuel_station_right: this.inventoryForm.get('fuel_station_right')?.value,
-        emergency_call_box_left: this.inventoryForm.get('emergency_call_box_left')?.value,
-        emergency_call_box_right: this.inventoryForm.get('emergency_call_box_right')?.value,
-        footpath_left: this.inventoryForm.get('footpath_left')?.value,
-        footpath_right:this.inventoryForm.get('footpath_right')?.value,
-
-        divider_break: this.inventoryForm.get('divider_break')?.value,
-        divider_break_value: this.inventoryForm.get('divider_break_value')?.value,
-        remarks: this.inventoryForm.get('remarks')?.value 
-      } 
-
-      // console.log("inspection form details",formData);
-
-      this.roadService.updateInventory(inventoryObj,this.inventoryId).subscribe((res)=>{
-        console.log(res);
-        if(res.status){
-          this.loadBridgeDetails(this.inventoryId);
-          this.toastr.success(res.msg, 'NHAI RAMS', {
+      this.roadService.updateInventory(formData, this.inventoryId).subscribe(
+        (res) => {
+          console.log(res);
+          if (res.status) {
+            this.loadInventoryDetails(this.inventoryId);
+            this.toastr.success(
+              res.msg || 'Inventory updated successfully',
+              'NHAI RAMS',
+              {
+                timeOut: 3000,
+                positionClass: 'toast-top-right',
+              }
+            );
+          } else {
+            this.toastr.error(
+              res.msg || 'Failed to update inventory',
+              'NHAI RAMS',
+              {
+                timeOut: 3000,
+                positionClass: 'toast-top-right',
+              }
+            );
+          }
+        },
+        (err) => {
+          this.toastr.error(err.msg || 'An error occurred', 'NHAI RAMS', {
             timeOut: 3000,
             positionClass: 'toast-top-right',
           });
-              // this.bridgeForm.reset();
         }
-        else {
-            this.toastr.error(res.msg, 'NHAI RAMS', {
-              timeOut: 3000,
-              positionClass: 'toast-top-right',
-            });
-        }
-      },
-    (err)=>{
-      this.toastr.error(err.msg, 'NHAI RAMS', {
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
-      });
-    });
-      
-  }
-      
-  }
-
-  loadBridgeDetails(id: number): void {
-    this.roadService.getInventoryById(id).subscribe((inventory: any) => {
-      console.log("get inventory details",inventory);
-      if (inventory) {
-        this.inventoryData = inventory.data[0];
-        this.patchValue(inventory);
-      }
-    },(err)=>{
-      this.toastr.error(err.msg, 'NHAI RAMS', {
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
-      });
-    });
-    
-  }
-
-  patchValue(inventory:any){
-    this.inventoryForm.patchValue({
-      state_id: inventory.data[0].state_id,
-      district_id: inventory.data[0].district_id,
-      city_id: inventory.data[0].city_id,
-      village: inventory.data[0].village,
-      chainage_start: inventory.data[0].chainage_start,
-      chainage_end: inventory.data[0].chainage_end,
-      terrain: inventory.data[0].terrain,
-      land_use_left: inventory.data[0].land_use_left,
-      land_use_right: inventory.data[0].land_use_right,
-      chainagewise_village: inventory.data[0].chainagewise_village,
-      roadway_width: inventory.data[0].roadway_width,
-      formation_width: inventory.data[0].formation_width,
-      carriageway_type: inventory.data[0].carriageway_type,
-      carriageway_width: inventory.data[0].carriageway_width,
-      shoulder_left_type: inventory.data[0].shoulder_left_type,
-      shoulder_right_type: inventory.data[0].shoulder_right_type,
-      shoulder_left_width: inventory.data[0].shoulder_left_width,
-      shoulder_right_width: inventory.data[0].shoulder_right_width,
-      submergence: inventory.data[0].submergence,
-      embankment_height: inventory.data[0].embankment_height, 
-
-      drainage_left: inventory.data[0].drainage_left,
-      drainage_right: inventory.data[0].drainage_right,
-
-      avenue_plantation_left: inventory.data[0].avenue_plantation_left,
-      avenue_plantation_right:inventory.data[0].avenue_plantation_right,
-
-      median_plants: inventory.data[0].median_plants === "0" ? "No" : "Yes",
-      median_plants_value: inventory.data[0].median_plants,
-
-      sign_board_left: inventory.data[0].sign_board_left,
-      sign_board_right: inventory.data[0].sign_board_right,
-      sign_board_middle:inventory.data[0].sign_board_middle,
-
-      culverts_left: inventory.data[0].culverts_left,
-      culverts_right: inventory.data[0].culverts_right,
-
-      street_lights_left: inventory.data[0].street_lights_left,
-      street_lights_middle: inventory.data[0].street_lights_middle,
-      street_lights_right: inventory.data[0].street_lights_right,
-
-      junctions: inventory.data[0].junctions,
-      kilometer_stone_left: inventory.data[0].kilometer_stone_left,
-      kilometer_stone_middle: inventory.data[0].kilometer_stone_middle,
-      kilometer_stone_right: inventory.data[0].kilometer_stone_right,
-
-      bus_top_left: inventory.data[0].bus_top_left,
-      bus_top_right: inventory.data[0].bus_top_right,
-
-      truck_lay_bayes_left:inventory.data[0].truck_lay_bayes_left,
-      truck_lay_bayes_right:inventory.data[0].truck_lay_bayes_right,
-
-      toll_plaza: inventory.data[0].toll_plaza,
-
-      service_road_left: inventory.data[0].service_road_left,
-      service_road_right: inventory.data[0].service_road_right,
-      adjacent_roads_left: inventory.data[0].adjacent_roads_left,
-      adjacent_roads_right: inventory.data[0].adjacent_roads_right,
-      
-      toilet_blocks_left: inventory.data[0].toilet_blocks_left,
-      toilet_blocks_right: inventory.data[0].toilet_blocks_right,
-
-      solar_blinkers: inventory.data[0].solar_blinkers === "0" ? "No" : "Yes",
-      solar_blinkers_value: inventory.data[0].solar_blinkers,
-
-      rest_area_left: inventory.data[0].rest_area_left,
-      rest_area_right: inventory.data[0].rest_area_right,
-      row_fencing_left: inventory.data[0].row_fencing_left,
-      row_fencing_middle: inventory.data[0].row_fencing_middle,
-      row_fencing_right: inventory.data[0].row_fencing_right,
-      fuel_station_left: inventory.data[0].fuel_station_left,
-      fuel_station_right: inventory.data[0].fuel_station_right,
-      emergency_call_box_left: inventory.data[0].emergency_call_box_left,
-      emergency_call_box_right: inventory.data[0].emergency_call_box_right,
-      footpath_left: inventory.data[0].footpath_left,
-      footpath_right:inventory.data[0].footpath_right,
-
-      divider_break: inventory.data[0].divider_break === "0" ? "No" : "Yes",
-      divider_break_value: inventory.data[0].divider_break,
-      remarks: inventory.data[0].remarks
-      
-    });
-
-    this.getDistrctList(inventory.data[0].state_id)
-  
-    this.getCitytList(inventory.data[0].district_id);
-  }
-
-  onFileChange(event: Event, controlName: string): void {
-    const input = event.target as HTMLInputElement;
-  
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      const formData = new FormData();
-      formData.append('table_name','road_inventory_data');
-      formData.append('record_id',this.inventoryId);
-      formData.append('field_name',controlName);
-      formData.append('image',file);
-      formData.append('record_id_name','road_inventory_id');
-      
-
-      this.roadService.addParticularImage(formData).subscribe((res)=>{
-        // console.log(res);
-        if(res.status){
-          this.ngOnInit()
-        }
-      })
-      // this.inspectionForm.get(controlName)?.setValue(file);
-
+      );
     }
   }
-
-  delete(filedName:any){
-    const formData = new FormData();
-    formData.append('table_name','road_inventory_data');
-    formData.append('record_id',this.inventoryId);
-    formData.append('field_name',filedName);
-    formData.append('record_id_name','road_inventory_id');
-   
-    this.roadService.deleteInspectionImage(formData).subscribe((res)=>{
-      // console.log(res);
-      if(res.status){
-        this.ngOnInit()
-      }
-    })
-  }
-
-  downloadImage(fieldName: string): void {
-    const imageUrl = `${this.urlLive}/upload/inspection_images/${this.inventoryData[fieldName]}`;    
-    const anchor = document.createElement('a');
-    anchor.href = imageUrl;
-    anchor.download = ''; // Let the browser decide the file name
-    anchor.target = '_blank'; // Optional: Open in a new tab if needed
-
-    anchor.click();
-
-    anchor.remove();
-}
 }

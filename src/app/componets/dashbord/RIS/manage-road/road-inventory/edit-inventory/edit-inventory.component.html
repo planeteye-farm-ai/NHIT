@@ -1,1611 +1,331 @@
-
-<app-page-header title="Update Inventory" title1="Update Inventory" activeTitle="Update Inventory"></app-page-header>
+<app-page-header
+  title="Update Road Inventory"
+  title1="Update Road Inventory"
+  activeTitle="Update Road Inventory"
+></app-page-header>
 
 <div class="row">
-
-    <div class="col-xl-12">
-        <app-showcode-card [title]="'Update Inventory of'+roadName" [prism]="prismCode.formlayouts10">
-            <form [formGroup]="inventoryForm" (ngSubmit)="onSubmit()">
-                <div class="row">
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="state_id">State</label><span class="text-danger">*</span>
-                        <select (change)="getDistrctList(inventoryForm.get('state_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('state_id')?.invalid && inventoryForm.get('state_id')?.touched}" id="state_id" formControlName="state_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of stateList; track $index) {
-                            <option value="{{row.state_id}}">{{row.state_name}}</option>
-                            }
-                        </select>   
-                        
-                        @if(inventoryForm.get('state_id')?.invalid && inventoryForm.get('state_id')?.touched){
-                            <span  class="text-danger">Please select valid state</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="district_id">District</label><span class="text-danger">*</span>
-                        <select  (change)="getCitytList(inventoryForm.get('district_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('district_id')?.invalid && inventoryForm.get('district_id')?.touched}" id="district_id" formControlName="district_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of districtList; track $index) {
-                              <option value="{{row.district_id}}">{{row.district_name}}</option> 
-                            }
-                        </select>   
-                        @if(inventoryForm.get('district_id')?.invalid && inventoryForm.get('district_id')?.touched){
-                            <span  class="text-danger">Please select valid district</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="city_id">Block</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('city_id')?.invalid && inventoryForm.get('city_id')?.touched}" id="city_id" formControlName="city_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of cityList; track $index) {
-                                 <option value="{{row.city_id}}">{{row.city_name}}</option>  
-                            }
-                        </select>   
-                        @if(inventoryForm.get('city_id')?.invalid && inventoryForm.get('city_id')?.touched){
-                            <span  class="text-danger">Please select valid Block</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="village">Village</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('village')?.invalid && inventoryForm.get('village')?.touched}" id="village" formControlName="village" placeholder="Village">
-                        @if(inventoryForm.get('village')?.invalid && inventoryForm.get('village')?.touched){
-                            <span  class="text-danger">Please enter valid village</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="chainage_start">Chainage Start</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('chainage_start')?.invalid && inventoryForm.get('chainage_start')?.touched}" id="chainage_start" formControlName="chainage_start" placeholder="Chainage Start">
-                        @if(inventoryForm.get('chainage_start')?.invalid && inventoryForm.get('chainage_start')?.touched){
-                            <span  class="text-danger">Please enter valid chainage start</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="chainage_end">Chainage End</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('chainage_end')?.invalid && inventoryForm.get('chainage_end')?.touched}" id="chainage_end" formControlName="chainage_end" placeholder="Chainage End">
-                        @if(inventoryForm.get('chainage_end')?.invalid && inventoryForm.get('chainage_end')?.touched){
-                            <span  class="text-danger">Please enter valid chainage end</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="terrain">Terrain</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('terrain')?.invalid && inventoryForm.get('terrain')?.touched}" id="terrain"  formControlName="terrain">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Plain">Plain</option>
-                            <option value="Plateau">Plateau</option>
-                            <option value="Valley">Valley</option>
-                        </select>
-                        @if(inventoryForm.get('terrain')?.invalid && inventoryForm.get('terrain')?.touched){
-                            <span  class="text-danger">Please select terrain</span>
-                        } 
-                    </div>         
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="land_use_left">Land Use Left</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('land_use_left')?.invalid && inventoryForm.get('land_use_left')?.touched}" id="land_use_left"  formControlName="land_use_left">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Forest">Forest</option>
-                            <option value="Agricultural Land">Agricultural Land</option>
-                            <option value="Commercial">Commercial</option>
-                            <option value="Residential">Residential</option>
-                        </select>
-                        @if(inventoryForm.get('land_use_left')?.invalid && inventoryForm.get('land_use_left')?.touched){
-                            <span  class="text-danger">Please select land use left</span>
-                        } 
-                    </div>     
-                    
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="land_use_right">Land Use Right</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('land_use_right')?.invalid && inventoryForm.get('land_use_right')?.touched}" id="land_use_right"  formControlName="land_use_right">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Forest">Forest</option>
-                            <option value="Agricultural Land">Agricultural Land</option>
-                            <option value="Commercial">Commercial</option>
-                            <option value="Residential">Residential</option>
-                        </select>
-                        @if(inventoryForm.get('land_use_right')?.invalid && inventoryForm.get('land_use_right')?.touched){
-                            <span  class="text-danger">Please select land use right</span>
-                        } 
-                    </div>       
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="chainagewise_village">Chainage Wise Village</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('chainagewise_village')?.invalid && inventoryForm.get('chainagewise_village')?.touched}" id="chainagewise_village" formControlName="chainagewise_village" placeholder="Chainage Wise Village">
-                        @if(inventoryForm.get('chainagewise_village')?.invalid && inventoryForm.get('chainagewise_village')?.touched){
-                            <span  class="text-danger">Please enter valid chainage wise village</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="roadway_width">Roadway Width</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('roadway_width')?.invalid && inventoryForm.get('roadway_width')?.touched}" id="roadway_width" formControlName="roadway_width" placeholder="Roadway Width">
-                        @if(inventoryForm.get('roadway_width')?.invalid && inventoryForm.get('roadway_width')?.touched){
-                            <span  class="text-danger">Please enter valid roadway width</span>
-                        } 
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="formation_width">Formation Width</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('formation_width')?.invalid && inventoryForm.get('formation_width')?.touched}" id="formation_width" formControlName="formation_width" placeholder="Formation Width">
-                        @if(inventoryForm.get('formation_width')?.invalid && inventoryForm.get('formation_width')?.touched){
-                            <span  class="text-danger">Please enter valid formation width</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="carriageway_type">Carriageway Type</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('carriageway_type')?.invalid && inventoryForm.get('carriageway_type')?.touched}" id="carriageway_type" formControlName="carriageway_type">
-                            <option value="" selected disabled>Select</option>
-                            <option value="BT">BT</option>
-                            <option value="CC">CC</option>
-                        </select>
-                        @if(inventoryForm.get('carriageway_type')?.invalid && inventoryForm.get('carriageway_type')?.touched){
-                            <span  class="text-danger">Please select type of road</span>
-                        } 
-                    </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="carriageway_width">Carriageway Width</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('carriageway_width')?.invalid && inventoryForm.get('carriageway_width')?.touched}" id="carriageway_width" formControlName="carriageway_width" placeholder="Carriageway Width">
-                        @if(inventoryForm.get('carriageway_width')?.invalid && inventoryForm.get('carriageway_width')?.touched){
-                            <span  class="text-danger">Please enter valid carriageway width</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="shoulder_left_type">Shoulder Left Type</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('shoulder_left_type')?.invalid && inventoryForm.get('shoulder_left_type')?.touched}" id="shoulder_left_type"  formControlName="shoulder_left_type">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Soil">Soil</option>
-                            <option value="Grass">Grass</option>
-                            <option value="Paved">Paved</option>
-                            <option value="Gravel">Gravel</option>
-                        </select>
-                        @if(inventoryForm.get('shoulder_left_type')?.invalid && inventoryForm.get('shoulder_left_type')?.touched){
-                            <span  class="text-danger">Please select shoulder type left</span>
-                        } 
-                    </div>     
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="shoulder_right_type">Shoulder Right Type</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('shoulder_right_type')?.invalid && inventoryForm.get('shoulder_right_type')?.touched}" id="shoulder_right_type"  formControlName="shoulder_right_type">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Soil">Soil</option>
-                            <option value="Grass">Grass</option>
-                            <option value="Paved">Paved</option>
-                            <option value="Gravel">Gravel</option>
-                        </select>
-                        @if(inventoryForm.get('shoulder_right_type')?.invalid && inventoryForm.get('shoulder_right_type')?.touched){
-                            <span  class="text-danger">Please select shoulder right type</span>
-                        } 
-                    </div>   
-                    
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="shoulder_left_width">Shoulder Left Width</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('shoulder_left_width')?.invalid && inventoryForm.get('shoulder_left_width')?.touched}" id="shoulder_left_width" formControlName="shoulder_left_width" placeholder="Shoulder Left Width">
-                        @if(inventoryForm.get('shoulder_left_width')?.invalid && inventoryForm.get('shoulder_left_width')?.touched){
-                            <span  class="text-danger">Please enter valid shoulder left width</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="shoulder_right_width">Shoulder Right Width</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('shoulder_right_width')?.invalid && inventoryForm.get('shoulder_right_width')?.touched}" id="shoulder_right_width" formControlName="shoulder_right_width" placeholder="Shoulder Right Width">
-                        @if(inventoryForm.get('shoulder_right_width')?.invalid && inventoryForm.get('shoulder_right_width')?.touched){
-                            <span  class="text-danger">Please enter valid shoulder right width</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="submergence">Submergence</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('submergence')?.invalid && inventoryForm.get('submergence')?.touched}" id="submergence"  formControlName="submergence">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        @if(inventoryForm.get('submergence')?.invalid && inventoryForm.get('submergence')?.touched){
-                            <span  class="text-danger">Please select submergence</span>
-                        } 
-                    </div>   
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="embankment_height">Embankment Height</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('embankment_height')?.invalid && inventoryForm.get('embankment_height')?.touched}" id="embankment_height" formControlName="embankment_height" placeholder="Embankment Height">
-                        @if(inventoryForm.get('embankment_height')?.invalid && inventoryForm.get('embankment_height')?.touched){
-                            <span  class="text-danger">Please enter valid embankment height</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="drainage_left">Drainage Left</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('drainage_left')?.invalid && inventoryForm.get('drainage_left')?.touched}" id="drainage_left"  formControlName="drainage_left">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        @if(inventoryForm.get('drainage_left')?.invalid && inventoryForm.get('drainage_left')?.touched){
-                            <span  class="text-danger">Please select drainage left</span>
-                        } 
-                    </div>
-
-                    @if(!inventoryData.drainage_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'drainage_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.drainage_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('drainage_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('drainage_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="drainage_right">Drainage Right</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('drainage_right')?.invalid && inventoryForm.get('drainage_right')?.touched}" id="drainage_right"  formControlName="drainage_right">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        @if(inventoryForm.get('drainage_right')?.invalid && inventoryForm.get('drainage_right')?.touched){
-                            <span  class="text-danger">Please select drainage right</span>
-                        } 
-                    </div>
-
-                    @if(!inventoryData.drainage_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'drainage_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.drainage_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('drainage_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('drainage_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="avenue_plantation_left">Avenue Plantation Left</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('avenue_plantation_left')?.invalid && inventoryForm.get('avenue_plantation_left')?.touched}" id="avenue_plantation_left" formControlName="avenue_plantation_left">
-                        @if(inventoryForm.get('avenue_plantation_left')?.invalid && inventoryForm.get('avenue_plantation_left')?.touched){
-                            <span  class="text-danger">Please enter valid avenue plantation left</span>
-                        } 
-                    </div>
-
-                    @if(!inventoryData.avenue_plantation_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'avenue_plantation_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.avenue_plantation_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('avenue_plantation_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('avenue_plantation_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="avenue_plantation_right">Avenue Plantation Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('avenue_plantation_right')?.invalid && inventoryForm.get('avenue_plantation_right')?.touched}" id="avenue_plantation_right" formControlName="avenue_plantation_right" placeholder="Avenue Plantation Right">
-                        @if(inventoryForm.get('avenue_plantation_right')?.invalid && inventoryForm.get('avenue_plantation_right')?.touched){
-                            <span  class="text-danger">Please enter valid avenue plantation right</span>
-                        } 
-                    </div>
-
-                    @if(!inventoryData.avenue_plantation_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'avenue_plantation_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.avenue_plantation_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('avenue_plantation_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('avenue_plantation_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="median_plants">Median Plants</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('median_plants')?.invalid && inventoryForm.get('median_plants')?.touched}" id="median_plants"  formControlName="median_plants">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        @if(inventoryForm.get('median_plants')?.invalid && inventoryForm.get('median_plants')?.touched){
-                            <span  class="text-danger">Please select dmedian plants</span>
-                        } 
-                    </div>
-
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="median_plants_value">Median Plants Value</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('median_plants_value')?.invalid && inventoryForm.get('median_plants_value')?.touched}" id="median_plants_value" formControlName="median_plants_value" placeholder="Median Plants Value">
-                        @if(inventoryForm.get('median_plants_value')?.invalid && inventoryForm.get('median_plants_value')?.touched){
-                            <span  class="text-danger">Please enter valid median plants value</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.median_plants_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'median_plants_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.median_plants_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('median_plants_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('median_plants_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="sign_board_left">Sign Board Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('sign_board_left')?.invalid && inventoryForm.get('sign_board_left')?.touched}" id="sign_board_left" formControlName="sign_board_left" placeholder="Sign Board Left">
-                        @if(inventoryForm.get('sign_board_left')?.invalid && inventoryForm.get('sign_board_left')?.touched){
-                            <span  class="text-danger">Please enter valid sign board left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.sign_board_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'sign_board_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.sign_board_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('sign_board_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('sign_board_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="sign_board_right">Sign Board Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('sign_board_right')?.invalid && inventoryForm.get('sign_board_right')?.touched}" id="sign_board_right" formControlName="sign_board_right" placeholder="Sign Board Right">
-                        @if(inventoryForm.get('sign_board_right')?.invalid && inventoryForm.get('sign_board_right')?.touched){
-                            <span  class="text-danger">Please enter valid sign board right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.sign_board_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'sign_board_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.sign_board_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('sign_board_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('sign_board_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="sign_board_middle">Sign Board Middle</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('sign_board_middle')?.invalid && inventoryForm.get('sign_board_middle')?.touched}" id="sign_board_middle" formControlName="sign_board_middle" placeholder="Sign Board Middle">
-                        @if(inventoryForm.get('sign_board_middle')?.invalid && inventoryForm.get('sign_board_middle')?.touched){
-                            <span  class="text-danger">Please enter valid sign board middle</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.sign_board_middle_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'sign_board_middle_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.sign_board_middle_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('sign_board_middle_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('sign_board_middle_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="culverts_left">Culverts Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('culverts_left')?.invalid && inventoryForm.get('culverts_left')?.touched}" id="culverts_left" formControlName="culverts_left" placeholder="Culverts Left">
-                        @if(inventoryForm.get('culverts_left')?.invalid && inventoryForm.get('culverts_left')?.touched){
-                            <span  class="text-danger">Please enter valid culverts left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.culverts_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'culverts_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.culverts_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('culverts_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('culverts_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="culverts_right">Culverts Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('culverts_right')?.invalid && inventoryForm.get('culverts_right')?.touched}" id="culverts_right" formControlName="culverts_right" placeholder="Culverts Right">
-                        @if(inventoryForm.get('culverts_right')?.invalid && inventoryForm.get('culverts_right')?.touched){
-                            <span  class="text-danger">Please enter valid culverts right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.culverts_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'culverts_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.culverts_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('culverts_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('culverts_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="street_lights_left">Street Lights Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('street_lights_left')?.invalid && inventoryForm.get('street_lights_left')?.touched}" id="street_lights_left" formControlName="street_lights_left" placeholder="Street Lights Left">
-                        @if(inventoryForm.get('street_lights_left')?.invalid && inventoryForm.get('street_lights_left')?.touched){
-                            <span  class="text-danger">Please enter valid street lights left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.street_lights_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'street_lights_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.street_lights_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('street_lights_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('street_lights_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="street_lights_middle">Street Lights Middle</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('street_lights_middle')?.invalid && inventoryForm.get('street_lights_middle')?.touched}" id="street_lights_middle" formControlName="street_lights_middle" placeholder="Street Lights Middle">
-                        @if(inventoryForm.get('street_lights_middle')?.invalid && inventoryForm.get('street_lights_middle')?.touched){
-                            <span  class="text-danger">Please enter valid street lights middle</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.street_lights_middle_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'street_lights_middle_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.street_lights_middle_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('street_lights_middle_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('street_lights_middle_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="street_lights_right">Street Lights Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('street_lights_right')?.invalid && inventoryForm.get('street_lights_right')?.touched}" id="street_lights_right" formControlName="street_lights_right" placeholder="Street Lights Right">
-                        @if(inventoryForm.get('street_lights_right')?.invalid && inventoryForm.get('street_lights_right')?.touched){
-                            <span  class="text-danger">Please enter valid street lights right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.street_lights_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'street_lights_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.street_lights_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('street_lights_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('street_lights_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="junctions">Junctions</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('junctions')?.invalid && inventoryForm.get('junctions')?.touched}" id="junctions" formControlName="junctions" placeholder="Junctions">
-                        @if(inventoryForm.get('junctions')?.invalid && inventoryForm.get('junctions')?.touched){
-                            <span  class="text-danger">Please enter valid junctions</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.junctions_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'junctions_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.junctions_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('junctions_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('junctions_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="kilometer_stone_left">Kilometer Stone Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('kilometer_stone_left')?.invalid && inventoryForm.get('kilometer_stone_left')?.touched}" id="kilometer_stone_left" formControlName="kilometer_stone_left" placeholder="Kilometer Stone Left">
-                        @if(inventoryForm.get('kilometer_stone_left')?.invalid && inventoryForm.get('kilometer_stone_left')?.touched){
-                            <span  class="text-danger">Please enter valid kilometer stone left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.kilometer_stone_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'kilometer_stone_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.kilometer_stone_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('kilometer_stone_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('kilometer_stone_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="kilometer_stone_middle">Kilometer Stone Middle</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('kilometer_stone_middle')?.invalid && inventoryForm.get('kilometer_stone_middle')?.touched}" id="kilometer_stone_middle" formControlName="kilometer_stone_middle" placeholder="Kilometer Stone Middle">
-                        @if(inventoryForm.get('kilometer_stone_middle')?.invalid && inventoryForm.get('kilometer_stone_middle')?.touched){
-                            <span  class="text-danger">Please enter valid kilometer stone middle</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.kilometer_stone_middle_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'kilometer_stone_middle_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.kilometer_stone_middle_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('kilometer_stone_middle_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('kilometer_stone_middle_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="kilometer_stone_right">Kilometer Stone Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('kilometer_stone_right')?.invalid && inventoryForm.get('kilometer_stone_right')?.touched}" id="kilometer_stone_right" formControlName="kilometer_stone_right" placeholder="Kilometer Stone Right">
-                        @if(inventoryForm.get('kilometer_stone_right')?.invalid && inventoryForm.get('kilometer_stone_right')?.touched){
-                            <span  class="text-danger">Please enter valid kilometer stone middle</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.kilometer_stone_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'kilometer_stone_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.kilometer_stone_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('kilometer_stone_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('kilometer_stone_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="bus_top_left">Bus Top Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('bus_top_left')?.invalid && inventoryForm.get('bus_top_left')?.touched}" id="bus_top_left" formControlName="bus_top_left" placeholder="Bus Top Left">
-                        @if(inventoryForm.get('bus_top_left')?.invalid && inventoryForm.get('bus_top_left')?.touched){
-                            <span  class="text-danger">Please enter valid bus top left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.bus_top_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'bus_top_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.bus_top_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('bus_top_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('bus_top_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-                    
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="bus_top_right">Bus Top Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('bus_top_right')?.invalid && inventoryForm.get('bus_top_right')?.touched}" id="bus_top_right" formControlName="bus_top_right" placeholder="Bus Top Right">
-                        @if(inventoryForm.get('bus_top_right')?.invalid && inventoryForm.get('bus_top_right')?.touched){
-                            <span  class="text-danger">Please enter valid bus top right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.bus_top_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'bus_top_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.bus_top_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('bus_top_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('bus_top_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="truck_lay_bayes_left">Truck Lay Bayes Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('truck_lay_bayes_left')?.invalid && inventoryForm.get('truck_lay_bayes_left')?.touched}" id="truck_lay_bayes_left" formControlName="truck_lay_bayes_left" placeholder="Truck Lay Bayes Left">
-                        @if(inventoryForm.get('truck_lay_bayes_left')?.invalid && inventoryForm.get('truck_lay_bayes_left')?.touched){
-                            <span  class="text-danger">Please enter valid truck lay bayes left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.truck_lay_bayes_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'truck_lay_bayes_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.truck_lay_bayes_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('truck_lay_bayes_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('truck_lay_bayes_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="truck_lay_bayes_right">Truck Lay Bayes Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('truck_lay_bayes_right')?.invalid && inventoryForm.get('truck_lay_bayes_right')?.touched}" id="truck_lay_bayes_right" formControlName="truck_lay_bayes_right" placeholder="Truck Lay Bayes Right">
-                        @if(inventoryForm.get('truck_lay_bayes_right')?.invalid && inventoryForm.get('truck_lay_bayes_right')?.touched){
-                            <span  class="text-danger">Please enter valid truck lay bayes right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.truck_lay_bayes_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'truck_lay_bayes_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.truck_lay_bayes_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('truck_lay_bayes_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('truck_lay_bayes_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="toll_plaza">Toll Plaza</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('toll_plaza')?.invalid && inventoryForm.get('toll_plaza')?.touched}" id="toll_plaza"  formControlName="toll_plaza">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        @if(inventoryForm.get('toll_plaza')?.invalid && inventoryForm.get('toll_plaza')?.touched){
-                            <span  class="text-danger">Please select toll plaza</span>
-                        } 
-                    </div>
-
-                    @if(!inventoryData.toll_plaza_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'toll_plaza_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.toll_plaza_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('toll_plaza_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('toll_plaza_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-                    
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="service_road_left">Service Road Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('service_road_left')?.invalid && inventoryForm.get('service_road_left')?.touched}" id="service_road_left" formControlName="service_road_left" placeholder="Service Road Left">
-                        @if(inventoryForm.get('service_road_left')?.invalid && inventoryForm.get('service_road_left')?.touched){
-                            <span  class="text-danger">Please enter valid service road left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.service_road_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'service_road_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.service_road_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('service_road_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('service_road_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="service_road_right">Service Road Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('service_road_right')?.invalid && inventoryForm.get('service_road_right')?.touched}" id="service_road_right" formControlName="service_road_right" placeholder="Service Road Right">
-                        @if(inventoryForm.get('service_road_right')?.invalid && inventoryForm.get('service_road_right')?.touched){
-                            <span  class="text-danger">Please enter valid service road right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.service_road_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'service_road_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.service_road_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('service_road_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('service_road_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="adjacent_roads_left">Adjacent Roads Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('adjacent_roads_left')?.invalid && inventoryForm.get('adjacent_roads_left')?.touched}" id="adjacent_roads_left" formControlName="adjacent_roads_left" placeholder="Adjacent Roads Left">
-                        @if(inventoryForm.get('adjacent_roads_left')?.invalid && inventoryForm.get('adjacent_roads_left')?.touched){
-                            <span  class="text-danger">Please enter valid adjacent roads left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.adjacent_roads_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'adjacent_roads_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.adjacent_roads_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('adjacent_roads_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('adjacent_roads_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="adjacent_roads_right">Adjacent Roads Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('adjacent_roads_right')?.invalid && inventoryForm.get('adjacent_roads_right')?.touched}" id="adjacent_roads_right" formControlName="adjacent_roads_right" placeholder="Adjacent Roads Right">
-                        @if(inventoryForm.get('adjacent_roads_right')?.invalid && inventoryForm.get('adjacent_roads_right')?.touched){
-                            <span  class="text-danger">Please enter valid adjacent roads right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.adjacent_roads_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'adjacent_roads_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.adjacent_roads_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('adjacent_roads_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('adjacent_roads_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="toilet_blocks_left">Toilet Blocks Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('toilet_blocks_left')?.invalid && inventoryForm.get('toilet_blocks_left')?.touched}" id="toilet_blocks_left" formControlName="toilet_blocks_left" placeholder="Toilet Blocks Left">
-                        @if(inventoryForm.get('toilet_blocks_left')?.invalid && inventoryForm.get('toilet_blocks_left')?.touched){
-                            <span  class="text-danger">Please enter valid toilet blocks left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.toilet_blocks_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'toilet_blocks_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.toilet_blocks_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('toilet_blocks_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('toilet_blocks_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-                    
-                   
-                    
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="toilet_blocks_right">Toilet Blocks Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('toilet_blocks_right')?.invalid && inventoryForm.get('toilet_blocks_right')?.touched}" id="toilet_blocks_right" formControlName="toilet_blocks_right" placeholder="Toilet Blocks Right">
-                        @if(inventoryForm.get('toilet_blocks_right')?.invalid && inventoryForm.get('toilet_blocks_right')?.touched){
-                            <span  class="text-danger">Please enter valid toilet blocks right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.toilet_blocks_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'toilet_blocks_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.toilet_blocks_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('toilet_blocks_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('toilet_blocks_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="solar_blinkers">Solar Blinkers</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('solar_blinkers')?.invalid && inventoryForm.get('solar_blinkers')?.touched}" id="solar_blinkers"  formControlName="solar_blinkers">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        @if(inventoryForm.get('solar_blinkers')?.invalid && inventoryForm.get('solar_blinkers')?.touched){
-                            <span  class="text-danger">Please select solar blinkers</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="solar_blinkers_value">Solar Blinkers Value</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('solar_blinkers_value')?.invalid && inventoryForm.get('solar_blinkers_value')?.touched}" id="solar_blinkers_value" formControlName="solar_blinkers_value" placeholder="Solar Blinkers Value">
-                        @if(inventoryForm.get('solar_blinkers_value')?.invalid && inventoryForm.get('solar_blinkers_value')?.touched){
-                            <span  class="text-danger">Please enter valid solar blinkers value</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.solar_blinkers_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'solar_blinkers_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.solar_blinkers_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('solar_blinkers_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('solar_blinkers_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-                    
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="rest_area_left">Rest Area Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('rest_area_left')?.invalid && inventoryForm.get('rest_area_left')?.touched}" id="rest_area_left" formControlName="rest_area_left" placeholder="Rest Area Left">
-                        @if(inventoryForm.get('rest_area_left')?.invalid && inventoryForm.get('rest_area_left')?.touched){
-                            <span  class="text-danger">Please enter valid rest area left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.rest_area_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'rest_area_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.rest_area_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('rest_area_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('rest_area_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="rest_area_right">Rest Area Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('rest_area_right')?.invalid && inventoryForm.get('rest_area_right')?.touched}" id="rest_area_right" formControlName="rest_area_right" placeholder="Rest Area Right">
-                        @if(inventoryForm.get('rest_area_right')?.invalid && inventoryForm.get('rest_area_right')?.touched){
-                            <span  class="text-danger">Please enter valid rest area right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.rest_area_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'rest_area_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.rest_area_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('rest_area_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('rest_area_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="row_fencing_left">Row Fencing Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('row_fencing_left')?.invalid && inventoryForm.get('row_fencing_left')?.touched}" id="row_fencing_left" formControlName="row_fencing_left" placeholder="Row Fencing Left">
-                        @if(inventoryForm.get('row_fencing_left')?.invalid && inventoryForm.get('row_fencing_left')?.touched){
-                            <span  class="text-danger">Please enter valid row fencing left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.row_fencing_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'row_fencing_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.row_fencing_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('row_fencing_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('row_fencing_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="row_fencing_middle">Row Fencing Middle</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('row_fencing_middle')?.invalid && inventoryForm.get('row_fencing_middle')?.touched}" id="row_fencing_middle" formControlName="row_fencing_middle" placeholder="Row Fencing Middle">
-                        @if(inventoryForm.get('row_fencing_middle')?.invalid && inventoryForm.get('row_fencing_middle')?.touched){
-                            <span  class="text-danger">Please enter valid row fencing middle</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.row_fencing_middle_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'row_fencing_middle_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.row_fencing_middle_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('row_fencing_middle_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('row_fencing_middle_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="row_fencing_right">Row Fencing Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('row_fencing_right')?.invalid && inventoryForm.get('row_fencing_right')?.touched}" id="row_fencing_right" formControlName="row_fencing_right" placeholder="Row Fencing Right">
-                        @if(inventoryForm.get('row_fencing_right')?.invalid && inventoryForm.get('row_fencing_right')?.touched){
-                            <span  class="text-danger">Please enter valid row fencing right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.row_fencing_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'row_fencing_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.row_fencing_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('row_fencing_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('row_fencing_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="fuel_station_left">Fuel Station Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('fuel_station_left')?.invalid && inventoryForm.get('fuel_station_left')?.touched}" id="fuel_station_left" formControlName="fuel_station_left" placeholder="Fuel Station Left">
-                        @if(inventoryForm.get('fuel_station_left')?.invalid && inventoryForm.get('fuel_station_left')?.touched){
-                            <span  class="text-danger">Please enter valid fuel station left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.fuel_station_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'fuel_station_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.fuel_station_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('fuel_station_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('fuel_station_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="fuel_station_right">Fuel Station Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('fuel_station_right')?.invalid && inventoryForm.get('fuel_station_right')?.touched}" id="fuel_station_right" formControlName="fuel_station_right" placeholder="Fuel Station Right">
-                        @if(inventoryForm.get('fuel_station_right')?.invalid && inventoryForm.get('fuel_station_right')?.touched){
-                            <span  class="text-danger">Please enter valid fuel station right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.fuel_station_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'fuel_station_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.fuel_station_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('fuel_station_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('fuel_station_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="emergency_call_box_left">Emergency Call Box Left</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('emergency_call_box_left')?.invalid && inventoryForm.get('emergency_call_box_left')?.touched}" id="emergency_call_box_left" formControlName="emergency_call_box_left" placeholder="Emergency Call Box Left">
-                        @if(inventoryForm.get('emergency_call_box_left')?.invalid && inventoryForm.get('emergency_call_box_left')?.touched){
-                            <span  class="text-danger">Please enter valid emergency call box left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.emergency_call_box_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'emergency_call_box_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.emergency_call_box_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('emergency_call_box_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('emergency_call_box_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="emergency_call_box_right">Emergency Call Box Right</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('emergency_call_box_right')?.invalid && inventoryForm.get('emergency_call_box_right')?.touched}" id="emergency_call_box_right" formControlName="emergency_call_box_right" placeholder="Emergency Call Box Right">
-                        @if(inventoryForm.get('emergency_call_box_right')?.invalid && inventoryForm.get('emergency_call_box_right')?.touched){
-                            <span  class="text-danger">Please enter valid emergency call box right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.emergency_call_box_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'emergency_call_box_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.emergency_call_box_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('emergency_call_box_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('emergency_call_box_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="footpath_left">Footpath Left</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('footpath_left')?.invalid && inventoryForm.get('footpath_left')?.touched}" id="footpath_left"  formControlName="footpath_left">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        @if(inventoryForm.get('footpath_left')?.invalid && inventoryForm.get('footpath_left')?.touched){
-                            <span  class="text-danger">Please select footpath left</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.footpath_left_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'footpath_left_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.footpath_left_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('footpath_left_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('footpath_left_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="footpath_right">Footpath Right</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('footpath_right')?.invalid && inventoryForm.get('footpath_right')?.touched}" id="footpath_right"  formControlName="footpath_right">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        @if(inventoryForm.get('footpath_right')?.invalid && inventoryForm.get('footpath_right')?.touched){
-                            <span  class="text-danger">Please select footpath right</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.footpath_right_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'footpath_right_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.footpath_right_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('footpath_right_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('footpath_right_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="divider_break">Divider Break</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':inventoryForm.get('divider_break')?.invalid && inventoryForm.get('divider_break')?.touched}" id="divider_break"  formControlName="divider_break">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        @if(inventoryForm.get('divider_break')?.invalid && inventoryForm.get('divider_break')?.touched){
-                            <span  class="text-danger">Please select divider break</span>
-                        } 
-                    </div>
-                    
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="divider_break_value">Divider Break Value</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('divider_break_value')?.invalid && inventoryForm.get('divider_break_value')?.touched}" id="divider_break_value" formControlName="divider_break_value" placeholder="Divider Break Value">
-                        @if(inventoryForm.get('divider_break_value')?.invalid && inventoryForm.get('divider_break_value')?.touched){
-                            <span  class="text-danger">Please enter valid divider break value</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.divider_break_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'divider_break_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.divider_break_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('divider_break_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('divider_break_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="remarks">Remark</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':inventoryForm.get('remarks')?.invalid && inventoryForm.get('remarks')?.touched}" id="remarks" formControlName="remarks" placeholder="Remark">
-                        @if(inventoryForm.get('remarks')?.invalid && inventoryForm.get('remarks')?.touched){
-                            <span  class="text-danger">Please enter valid remark</span>
-                        } 
-                    </div>
-                    @if(!inventoryData.remarks_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'remarks_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(inventoryData.remarks_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('remarks_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('remarks_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
-                        <button type="submit" class="btn btn-primary">Update</button>
-                    </div>
+  <div class="col-xl-12">
+    <app-showcode-card
+      [title]="'Update Road Inventory'"
+      [prism]="prismCode.formlayouts10"
+    >
+      <form [formGroup]="inventoryForm" (ngSubmit)="onSubmit()">
+        <div class="card custom-card">
+          <div class="card-header bg-primary text-white">
+            <h6 class="card-title mb-0">
+              <i class="ri-map-pin-line me-2"></i>Inventory Information
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <!-- Chainage Start -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="chainage_start"
+                  >Chainage Start (KM)</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      inventoryForm.get('chainage_start')?.invalid &&
+                      inventoryForm.get('chainage_start')?.touched
+                  }"
+                  id="chainage_start"
+                  formControlName="chainage_start"
+                  placeholder="0.000"
+                />
+                @if(inventoryForm.get('chainage_start')?.invalid &&
+                inventoryForm.get('chainage_start')?.touched){
+                <span class="text-danger">Please enter chainage start</span>
+                }
+              </div>
+
+              <!-- Chainage End -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="chainage_end"
+                  >Chainage End (KM)</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      inventoryForm.get('chainage_end')?.invalid &&
+                      inventoryForm.get('chainage_end')?.touched
+                  }"
+                  id="chainage_end"
+                  formControlName="chainage_end"
+                  placeholder="0.000"
+                />
+                @if(inventoryForm.get('chainage_end')?.invalid &&
+                inventoryForm.get('chainage_end')?.touched){
+                <span class="text-danger">Please enter chainage end</span>
+                }
+              </div>
+
+              <!-- Direction -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="direction">Direction</label
+                ><span class="text-danger">*</span>
+                <select
+                  class="form-select"
+                  [ngClass]="{
+                    'is-invalid':
+                      inventoryForm.get('direction')?.invalid &&
+                      inventoryForm.get('direction')?.touched
+                  }"
+                  id="direction"
+                  formControlName="direction"
+                >
+                  <option value="" selected disabled>Select</option>
+                  @for (opt of directionOptions; let i = $index; track i) {
+                  <option [value]="opt">{{ opt }}</option>
+                  }
+                </select>
+                @if(inventoryForm.get('direction')?.invalid &&
+                inventoryForm.get('direction')?.touched){
+                <span class="text-danger">Please select direction</span>
+                }
+              </div>
+
+              <!-- Asset Action Checkbox -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Asset Action</label
+                ><span class="text-danger">*</span>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="add_asset"
+                    formControlName="asset_action"
+                    value="add"
+                  />
+                  <label class="form-check-label" for="add_asset">
+                    Add Asset
+                  </label>
                 </div>
-            </form>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="report_missing"
+                    formControlName="asset_action"
+                    value="report_missing"
+                  />
+                  <label class="form-check-label" for="report_missing">
+                    Report Missing Asset
+                  </label>
+                </div>
+              </div>
 
-        </app-showcode-card>
-    </div>
+              <!-- Asset Type -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="asset_type">Asset Type</label
+                ><span class="text-danger">*</span>
+                <select
+                  class="form-select"
+                  [ngClass]="{
+                    'is-invalid':
+                      inventoryForm.get('asset_type')?.invalid &&
+                      inventoryForm.get('asset_type')?.touched
+                  }"
+                  id="asset_type"
+                  formControlName="asset_type"
+                  (change)="onAssetTypeChange($any($event.target).value)"
+                >
+                  <option value="" selected disabled>Select</option>
+                  @for (asset of assetTypes; let i = $index; track i) {
+                  <option [value]="asset">{{ asset }}</option>
+                  }
+                </select>
+                @if(inventoryForm.get('asset_type')?.invalid &&
+                inventoryForm.get('asset_type')?.touched){
+                <span class="text-danger">Please select asset type</span>
+                }
+              </div>
+
+              <!-- Sub Asset Type -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="sub_asset_type"
+                  >Sub Asset Type</label
+                ><span class="text-danger">*</span>
+                <select
+                  class="form-select"
+                  [ngClass]="{
+                    'is-invalid':
+                      inventoryForm.get('sub_asset_type')?.invalid &&
+                      inventoryForm.get('sub_asset_type')?.touched
+                  }"
+                  id="sub_asset_type"
+                  formControlName="sub_asset_type"
+                  [disabled]="subAssetTypes.length === 0"
+                >
+                  <option value="" selected disabled>
+                    {{
+                      subAssetTypes.length > 0
+                        ? "Select"
+                        : "Select Asset Type First"
+                    }}
+                  </option>
+                  @for (subAsset of subAssetTypes; let i = $index; track i) {
+                  <option [value]="subAsset">{{ subAsset }}</option>
+                  }
+                </select>
+                @if(inventoryForm.get('sub_asset_type')?.invalid &&
+                inventoryForm.get('sub_asset_type')?.touched){
+                <span class="text-danger">Please select sub asset type</span>
+                }
+              </div>
+
+              <!-- Latitude -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="latitude"
+                  >Latitude (Inventory)</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      inventoryForm.get('latitude')?.invalid &&
+                      inventoryForm.get('latitude')?.touched
+                  }"
+                  id="latitude"
+                  formControlName="latitude"
+                  placeholder="0.000000"
+                  step="0.000001"
+                />
+                @if(inventoryForm.get('latitude')?.invalid &&
+                inventoryForm.get('latitude')?.touched){
+                <span class="text-danger">Please enter latitude</span>
+                }
+              </div>
+
+              <!-- Longitude -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="longitude"
+                  >Longitude (Inventory)</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      inventoryForm.get('longitude')?.invalid &&
+                      inventoryForm.get('longitude')?.touched
+                  }"
+                  id="longitude"
+                  formControlName="longitude"
+                  placeholder="0.000000"
+                  step="0.000001"
+                />
+                @if(inventoryForm.get('longitude')?.invalid &&
+                inventoryForm.get('longitude')?.touched){
+                <span class="text-danger">Please enter longitude</span>
+                }
+              </div>
+
+              <!-- Numbers (Inventories) -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="numbers_inventory"
+                  >Numbers (Inventories)</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="numbers_inventory"
+                  formControlName="numbers_inventory"
+                  placeholder="Quantity/Count"
+                />
+              </div>
+
+              <!-- Image Upload -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="inventory_image"
+                  >Image (JPG/PNG)</label
+                >
+                <input
+                  type="file"
+                  class="form-control"
+                  id="inventory_image"
+                  accept=".jpg,.jpeg,.png"
+                  (change)="onImageSelected($event)"
+                />
+                @if(inventoryForm.get('image_preview')?.value) {
+                <div class="mt-2 position-relative" style="max-width: 200px">
+                  <img
+                    [src]="inventoryForm.get('image_preview')?.value"
+                    alt="Image Preview"
+                    class="img-thumbnail"
+                    style="max-width: 100%"
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                    (click)="removeImage()"
+                    style="margin: 5px"
+                  >
+                    <i class="ri-close-line"></i>
+                  </button>
+                </div>
+                }
+              </div>
+
+              <!-- Video Upload -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="inventory_video">Video</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="inventory_video"
+                  accept=".mp4,.avi,.mov,.wmv"
+                  (change)="onVideoSelected($event)"
+                />
+                @if(inventoryForm.get('video_preview')?.value) {
+                <div class="mt-2 position-relative" style="max-width: 300px">
+                  <video
+                    [src]="inventoryForm.get('video_preview')?.value"
+                    controls
+                    class="img-thumbnail"
+                    style="max-width: 100%"
+                  ></video>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                    (click)="removeVideo()"
+                    style="margin: 5px"
+                  >
+                    <i class="ri-close-line"></i>
+                  </button>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-3">
+          <div class="d-flex gap-2">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="inventoryForm.invalid"
+            >
+              <i class="ri-save-line me-1"></i> Update Inventory
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              [routerLink]="['/ris/road-manage/road-inventory', roadId]"
+            >
+              <i class="ri-close-line me-1"></i> Cancel
+            </button>
+          </div>
+        </div>
+      </form>
+    </app-showcode-card>
+  </div>
 </div>
-
-
-
-
-
-
-
-
-
-

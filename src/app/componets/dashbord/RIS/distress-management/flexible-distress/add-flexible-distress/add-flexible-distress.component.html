@@ -177,10 +177,8 @@
                   <label class="form-label" for="carriage_way_lanes_{{ i }}"
                     >Carriage Way – No. of Lane</label
                   ><span class="text-danger">*</span>
-                  <input
-                    type="number"
-                    min="1"
-                    class="form-control"
+                  <select
+                    class="form-select"
                     [ngClass]="{
                       'is-invalid':
                         entry.get('carriage_way_lanes')?.invalid &&
@@ -188,12 +186,16 @@
                     }"
                     id="carriage_way_lanes_{{ i }}"
                     formControlName="carriage_way_lanes"
-                    placeholder="Enter number of lanes"
-                  />
+                  >
+                    <option value="" selected disabled>Select Lane</option>
+                    <option value="L1">L1</option>
+                    <option value="L2">L2</option>
+                    <option value="L3">L3</option>
+                  </select>
                   @if(entry.get('carriage_way_lanes')?.invalid &&
                   entry.get('carriage_way_lanes')?.touched){
                   <span class="text-danger"
-                    >Please enter valid number of lanes</span
+                    >Please select carriage way lane</span
                   >
                   }
                 </div>

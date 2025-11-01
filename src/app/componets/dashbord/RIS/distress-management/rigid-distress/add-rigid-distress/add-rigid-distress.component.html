@@ -1,96 +1,400 @@
-
-<app-page-header title="Add Rigid Distress" title1="Add Rigid Distress" activeTitle="Add Rigid Distress"></app-page-header>
+<app-page-header
+  title="Add Rigid Distress"
+  title1="Add Rigid Distress"
+  activeTitle="Add Rigid Distress"
+></app-page-header>
 
 <div class="row">
+  <div class="col-xl-12">
+    <app-showcode-card
+      [title]="'Add Rigid Distress'"
+      [prism]="prismCode.formlayouts10"
+    >
+      <form [formGroup]="distressForm" (ngSubmit)="onSubmit()">
+        <!-- Common Fields -->
+        <div class="card custom-card">
+          <div class="card-header">
+            <h6 class="card-title">Road Information (Common)</h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <!-- Road -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="geometry_data_id">Road</label
+                ><span class="text-danger">*</span>
+                <select
+                  class="form-select"
+                  [ngClass]="{
+                    'is-invalid':
+                      distressForm.get('geometry_data_id')?.invalid &&
+                      distressForm.get('geometry_data_id')?.touched
+                  }"
+                  id="geometry_data_id"
+                  formControlName="geometry_data_id"
+                >
+                  <option value="" selected disabled>Select</option>
+                  @for (row of geometryList; let i = $index; track i) {
+                  <option value="{{ row.geometry_data_id }}">
+                    {{ row.name_of_road }}
+                  </option>
+                  }
+                </select>
+                @if(distressForm.get('geometry_data_id')?.invalid &&
+                distressForm.get('geometry_data_id')?.touched){
+                <span class="text-danger">Please select valid Road</span>
+                }
+              </div>
 
-    <div class="col-xl-12">
-        <app-showcode-card [title]="'Add Rigid Distress'" [prism]="prismCode.formlayouts10">
-            <form [formGroup]="distressForm" (ngSubmit)="onSubmit()">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="geometry_data_id">Road</label><span class="text-danger">*</span>
-                        <select  class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('geometry_data_id')?.invalid && distressForm.get('geometry_data_id')?.touched}" id="geometry_data_id" formControlName="geometry_data_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of geometryList; track $index) {
-                            <option value="{{row.geometry_data_id}}">{{row.name_of_road}}</option>
-                            }
-                        </select>   
-                        @if(distressForm.get('geometry_data_id')?.invalid && distressForm.get('geometry_data_id')?.touched){
-                            <span  class="text-danger">Please select valid Road</span>
-                        } 
-                    </div>
+              <!-- Chainage Start -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="chainage_start"
+                  >Chainage Start (KM)</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      distressForm.get('chainage_start')?.invalid &&
+                      distressForm.get('chainage_start')?.touched
+                  }"
+                  id="chainage_start"
+                  formControlName="chainage_start"
+                  placeholder="0.000"
+                />
+                @if(distressForm.get('chainage_start')?.invalid &&
+                distressForm.get('chainage_start')?.touched){
+                <span class="text-danger"
+                  >Please enter valid chainage start</span
+                >
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="state_id">State</label><span class="text-danger">*</span>
-                        <select (change)="getDistrctList(distressForm.get('state_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('state_id')?.invalid && distressForm.get('state_id')?.touched}" id="state_id" formControlName="state_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of stateList; track $index) {
-                            <option value="{{row.state_id}}">{{row.state_name}}</option>
-                            }
-                        </select>   
-                        
-                        @if(distressForm.get('state_id')?.invalid && distressForm.get('state_id')?.touched){
-                            <span  class="text-danger">Please select valid state</span>
-                        } 
-                    </div>
+              <!-- Chainage End -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="chainage_end"
+                  >Chainage End (KM)</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      distressForm.get('chainage_end')?.invalid &&
+                      distressForm.get('chainage_end')?.touched
+                  }"
+                  id="chainage_end"
+                  formControlName="chainage_end"
+                  placeholder="0.000"
+                />
+                @if(distressForm.get('chainage_end')?.invalid &&
+                distressForm.get('chainage_end')?.touched){
+                <span class="text-danger">Please enter valid chainage end</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="district_id">District</label><span class="text-danger">*</span>
-                        <select  (change)="getCitytList(distressForm.get('district_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('district_id')?.invalid && distressForm.get('district_id')?.touched}" id="district_id" formControlName="district_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of districtList; track $index) {
-                              <option value="{{row.district_id}}">{{row.district_name}}</option> 
-                            }
-                        </select>   
-                        @if(distressForm.get('district_id')?.invalid && distressForm.get('district_id')?.touched){
-                            <span  class="text-danger">Please select valid district</span>
-                        } 
-                    </div>
+              <!-- Direction -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="direction">Direction</label
+                ><span class="text-danger">*</span>
+                <select
+                  class="form-select"
+                  [ngClass]="{
+                    'is-invalid':
+                      distressForm.get('direction')?.invalid &&
+                      distressForm.get('direction')?.touched
+                  }"
+                  id="direction"
+                  formControlName="direction"
+                >
+                  <option value="" selected disabled>Select</option>
+                  @for (opt of directionOptions; let i = $index; track i) {
+                  <option [value]="opt">{{ opt }}</option>
+                  }
+                </select>
+                @if(distressForm.get('direction')?.invalid &&
+                distressForm.get('direction')?.touched){
+                <span class="text-danger">Please select direction</span>
+                }
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="city_id">Block</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('city_id')?.invalid && distressForm.get('city_id')?.touched}" id="city_id" formControlName="city_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of cityList; track $index) {
-                                 <option value="{{row.city_id}}">{{row.city_name}}</option>  
-                            }
-                        </select>   
-                        @if(distressForm.get('city_id')?.invalid && distressForm.get('city_id')?.touched){
-                            <span  class="text-danger">Please select valid Block</span>
-                        } 
-                    </div>
+              <!-- Total Length -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="total_length"
+                  >Total Length of Road/Highway (KM)</label
+                ><span class="text-danger">*</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      distressForm.get('total_length')?.invalid &&
+                      distressForm.get('total_length')?.touched
+                  }"
+                  id="total_length"
+                  formControlName="total_length"
+                  placeholder="0.000"
+                />
+                @if(distressForm.get('total_length')?.invalid &&
+                distressForm.get('total_length')?.touched){
+                <span class="text-danger">Please enter total length</span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="village">Village</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('village')?.invalid && distressForm.get('village')?.touched}" id="village" formControlName="village" placeholder="Village">
-                        @if(distressForm.get('village')?.invalid && distressForm.get('village')?.touched){
-                            <span  class="text-danger">Please enter valid village</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="chainage_start">Chainage Start</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('chainage_start')?.invalid && distressForm.get('chainage_start')?.touched}" id="chainage_start" formControlName="chainage_start" placeholder="Chainage Start">
-                        @if(distressForm.get('chainage_start')?.invalid && distressForm.get('chainage_start')?.touched){
-                            <span  class="text-danger">Please enter valid chainage start</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="chainage_end">Chainage End</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('chainage_end')?.invalid && distressForm.get('chainage_end')?.touched}" id="chainage_end" formControlName="chainage_end" placeholder="Chainage End">
-                        @if(distressForm.get('chainage_end')?.invalid && distressForm.get('chainage_end')?.touched){
-                            <span  class="text-danger">Please enter valid chainage end</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
-                        <button type="submit" class="btn btn-primary">Add</button>
-                    </div>
+        <!-- Distress Entries (Dynamic) -->
+        <div formArrayName="distressEntries">
+          @for (entry of distressEntries.controls; let i = $index; track i) {
+          <div [formGroupName]="i" class="card mb-3">
+            <div
+              class="card-header bg-secondary text-white d-flex justify-content-between align-items-center"
+            >
+              <h5 class="mb-0">Distress Entry #{{ i + 1 }}</h5>
+              @if (distressEntries.length > 1) {
+              <button
+                type="button"
+                class="btn btn-sm btn-danger"
+                (click)="removeDistressEntry(i)"
+              >
+                <i class="ri-delete-bin-line me-1"></i> Remove
+              </button>
+              }
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <!-- Carriage Way – No. of Lane -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label" [for]="'carriage_way_lanes_' + i"
+                    >Carriage Way – No. of Lane</label
+                  ><span class="text-danger">*</span>
+                  <select
+                    class="form-select"
+                    id="carriage_way_lanes_{{ i }}"
+                    formControlName="carriage_way_lanes"
+                    [ngClass]="{
+                      'is-invalid':
+                        entry.get('carriage_way_lanes')?.invalid &&
+                        entry.get('carriage_way_lanes')?.touched
+                    }"
+                  >
+                    <option value="" selected disabled>Select Lane</option>
+                    <option value="L1">L1</option>
+                    <option value="L2">L2</option>
+                    <option value="L3">L3</option>
+                  </select>
                 </div>
-            </form>
 
-        </app-showcode-card>
-    </div>
+                <!-- Distress Type -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label" [for]="'distress_type_' + i"
+                    >Distress Type</label
+                  ><span class="text-danger">*</span>
+                  <select
+                    class="form-select"
+                    id="distress_type_{{ i }}"
+                    formControlName="distress_type"
+                    [ngClass]="{
+                      'is-invalid':
+                        entry.get('distress_type')?.invalid &&
+                        entry.get('distress_type')?.touched
+                    }"
+                  >
+                    <option value="" selected disabled>Select</option>
+                    @for (opt of distressTypeOptions; let j = $index; track j) {
+                    <option [value]="opt">{{ opt }}</option>
+                    }
+                  </select>
+                </div>
+
+                <!-- Latitude -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label" [for]="'latitude_' + i"
+                    >Latitude</label
+                  ><span class="text-danger">*</span>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="latitude_{{ i }}"
+                    formControlName="latitude"
+                    [ngClass]="{
+                      'is-invalid':
+                        entry.get('latitude')?.invalid &&
+                        entry.get('latitude')?.touched
+                    }"
+                  />
+                </div>
+
+                <!-- Longitude -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label" [for]="'longitude_' + i"
+                    >Longitude</label
+                  ><span class="text-danger">*</span>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="longitude_{{ i }}"
+                    formControlName="longitude"
+                    [ngClass]="{
+                      'is-invalid':
+                        entry.get('longitude')?.invalid &&
+                        entry.get('longitude')?.touched
+                    }"
+                  />
+                </div>
+
+                <!-- Numbers (Distress) -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label" [for]="'numbers_distress_' + i"
+                    >Numbers (Distress)</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="numbers_distress_{{ i }}"
+                    formControlName="numbers_distress"
+                  />
+                </div>
+
+                <!-- Dimensions - Length -->
+                <div class="col-md-4 mb-3">
+                  <label class="form-label" [for]="'dimension_length_' + i"
+                    >Dimension - Length (m)</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="dimension_length_{{ i }}"
+                    formControlName="dimension_length"
+                  />
+                </div>
+                <!-- Dimensions - Width -->
+                <div class="col-md-4 mb-3">
+                  <label class="form-label" [for]="'dimension_width_' + i"
+                    >Dimension - Width (m)</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="dimension_width_{{ i }}"
+                    formControlName="dimension_width"
+                  />
+                </div>
+                <!-- Dimensions - Depth -->
+                <div class="col-md-4 mb-3">
+                  <label class="form-label" [for]="'dimension_depth_' + i"
+                    >Dimension - Depth (m)</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="dimension_depth_{{ i }}"
+                    formControlName="dimension_depth"
+                  />
+                </div>
+
+                <!-- Image Upload -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label" [for]="'distress_image_' + i"
+                    >Distress Image (JPG/PNG)</label
+                  >
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="distress_image_{{ i }}"
+                    accept=".jpg,.jpeg,.png"
+                    (change)="onImageSelected($event, i)"
+                  />
+                  @if(entry.get('image_preview')?.value) {
+                  <div class="mt-2 position-relative" style="max-width: 200px">
+                    <img
+                      [src]="entry.get('image_preview')?.value"
+                      alt="Image Preview"
+                      class="img-thumbnail"
+                      style="max-width: 100%"
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                      (click)="removeImage(i)"
+                      style="margin: 5px"
+                    >
+                      <i class="ri-close-line"></i>
+                    </button>
+                  </div>
+                  }
+                </div>
+
+                <!-- Video Upload -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label" [for]="'distress_video_' + i"
+                    >Distress Video</label
+                  >
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="distress_video_{{ i }}"
+                    accept=".mp4,.avi,.mov,.wmv"
+                    (change)="onVideoSelected($event, i)"
+                  />
+                  @if(entry.get('video_preview')?.value) {
+                  <div class="mt-2 position-relative" style="max-width: 300px">
+                    <video
+                      [src]="entry.get('video_preview')?.value"
+                      controls
+                      class="img-thumbnail"
+                      style="max-width: 100%"
+                    ></video>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                      (click)="removeVideo(i)"
+                      style="margin: 5px"
+                    >
+                      <i class="ri-close-line"></i>
+                    </button>
+                  </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+
+        <div class="col-md-12 mb-3 mt-3">
+          <button
+            type="button"
+            class="btn btn-info-light btn-wave"
+            (click)="addDistressEntry()"
+          >
+            <i class="bx bx-plus align-middle"></i> Add More Distress Entry
+          </button>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-3">
+          <div class="d-flex gap-2">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="distressForm.invalid"
+            >
+              <i class="ri-save-line me-1"></i> Submit All Entries ({{
+                distressEntries.length
+              }})
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              routerLink="/ris/road-manage/rigid-distress"
+            >
+              <i class="ri-close-line me-1"></i> Cancel
+            </button>
+          </div>
+        </div>
+      </form>
+    </app-showcode-card>
+  </div>
 </div>
-
