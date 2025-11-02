@@ -558,7 +558,13 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     const newMin = parseFloat(event.target.value);
     if (newMin < this.filters.chainageRange.max) {
       this.filters.chainageRange.min = newMin;
+      // Clear month data cache since chainage range changed
+      this.monthDataCache = {};
       await this.updateDashboard(true); // Skip comparison chart for faster response
+      // Reload month data if in month comparison mode
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -566,7 +572,13 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     const newMax = parseFloat(event.target.value);
     if (newMax > this.filters.chainageRange.min) {
       this.filters.chainageRange.max = newMax;
+      // Clear month data cache since chainage range changed
+      this.monthDataCache = {};
       await this.updateDashboard(true); // Skip comparison chart for faster response
+      // Reload month data if in month comparison mode
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -574,7 +586,13 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     const newMin = parseFloat(event.target.value);
     if (newMin < this.filters.chainageRange.max) {
       this.filters.chainageRange.min = newMin;
+      // Clear month data cache since chainage range changed
+      this.monthDataCache = {};
       await this.updateDashboard(true); // Skip comparison chart for faster response
+      // Reload month data if in month comparison mode
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -582,7 +600,13 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     const newMax = parseFloat(event.target.value);
     if (newMax > this.filters.chainageRange.min) {
       this.filters.chainageRange.max = newMax;
+      // Clear month data cache since chainage range changed
+      this.monthDataCache = {};
       await this.updateDashboard(true); // Skip comparison chart for faster response
+      // Reload month data if in month comparison mode
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -642,9 +666,9 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
   // Pre-load month data in background for faster chart loading
   async preloadMonthData() {
     const availableMonths = this.projectDatesMap[this.filters.projectName] || [];
-    const cacheKey = this.filters.projectName;
+    const cacheKey = `${this.filters.projectName}_${this.filters.chainageRange.min}_${this.filters.chainageRange.max}`;
     
-    console.log(`🚀 Pre-loading data for ${availableMonths.length} months in background...`);
+    console.log(`🚀 Pre-loading data for ${availableMonths.length} months in background (chainage: ${this.filters.chainageRange.min} - ${this.filters.chainageRange.max})...`);
     
     // Only fetch months that are not already cached
     const monthsToFetch = availableMonths.filter(month => {
@@ -666,8 +690,8 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
         const monthCacheKey = `${cacheKey}_${month}`;
         
         const requestBody = {
-          chainage_start: 0,
-          chainage_end: 1381,
+          chainage_start: this.filters.chainageRange.min,
+          chainage_end: this.filters.chainageRange.max,
           date: month,
           direction: ['All'],
           project_name: [this.filters.projectName.trim()],
@@ -1010,81 +1034,90 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
-    // Sort data by chainage_start to ensure proper order
-    filteredData.sort((a, b) => a.chainage_start - b.chainage_start);
-
-    // Group data into segments of 10 KM for better visualization
+    // Create segments for the entire selected chainage range
     const segmentSize = 10; // Group every 10 KM
+    const minChainage = this.filters.chainageRange.min;
+    const maxChainage = this.filters.chainageRange.max;
+    
+    // Calculate segment boundaries aligned to 10 KM intervals
+    const startSegment = Math.floor(minChainage / segmentSize) * segmentSize;
+    const endSegment = Math.ceil(maxChainage / segmentSize) * segmentSize;
+    
+    // Create all segments in the range, even if empty
     const groupedData: { [key: string]: any } = {};
+    
+    for (let segStart = startSegment; segStart < endSegment; segStart += segmentSize) {
+      const segEnd = Math.min(segStart + segmentSize, endSegment);
+      const segmentKey = `${segStart}-${segEnd}`;
+      
+      groupedData[segmentKey] = {
+        name: `${segStart}-${segEnd}`,
+        xAxisPosition: segStart / segmentSize,
+        chainage_start: segStart,
+        chainage_end: segEnd,
+        Trees: 0,
+        Culvert: 0,
+        StreetLights: 0,
+        Bridges: 0,
+        TrafficSignals: 0,
+        BusStop: 0,
+        TruckLayby: 0,
+        TollPlaza: 0,
+        AdjacentRoad: 0,
+        ToiletBlocks: 0,
+        RestArea: 0,
+        RCCDrain: 0,
+        FuelStation: 0,
+        EmergencyCall: 0,
+        Tunnels: 0,
+        Footpath: 0,
+        Junction: 0,
+        SignBoards: 0,
+        SolarBlinker: 0,
+        MedianPlants: 0,
+        ServiceRoad: 0,
+        KMStones: 0,
+        CrashBarrier: 0,
+        MedianOpening: 0,
+        project_name: '',
+        direction: '',
+        asset_type: '',
+      };
+    }
 
+    // Now aggregate asset counts in each segment
     filteredData.forEach((item) => {
-      // Calculate which segment this item belongs to
-      const segmentStart =
-        Math.floor(item.chainage_start / segmentSize) * segmentSize;
-      const segmentKey = `${segmentStart}-${segmentStart + segmentSize}`;
-
-      if (!groupedData[segmentKey]) {
-        groupedData[segmentKey] = {
-          name: `${segmentStart}-${segmentStart + segmentSize}`,
-          xAxisPosition: segmentStart / segmentSize, // Use segment position for x-axis
-          chainage_start: segmentStart,
-          chainage_end: segmentStart + segmentSize,
-          Trees: 0,
-          Culvert: 0,
-          StreetLights: 0,
-          Bridges: 0,
-          TrafficSignals: 0,
-          BusStop: 0,
-          TruckLayby: 0,
-          TollPlaza: 0,
-          AdjacentRoad: 0,
-          ToiletBlocks: 0,
-          RestArea: 0,
-          RCCDrain: 0,
-          FuelStation: 0,
-          EmergencyCall: 0,
-          Tunnels: 0,
-          Footpath: 0,
-          Junction: 0,
-          SignBoards: 0,
-          SolarBlinker: 0,
-          MedianPlants: 0,
-          ServiceRoad: 0,
-          KMStones: 0,
-          CrashBarrier: 0,
-          MedianOpening: 0,
-          project_name: '',
-          direction: '',
-          asset_type: '',
-        };
-      }
-
-      // Aggregate asset counts for this segment
+      const segmentStart = Math.floor(item.chainage_start / segmentSize) * segmentSize;
+      const segEnd = segmentStart + segmentSize;
+      const segmentKey = `${segmentStart}-${segEnd}`;
+      
       const segment = groupedData[segmentKey];
-      segment.Trees += item.trees > 0 ? 1 : 0;
-      segment.Culvert += item.culvert > 0 ? 1 : 0;
-      segment.StreetLights += item.street_lights > 0 ? 1 : 0;
-      segment.Bridges += item.bridges > 0 ? 1 : 0;
-      segment.TrafficSignals += item.traffic_signals > 0 ? 1 : 0;
-      segment.BusStop += item.bus_stop > 0 ? 1 : 0;
-      segment.TruckLayby += item.truck_layby > 0 ? 1 : 0;
-      segment.TollPlaza += item.toll_plaza > 0 ? 1 : 0;
-      segment.AdjacentRoad += item.adjacent_road > 0 ? 1 : 0;
-      segment.ToiletBlocks += item.toilet_blocks > 0 ? 1 : 0;
-      segment.RestArea += item.rest_area > 0 ? 1 : 0;
-      segment.RCCDrain += item.rcc_drain > 0 ? 1 : 0;
-      segment.FuelStation += item.fuel_station > 0 ? 1 : 0;
-      segment.EmergencyCall += item.emergency_call_box > 0 ? 1 : 0;
-      segment.Tunnels += item.tunnels > 0 ? 1 : 0;
-      segment.Footpath += item.footpath > 0 ? 1 : 0;
-      segment.Junction += item.junction > 0 ? 1 : 0;
-      segment.SignBoards += item.sign_boards > 0 ? 1 : 0;
-      segment.SolarBlinker += item.solar_blinker > 0 ? 1 : 0;
-      segment.MedianPlants += item.median_plants > 0 ? 1 : 0;
-      segment.ServiceRoad += item.service_road > 0 ? 1 : 0;
-      segment.KMStones += item.km_stones > 0 ? 1 : 0;
-      segment.CrashBarrier += item.crash_barrier > 0 ? 1 : 0;
-      segment.MedianOpening += item.median_opening > 0 ? 1 : 0;
+      if (segment) {
+        segment.Trees += item.trees > 0 ? 1 : 0;
+        segment.Culvert += item.culvert > 0 ? 1 : 0;
+        segment.StreetLights += item.street_lights > 0 ? 1 : 0;
+        segment.Bridges += item.bridges > 0 ? 1 : 0;
+        segment.TrafficSignals += item.traffic_signals > 0 ? 1 : 0;
+        segment.BusStop += item.bus_stop > 0 ? 1 : 0;
+        segment.TruckLayby += item.truck_layby > 0 ? 1 : 0;
+        segment.TollPlaza += item.toll_plaza > 0 ? 1 : 0;
+        segment.AdjacentRoad += item.adjacent_road > 0 ? 1 : 0;
+        segment.ToiletBlocks += item.toilet_blocks > 0 ? 1 : 0;
+        segment.RestArea += item.rest_area > 0 ? 1 : 0;
+        segment.RCCDrain += item.rcc_drain > 0 ? 1 : 0;
+        segment.FuelStation += item.fuel_station > 0 ? 1 : 0;
+        segment.EmergencyCall += item.emergency_call_box > 0 ? 1 : 0;
+        segment.Tunnels += item.tunnels > 0 ? 1 : 0;
+        segment.Footpath += item.footpath > 0 ? 1 : 0;
+        segment.Junction += item.junction > 0 ? 1 : 0;
+        segment.SignBoards += item.sign_boards > 0 ? 1 : 0;
+        segment.SolarBlinker += item.solar_blinker > 0 ? 1 : 0;
+        segment.MedianPlants += item.median_plants > 0 ? 1 : 0;
+        segment.ServiceRoad += item.service_road > 0 ? 1 : 0;
+        segment.KMStones += item.km_stones > 0 ? 1 : 0;
+        segment.CrashBarrier += item.crash_barrier > 0 ? 1 : 0;
+        segment.MedianOpening += item.median_opening > 0 ? 1 : 0;
+      }
     });
 
     // Convert grouped data to array and sort by xAxisPosition
@@ -3367,9 +3400,9 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       // Fetch data for all available months (with caching) - PARALLEL REQUESTS
       const monthDataMap: { [month: string]: InfrastructureData[] } = {};
-      const cacheKey = this.filters.projectName;
+      const cacheKey = `${this.filters.projectName}_${this.filters.chainageRange.min}_${this.filters.chainageRange.max}`;
       
-      console.log(`🔄 Fetching data for ${this.availableMonthsForComparison.length} months in parallel...`);
+      console.log(`🔄 Fetching data for ${this.availableMonthsForComparison.length} months in parallel (chainage: ${this.filters.chainageRange.min} - ${this.filters.chainageRange.max})...`);
       
       // Prepare all fetch promises in parallel
       const fetchPromises = this.availableMonthsForComparison.map(async (month) => {
@@ -3382,8 +3415,8 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         const requestBody = {
-          chainage_start: 0,
-          chainage_end: 1381,
+          chainage_start: this.filters.chainageRange.min,
+          chainage_end: this.filters.chainageRange.max,
           date: month,
           direction: ['All'],
           project_name: [this.filters.projectName.trim()],
@@ -3473,19 +3506,19 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.availableMonthsForComparison.forEach(month => {
           const data = monthDataMap[month] || [];
           
-          // Count unique asset occurrences (where asset count > 0)
-          const totalCount = data.reduce((count, item) => {
+          // Sum actual asset counts across ALL directions within the chainage range
+          const totalCount = data.reduce((sum, item) => {
             const assetCount = item[fieldName as keyof InfrastructureData];
             const numericCount = typeof assetCount === 'number' ? assetCount : parseFloat(assetCount as string) || 0;
             
-            // Only count if the asset exists (count > 0)
-            return count + (numericCount > 0 ? 1 : 0);
+            // Add the actual count (not just 1 if exists)
+            return sum + numericCount;
           }, 0);
           
           monthData.push(totalCount);
         });
 
-        console.log(`📊 Month comparison - ${assetName}: Data = ${monthData}`);
+        console.log(`📊 Month comparison - ${assetName}: Total counts = ${monthData}`);
 
         series.push({
           name: assetName,

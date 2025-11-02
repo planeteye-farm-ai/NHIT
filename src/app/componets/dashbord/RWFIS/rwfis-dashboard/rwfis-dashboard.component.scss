@@ -253,7 +253,7 @@
   padding: 0.5px 2px;
   color: #ffffff;
   font-size: 8px;
-  font-weight: 700;
+  font-weight: 500;
   backdrop-filter: blur(15px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -964,7 +964,7 @@
   }
   
   .right-panel .asset-count {
-    font-size: 24px;
+    font-size: 20px;
   }
   
   .asset-grid {
@@ -1014,7 +1014,7 @@
   }
   
   .right-panel .asset-count {
-    font-size: 17px;
+    font-size: 15px;
   }
   
   .asset-summary-full-width .asset-grid {
@@ -1037,7 +1037,7 @@
   }
   
   .asset-summary-full-width .asset-count {
-    font-size: 23px;
+    font-size: 17px;
   }
 }
 
@@ -1722,7 +1722,7 @@
   }
 
   .right-panel .asset-count {
-    font-size: 26px;
+    font-size: 17px;
   }
 }
 
@@ -1801,7 +1801,7 @@
   }
   
   .right-panel .asset-count {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   .chart-header h3 {
@@ -1951,7 +1951,7 @@
   }
   
   .right-panel .asset-count {
-    font-size: 24px;
+    font-size: 15px;
   }
   
   .chart-header h3 {
@@ -2034,7 +2034,7 @@
   }
   
   .right-panel .asset-count {
-    font-size: 23px;
+    font-size: 15px;
   }
 }
 
@@ -2146,7 +2146,7 @@
 
     i {
       animation: spin 1s linear infinite;
-    }
+    }  
   }
 
   &:disabled {

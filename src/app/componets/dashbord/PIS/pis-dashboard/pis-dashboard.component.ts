@@ -1169,7 +1169,11 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const value = parseFloat(event.target.value);
     if (value >= 0 && value <= this.filters.chainageRange.max) {
       this.filters.chainageRange.min = value;
+      this.monthDataCache = {};
       this.onFilterChange();
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -1180,7 +1184,11 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       value <= this.getChainageMax()
     ) {
       this.filters.chainageRange.max = value;
+      this.monthDataCache = {};
       this.onFilterChange();
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -1188,7 +1196,11 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const value = parseFloat(event.target.value);
     if (value <= this.filters.chainageRange.max) {
       this.filters.chainageRange.min = value;
+      this.monthDataCache = {};
       this.onFilterChange();
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -1196,7 +1208,11 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const value = parseFloat(event.target.value);
     if (value >= this.filters.chainageRange.min) {
       this.filters.chainageRange.max = value;
+      this.monthDataCache = {};
       this.onFilterChange();
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -1263,7 +1279,7 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async preloadMonthData() {
     const availableMonths = this.projectDatesMap[this.filters.projectName] || [];
-    const cacheKey = this.filters.projectName;
+    const cacheKey = `${this.filters.projectName}_${this.filters.chainageRange.min}_${this.filters.chainageRange.max}`;
     
     const monthsToFetch = availableMonths.filter(month => {
       const monthCacheKey = `${cacheKey}_${month}`;
@@ -1279,8 +1295,8 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         const monthCacheKey = `${cacheKey}_${month}`;
         
         const requestBody = {
-          chainage_start: 0,
-          chainage_end: 1381,
+          chainage_start: this.filters.chainageRange.min,
+          chainage_end: this.filters.chainageRange.max,
           date: month,
           direction: ['All'],
           project_name: [this.filters.projectName.trim()],
@@ -1401,7 +1417,7 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     try {
       const monthDataMap: { [month: string]: any } = {};
-      const cacheKey = this.filters.projectName;
+      const cacheKey = `${this.filters.projectName}_${this.filters.chainageRange.min}_${this.filters.chainageRange.max}`;
       
       const metricFieldMap: { [key: string]: string } = {
         'Road Length (KM)': 'kilometer',
@@ -1422,8 +1438,8 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         const requestBody = {
-          chainage_start: 0,
-          chainage_end: 1381,
+          chainage_start: this.filters.chainageRange.min,
+          chainage_end: this.filters.chainageRange.max,
           date: month,
           direction: ['All'],
           project_name: [this.filters.projectName.trim()],

@@ -3,3 +3,96 @@
     background-color: var(--custom-white);
     border: 0px solid var(--default-border);
 }
+
+/* Sidebar Toggle Button for Mobile */
+.sidemenu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  position: relative;
+  z-index: 1050; /* Higher than sidebar to stay on top */
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  span {
+    position: relative;
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #405189;
+    transition: all 0.3s ease;
+    
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 22px;
+      height: 2px;
+      background: #405189;
+      transition: all 0.3s ease;
+    }
+    
+    &::before {
+      top: -7px;
+    }
+    
+    &::after {
+      top: 7px;
+    }
+  }
+}
+
+/* Mobile View - Always show toggle button */
+@media (max-width: 991px) {
+  /* Ensure header stays above sidebar on mobile */
+  .app-header {
+    z-index: 105 !important; /* Higher than sidebar (103) */
+  }
+  
+  .header-element .sidemenu-toggle {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 106 !important; /* Even higher to ensure it's always clickable */
+    
+    span {
+      background: #405189 !important;
+      
+      &::before,
+      &::after {
+        background: #405189 !important;
+      }
+    }
+  }
+  
+  .main-header-container .sidemenu-toggle {
+    display: inline-flex !important;
+    z-index: 106 !important;
+  }
+}
+
+/* When sidebar is open on mobile */
+[data-toggled="open"] {
+  .sidemenu-toggle {
+    span {
+      background: transparent !important;
+      
+      &::before {
+        transform: rotate(45deg);
+        top: 0;
+      }
+      
+      &::after {
+        transform: rotate(-45deg);
+        top: 0;
+      }
+    }
+  }
+}

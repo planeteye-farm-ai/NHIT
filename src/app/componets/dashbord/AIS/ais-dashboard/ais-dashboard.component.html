@@ -38,22 +38,10 @@
 
           <div class="filter-group">
             <label>Direction:</label>
-            <div class="direction-buttons">
-              <button
-                [class.active]="filters.direction === 'Increasing'"
-                (click)="onDirectionChange('Increasing')"
-                class="direction-btn"
-              >
-                Increasing
-              </button>
-              <button
-                [class.active]="filters.direction === 'Decreasing'"
-                (click)="onDirectionChange('Decreasing')"
-                class="direction-btn"
-              >
-                Decreasing
-              </button>
-            </div>
+            <select [value]="filters.direction" (change)="onDirectionChange($any($event.target).value)" class="filter-select">
+              <option value="Increasing">Increasing</option>
+              <option value="Decreasing">Decreasing</option>
+            </select>
           </div>
 
           <!-- Pavement Type and Lane filters hidden for AIS API as they are not available in AIS data -->

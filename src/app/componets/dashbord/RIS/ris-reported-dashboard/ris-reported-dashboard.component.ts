@@ -253,9 +253,9 @@ export class RisReportedDashboardComponent
     // Detect mobile view for responsive chart layout
     const isMobileView = window.innerWidth <= 768;
 
-    // Create chainage bins
-    const chainageMin = this.getChainageMin();
-    const chainageMax = this.getChainageMax();
+    // Create chainage bins using SELECTED chainage range (not full project range)
+    const chainageMin = this.filters.chainageRange.min;
+    const chainageMax = this.filters.chainageRange.max;
     const binCount = 20;
     const binSize = (chainageMax - chainageMin) / binCount;
 
@@ -850,27 +850,54 @@ export class RisReportedDashboardComponent
   }
 
   updateChainageData() {
+    // Get filtered data based on current filter selections
     const filteredData = this.getFilteredData();
-    const maxChainage = Math.max(
-      ...filteredData.map((item) => item.chainage_end)
-    );
-    const rangeSize = maxChainage / 5; // Divide into 5 ranges
-
-    this.chainageData = [];
-    for (let i = 0; i < 5; i++) {
-      const start = i * rangeSize;
-      const end = (i + 1) * rangeSize;
-
-      const rangeData = filteredData.filter(
-        (item) => item.chainage_start >= start && item.chainage_end <= end
-      );
-
-      this.chainageData.push({
-        chainage_start: start,
-        chainage_end: end,
-        distress_count: rangeData.length,
+    
+    // Create segments for the entire selected chainage range
+    const segmentSize = 10; // Group every 10 KM
+    const minChainage = this.filters.chainageRange.min;
+    const maxChainage = this.filters.chainageRange.max;
+    
+    // Calculate segment boundaries aligned to 10 KM intervals
+    const startSegment = Math.floor(minChainage / segmentSize) * segmentSize;
+    const endSegment = Math.ceil(maxChainage / segmentSize) * segmentSize;
+    
+    // Create all segments in the range, even if empty
+    const groupedData: { [key: string]: any } = {};
+    
+    for (let segStart = startSegment; segStart < endSegment; segStart += segmentSize) {
+      const segEnd = Math.min(segStart + segmentSize, endSegment);
+      const segmentKey = `${segStart}-${segEnd}`;
+      
+      groupedData[segmentKey] = {
+        name: `${segStart}-${segEnd}`,
+        xAxisPosition: segStart / segmentSize,
+        chainage_start: segStart,
+        chainage_end: segEnd,
+      };
+      
+      // Initialize count for each distress type
+      this.availableDistressTypes.forEach(distressType => {
+        groupedData[segmentKey][distressType] = 0;
       });
     }
+
+    // Now count actual data in each segment
+    filteredData.forEach((item) => {
+      const segmentStart = Math.floor(item.chainage_start / segmentSize) * segmentSize;
+      const segEnd = segmentStart + segmentSize;
+      const segmentKey = `${segmentStart}-${segEnd}`;
+      
+      const segment = groupedData[segmentKey];
+      if (segment && item.distress_type && segment[item.distress_type] !== undefined) {
+        segment[item.distress_type] += 1;
+      }
+    });
+
+    // Convert grouped data to array and sort by xAxisPosition
+    this.chainageData = Object.values(groupedData).sort(
+      (a: any, b: any) => a.xAxisPosition - b.xAxisPosition
+    );
   }
 
   initChartOptions() {
@@ -939,13 +966,12 @@ export class RisReportedDashboardComponent
       },
       xAxis: {
         type: 'category',
-        data: this.chainageData.map((_, index) => index),
+        data: this.chainageData.map((segment: any) => segment.name),
         axisLabel: {
           color: '#ffffff',
-          formatter: (value: number) => {
-            const item = this.chainageData[value];
-            return item ? `${item.chainage_start.toFixed(0)}` : '';
-          },
+          fontSize: 10,
+          rotate: 45,
+          interval: 0,
         },
         axisLine: {
           lineStyle: {
@@ -976,11 +1002,16 @@ export class RisReportedDashboardComponent
       series: this.availableDistressTypes.map((distressType) => ({
         name: distressType,
         type: 'bar',
-        data: this.chainageData.map((_, index) => [index, Math.random() * 10]), // Placeholder data
+        stack: 'total',
+        data: this.chainageData.map((segment: any) => segment[distressType] || 0),
         itemStyle: {
           color: this.getDistressColor(distressType),
+          borderRadius: [2, 2, 0, 0],
         },
         barWidth: '60%',
+        emphasis: {
+          focus: 'series'
+        }
       })),
     };
   }
@@ -1453,7 +1484,7 @@ export class RisReportedDashboardComponent
   // Pre-load month data in background
   async preloadMonthData() {
     const availableMonths = this.projectDatesMap[this.filters.projectName] || [];
-    const cacheKey = this.filters.projectName;
+    const cacheKey = `${this.filters.projectName}_${this.filters.chainageRange.min}_${this.filters.chainageRange.max}`;
     
     const monthsToFetch = availableMonths.filter(month => {
       const monthCacheKey = `${cacheKey}_${month}`;
@@ -1469,8 +1500,8 @@ export class RisReportedDashboardComponent
         const monthCacheKey = `${cacheKey}_${month}`;
         
         const requestBody = {
-          chainage_start: 0,
-          chainage_end: 1381,
+          chainage_start: this.filters.chainageRange.min,
+          chainage_end: this.filters.chainageRange.max,
           date: month,
           direction: ['All'],
           project_name: [this.filters.projectName.trim()],
@@ -1517,6 +1548,7 @@ export class RisReportedDashboardComponent
   onFilterChange() {
     this.updateDistressSummary();
     this.updateChainageData();
+    this.initChartOptions();
 
     if (this.isBrowser) {
       this.addDistressMarkers();
@@ -1615,7 +1647,11 @@ export class RisReportedDashboardComponent
     const value = parseFloat(event.target.value);
     if (value >= 0 && value <= this.filters.chainageRange.max) {
       this.filters.chainageRange.min = value;
+      this.monthDataCache = {};
       this.onFilterChange();
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -1626,7 +1662,11 @@ export class RisReportedDashboardComponent
       value <= this.getChainageMax()
     ) {
       this.filters.chainageRange.max = value;
+      this.monthDataCache = {};
       this.onFilterChange();
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -1634,7 +1674,11 @@ export class RisReportedDashboardComponent
     const value = parseFloat(event.target.value);
     if (value <= this.filters.chainageRange.max) {
       this.filters.chainageRange.min = value;
+      this.monthDataCache = {};
       this.onFilterChange();
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -1642,7 +1686,11 @@ export class RisReportedDashboardComponent
     const value = parseFloat(event.target.value);
     if (value >= this.filters.chainageRange.min) {
       this.filters.chainageRange.max = value;
+      this.monthDataCache = {};
       this.onFilterChange();
+      if (this.isMonthComparisonMode && this.filters.projectName) {
+        this.preloadMonthData();
+      }
     }
   }
 
@@ -1761,7 +1809,7 @@ export class RisReportedDashboardComponent
 
     try {
       const monthDataMap: { [month: string]: DistressReportData[] } = {};
-      const cacheKey = this.filters.projectName;
+      const cacheKey = `${this.filters.projectName}_${this.filters.chainageRange.min}_${this.filters.chainageRange.max}`;
       
       const fetchPromises = this.availableMonthsForComparison.map(async (month) => {
         const monthCacheKey = `${cacheKey}_${month}`;
@@ -1771,8 +1819,8 @@ export class RisReportedDashboardComponent
         }
 
         const requestBody = {
-          chainage_start: 0,
-          chainage_end: 1381,
+          chainage_start: this.filters.chainageRange.min,
+          chainage_end: this.filters.chainageRange.max,
           date: month,
           direction: ['All'],
           project_name: [this.filters.projectName.trim()],

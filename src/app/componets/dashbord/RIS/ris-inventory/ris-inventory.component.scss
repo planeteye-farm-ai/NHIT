@@ -163,7 +163,7 @@
   padding: 0.5px 2px;
   color: #f8f8f8;
   font-size: 8px;
-  font-weight: 700;
+  font-weight: 500;
   backdrop-filter: blur(15px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -1198,7 +1198,7 @@
   }
   
   .asset-summary-full-width .asset-count {
-    font-size: 28px;
+    font-size: 22px;
   }
 }
 
@@ -1627,7 +1627,7 @@
   /* Keep 2x2 grid on small mobile */
   .filter-row-main {
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 0px;
   }
   
   .filter-group {
@@ -1718,7 +1718,7 @@
   /* Keep 2x2 grid for very small screens */
   .filter-row-main {
     grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
+    gap: 0px;
   }
   
   .filter-group {
