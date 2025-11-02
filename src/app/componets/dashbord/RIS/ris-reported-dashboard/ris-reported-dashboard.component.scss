@@ -2468,9 +2468,10 @@
 /* Large Mobile Styles (481px - 768px) */
 @media (max-width: 768px) and (min-width: 481px) {
   .comparison-modal-content {
-    width: 98%;
-    max-height: 95vh;
-    border-radius: 12px;
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
   }
 
   .comparison-modal-content .modal-header {
@@ -2487,7 +2488,7 @@
   }
 
   .comparison-modal-body {
-    padding: 20px;
+    padding: 0;
   }
 
   .asset-selection-section {
@@ -2540,7 +2541,7 @@
   }
 
   .comparison-chart-container {
-    padding: 15px;
+    padding: 0px;
     min-height: 440px;
     border-radius: 12px;
   }
@@ -2634,7 +2635,7 @@
   }
 
   .comparison-modal-body {
-    padding: 15px;
+    padding: 0;
   }
 
   .asset-selection-section {
@@ -2690,7 +2691,7 @@
   }
 
   .comparison-chart-container {
-    padding: 12px;
+    padding: 0;
     min-height: 380px;
     margin-bottom: 15px;
     border-radius: 10px;
@@ -2699,7 +2700,7 @@
   .comparison-echarts-chart {
     height: 320px !important;
     min-height: 320px;
-    padding: 5px;
+    padding: 0;
     border-radius: 8px;
   }
 

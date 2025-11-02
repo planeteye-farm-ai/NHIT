@@ -2506,7 +2506,14 @@
   }
 
   .comparison-modal-body {
-    padding: 20px;
+    padding: 0;
+  }
+  
+  .comparison-modal-content {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
   }
 
   .asset-selection-section {
