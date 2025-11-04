@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { ShowcodeCardComponent } from '../../../../../../shared/common/includes/showcode-card/showcode-card.component';
-import * as prismCodeData from '../../../../../../shared/prismData/forms/form_layouts';
 import { SharedModule } from '../../../../../../shared/common/sharedmodule';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
@@ -26,7 +24,6 @@ import { RoadService } from '../../road.service';
     NgSelectModule,
     FormsModule,
     CommonModule,
-    ShowcodeCardComponent,
     ReactiveFormsModule,
     RouterLink,
   ],
@@ -35,44 +32,66 @@ import { RoadService } from '../../road.service';
 })
 export class AddInventoryComponent {
   inventoryForm!: FormGroup;
-  prismCode = prismCodeData;
   roadId: any;
   roadName: any;
   roadList: any[] = [];
 
+  // Wizard Steps
+  currentStep: number = 1;
+  totalSteps: number = 4;
+
+  // Road Selection
+  selectedRoad: any = null;
+  chainageStart: number = 0;
+  chainageEnd: number = 0;
+
   // Direction options
   directionOptions = ['Increasing (LHS)', 'Decreasing (RHS)', 'Median'];
+  selectedDirection: string = '';
 
-  // Asset Types (Complete list from Inventory Report)
+  // Asset Action
+  selectedAssetAction: string = 'add';
+
+  // Asset Types (Complete list from Inventory Report) with colors
   assetTypes = [
-    'Adjacent Road',
-    'Bridges',
-    'Bus Stop',
-    'Crash Barrier',
-    'Culvert',
-    'Emergency Call Box',
-    'Footpath',
-    'Fuel Station',
-    'Junction',
-    'KM Stones',
-    'Median Opening',
-    'Median Plants',
-    'RCC Drain',
-    'Rest Area',
-    'Service Road',
-    'Sign Boards',
-    'Solar Blinker',
-    'Street Lights',
-    'Toilet Blocks',
-    'Toll Plaza',
-    'Traffic Signals',
-    'Trees',
-    'Truck LayBy',
-    'Tunnels',
+    { name: 'Trees', color: '#4CAF50' },
+    { name: 'Adjacent Road', color: '#2196F3' },
+    { name: 'Sign Boards', color: '#FF9800' },
+    { name: 'Culvert', color: '#9C27B0' },
+    { name: 'Toll Plaza', color: '#F44336' },
+    { name: 'Bus Stop', color: '#00BCD4' },
+    { name: 'Crash Barrier', color: '#FF9800' },
+    { name: 'Emergency Call Box', color: '#E91E63' },
+    { name: 'KM Stones', color: '#607D8B' },
+    { name: 'Street Lights', color: '#FFC107' },
+    { name: 'Truck LayBy', color: '#8BC34A' },
+    { name: 'Service Road', color: '#FF5722' },
+    { name: 'Junction', color: '#9E9E9E' },
+    { name: 'Fuel Station', color: '#3F51B5' },
+    { name: 'Toilet Blocks', color: '#009688' },
+    { name: 'RCC Drain', color: '#673AB7' },
+    { name: 'Solar Blinker', color: '#FFEB3B' },
+    { name: 'Median Opening', color: '#CDDC39' },
+    { name: 'Bridges', color: '#795548' },
+    { name: 'Footpath', color: '#00BCD4' },
+    { name: 'Median Plants', color: '#4CAF50' },
+    { name: 'Rest Area', color: '#FF5722' },
+    { name: 'Traffic Signals', color: '#F44336' },
+    { name: 'Tunnels', color: '#607D8B' },
   ];
+
+  selectedAsset: string = '';
+  selectedSubAsset: string = '';
+
+  // Modal state
+  isModalOpen: boolean = false;
 
   // Sub Asset Types (will be populated based on selected Asset Type)
   subAssetTypes: string[] = [];
+
+  // Drag and drop states
+  isDraggingImage: boolean = false;
+  isDraggingVideo: boolean = false;
 
   // Asset Type to Sub Asset Type mapping (Comprehensive)
   assetSubTypeMap: { [key: string]: string[] } = {
@@ -332,6 +351,10 @@ export class AddInventoryComponent {
 
     if (testRoad) {
       this.roadName = testRoad.name_of_road;
+      this.selectedRoad = testRoad;
+      // Auto-populate chainage from road data
+      this.chainageStart = testRoad.chainage_start || 0;
+      this.chainageEnd = testRoad.chainage_end || 0;
       console.log('Road name loaded from localStorage:', this.roadName);
     } else {
       // Fallback to API
@@ -339,6 +362,9 @@ export class AddInventoryComponent {
         (res) => {
           if (res && res.data && res.data.length > 0) {
             this.roadName = res.data[0].name_of_road;
+            this.selectedRoad = res.data[0];
+            this.chainageStart = res.data[0].chainage_start || 0;
+            this.chainageEnd = res.data[0].chainage_end || 0;
           }
         },
         (err) => {
@@ -346,6 +372,198 @@ export class AddInventoryComponent {
         }
       );
     }
+  }
+
+  // Wizard Navigation Methods
+  goToNextStep(): void {
+    if (this.currentStep < this.totalSteps) {
+      this.currentStep++;
+    }
+  }
+
+  goToPreviousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  goToStep(step: number): void {
+    if (step >= 1 && step <= this.totalSteps) {
+      this.currentStep = step;
+    }
+  }
+
+  // Step validation methods
+  canProceedFromStep1(): boolean {
+    return (
+      !!this.selectedRoad &&
+      this.chainageStart !== null &&
+      this.chainageEnd !== null
+    );
+  }
+
+  canProceedFromStep2(): boolean {
+    return !!this.selectedDirection;
+  }
+
+  canProceedFromStep3(): boolean {
+    return !!this.selectedAssetAction;
+  }
+
+  // Direction Selection
+  selectDirection(direction: string): void {
+    this.selectedDirection = direction;
+    this.inventoryForm.patchValue({ direction: direction });
+  }
+
+  // Asset Action Selection
+  selectAssetAction(action: string): void {
+    this.selectedAssetAction = action;
+    this.inventoryForm.patchValue({ asset_action: action });
+  }
+
+  // Asset Card Click Handler
+  onAssetCardClick(assetName: string): void {
+    this.selectedAsset = assetName;
+    this.subAssetTypes = this.assetSubTypeMap[assetName] || [];
+    this.inventoryForm.patchValue({
+      asset_type: assetName,
+      sub_asset_type: '',
+    });
+    this.isModalOpen = true;
+  }
+
+  // Close Modal
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.selectedAsset = '';
+    this.selectedSubAsset = '';
+  }
+
+  // Select Sub Asset
+  selectSubAsset(subAsset: string): void {
+    this.selectedSubAsset = subAsset;
+    this.inventoryForm.patchValue({ sub_asset_type: subAsset });
+  }
+
+  // Increment/Decrement Quantity
+  incrementQuantity(): void {
+    const currentValue =
+      this.inventoryForm.get('numbers_inventory')?.value || 0;
+    this.inventoryForm.patchValue({
+      numbers_inventory: Number(currentValue) + 1,
+    });
+  }
+
+  decrementQuantity(): void {
+    const currentValue =
+      this.inventoryForm.get('numbers_inventory')?.value || 0;
+    if (currentValue > 0) {
+      this.inventoryForm.patchValue({
+        numbers_inventory: Number(currentValue) - 1,
+      });
+    }
+  }
+
+  // Drag and Drop Handlers for Image
+  onImageDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingImage = true;
+  }
+
+  onImageDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingImage = false;
+  }
+
+  onImageDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingImage = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.processImageFile(files[0]);
+    }
+  }
+
+  // Drag and Drop Handlers for Video
+  onVideoDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingVideo = true;
+  }
+
+  onVideoDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingVideo = false;
+  }
+
+  onVideoDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingVideo = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.processVideoFile(files[0]);
+    }
+  }
+
+  // Process Image File
+  processImageFile(file: File): void {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      this.toastr.error('Only JPG and PNG images are allowed', 'Invalid File');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
+      return;
+    }
+
+    this.inventoryForm.patchValue({
+      inventory_image: file.name,
+      image_file: file,
+    });
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.inventoryForm.patchValue({ image_preview: e.target.result });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Process Video File
+  processVideoFile(file: File): void {
+    const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
+    if (!validTypes.includes(file.type)) {
+      this.toastr.error(
+        'Only MP4, AVI, MOV, and WMV videos are allowed',
+        'Invalid File'
+      );
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      this.toastr.error('Video size should not exceed 50MB', 'File Too Large');
+      return;
+    }
+
+    this.inventoryForm.patchValue({
+      inventory_video: file.name,
+      video_file: file,
+    });
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.inventoryForm.patchValue({ video_preview: e.target.result });
+    };
+    reader.readAsDataURL(file);
   }
 
   // Update sub asset types when asset type changes
@@ -358,32 +576,7 @@ export class AddInventoryComponent {
   onImageSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-      if (!validTypes.includes(file.type)) {
-        this.toastr.error(
-          'Only JPG and PNG images are allowed',
-          'Invalid File'
-        );
-        event.target.value = '';
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
-        event.target.value = '';
-        return;
-      }
-
-      this.inventoryForm.patchValue({
-        inventory_image: file.name,
-        image_file: file,
-      });
-
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.inventoryForm.patchValue({ image_preview: e.target.result });
-      };
-      reader.readAsDataURL(file);
+      this.processImageFile(file);
     }
   }
 
@@ -391,35 +584,7 @@ export class AddInventoryComponent {
   onVideoSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
-      if (!validTypes.includes(file.type)) {
-        this.toastr.error(
-          'Only MP4, AVI, MOV, and WMV videos are allowed',
-          'Invalid File'
-        );
-        event.target.value = '';
-        return;
-      }
-
-      if (file.size > 50 * 1024 * 1024) {
-        this.toastr.error(
-          'Video size should not exceed 50MB',
-          'File Too Large'
-        );
-        event.target.value = '';
-        return;
-      }
-
-      this.inventoryForm.patchValue({
-        inventory_video: file.name,
-        video_file: file,
-      });
-
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.inventoryForm.patchValue({ video_preview: e.target.result });
-      };
-      reader.readAsDataURL(file);
+      this.processVideoFile(file);
     }
   }
 
@@ -439,6 +604,26 @@ export class AddInventoryComponent {
       video_file: null,
       video_preview: null,
     });
+  }
+
+  // Submit from modal
+  onSubmitFromModal(): void {
+    if (this.inventoryForm.invalid) {
+      this.inventoryForm.markAllAsTouched();
+      this.toastr.error('Please fill all required fields', 'Validation Error');
+      return;
+    }
+
+    // Update form with selected values
+    this.inventoryForm.patchValue({
+      geometry_data_id: this.roadId,
+      chainage_start: this.chainageStart,
+      chainage_end: this.chainageEnd,
+      direction: this.selectedDirection,
+      asset_action: this.selectedAssetAction,
+    });
+
+    this.onSubmit();
   }
 
   onSubmit(): void {
