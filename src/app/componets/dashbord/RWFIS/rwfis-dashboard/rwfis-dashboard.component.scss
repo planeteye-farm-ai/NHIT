@@ -420,7 +420,7 @@
 .asset-summary-full-width .asset-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-left: 4px solid #4CAF50;
+  
   border-radius: 8px;
   padding: 16px;
   display: flex;
@@ -572,9 +572,9 @@
 }
 
 .right-panel .asset-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-left: 4px solid #4CAF50;
+  background: rgba(255, 255, 255, 0.08);
+  // border: 1px solid rgba(255, 255, 255, 0.1);
+  
   border-radius: 6px;
   padding: 6px;
   display: flex;
@@ -589,14 +589,14 @@
 }
 
 /* Colorful left borders for right-panel asset cards */
-.right-panel .asset-card:nth-child(1) { border-left-color: #4CAF50; } /* Green */
-.right-panel .asset-card:nth-child(2) { border-left-color: #2196F3; } /* Blue */
-.right-panel .asset-card:nth-child(3) { border-left-color: #FF9800; } /* Orange */
-.right-panel .asset-card:nth-child(4) { border-left-color: #9C27B0; } /* Purple */
-.right-panel .asset-card:nth-child(5) { border-left-color: #F44336; } /* Red */
-.right-panel .asset-card:nth-child(6) { border-left-color: #00BCD4; } /* Cyan */
-.right-panel .asset-card:nth-child(7) { border-left-color: #8BC34A; } /* Light Green */
-.right-panel .asset-card:nth-child(8) { border-left-color: #FFC107; } /* Yellow */
+// .right-panel .asset-card:nth-child(1) { border-left-color: #4CAF50; } /* Green */
+// .right-panel .asset-card:nth-child(2) { border-left-color: #2196F3; } /* Blue */
+// .right-panel .asset-card:nth-child(3) { border-left-color: #FF9800; } /* Orange */
+// .right-panel .asset-card:nth-child(4) { border-left-color: #9C27B0; } /* Purple */
+// .right-panel .asset-card:nth-child(5) { border-left-color: #F44336; } /* Red */
+// .right-panel .asset-card:nth-child(6) { border-left-color: #00BCD4; } /* Cyan */
+// .right-panel .asset-card:nth-child(7) { border-left-color: #8BC34A; } /* Light Green */
+// .right-panel .asset-card:nth-child(8) { border-left-color: #FFC107; } /* Yellow */
 
 .right-panel .asset-card:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -811,7 +811,7 @@
 .asset-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-left: 4px solid #4CAF50;
+  
   border-radius: 8px;
   padding: 16px;
   display: flex;
@@ -822,14 +822,14 @@
 }
 
 /* Colorful left borders for different asset types */
-.asset-card:nth-child(1) { border-left-color: #4CAF50; } /* Land Use - Green */
-.asset-card:nth-child(2) { border-left-color: #2196F3; } /* Terrain - Blue */
-.asset-card:nth-child(3) { border-left-color: #FF9800; } /* Material Type - Orange */
-.asset-card:nth-child(4) { border-left-color: #9C27B0; } /* Altitude - Purple */
-.asset-card:nth-child(5) { border-left-color: #F44336; } /* Asset/Distress - Red */
-.asset-card:nth-child(6) { border-left-color: #00BCD4; } /* Safety Hazard - Cyan */
-.asset-card:nth-child(7) { border-left-color: #8BC34A; } /* Cross Section - Light Green */
-.asset-card:nth-child(8) { border-left-color: #FFC107; } /* Offset - Yellow */
+// .asset-card:nth-child(1) { border-left-color: #4CAF50; } /* Land Use - Green */
+// .asset-card:nth-child(2) { border-left-color: #2196F3; } /* Terrain - Blue */
+// .asset-card:nth-child(3) { border-left-color: #FF9800; } /* Material Type - Orange */
+// .asset-card:nth-child(4) { border-left-color: #9C27B0; } /* Altitude - Purple */
+// .asset-card:nth-child(5) { border-left-color: #F44336; } /* Asset/Distress - Red */
+// .asset-card:nth-child(6) { border-left-color: #00BCD4; } /* Safety Hazard - Cyan */
+// .asset-card:nth-child(7) { border-left-color: #8BC34A; } /* Cross Section - Light Green */
+// .asset-card:nth-child(8) { border-left-color: #FFC107; } /* Offset - Yellow */
 
 .asset-card:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -2481,7 +2481,7 @@
   margin-top: 20px;
   padding: 15px 20px;
   background: rgba(59, 130, 246, 0.1);
-  border-left: 4px solid rgb(59, 130, 246);
+  
   border-radius: 8px;
   display: flex;
   align-items: center;

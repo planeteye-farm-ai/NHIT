@@ -233,25 +233,31 @@
       </div>
       
       <div class="modal-body comparison-modal-body">
-        <!-- Distress Selection Chips -->
+        <!-- Distress Selection Icons -->
         <div class="asset-selection-section">
-          <div class="asset-selection-header">
-            <h4>Select Distress Types to Compare (Max 5):</h4>
+          <div class="subsection-header">
+            <h4>
+              <i class="fas fa-layer-group"></i>
+              Select Distress Types (Max 5)
+            </h4>
             <span class="selection-count">{{ selectedDistressesForComparison.length }}/5 Selected</span>
           </div>
-          <div class="asset-chips-container">
-            <button
+          <div class="asset-icons-container">
+            <div
               *ngFor="let distress of availableDistressesForComparison"
-              class="asset-chip"
+              class="asset-icon-wrapper"
               [class.selected]="isDistressSelectedForComparison(distress)"
-              [style.border-color]="getDistressColorForChip(distress)"
-              [style.background-color]="getDistressChipBackgroundColor(distress)"
               (click)="toggleDistressForComparison(distress)"
+              [title]="distress"
             >
-              <span class="chip-color-indicator" [style.background-color]="getDistressColorForChip(distress)"></span>
-              {{ distress }}
-              <i *ngIf="isDistressSelectedForComparison(distress)" class="fas fa-check"></i>
-            </button>
+              <div class="asset-icon-circle" [style.background-color]="getDistressIconColor(distress)">
+                <i [class]="getDistressIconClass(distress)"></i>
+              </div>
+              <span class="asset-icon-label">{{ distress }}</span>
+              <div *ngIf="isDistressSelectedForComparison(distress)" class="selected-indicator">
+                <i class="fas fa-check-circle"></i>
+              </div>
+            </div>
           </div>
         </div>
 
