@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   AfterViewInit,
@@ -118,6 +118,27 @@ export class RisReportedDashboardComponent
   isMonthComparisonMode: boolean = false;
   isPreloadingMonthData: boolean = false;
 
+  // Pothole Detection Properties
+  isPotholeModalOpen: boolean = false;
+  isLoadingPotholeData: boolean = false;
+  potholeData: any = null;
+  potholeDepthChartOptions: any = null;
+  potholeAreaChartOptions: any = null;
+  potholeProfileHeatmapOptions: any = null;
+  profileHeatmapData: any = null;
+  potholePolygonsData: any = null;
+  currentSegmentIndex: number = 0;
+  totalSegments: number = 0;
+  segmentSize: number = 10;
+  
+  // 3D View properties
+  currentView: string = 'top';
+  potholeTopViewOptions: any = null;
+  potholeSideViewOptions: any = null;
+  pothole3DViewOptions: any = null;
+  selectedLaserForSideView: number = 1;
+  availableLasersForSideView: number[] = [];
+
   private map: any;
   public isBrowser: boolean;
   public isLoading: boolean = false;
@@ -155,6 +176,1254 @@ export class RisReportedDashboardComponent
     }
   }
 
+  // ============================================
+  // POTHOLE DETECTION METHODS
+  // ============================================
+
+  async openPotholeDetection() {
+    this.isPotholeModalOpen = true;
+    this.isLoadingPotholeData = true;
+
+    try {
+      // Load pothole data from JSON
+      const response = await fetch('/assets/pothole_data.json');
+      this.potholeData = await response.json();
+
+      // Load profile heatmap data
+      const heatmapResponse = await fetch('/assets/profile_heatmap_data.json');
+      this.profileHeatmapData = await heatmapResponse.json();
+
+      // Load pothole polygon data
+      const polygonsResponse = await fetch('/assets/pothole_polygons.json');
+      this.potholePolygonsData = await polygonsResponse.json();
+
+      console.log('âœ… Loaded pothole data:', this.potholeData.metadata);
+      console.log('âœ… Loaded profile heatmap data:', this.profileHeatmapData.metadata);
+      console.log('âœ… Loaded pothole polygons:', this.potholePolygonsData.metadata);
+
+      // Calculate total segments based on total distance
+      const totalDistance = this.potholeData.metadata.total_distance_m || 100;
+      this.totalSegments = Math.ceil(totalDistance / this.segmentSize);
+      this.currentSegmentIndex = 0; // Start with first segment
+
+      console.log(`ðŸ“Š Total segments: ${this.totalSegments} (${this.segmentSize}m each)`);
+
+      // Generate charts for first segment
+      console.log('ðŸŽ¨ Generating all charts...');
+      this.generatePotholeDepthChart();
+      this.generatePotholeAreaChart();
+      this.generateProfileHeatmapChart();
+      console.log('âœ… All charts generated');
+    } catch (error) {
+      console.error('âŒ Error loading pothole data:', error);
+      alert('Failed to load pothole detection data. Please try again.');
+    } finally {
+      this.isLoadingPotholeData = false;
+    }
+  }
+
+  closePotholeModal() {
+    this.isPotholeModalOpen = false;
+    this.currentSegmentIndex = 0;
+  }
+
+  // Navigation methods
+  goToPreviousSegment() {
+    if (this.currentSegmentIndex > 0) {
+      this.currentSegmentIndex--;
+      console.log(`â—€ï¸ Moved to segment ${this.currentSegmentIndex + 1}/${this.totalSegments}`);
+      
+      // Clear charts first to force recreation
+      this.potholeDepthChartOptions = null;
+      this.potholeAreaChartOptions = null;
+      this.potholeProfileHeatmapOptions = null;
+      this.potholeTopViewOptions = null;
+      this.potholeSideViewOptions = null;
+      this.pothole3DViewOptions = null;
+      
+      // Regenerate after a tiny delay
+      setTimeout(() => {
+        this.generatePotholeDepthChart();
+        this.generatePotholeAreaChart();
+        this.generateProfileHeatmapChart();
+        
+        // Regenerate 3D views if they were active
+        if (this.currentView === 'top') this.generateTopView();
+        if (this.currentView === 'side') this.generateSideView();
+        if (this.currentView === '3d') this.generate3DView();
+      }, 50);
+    }
+  }
+
+  goToNextSegment() {
+    if (this.currentSegmentIndex < this.totalSegments - 1) {
+      this.currentSegmentIndex++;
+      console.log(`â–¶ï¸ Moved to segment ${this.currentSegmentIndex + 1}/${this.totalSegments}`);
+      
+      // Clear charts first to force recreation
+      this.potholeDepthChartOptions = null;
+      this.potholeAreaChartOptions = null;
+      this.potholeProfileHeatmapOptions = null;
+      this.potholeTopViewOptions = null;
+      this.potholeSideViewOptions = null;
+      this.pothole3DViewOptions = null;
+      
+      // Regenerate after a tiny delay
+      setTimeout(() => {
+        this.generatePotholeDepthChart();
+        this.generatePotholeAreaChart();
+        this.generateProfileHeatmapChart();
+        
+        // Regenerate 3D views if they were active
+        if (this.currentView === 'top') this.generateTopView();
+        if (this.currentView === 'side') this.generateSideView();
+        if (this.currentView === '3d') this.generate3DView();
+      }, 50);
+    }
+  }
+
+  canGoToPreviousSegment(): boolean {
+    return this.currentSegmentIndex > 0;
+  }
+
+  canGoToNextSegment(): boolean {
+    return this.currentSegmentIndex < this.totalSegments - 1;
+  }
+
+  // 3D View Methods
+  switchView(view: string) {
+    this.currentView = view;
+    
+    // Generate the appropriate chart
+    if (view === 'top' && !this.potholeTopViewOptions) {
+      this.generateTopView();
+    } else if (view === 'side' && !this.potholeSideViewOptions) {
+      this.generateSideView();
+    } else if (view === '3d' && !this.pothole3DViewOptions) {
+      this.generate3DView();
+    }
+  }
+
+  generateTopView() {
+    if (!this.profileHeatmapData?.segments) return;
+    
+    const currentSegment = this.profileHeatmapData.segments[this.currentSegmentIndex];
+    if (!currentSegment) return;
+    
+    const heatmapData = currentSegment.heatmap_data;
+    
+    // This is essentially the same as the profile heatmap, but optimized for top view
+    this.potholeTopViewOptions = Object.assign({}, this.potholeProfileHeatmapOptions);
+    console.log('âœ… Generated top view chart');
+  }
+
+  generateSideView() {
+    if (!this.profileHeatmapData?.segments) return;
+    
+    const currentSegment = this.profileHeatmapData.segments[this.currentSegmentIndex];
+    if (!currentSegment) return;
+    
+    const heatmapData = currentSegment.heatmap_data;
+    
+    // Get unique laser lines for selector
+    const uniqueLasers = [...new Set(heatmapData.map((p: any) => p.laser_line))].sort((a: any, b: any) => a - b);
+    this.availableLasersForSideView = uniqueLasers as number[];
+    
+    if (!this.selectedLaserForSideView || !uniqueLasers.includes(this.selectedLaserForSideView)) {
+      this.selectedLaserForSideView = uniqueLasers[0] as number;
+    }
+    
+    // Filter data for selected laser line
+    const laserData = heatmapData.filter((p: any) => p.laser_line === this.selectedLaserForSideView);
+    const chartData = laserData.map((p: any) => [p.distance, 255 - p.gray_value]); // Invert for depth
+    
+    this.potholeSideViewOptions = {
+      backgroundColor: '#ffffff',
+      title: {
+        text: `Side View - Laser Line L${this.selectedLaserForSideView}`,
+        left: 'center',
+        textStyle: { color: '#333' }
+      },
+      tooltip: {
+        trigger: 'axis',
+        formatter: (params: any) => {
+          if (params.length > 0) {
+            const distance = params[0].value[0];
+            const depth = params[0].value[1];
+            return `Distance: ${distance.toFixed(2)}m<br/>Depth: ${depth.toFixed(1)}`;
+          }
+          return '';
+        }
+      },
+      grid: {
+        left: '10%',
+        right: '10%',
+        top: '15%',
+        bottom: '15%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'value',
+        name: 'Distance (m)',
+        nameLocation: 'middle',
+        nameGap: 30
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Depth',
+        nameLocation: 'middle',
+        nameGap: 50,
+        inverse: true  // Deeper is lower
+      },
+      series: [{
+        type: 'line',
+        data: chartData,
+        smooth: true,
+        areaStyle: {
+          color: 'rgba(102, 126, 234, 0.3)'
+        },
+        lineStyle: {
+          color: '#667eea',
+          width: 2
+        },
+        itemStyle: {
+          color: '#667eea'
+        }
+      }]
+    };
+    
+    console.log(`âœ… Generated side view for L${this.selectedLaserForSideView}`);
+  }
+
+  generate3DView() {
+    if (!this.profileHeatmapData?.segments) return;
+    
+    const currentSegment = this.profileHeatmapData.segments[this.currentSegmentIndex];
+    if (!currentSegment) return;
+    
+    const heatmapData = currentSegment.heatmap_data;
+    
+    // Create enhanced heatmap data with depth visualization
+    const uniqueDistances = [...new Set(heatmapData.map((p: any) => p.distance))].sort((a: any, b: any) => a - b);
+    const uniqueLasers = [...new Set(heatmapData.map((p: any) => p.laser_line))].sort((a: any, b: any) => a - b);
+    
+    // Create data map
+    const dataMap = new Map();
+    heatmapData.forEach((p: any) => {
+      dataMap.set(`${p.distance}_${p.laser_line}`, p.gray_value);
+    });
+    
+    // Create heatmap data with depth representation
+    const chartData: any[] = [];
+    uniqueDistances.forEach((dist: any, xIdx) => {
+      uniqueLasers.forEach((laser: any, yIdx) => {
+        const grayValue = dataMap.get(`${dist}_${laser}`) || 150;
+        chartData.push([xIdx, yIdx, grayValue]);
+      });
+    });
+    
+    // Create multiple line series to simulate 3D depth perspective
+    const lineSeries: any[] = [];
+    
+    // For each laser line, create a line showing depth variation
+    uniqueLasers.forEach((laser: any, laserIdx) => {
+      const lineData: any[] = [];
+      
+      uniqueDistances.forEach((dist: any, distIdx) => {
+        const grayValue = dataMap.get(`${dist}_${laser}`) || 150;
+        const depth = 255 - grayValue; // Invert for visualization
+        
+        // Create offset for pseudo-3D effect
+        const yOffset = laserIdx * 15; // Vertical spacing
+        lineData.push([distIdx, depth + yOffset]);
+      });
+      
+      lineSeries.push({
+        name: `L${laser}`,
+        type: 'line',
+        data: lineData,
+        smooth: true,
+        lineStyle: {
+          width: 2,
+          color: this.getDepthColor(laserIdx, uniqueLasers.length)
+        },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [{
+              offset: 0,
+              color: this.getDepthColor(laserIdx, uniqueLasers.length)
+            }, {
+              offset: 1,
+              color: 'rgba(0, 0, 0, 0.1)'
+            }]
+          },
+          opacity: 0.3
+        },
+        showSymbol: false,
+        z: uniqueLasers.length - laserIdx // Stack from back to front
+      });
+    });
+    
+    this.pothole3DViewOptions = {
+      backgroundColor: '#1e1e2e',
+      title: {
+        text: '3D Perspective View - Road Surface Depth Profile',
+        left: 'center',
+        top: 10,
+        textStyle: {
+          color: '#ffffff',
+          fontSize: 16
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(30, 30, 46, 0.95)',
+        borderColor: '#667eea',
+        textStyle: { color: '#ffffff' },
+        formatter: (params: any) => {
+          if (params && params.length > 0) {
+            const distIdx = params[0].value[0];
+            const dist = uniqueDistances[distIdx];
+            let tooltip = `<strong>Distance:</strong> ${(dist as number).toFixed(2)}m<br/>`;
+            
+            params.forEach((param: any) => {
+              const depth = param.value[1] - (param.seriesIndex * 15);
+              tooltip += `<span style="color:${param.color}">${param.seriesName}:</span> Depth ${depth.toFixed(0)}<br/>`;
+            });
+            
+            return tooltip;
+          }
+          return '';
+        }
+      },
+      legend: {
+        show: false
+      },
+      grid: {
+        left: '10%',
+        right: '15%',
+        top: '15%',
+        bottom: '15%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'value',
+        name: 'Distance (m)',
+        nameLocation: 'middle',
+        nameGap: 30,
+        nameTextStyle: { color: '#ffffff' },
+        axisLine: { lineStyle: { color: '#667eea' } },
+        axisLabel: {
+          color: '#ffffff',
+          formatter: (val: any) => {
+            const dist = uniqueDistances[val];
+            return dist ? (dist as number).toFixed(1) : '';
+          }
+        },
+        splitLine: {
+          lineStyle: { color: 'rgba(102, 126, 234, 0.2)' }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Depth + Lane Offset',
+        nameLocation: 'middle',
+        nameGap: 50,
+        nameTextStyle: { color: '#ffffff' },
+        axisLine: { lineStyle: { color: '#667eea' } },
+        axisLabel: { color: '#ffffff' },
+        splitLine: {
+          lineStyle: { color: 'rgba(102, 126, 234, 0.2)' }
+        }
+      },
+      visualMap: {
+        show: true,
+        min: 0,
+        max: 255,
+        orient: 'vertical',
+        right: '2%',
+        top: 'center',
+        text: ['Deep', 'Shallow'],
+        inRange: {
+          color: ['#d73027', '#f46d43', '#fdae61', '#fee090', '#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695']
+        },
+        textStyle: {
+          color: '#ffffff'
+        }
+      },
+      series: lineSeries
+    };
+    
+    console.log(`âœ… Generated 3D perspective view with ${lineSeries.length} laser line layers`);
+  }
+  
+  getDepthColor(index: number, total: number): string {
+    const colors = [
+      '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#fee090', 
+      '#fdae61', '#f46d43', '#d73027', '#a50026', '#313695'
+    ];
+    return colors[index % colors.length];
+  }
+
+  getCurrentSegmentInfo(): string {
+    const startDistance = this.currentSegmentIndex * this.segmentSize;
+    const endDistance = Math.min(startDistance + this.segmentSize, this.potholeData?.metadata?.total_distance_m || 100);
+    const startChainage = (this.potholeData?.metadata?.chainage_start_km || 0) + (startDistance / 1000);
+    const endChainage = (this.potholeData?.metadata?.chainage_start_km || 0) + (endDistance / 1000);
+    return `${startChainage.toFixed(3)} - ${endChainage.toFixed(3)} km (${startDistance}m - ${endDistance}m)`;
+  }
+
+  getSegmentPotholes(): any[] {
+    if (!this.potholeData?.potholes) return [];
+    
+    const startDistance = this.currentSegmentIndex * this.segmentSize;
+    const endDistance = startDistance + this.segmentSize;
+    
+    return this.potholeData.potholes.filter((p: any) => {
+      return p.distance_m >= startDistance && p.distance_m < endDistance;
+    });
+  }
+
+  getAverageDepth(): string {
+    const segmentPotholes = this.getSegmentPotholes();
+    if (segmentPotholes.length === 0) {
+      return '0';
+    }
+    const total = segmentPotholes.reduce((sum: number, p: any) => sum + p.depth_mm, 0);
+    return (total / segmentPotholes.length).toFixed(1);
+  }
+
+  getAverageArea(): string {
+    const segmentPotholes = this.getSegmentPotholes();
+    if (segmentPotholes.length === 0) {
+      return '0';
+    }
+    const total = segmentPotholes.reduce((sum: number, p: any) => sum + p.area_cm2, 0);
+    return (total / segmentPotholes.length).toFixed(1);
+  }
+
+  getSeverityCount(severity: string): number {
+    const segmentPotholes = this.getSegmentPotholes();
+    return segmentPotholes.filter((p: any) => p.severity === severity).length;
+  }
+
+  generatePotholeDepthChart() {
+    if (!this.profileHeatmapData?.segments) {
+      console.error('❌ No profile heatmap data for depth chart');
+      return;
+    }
+
+    // Get current segment heatmap data
+    const currentSegment = this.profileHeatmapData.segments[this.currentSegmentIndex];
+    if (!currentSegment) {
+      console.error(`❌ No segment data for index ${this.currentSegmentIndex}`);
+      return;
+    }
+
+    const heatmapData = currentSegment.heatmap_data;
+    
+    console.log(`📈 Generating depth chart for segment ${this.currentSegmentIndex + 1}:`);
+    console.log(`   Heatmap data points: ${heatmapData?.length || 0}`);
+    
+    // Get actual distance range from the data
+    const distances = heatmapData.map((p: any) => p.distance);
+    const minDistance = Math.min(...distances);
+    const maxDistance = Math.max(...distances);
+    
+    console.log(`   Distance range: ${minDistance.toFixed(3)}m - ${maxDistance.toFixed(3)}m`);
+    
+    // Group data by laser line
+    const laserLineData: { [key: number]: Array<{distance: number, grayValue: number}> } = {};
+    
+    heatmapData.forEach((point: any) => {
+      if (!laserLineData[point.laser_line]) {
+        laserLineData[point.laser_line] = [];
+      }
+      laserLineData[point.laser_line].push({
+        distance: point.distance,
+        grayValue: point.gray_value
+      });
+    });
+
+    // Sort each laser line by distance
+    Object.keys(laserLineData).forEach(key => {
+      laserLineData[parseInt(key)].sort((a, b) => a.distance - b.distance);
+    });
+
+    // Get unique laser lines and create color palette
+    const laserLines = Object.keys(laserLineData).map(k => parseInt(k)).sort((a, b) => a - b);
+    
+    console.log(`   Laser lines found: ${laserLines.length} (${laserLines.slice(0, 5).map(l => `L${l}`).join(', ')}...)`);
+    
+    // Create color palette (matching Excel chart style)
+    const colors = [
+      '#4472C4', '#ED7D31', '#A5A5A5', '#FFC000', '#5B9BD5',
+      '#70AD47', '#264478', '#9E480E', '#636363', '#997300',
+      '#255E91', '#43682B', '#698ED0', '#F1975A', '#B7B7B7',
+      '#FFCD33', '#7CAFDD', '#8CC168', '#1F3864', '#7D3C0E',
+      '#4F4F4F', '#806000', '#1C4A73', '#37551C', '#5A8AC5'
+    ];
+
+    // Create series for each laser line
+    const series: any[] = [];
+    laserLines.forEach((laserLine, idx) => {
+      const lineData = laserLineData[laserLine];
+      const seriesData = lineData.map(point => [point.distance, point.grayValue]);
+      
+      series.push({
+        name: `L${laserLine}`,
+        type: 'line',
+        data: seriesData,
+        smooth: false,  // Straight lines like Excel
+        symbol: 'circle',
+        symbolSize: 4,
+        lineStyle: {
+          width: 2,
+          color: colors[idx % colors.length]
+        },
+        itemStyle: {
+          color: colors[idx % colors.length]
+        },
+        showSymbol: true,
+        emphasis: {
+          focus: 'series',
+          lineStyle: {
+            width: 3
+          },
+          itemStyle: {
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }
+        }
+      });
+    });
+
+    console.log(`   Generated ${series.length} line series`);
+    
+    if (series.length === 0) {
+      console.error(`❌ No series data generated for segment ${this.currentSegmentIndex + 1}!`);
+      console.error(`   LaserLines array: ${laserLines.join(', ')}`);
+      console.error(`   LaserLineData keys: ${Object.keys(laserLineData).join(', ')}`);
+      return;
+    }
+
+    // Create a completely new object to trigger Angular change detection
+    const chartOptions = {
+      backgroundColor: 'transparent',
+      title: {
+        text: `Pothole Depth Profile - Segment ${this.currentSegmentIndex + 1}`,
+        left: 'center',
+        top: 10,
+        textStyle: {
+          color: '#ffffff',
+          fontSize: 14,
+          fontWeight: 600
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(30, 30, 46, 0.95)',
+        borderColor: '#667eea',
+        borderWidth: 1,
+        textStyle: {
+          color: '#ffffff'
+        },
+        axisPointer: {
+          type: 'cross',
+          crossStyle: {
+            color: '#667eea'
+          }
+        },
+        formatter: (params: any) => {
+          if (!params || params.length === 0) return '';
+          
+          const distance = params[0].value[0];
+          const chainage = currentSegment.start_chainage_km + distance / 1000;
+          
+          let tooltip = `<strong>Distance:</strong> ${distance.toFixed(3)}m<br/>`;
+          tooltip += `<strong>Chainage:</strong> ${chainage.toFixed(6)} km<br/><br/>`;
+          
+          // Show data for all laser lines at this point
+          params.forEach((param: any) => {
+            const grayValue = param.value[1];
+            const severity = this.getGrayValueSeverity(grayValue);
+            const marker = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${param.color};margin-right:5px;"></span>`;
+            tooltip += `${marker}<strong>${param.seriesName}:</strong> ${grayValue.toFixed(0)} (${severity})<br/>`;
+          });
+          
+          return tooltip;
+        }
+      },
+      legend: {
+        type: 'scroll',
+        data: laserLines.map(l => `L${l}`),
+        top: 40,
+        textStyle: {
+          color: '#ffffff',
+          fontSize: 10
+        },
+        itemGap: 8,
+        itemWidth: 20,
+        itemHeight: 10,
+        pageIconColor: '#667eea',
+        pageIconInactiveColor: 'rgba(255, 255, 255, 0.3)',
+        pageTextStyle: {
+          color: '#ffffff'
+        }
+      },
+      grid: {
+        left: '8%',
+        right: '5%',
+        top: '120px',
+        bottom: '12%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'value',
+        name: 'Distance (m)',
+        nameLocation: 'middle',
+        nameGap: 30,
+        min: Math.floor(minDistance),
+        max: Math.ceil(maxDistance),
+        interval: Math.max(1, Math.floor((maxDistance - minDistance) / 5)),  // ~5 intervals
+        nameTextStyle: {
+          color: '#ffffff',
+          fontSize: 12,
+          fontWeight: 600
+        },
+        axisLine: {
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.3)'
+          }
+        },
+        axisLabel: {
+          color: '#ffffff',
+          fontSize: 11
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.15)',
+            type: 'solid'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Gray Value (0=Deep Pothole, 255=Normal)',
+        nameLocation: 'middle',
+        nameGap: 55,
+        min: 0,
+        max: 250,
+        interval: 50,  // Major ticks every 50 (like reference image: 0, 50, 100, 150, 200, 250)
+        nameTextStyle: {
+          color: '#ffffff',
+          fontSize: 12,
+          fontWeight: 600
+        },
+        axisLine: {
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.3)'
+          }
+        },
+        axisLabel: {
+          color: '#ffffff',
+          fontSize: 11
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.15)',
+            type: 'solid'
+          }
+        }
+      },
+      series: series,
+      animationDuration: 1000,
+      animationEasing: 'cubicOut'
+    };
+    
+    // Assign to component property to trigger change detection
+    this.potholeDepthChartOptions = Object.assign({}, chartOptions);
+    
+    console.log(`✅ Depth chart assigned for segment ${this.currentSegmentIndex + 1}`);
+  }
+
+  generatePotholeAreaChart() {
+    if (!this.potholePolygonsData?.segments) {
+      console.error('❌ No polygon data available');
+      return;
+    }
+
+    if (!this.profileHeatmapData?.segments) {
+      console.error('❌ No profile heatmap data available');
+      return;
+    }
+
+    // Get current segment polygon data
+    const currentSegment = this.potholePolygonsData.segments[this.currentSegmentIndex];
+    if (!currentSegment) {
+      console.error('❌ No data for segment', this.currentSegmentIndex);
+      return;
+    }
+
+    // Get current segment profile heatmap data to find all laser lines
+    const currentHeatmapSegment = this.profileHeatmapData.segments[this.currentSegmentIndex];
+    if (!currentHeatmapSegment) {
+      console.error('❌ No heatmap data for segment', this.currentSegmentIndex);
+      return;
+    }
+
+    const potholes = currentSegment.potholes || [];
+    const gridDimensions = currentSegment.grid_dimensions;
+    
+    console.log(`📊 Generating area chart for segment ${this.currentSegmentIndex + 1}:`);
+    console.log(`   Grid: ${gridDimensions.num_distances} × ${gridDimensions.num_lasers}`);
+    console.log(`   Potholes: ${potholes.length}`);
+    
+    // Create series for grid and pothole visualization
+    const series: any[] = [];
+    
+    // Get ALL laser lines present in this segment from profile heatmap data
+    const heatmapData = currentHeatmapSegment.heatmap_data || [];
+    
+    console.log(`   Heatmap data points in segment: ${heatmapData.length}`);
+    if (heatmapData.length > 0) {
+      const samplePoint = heatmapData[0];
+      console.log(`   Sample point: distance=${samplePoint.distance}, laser=${samplePoint.laser_line}, gray=${samplePoint.gray_value}`);
+    }
+    
+    const laserLineNumbers = heatmapData.map((p: any) => Number(p.laser_line)) as number[];
+    const uniqueLaserLines: number[] = [...new Set(laserLineNumbers)].sort((a, b) => a - b);
+    
+    if (uniqueLaserLines.length === 0) {
+      console.error('❌ No laser lines found in heatmap data');
+      return;
+    }
+    
+    // Use the actual laser line numbers (not indices) from the data
+    // Laser lines are 1-indexed in the data (L1, L2, L3, etc.), so convert to 0-indexed for display
+    const minLaserNumber = Math.min(...uniqueLaserLines);  // e.g., 1, 3, 5, etc.
+    const maxLaserNumber = Math.max(...uniqueLaserLines);  // e.g., 13, 20, 473, etc.
+    
+    // Convert to 0-indexed for internal processing
+    const minLaserDisplay = minLaserNumber - 1;  // Convert L1->0, L2->1, etc.
+    const maxLaserDisplay = maxLaserNumber;      // Keep as max for range
+    
+    console.log(`   Unique laser lines found: ${uniqueLaserLines.length}`);
+    console.log(`   Laser range: L${minLaserNumber} - L${maxLaserNumber}`);
+    console.log(`   First 10 lasers: ${uniqueLaserLines.slice(0, 10).map(l => `L${l}`).join(', ')}`);
+    console.log(`   Last 10 lasers: ${uniqueLaserLines.slice(-10).map(l => `L${l}`).join(', ')}`);
+    
+    // Create a mapping from actual laser line number to display index (0-indexed)
+    const laserLineToIndexMap = new Map<number, number>();
+    uniqueLaserLines.forEach((laserNum, idx) => {
+      laserLineToIndexMap.set(laserNum, idx);
+    });
+    
+    const laserDisplayCount = uniqueLaserLines.length;
+    const segmentDistanceCount = gridDimensions.num_distances;
+    const segmentDistances = gridDimensions.distances || [];
+    
+    // Background grid layer (white cells with purple borders)
+    // Use display index (0 to laserDisplayCount-1) for Y coordinate
+    const gridData: any[] = [];
+    for (let yIdx = 0; yIdx < laserDisplayCount; yIdx++) {
+      for (let x = 0; x < segmentDistanceCount; x++) {
+        gridData.push([x, yIdx, 150]);  // yIdx is 0-indexed display position
+      }
+    }
+    
+    series.push({
+      type: 'heatmap',
+      data: gridData,
+      itemStyle: {
+        color: '#ffffff',
+        borderColor: '#9966cc',  // Purple grid lines
+        borderWidth: 1
+      },
+      emphasis: {
+        disabled: true
+      },
+      z: 1
+    });
+    
+    console.log(`   Grid cells: ${gridData.length} (${segmentDistanceCount} × ${laserDisplayCount})`);
+    
+    // Add pothole regions as filled heatmap cells
+    potholes.forEach((pothole: any, potholeIdx: number) => {
+      const polygon = pothole.polygon;
+      
+      // Find grid indices for this pothole
+      // polygon format: [distance, laser_line_number] where laser_line_number is 1-indexed
+      const minDist = Math.min(...polygon.map((p: any) => p[0]));
+      const maxDist = Math.max(...polygon.map((p: any) => p[0]));
+      const polygonLaserLines = polygon.map((p: any) => Number(p[1])).filter((l: number) => uniqueLaserLines.includes(l));
+      
+      if (polygonLaserLines.length === 0) {
+        console.warn(`   Pothole ${pothole.id}: No matching laser lines in segment`);
+        return; // Skip potholes with no matching laser lines
+      }
+      
+      const minLaserNum = Math.min(...polygonLaserLines);
+      const maxLaserNum = Math.max(...polygonLaserLines);
+      
+      // Convert laser line numbers to display indices
+      const minLaserDisplayIdx = laserLineToIndexMap.get(minLaserNum);
+      const maxLaserDisplayIdx = laserLineToIndexMap.get(maxLaserNum);
+      
+      if (minLaserDisplayIdx === undefined || maxLaserDisplayIdx === undefined) {
+        console.warn(`   Pothole ${pothole.id}: Could not map laser lines to display indices`);
+        return;
+      }
+      
+      // Map to segment-local distance indices
+      let minDistIdx = segmentDistances.findIndex((d: number) => d >= minDist);
+      let maxDistIdx = segmentDistances.findIndex((d: number) => d >= maxDist);
+      
+      if (minDistIdx === -1) minDistIdx = 0;
+      if (maxDistIdx === -1) maxDistIdx = segmentDistanceCount - 1;
+      
+      // Fill pothole area cells using display indices
+      const potholeData: any[] = [];
+      for (let yIdx = minLaserDisplayIdx; yIdx <= maxLaserDisplayIdx; yIdx++) {
+        for (let x = minDistIdx; x <= maxDistIdx && x < segmentDistanceCount; x++) {
+          potholeData.push([x, yIdx, pothole.severity === 'Very High' ? 50 : 100]);
+        }
+      }
+      
+      if (potholeIdx === 0) {
+        console.log(`   Pothole ${pothole.id}: ${potholeData.length} cells filled`);
+      }
+      
+      // Add filled pothole region as heatmap
+      series.push({
+        type: 'heatmap',
+        data: potholeData,
+        itemStyle: {
+          color: pothole.fill_color,
+          borderColor: pothole.fill_color,
+          borderWidth: 0
+        },
+        z: 2,
+        tooltip: {
+          formatter: () => {
+            return `
+              <strong>Pothole ${pothole.id}</strong><br/>
+              <strong>Size:</strong> ${pothole.size_category} (${pothole.area_cells} cells)<br/>
+              <strong>Severity:</strong> ${pothole.severity}<br/>
+              <strong>Min Gray:</strong> ${pothole.min_gray_value.toFixed(1)}<br/>
+              <strong>Center:</strong> ${pothole.center_distance.toFixed(2)}m, L${pothole.center_laser}
+            `;
+          }
+        }
+      });
+      
+      // Add boundary lines - create rectangle outlines
+      const boundaryConfigs = [
+        { color: '#0000ff', offset: 0.4, width: 2 },   // Blue outer
+        { color: '#ff0000', offset: 0.25, width: 2 },  // Red middle
+        { color: '#00ff00', offset: 0.1, width: 2 }    // Green inner
+      ];
+      
+      boundaryConfigs.forEach(config => {
+        const boundaryPoints: any[] = [
+          [minDistIdx - config.offset, minLaserDisplayIdx - config.offset],
+          [maxDistIdx + config.offset, minLaserDisplayIdx - config.offset],
+          [maxDistIdx + config.offset, maxLaserDisplayIdx + config.offset],
+          [minDistIdx - config.offset, maxLaserDisplayIdx + config.offset],
+          [minDistIdx - config.offset, minLaserDisplayIdx - config.offset]
+        ];
+        
+        series.push({
+          type: 'line',
+          data: boundaryPoints,
+          lineStyle: {
+            color: config.color,
+            width: config.width,
+            type: 'solid'
+          },
+          showSymbol: false,
+          z: 3 + boundaryConfigs.indexOf(config),
+          silent: true
+        });
+      });
+    });
+
+    const areaChartOptions = {
+      backgroundColor: '#ffffff',
+      title: {
+        text: `Plot ${String.fromCharCode(65 + this.currentSegmentIndex)}`,
+        right: '3%',
+        bottom: '3%',
+        textStyle: {
+          color: '#000000',
+          fontSize: 14,
+          fontWeight: 400
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderColor: '#333333',
+        borderWidth: 1,
+        textStyle: {
+          color: '#000000'
+        }
+      },
+      grid: {
+        left: '8%',
+        right: '10%',  // Extra space for Y-axis zoom slider
+        top: '5%',
+        bottom: '8%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: Array.from({ length: segmentDistanceCount }, (_, i) => i),
+        boundaryGap: true,  // REQUIRED for heatmap!
+        axisLine: {
+          show: true,
+          lineStyle: { color: '#333333' }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: { color: '#333333' }
+        },
+        axisLabel: {
+          show: true,
+          color: '#000000',
+          fontSize: 9,
+          interval: Math.floor(segmentDistanceCount / 10),
+          formatter: (value: any) => {
+            const dist = segmentDistances[value];
+            return dist ? dist.toFixed(1) : '';
+          }
+        },
+        splitLine: {
+          show: false
+        }
+      },
+      yAxis: {
+        type: 'category',
+        data: uniqueLaserLines.map(l => `L${l}`),  // Use actual laser line numbers from data
+        boundaryGap: true,  // REQUIRED for heatmap!
+        inverse: false,
+        axisLine: {
+          show: true,
+          lineStyle: { color: '#333333' }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: { color: '#333333' }
+        },
+        axisLabel: {
+          show: true,
+          color: '#000000',
+          fontSize: 9,
+          interval: uniqueLaserLines.length > 30 ? Math.floor(uniqueLaserLines.length / 15) : 0  // Show fewer labels if >30 lanes
+        },
+        splitLine: {
+          show: false
+        }
+      },
+      visualMap: {
+        show: false,
+        min: 0,
+        max: 255
+      },
+      dataZoom: [
+        {
+          type: 'slider',
+          yAxisIndex: 0,
+          show: true,
+          left: '93%',
+          start: 0,
+          end: uniqueLaserLines.length > 20 ? Math.min(100, (20 / uniqueLaserLines.length) * 100) : 100,  // Show first 20 lanes initially if >20
+          width: 25,
+          borderColor: '#667eea',
+          fillerColor: 'rgba(102, 126, 234, 0.2)',
+          handleIcon: 'path://M0,0 L0,8 L6,4 Z',
+          handleSize: '80%',
+          handleStyle: {
+            color: '#667eea',
+            borderColor: '#667eea'
+          },
+          textStyle: {
+            color: '#333333',
+            fontSize: 10
+          },
+          moveHandleSize: 5,
+          brushSelect: false,
+          showDetail: true,
+          showDataShadow: false,
+          filterMode: 'none'
+        },
+        {
+          type: 'inside',
+          yAxisIndex: 0,
+          start: 0,
+          end: uniqueLaserLines.length > 20 ? Math.min(100, (20 / uniqueLaserLines.length) * 100) : 100,
+          zoomOnMouseWheel: 'shift',  // Hold Shift + scroll to zoom Y-axis
+          moveOnMouseMove: 'ctrl',     // Hold Ctrl + drag to pan Y-axis
+          moveOnMouseWheel: true       // Scroll to pan Y-axis
+        }
+      ],
+      series: series,
+      animation: true,
+      animationDuration: 600
+    };
+    
+    // Assign to component property to trigger change detection
+    this.potholeAreaChartOptions = Object.assign({}, areaChartOptions);
+
+    console.log(`✅ Generated area chart: ${series.length} series (1 grid + ${potholes.length} potholes × 4 elements)`);
+    console.log(`   Y-axis categories: ${areaChartOptions.yAxis.data.length} labels (${areaChartOptions.yAxis.data.slice(0, 5).join(', ')}, ..., ${areaChartOptions.yAxis.data.slice(-5).join(', ')})`);
+    console.log(`   Y-axis zoom: ${uniqueLaserLines.length > 20 ? 'Enabled (showing first 20 lanes)' : 'Disabled (all lanes fit)'}`);
+  }
+
+  generateProfileHeatmapChart() {
+    if (!this.profileHeatmapData?.segments) return;
+
+    // Get current segment data
+    const currentSegment = this.profileHeatmapData.segments[this.currentSegmentIndex];
+    if (!currentSegment) return;
+
+    const heatmapData = currentSegment.heatmap_data;
+    
+    // Prepare data for heatmap with contour-like representation
+    // Create a 2D grid structure
+    const uniqueDistances = [...new Set(heatmapData.map((p: any) => p.distance))].sort((a: any, b: any) => a - b);
+    const uniqueLaserLines = [...new Set(heatmapData.map((p: any) => p.laser_line))].sort((a: any, b: any) => a - b);
+
+    // Create a 2D grid array for contour calculation
+    const gridData: number[][] = [];
+    const dataMap = new Map<string, number>();
+    
+    heatmapData.forEach((point: any) => {
+      const key = `${point.distance.toFixed(3)}_${point.laser_line}`;
+      dataMap.set(key, point.gray_value);
+    });
+
+    // Build 2D grid
+    for (let y = 0; y < uniqueLaserLines.length; y++) {
+      const row: number[] = [];
+      for (let x = 0; x < uniqueDistances.length; x++) {
+        const distance: any = uniqueDistances[x];
+        const laserLine = uniqueLaserLines[y];
+        const key = `${distance.toFixed(3)}_${laserLine}`;
+        const value = dataMap.get(key);
+        row.push(value !== undefined ? value : 150); // Default to medium value
+      }
+      gridData.push(row);
+    }
+
+    // Create heatmap data in [x, y, value] format
+    const chartData: any[] = [];
+    uniqueDistances.forEach((distance: any, xIdx) => {
+      uniqueLaserLines.forEach((laserLine, yIdx) => {
+        const key = `${distance.toFixed(3)}_${laserLine}`;
+        const grayValue = dataMap.get(key);
+        if (grayValue !== undefined) {
+          chartData.push([xIdx, yIdx, grayValue]);
+        }
+      });
+    });
+
+    // Define contour levels with colors matching the image
+    const contourLevels = [
+      { value: 0, color: '#ff0000', label: 'Very High' },      // Red for very deep potholes
+      { value: 50, color: '#ff6b00', label: 'High' },          // Orange for deep potholes
+      { value: 100, color: '#3366ff', label: 'Medium' },       // Blue for medium depressions
+      { value: 150, color: '#99cc66', label: 'Low' },          // Yellow-green for slight depressions
+      { value: 200, color: '#cc99ff', label: 'Normal' }        // Purple for normal surface
+    ];
+
+    const heatmapChartOptions = {
+      backgroundColor: '#2d2d3d',
+      title: {
+        text: `Plot ${String.fromCharCode(65 + this.currentSegmentIndex)}`,  // Plot A, B, C, ...
+        right: '5%',
+        bottom: '5%',
+        textStyle: {
+          color: '#ffffff',
+          fontSize: 14,
+          fontWeight: 400
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: 'rgba(30, 30, 46, 0.95)',
+        borderColor: '#667eea',
+        borderWidth: 1,
+        textStyle: {
+          color: '#ffffff'
+        },
+        formatter: (params: any) => {
+          const xIdx = params.value[0];
+          const yIdx = params.value[1];
+          const grayValue = params.value[2];
+          const distance: any = uniqueDistances[xIdx];
+          const laserLine = uniqueLaserLines[yIdx];
+          const chainage = currentSegment.start_chainage_km + (distance - currentSegment.start_distance) / 1000;
+          
+          return `
+            <strong>Distance:</strong> ${distance.toFixed(3)}m<br/>
+            <strong>Chainage:</strong> ${chainage.toFixed(3)} km<br/>
+            <strong>Laser Line:</strong> L${laserLine}<br/>
+            <strong>Gray Value:</strong> ${grayValue.toFixed(1)}<br/>
+            <strong>Status:</strong> ${this.getGrayValueSeverity(grayValue)}
+          `;
+        }
+      },
+      grid: {
+        left: '8%',
+        right: '15%',
+        top: '5%',
+        bottom: '12%',
+        containLabel: true,
+        backgroundColor: '#3d3d4d',
+        borderColor: '#4d4d5d',
+        borderWidth: 1
+      },
+      xAxis: {
+        type: 'category',
+        data: uniqueDistances.map((d, idx) => idx),
+        position: 'bottom',
+        nameTextStyle: {
+          color: '#ffffff',
+          fontSize: 11
+        },
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: '#5d5d6d'
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: '#5d5d6d'
+          }
+        },
+        axisLabel: {
+          show: true,
+          color: '#ffffff',
+          fontSize: 9,
+          rotate: 90,
+          interval: Math.floor(uniqueDistances.length / 8),
+          formatter: (value: any) => {
+            const dist: any = uniqueDistances[value];
+            return dist ? dist.toFixed(6) : '';  // Match the format in image (many decimals)
+          }
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: '#4a6fa5',  // Blue grid lines like in image
+            width: 1,
+            type: 'solid'
+          }
+        }
+      },
+      yAxis: {
+        type: 'category',
+        data: uniqueLaserLines.map(l => `L${l} gray value`).reverse(),  // Reverse to match image (L29 at top)
+        position: 'right',
+        nameTextStyle: {
+          color: '#ffffff',
+          fontSize: 11
+        },
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: '#5d5d6d'
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: '#5d5d6d'
+          }
+        },
+        axisLabel: {
+          show: true,
+          color: '#ffffff',
+          fontSize: 9,
+          margin: 5
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: '#4a6fa5',  // Blue grid lines like in image
+            width: 1,
+            type: 'solid'
+          }
+        }
+      },
+      visualMap: {
+        type: 'piecewise',
+        pieces: [
+          { min: 0, max: 50, color: '#ff0000', label: 'Very High (0-50)' },
+          { min: 50, max: 100, color: '#ff6b00', label: 'High (50-100)' },
+          { min: 100, max: 150, color: '#3366ff', label: 'Medium (100-150)' },
+          { min: 150, max: 180, color: '#99cc66', label: 'Low (150-180)' },
+          { min: 180, max: 255, color: '#cc99ff', label: 'Normal (180-255)' }
+        ],
+        orient: 'vertical',
+        right: '1%',
+        top: 'center',
+        textStyle: {
+          color: '#ffffff',
+          fontSize: 10
+        },
+        itemWidth: 18,
+        itemHeight: 12,
+        itemGap: 8
+      },
+      series: [{
+        name: 'Gray Value',
+        type: 'heatmap',
+        data: chartData.map((item) => [item[0], uniqueLaserLines.length - 1 - item[1], item[2]]), // Reverse Y to match image
+        itemStyle: {
+          borderColor: '#000000',
+          borderWidth: 0.5
+        },
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 8,
+            shadowColor: 'rgba(0, 0, 0, 0.7)',
+            borderColor: '#ffffff',
+            borderWidth: 2
+          }
+        },
+        label: {
+          show: false
+        }
+      }],
+      animationDuration: 800,
+      animationEasing: 'cubicOut'
+    };
+    
+    // Assign to component property to trigger change detection
+    this.potholeProfileHeatmapOptions = Object.assign({}, heatmapChartOptions);
+
+    console.log(`🗺️ Generated profile heatmap: ${chartData.length} data points`);
+  }
+
+  getGrayValueSeverity(grayValue: number): string {
+    if (grayValue < 50) return 'Very High Severity';
+    if (grayValue < 100) return 'High Severity';
+    if (grayValue < 150) return 'Medium Severity';
+    if (grayValue < 200) return 'Low Severity';
+    return 'Normal';
+  }
+
   ngOnDestroy() {
     if (this.isBrowser && this.map) {
       this.map.remove();
@@ -181,17 +1450,17 @@ export class RisReportedDashboardComponent
     // Generate chart after a short delay to ensure DOM is ready
     setTimeout(() => {
       this.generateChainageComparisonChart();
-      console.log('✅ RIS Reported: Generated chainage comparison chart');
+      console.log('âœ… RIS Reported: Generated chainage comparison chart');
     }, 100);
     
-    console.log('✅ RIS Reported: Opened chainage comparison chart modal with distresses:', this.selectedDistressesForComparison);
+    console.log('âœ… RIS Reported: Opened chainage comparison chart modal with distresses:', this.selectedDistressesForComparison);
   }
 
   // Close chainage comparison chart modal
   closeChainageComparisonModal() {
     this.isChainageComparisonModalOpen = false;
     this.selectedDistressesForComparison = [];
-    console.log('✅ RIS Reported: Closed chainage comparison chart modal');
+    console.log('âœ… RIS Reported: Closed chainage comparison chart modal');
   }
 
   // Toggle distress selection for comparison chart
@@ -206,12 +1475,12 @@ export class RisReportedDashboardComponent
       if (this.selectedDistressesForComparison.length < 5) {
         this.selectedDistressesForComparison.push(distressName);
       } else {
-        console.warn('⚠️ Maximum 5 distresses can be compared at once');
+        console.warn('âš ï¸ Maximum 5 distresses can be compared at once');
         return;
       }
     }
     
-    console.log('✅ RIS Reported: Selected distresses for comparison:', this.selectedDistressesForComparison);
+    console.log('âœ… RIS Reported: Selected distresses for comparison:', this.selectedDistressesForComparison);
     
     // Regenerate chart with new selection
     setTimeout(() => {
@@ -267,8 +1536,8 @@ export class RisReportedDashboardComponent
     // Generate series data for each selected distress
     const series: any[] = [];
 
-    console.log('🔍 Generating chart for distresses:', this.selectedDistressesForComparison);
-    console.log('🔍 Chainage range:', chainageMin, 'to', chainageMax);
+    console.log('ðŸ” Generating chart for distresses:', this.selectedDistressesForComparison);
+    console.log('ðŸ” Chainage range:', chainageMin, 'to', chainageMax);
 
     this.selectedDistressesForComparison.forEach(distressName => {
       const distressColor = this.distressSummary.find(d => d.name === distressName)?.color || '#4CAF50';
@@ -288,7 +1557,7 @@ export class RisReportedDashboardComponent
       });
 
       const totalCount = binData.reduce((sum, val) => sum + val, 0);
-      console.log(`📊 ${distressName}: Total count = ${totalCount}, Color = ${distressColor}`);
+      console.log(`ðŸ“Š ${distressName}: Total count = ${totalCount}, Color = ${distressColor}`);
 
       series.push({
         name: distressName,
@@ -316,7 +1585,7 @@ export class RisReportedDashboardComponent
       });
     });
 
-    console.log('📈 Generated series count:', series.length);
+    console.log('ðŸ“ˆ Generated series count:', series.length);
 
     // Generate X-axis labels
     const xAxisLabels = chainageBins.slice(0, binCount).map(chainage => 
@@ -358,7 +1627,7 @@ export class RisReportedDashboardComponent
           if (!params || params.length === 0) return '';
           
           let tooltip = `<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #667eea;">
-            📍 ${params[0].axisValue}
+            ðŸ“ ${params[0].axisValue}
           </div>`;
           
           const sortedParams = params.sort((a: any, b: any) => b.value - a.value);
@@ -523,7 +1792,7 @@ export class RisReportedDashboardComponent
       }
     });
 
-    console.log('✅ RIS Reported: Generated chainage comparison chart with', series.length, 'distresses');
+    console.log('âœ… RIS Reported: Generated chainage comparison chart with', series.length, 'distresses');
   }
 
   private async loadProjectsAndDates() {
@@ -1097,7 +2366,7 @@ export class RisReportedDashboardComponent
       const googleSatelliteLayer = L.tileLayer(
         'http://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
         {
-          attribution: '© Google',
+          attribution: 'Â© Google',
           maxZoom: 21,
         }
       );
@@ -1200,7 +2469,7 @@ export class RisReportedDashboardComponent
       }
 
       // DON'T ADJUST MAP BOUNDS - Keep current zoom and position
-      console.log(`✅ Updated map markers for ${this.selectedDistressType || 'All Distresses'} without refitting bounds`);
+      console.log(`âœ… Updated map markers for ${this.selectedDistressType || 'All Distresses'} without refitting bounds`);
     } catch (error) {
       console.error('Error updating map markers:', error);
     }
@@ -1342,13 +2611,12 @@ export class RisReportedDashboardComponent
     }
   }
 
-  // Get Font Awesome icon for distress type
-  private getDistressIcon(distressType: string): string {
-    const iconMap: { [key: string]: { icon: string; color: string } } = {
-      'Alligator crack': { icon: 'fa-solid fa-wave-square', color: '#8B0000' },
-      Bleeding: { icon: 'fa-solid fa-droplet', color: '#000066' },
-      'Block crack': { icon: 'fa-solid fa-grip', color: '#004d00' },
-      'Edge break': { icon: 'fa-solid fa-divide', color: '#660066' },
+  // Distress icon map - centralized for both map markers and UI
+  private distressIconMap: { [key: string]: { icon: string; color: string } } = {
+    'Alligator crack': { icon: 'fa-solid fa-wave-square', color: '#8B0000' },
+    Bleeding: { icon: 'fa-solid fa-droplet', color: '#000066' },
+    'Block crack': { icon: 'fa-solid fa-grip', color: '#004d00' },
+    'Edge break': { icon: 'fa-solid fa-divide', color: '#660066' },
       'Hairline crack': { icon: 'fa-solid fa-minus', color: '#996600' },
       Heaves: { icon: 'fa-solid fa-chart-line', color: '#006666' },
       'Joint crack': { icon: 'fa-solid fa-link-slash', color: '#663300' },
@@ -1386,7 +2654,9 @@ export class RisReportedDashboardComponent
       Roughness: { icon: 'fa-solid fa-mountain', color: '#7851a3' },
     };
 
-    const iconData = iconMap[distressType] || {
+  // Get Font Awesome icon for distress type (for map markers)
+  private getDistressIcon(distressType: string): string {
+    const iconData = this.distressIconMap[distressType] || {
       icon: 'fa-solid fa-triangle-exclamation',
       color: '#666666',
     };
@@ -1396,6 +2666,24 @@ export class RisReportedDashboardComponent
         <i class="${iconData.icon}" style="color:#fff;font-size:14px;"></i>
       </div>
     `;
+  }
+
+  // Public method to get icon class for UI
+  getDistressIconClass(distressType: string): string {
+    const iconData = this.distressIconMap[distressType] || {
+      icon: 'fa-solid fa-triangle-exclamation',
+      color: '#666666',
+    };
+    return iconData.icon;
+  }
+
+  // Public method to get icon color for UI
+  getDistressIconColor(distressType: string): string {
+    const iconData = this.distressIconMap[distressType] || {
+      icon: 'fa-solid fa-triangle-exclamation',
+      color: '#666666',
+    };
+    return iconData.color;
   }
 
   async adjustMapBounds() {
@@ -1508,7 +2796,7 @@ export class RisReportedDashboardComponent
           distress_type: ['All'],
         };
 
-        console.log(`📥 Preloading data for month ${month}, request:`, requestBody);
+        console.log(`ðŸ“¥ Preloading data for month ${month}, request:`, requestBody);
 
         try {
           const response = await fetch(
@@ -1524,18 +2812,18 @@ export class RisReportedDashboardComponent
           );
 
           const apiResponse = await response.json();
-          console.log(`📥 API response for ${month}:`, apiResponse);
+          console.log(`ðŸ“¥ API response for ${month}:`, apiResponse);
           const monthData = Array.isArray(apiResponse) ? apiResponse.flat() : [];
           
           this.monthDataCache[monthCacheKey] = monthData;
-          console.log(`✅ Pre-loaded data for ${month}: ${monthData.length} records`);
+          console.log(`âœ… Pre-loaded data for ${month}: ${monthData.length} records`);
           if (monthData.length > 0) {
             console.log(`   Sample data:`, monthData.slice(0, 2));
             const uniqueDistresses = [...new Set(monthData.map(d => d.distress_type))];
             console.log(`   Unique distress types in ${month}:`, uniqueDistresses);
           }
         } catch (error) {
-          console.error(`❌ Error pre-loading data for ${month}:`, error);
+          console.error(`âŒ Error pre-loading data for ${month}:`, error);
         }
       });
 
@@ -1755,7 +3043,7 @@ export class RisReportedDashboardComponent
     
     // Ensure data is loaded
     if (Object.keys(this.monthDataCache).length === 0) {
-      console.log('📥 Cache is empty, preloading month data first...');
+      console.log('ðŸ“¥ Cache is empty, preloading month data first...');
       await this.preloadMonthData();
     }
     
@@ -1846,7 +3134,7 @@ export class RisReportedDashboardComponent
           this.monthDataCache[monthCacheKey] = monthData;
           return { month, data: monthData };
         } catch (error) {
-          console.error(`❌ Error fetching data for ${month}:`, error);
+          console.error(`âŒ Error fetching data for ${month}:`, error);
           return { month, data: [] };
         }
       });
@@ -1862,7 +3150,7 @@ export class RisReportedDashboardComponent
         const distressColor = this.getDistressColor(distressName);
         const monthData: number[] = [];
         
-        console.log(`📊 Processing distress: ${distressName}`);
+        console.log(`ðŸ“Š Processing distress: ${distressName}`);
         
         this.availableMonthsForComparison.forEach(month => {
           const data = monthDataMap[month] || [];
@@ -1888,7 +3176,7 @@ export class RisReportedDashboardComponent
           monthData.push(totalCount);
         });
 
-        console.log(`📊 Final data for ${distressName}:`, monthData);
+        console.log(`ðŸ“Š Final data for ${distressName}:`, monthData);
 
         series.push({
           name: distressName,
@@ -1901,8 +3189,8 @@ export class RisReportedDashboardComponent
         });
       });
 
-      console.log('📈 Generated series:', series);
-      console.log(`📈 Series count: ${series.length}`);
+      console.log('ðŸ“ˆ Generated series:', series);
+      console.log(`ðŸ“ˆ Series count: ${series.length}`);
       
       const isMobileView = window.innerWidth <= 768;
 

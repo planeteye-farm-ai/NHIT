@@ -1438,36 +1438,36 @@ export class DistressPredictionDashboardComponent
   }
 
   // Get Font Awesome icon for distress type
-  private getDistressIcon(distressType: string): string {
-    const iconMap: { [key: string]: { icon: string; color: string } } = {
-      Pothole: { icon: 'fa-solid fa-circle', color: '#CC6600' },
-      Rutting: { icon: 'fa-solid fa-road', color: '#4B0082' },
-      'Edge Break': { icon: 'fa-solid fa-divide', color: '#8B008B' },
-      'Simple/Alligator Crack': {
-        icon: 'fa-solid fa-wave-square',
-        color: '#C71585',
-      },
-      'Block/Oblique Crack': { icon: 'fa-solid fa-grip', color: '#228B22' },
-      'LG/Transverse crack': {
-        icon: 'fa-solid fa-arrows-left-right',
-        color: '#191970',
-      },
-      Bleeding: { icon: 'fa-solid fa-droplet', color: '#191970' },
-      Raveling: { icon: 'fa-solid fa-hands-bound', color: '#228B22' },
-      Hotspot: { icon: 'fa-solid fa-fire', color: '#006494' },
-      'Rough Spot': { icon: 'fa-solid fa-mountain', color: '#8B0000' },
-      'Alligator crack': { icon: 'fa-solid fa-wave-square', color: '#8B0000' },
-      'Transverse crack': {
-        icon: 'fa-solid fa-arrows-left-right',
-        color: '#4682B4',
-      },
-      'Block crack': { icon: 'fa-solid fa-grip', color: '#228B22' },
-      'Longitudinal crack': {
-        icon: 'fa-solid fa-arrows-up-down',
-        color: '#191970',
-      },
-      'Oblique crack': { icon: 'fa-solid fa-slash', color: '#D2691E' },
-      Patchwork: { icon: 'fa-solid fa-band-aid', color: '#4682B4' },
+  // Distress icon map - centralized for both map markers and UI
+  private distressIconMap: { [key: string]: { icon: string; color: string } } = {
+    Pothole: { icon: 'fa-solid fa-circle', color: '#CC6600' },
+    Rutting: { icon: 'fa-solid fa-road', color: '#4B0082' },
+    'Edge Break': { icon: 'fa-solid fa-divide', color: '#8B008B' },
+    'Simple/Alligator Crack': {
+      icon: 'fa-solid fa-wave-square',
+      color: '#C71585',
+    },
+    'Block/Oblique Crack': { icon: 'fa-solid fa-grip', color: '#228B22' },
+    'LG/Transverse crack': {
+      icon: 'fa-solid fa-arrows-left-right',
+      color: '#191970',
+    },
+    Bleeding: { icon: 'fa-solid fa-droplet', color: '#191970' },
+    Raveling: { icon: 'fa-solid fa-hands-bound', color: '#228B22' },
+    Hotspot: { icon: 'fa-solid fa-fire', color: '#006494' },
+    'Rough Spot': { icon: 'fa-solid fa-mountain', color: '#8B0000' },
+    'Alligator crack': { icon: 'fa-solid fa-wave-square', color: '#8B0000' },
+    'Transverse crack': {
+      icon: 'fa-solid fa-arrows-left-right',
+      color: '#4682B4',
+    },
+    'Block crack': { icon: 'fa-solid fa-grip', color: '#228B22' },
+    'Longitudinal crack': {
+      icon: 'fa-solid fa-arrows-up-down',
+      color: '#191970',
+    },
+    'Oblique crack': { icon: 'fa-solid fa-slash', color: '#D2691E' },
+    Patchwork: { icon: 'fa-solid fa-band-aid', color: '#4682B4' },
       Heaves: { icon: 'fa-solid fa-chart-line', color: '#DAA520' },
       Hotspots: { icon: 'fa-solid fa-fire', color: '#008B8B' },
       'Joint crack': { icon: 'fa-solid fa-link-slash', color: '#A0522D' },
@@ -1484,7 +1484,9 @@ export class DistressPredictionDashboardComponent
       },
     };
 
-    const iconData = iconMap[distressType] || {
+  // Get Font Awesome icon for distress type (for map markers)
+  private getDistressIcon(distressType: string): string {
+    const iconData = this.distressIconMap[distressType] || {
       icon: 'fa-solid fa-triangle-exclamation',
       color: '#666666',
     };
@@ -1494,6 +1496,24 @@ export class DistressPredictionDashboardComponent
         <i class="${iconData.icon}" style="color:#fff;font-size:14px;"></i>
       </div>
     `;
+  }
+
+  // Public method to get icon class for UI
+  getDistressIconClass(distressType: string): string {
+    const iconData = this.distressIconMap[distressType] || {
+      icon: 'fa-solid fa-triangle-exclamation',
+      color: '#666666',
+    };
+    return iconData.icon;
+  }
+
+  // Public method to get icon color for UI
+  getDistressIconColor(distressType: string): string {
+    const iconData = this.distressIconMap[distressType] || {
+      icon: 'fa-solid fa-triangle-exclamation',
+      color: '#666666',
+    };
+    return iconData.color;
   }
 
   clearMapMarkers() {
