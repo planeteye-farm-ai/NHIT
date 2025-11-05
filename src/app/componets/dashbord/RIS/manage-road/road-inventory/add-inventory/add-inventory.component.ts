@@ -13,8 +13,9 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { CommonModule } from '@angular/common';
 import { CustomValidators } from '../../../../../../shared/common/custom-validators';
 import { Router } from '@angular/router';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { RoadService } from '../../road.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-add-inventory',
@@ -25,7 +26,6 @@ import { RoadService } from '../../road.service';
     FormsModule,
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
   ],
   templateUrl: './add-inventory.component.html',
   styleUrl: './add-inventory.component.scss',
@@ -35,6 +35,12 @@ export class AddInventoryComponent {
   roadId: any;
   roadName: any;
   roadList: any[] = [];
+
+  // Dynamic Roads from API
+  availableRoads: string[] = [];
+  selectedRoadName: string = '';
+  projectDatesMap: { [key: string]: string[] } = {};
+  isLoadingChainage: boolean = false;
 
   // Wizard Steps
   currentStep: number = 1;
@@ -81,7 +87,20 @@ export class AddInventoryComponent {
   ];
 
   selectedAsset: string = '';
-  selectedSubAsset: string = '';
+  selectedSubAssets: string[] = []; // Changed to array for multi-selection
+
+  // Individual details for each selected sub-asset
+  subAssetDetails: {
+    [subAsset: string]: {
+      latitude: number | null;
+      longitude: number | null;
+      quantity: number;
+      image?: File;
+      video?: File;
+      imagePreview?: string;
+      videoPreview?: string;
+    };
+  } = {};
 
   // Modal state
   isModalOpen: boolean = false;
@@ -93,151 +112,46 @@ export class AddInventoryComponent {
   isDraggingImage: boolean = false;
   isDraggingVideo: boolean = false;
 
-  // Asset Type to Sub Asset Type mapping (Comprehensive)
+  // Asset Type to Sub Asset Type mapping (Updated based on requirements)
   assetSubTypeMap: { [key: string]: string[] } = {
-    'Adjacent Road': [
-      'Parallel Road',
-      'Cross Road',
-      'Access Road',
-      'Connecting Road',
-    ],
-    Bridges: [
-      'RCC Bridge',
-      'Steel Bridge',
-      'Cable Stayed',
-      'Suspension Bridge',
-      'Arch Bridge',
-      'Beam Bridge',
-    ],
-    'Bus Stop': [
-      'Covered Shelter',
-      'Open Shelter',
-      'With Seating',
-      'Basic Stand',
-    ],
-    'Crash Barrier': [
-      'Metal Beam Barrier',
-      'Concrete Barrier',
-      'Cable Barrier',
-      'Water Filled Barrier',
-    ],
-    Culvert: ['Box Culvert', 'Pipe Culvert', 'Slab Culvert', 'Arch Culvert'],
-    'Emergency Call Box': [
-      'SOS Box',
-      'Call Pillar',
-      'Digital Panel',
-      'Emergency Telephone',
-    ],
-    Footpath: [
-      'Paved Footpath',
-      'Unpaved Footpath',
-      'Elevated Walkway',
-      'Pedestrian Crossing',
-    ],
-    'Fuel Station': [
-      'Petrol Pump',
-      'Diesel Pump',
-      'CNG Station',
-      'EV Charging Station',
-      'Multi-Fuel',
-    ],
-    Junction: [
-      'T-Junction',
-      'Y-Junction',
-      'Roundabout',
-      'Intersection',
-      'Interchange',
-    ],
-    'KM Stones': [
-      'Concrete Post',
-      'Metal Post',
-      'Reflective Marker',
-      'Mile Stone',
-    ],
-    'Median Opening': [
-      'Emergency Opening',
-      'U-Turn Opening',
-      'Service Vehicle Access',
-      'Crossover',
-    ],
-    'Median Plants': [
-      'Shrubs',
-      'Flowering Plants',
-      'Grass',
-      'Ornamental Plants',
-      'Trees',
-    ],
-    'RCC Drain': ['Covered Drain', 'Open Drain', 'Grated Drain', 'Side Drain'],
-    'Rest Area': [
-      'Parking Bay',
-      'Picnic Spot',
-      'Food Court',
-      'Tourist Rest Area',
-    ],
-    'Service Road': [
-      'Left Side Service Road',
-      'Right Side Service Road',
-      'Both Sides',
-      'Frontage Road',
-    ],
     'Sign Boards': [
-      'Informatory Signs',
-      'Regulatory Signs',
-      'Warning Signs',
-      'Direction Signs',
-      'Tourist Signs',
-    ],
-    'Solar Blinker': [
-      'Red Blinker',
-      'Yellow Blinker',
-      'White Blinker',
-      'Amber Blinker',
+      'Informatory sign boards',
+      'Mandatory sign boards',
+      'Cautionary sign boards',
     ],
     'Street Lights': [
-      'LED Lights',
-      'Sodium Vapor Lights',
-      'Halogen Lights',
-      'Solar Lights',
-      'High Mast',
+      'Single arm street light',
+      'Double arm street light',
+      'High mast street light',
     ],
-    'Toilet Blocks': [
-      'Public Toilet',
-      'Staff Toilet',
-      'Disabled Access',
-      'Male Toilet',
-      'Female Toilet',
-      'Unisex',
+    'Truck LayBy': ['Truck LayBy', 'Bus Layby'],
+    Junction: [
+      'Simple/Cross Junction',
+      'T-Junction',
+      'Skew or Y-Junction',
+      'Ghost Island Junction',
     ],
-    'Toll Plaza': [
-      'Manual Toll',
-      'FASTag Toll',
-      'Hybrid Toll',
-      'Automated Toll',
-    ],
-    'Traffic Signals': [
-      '3-Light Signal',
-      '4-Light Signal',
-      'Pedestrian Signal',
-      'Countdown Timer',
-    ],
-    Trees: [
-      'Roadside Trees',
-      'Median Trees',
-      'Avenue Trees',
-      'Landscaping Trees',
-    ],
-    'Truck LayBy': [
-      'Single Lane Bay',
-      'Double Lane Bay',
-      'Truck Parking Area',
-      'Rest Bay',
-    ],
-    Tunnels: [
-      'Road Tunnel',
-      'Underpass',
-      'Flyover Underpass',
-      'Pedestrian Tunnel',
-    ],
+    'Crash Barrier': ['W Beam Crash Barrier', 'Concrete Beam Crash Barrier'],
+    Trees: ['1m and above', '1-3m', 'above 3m'],
+    // Assets without subtypes (empty arrays)
+    'Adjacent Road': [],
+    Bridges: [],
+    'Bus Stop': [],
+    Culvert: [],
+    'Emergency Call Box': [],
+    Footpath: [],
+    'Fuel Station': [],
+    'KM Stones': [],
+    'Median Opening': [],
+    'Median Plants': [],
+    'RCC Drain': [],
+    'Rest Area': [],
+    'Service Road': [],
+    'Solar Blinker': [],
+    'Toilet Blocks': [],
+    'Toll Plaza': [],
+    'Traffic Signals': [],
+    Tunnels: [],
   };
 
   constructor(
@@ -246,30 +160,25 @@ export class AddInventoryComponent {
     private modalService: NgbModal,
     private toastr: ToastrService,
     private roadService: RoadService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     this.inventoryForm = this.fb.group({
       geometry_data_id: ['', Validators.required],
-      chainage_start: [
-        '',
-        [Validators.required, CustomValidators.numberValidator()],
-      ],
-      chainage_end: [
-        '',
-        [Validators.required, CustomValidators.numberValidator()],
-      ],
+      chainage_start: [0, Validators.required], // Allow 0 as default value
+      chainage_end: [0, Validators.required], // Allow 0 as default value
       direction: ['', Validators.required],
       asset_action: ['add', Validators.required], // 'add' or 'report_missing'
       asset_type: ['', Validators.required],
-      sub_asset_type: ['', Validators.required],
+      sub_asset_type: [''], // Not required by default, will be set based on asset type
       latitude: ['', [Validators.required, CustomValidators.numberValidator()]],
       longitude: [
         '',
         [Validators.required, CustomValidators.numberValidator()],
       ],
-      numbers_inventory: ['', CustomValidators.numberValidator()],
+      numbers_inventory: [0], // No validator, allow any number including 0
       inventory_image: [''],
       inventory_video: [''],
       image_file: [null],
@@ -278,11 +187,152 @@ export class AddInventoryComponent {
       video_preview: [null],
     });
 
+    // Load dynamic roads from API
+    this.loadDynamicRoads();
+
     this.route.paramMap.subscribe((params) => {
       this.roadId = Number(params.get('id'));
       this.loadRoadList();
       this.loadRoadName();
     });
+  }
+
+  // Load roads dynamically from API
+  loadDynamicRoads(): void {
+    const apiUrl =
+      'https://fantastic-reportapi-production.up.railway.app/projects-dates/inventory';
+
+    this.http.get<{ [key: string]: string[] }>(apiUrl).subscribe(
+      (response) => {
+        console.log('Loaded roads from API:', response);
+        this.availableRoads = Object.keys(response);
+        this.projectDatesMap = response;
+
+        // If roadId is provided (coming from specific road's inventory page)
+        if (this.roadId && this.roadId >= 1000) {
+          const roadIndex = this.roadId - 1000;
+          if (roadIndex >= 0 && roadIndex < this.availableRoads.length) {
+            this.selectedRoadName = this.availableRoads[roadIndex];
+            this.roadName = this.selectedRoadName;
+            console.log('Pre-selected road from route:', this.selectedRoadName);
+
+            // Load chainage for this road
+            this.loadChainageRange(this.selectedRoadName);
+          }
+        } else if (this.availableRoads.length > 0 && !this.selectedRoadName) {
+          // Otherwise, select the first one
+          this.selectedRoadName = this.availableRoads[0];
+          this.roadName = this.selectedRoadName;
+
+          // Load chainage for this road
+          this.loadChainageRange(this.selectedRoadName);
+        }
+
+        this.toastr.success(
+          `Loaded ${this.availableRoads.length} roads from API`,
+          'Roads Loaded',
+          {
+            timeOut: 2000,
+            positionClass: 'toast-top-right',
+          }
+        );
+      },
+      (error) => {
+        console.error('Failed to load roads from API:', error);
+        this.toastr.error('Failed to load roads from API', 'Error', {
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
+        });
+      }
+    );
+  }
+
+  // Load chainage range from inventory filter API
+  loadChainageRange(projectName: string): void {
+    if (!projectName) return;
+
+    this.isLoadingChainage = true;
+    const apiUrl =
+      'https://fantastic-reportapi-production.up.railway.app/inventory_filter';
+
+    // Get the first available date for this project
+    const availableDates = this.projectDatesMap[projectName] || [];
+    const selectedDate =
+      availableDates.length > 0 ? availableDates[0] : '2025-06-20';
+
+    const requestBody = {
+      chainage_start: 0,
+      chainage_end: 10000, // Large number to get all data
+      date: selectedDate,
+      direction: ['All'],
+      project_name: [projectName],
+      asset_type: ['All'],
+    };
+
+    console.log('Fetching chainage range for:', projectName);
+    console.log('Request body:', requestBody);
+
+    this.http.post<any[]>(apiUrl, requestBody).subscribe(
+      (response) => {
+        console.log('Chainage data response:', response);
+
+        if (response && response.length > 0) {
+          // Flatten the nested arrays
+          const allData = response.flat();
+
+          if (allData.length > 0) {
+            // Find minimum chainage_start and maximum chainage_end
+            const minChainage = Math.min(
+              ...allData.map((item: any) => item.chainage_start)
+            );
+            const maxChainage = Math.max(
+              ...allData.map((item: any) => item.chainage_end)
+            );
+
+            this.chainageStart = minChainage;
+            this.chainageEnd = maxChainage;
+
+            // Update form
+            this.inventoryForm.patchValue({
+              chainage_start: minChainage,
+              chainage_end: maxChainage,
+            });
+
+            console.log('Chainage range calculated:');
+            console.log('Min (Start):', minChainage);
+            console.log('Max (End):', maxChainage);
+
+            this.toastr.success(
+              `Chainage range loaded: ${minChainage.toFixed(
+                3
+              )} - ${maxChainage.toFixed(3)} KM`,
+              'Chainage Loaded',
+              {
+                timeOut: 2000,
+                positionClass: 'toast-top-right',
+              }
+            );
+          }
+        }
+
+        this.isLoadingChainage = false;
+      },
+      (error) => {
+        console.error('Failed to load chainage range:', error);
+        this.toastr.error('Failed to load chainage range from API', 'Error', {
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
+        });
+        this.isLoadingChainage = false;
+      }
+    );
+  }
+
+  // Handle road selection
+  onRoadSelect(roadName: string): void {
+    this.selectedRoadName = roadName;
+    this.roadName = roadName;
+    console.log('Road selected:', roadName);
   }
 
   // Load road list for dropdown
@@ -343,34 +393,101 @@ export class AddInventoryComponent {
 
   // Load road name for display
   loadRoadName(): void {
-    // Check localStorage first
-    const testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
-    const testRoad = testRoads.find(
-      (r: any) => r.geometry_data_id === this.roadId
-    );
+    // Check if this is an API road (ID >= 1000)
+    if (this.roadId >= 1000) {
+      // Load from dynamic API
+      const apiUrl =
+        'https://fantastic-reportapi-production.up.railway.app/projects-dates/inventory';
 
-    if (testRoad) {
-      this.roadName = testRoad.name_of_road;
-      this.selectedRoad = testRoad;
-      // Auto-populate chainage from road data
-      this.chainageStart = testRoad.chainage_start || 0;
-      this.chainageEnd = testRoad.chainage_end || 0;
-      console.log('Road name loaded from localStorage:', this.roadName);
-    } else {
-      // Fallback to API
-      this.roadService.getDetailsById(this.roadId).subscribe(
-        (res) => {
-          if (res && res.data && res.data.length > 0) {
-            this.roadName = res.data[0].name_of_road;
-            this.selectedRoad = res.data[0];
-            this.chainageStart = res.data[0].chainage_start || 0;
-            this.chainageEnd = res.data[0].chainage_end || 0;
+      this.http.get<{ [key: string]: string[] }>(apiUrl).subscribe(
+        (response) => {
+          const roadNames = Object.keys(response);
+          this.projectDatesMap = response;
+          const roadIndex = this.roadId - 1000;
+
+          if (roadIndex >= 0 && roadIndex < roadNames.length) {
+            this.roadName = roadNames[roadIndex];
+            this.selectedRoadName = this.roadName;
+            this.selectedRoad = {
+              geometry_data_id: this.roadId,
+              name_of_road: this.roadName,
+            };
+
+            // Patch road ID to form
+            this.inventoryForm.patchValue({
+              geometry_data_id: this.roadId,
+            });
+
+            console.log('Road name loaded from API:', this.roadName);
+            console.log('Road ID:', this.roadId);
+
+            // Load chainage range for this road
+            this.loadChainageRange(this.roadName);
           }
         },
-        (err) => {
-          console.log('Failed to load road name', err);
+        (error) => {
+          console.error('Failed to load road name from API:', error);
         }
       );
+    } else {
+      // Check localStorage first
+      const testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
+      const testRoad = testRoads.find(
+        (r: any) => r.geometry_data_id === this.roadId
+      );
+
+      if (testRoad) {
+        this.roadName = testRoad.name_of_road;
+        this.selectedRoadName = this.roadName;
+        this.selectedRoad = testRoad;
+        // Auto-populate chainage from road data
+        this.chainageStart = Number(testRoad.chainage_start) || 0;
+        this.chainageEnd = Number(testRoad.chainage_end) || 0;
+
+        // Patch chainage values to form
+        this.inventoryForm.patchValue({
+          chainage_start: this.chainageStart,
+          chainage_end: this.chainageEnd,
+        });
+
+        console.log('Road name loaded from localStorage:', this.roadName);
+        console.log(
+          'Chainage Start:',
+          this.chainageStart,
+          'Chainage End:',
+          this.chainageEnd
+        );
+      } else {
+        // Fallback to API
+        this.roadService.getDetailsById(this.roadId).subscribe(
+          (res) => {
+            if (res && res.data && res.data.length > 0) {
+              this.roadName = res.data[0].name_of_road;
+              this.selectedRoadName = this.roadName;
+              this.selectedRoad = res.data[0];
+              this.chainageStart = Number(res.data[0].chainage_start) || 0;
+              this.chainageEnd = Number(res.data[0].chainage_end) || 0;
+
+              // Patch chainage values to form
+              this.inventoryForm.patchValue({
+                chainage_start: this.chainageStart,
+                chainage_end: this.chainageEnd,
+              });
+
+              console.log('Road name loaded from API:', this.roadName);
+              console.log(
+                'Chainage Start:',
+                this.chainageStart,
+                'Chainage End:',
+                this.chainageEnd
+              );
+            }
+          },
+          (err) => {
+            console.log('Failed to load road name', err);
+          }
+        );
+      }
     }
   }
 
@@ -416,6 +533,57 @@ export class AddInventoryComponent {
     this.inventoryForm.patchValue({ direction: direction });
   }
 
+  // Get shortened direction label for display
+  getDirectionLabel(direction: string): string {
+    if (direction.includes('Increasing')) return 'Inc';
+    if (direction.includes('Decreasing')) return 'Dec';
+    if (direction.includes('Median')) return 'Med';
+    return direction;
+  }
+
+  // Get direction name for API (without LHS/RHS)
+  getDirectionForAPI(direction: string): string {
+    if (direction.includes('Increasing')) return 'Increasing';
+    if (direction.includes('Decreasing')) return 'Decreasing';
+    if (direction.includes('Median')) return 'Median';
+    return direction;
+  }
+
+  // Get current date in DD-MM-YYYY format
+  getCurrentDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${day}-${month}-${year}`;
+  }
+
+  // Submit inventory to API
+  submitToAPI(inventoryData: any): Promise<any> {
+    // Use proxy path for development to avoid CORS issues
+    // In production, this should be the full API URL
+    const apiUrl = '/api/append_inventory_excel/';
+
+    const apiBody = {
+      Project_Name: this.selectedRoadName || this.roadName,
+      Chainage_start: this.chainageStart,
+      Chainage_end: this.chainageEnd,
+      Direction: this.getDirectionForAPI(this.selectedDirection),
+      Asset_type: inventoryData.asset_type,
+      Latitude: inventoryData.latitude,
+      Longitude: inventoryData.longitude,
+      Date: this.getCurrentDate(),
+      Sub_Asset_Type: inventoryData.sub_asset_type || '',
+      Carriage_Type: 'Flexible',
+      Lane: 'L2',
+      No_of_inventories: inventoryData.quantity || 0,
+    };
+
+    console.log('Submitting to API:', apiBody);
+
+    return this.http.post(apiUrl, apiBody).toPromise();
+  }
+
   // Asset Action Selection
   selectAssetAction(action: string): void {
     this.selectedAssetAction = action;
@@ -426,10 +594,23 @@ export class AddInventoryComponent {
   onAssetCardClick(assetName: string): void {
     this.selectedAsset = assetName;
     this.subAssetTypes = this.assetSubTypeMap[assetName] || [];
-    this.inventoryForm.patchValue({
-      asset_type: assetName,
-      sub_asset_type: '',
-    });
+
+    // If no subtypes, auto-fill with asset name or "N/A"
+    if (this.subAssetTypes.length === 0) {
+      this.selectedSubAssets = [];
+      this.inventoryForm.patchValue({
+        asset_type: assetName,
+        sub_asset_type: 'N/A',
+      });
+    } else {
+      this.selectedSubAssets = [];
+      this.subAssetDetails = {};
+      this.inventoryForm.patchValue({
+        asset_type: assetName,
+        sub_asset_type: '',
+      });
+    }
+
     this.isModalOpen = true;
   }
 
@@ -437,13 +618,89 @@ export class AddInventoryComponent {
   closeModal(): void {
     this.isModalOpen = false;
     this.selectedAsset = '';
-    this.selectedSubAsset = '';
+    this.selectedSubAssets = [];
+    this.subAssetDetails = {};
   }
 
-  // Select Sub Asset
-  selectSubAsset(subAsset: string): void {
-    this.selectedSubAsset = subAsset;
-    this.inventoryForm.patchValue({ sub_asset_type: subAsset });
+  // Update Chainage Start
+  updateChainageStart(value: number): void {
+    this.chainageStart = value;
+    this.inventoryForm.patchValue({ chainage_start: value });
+  }
+
+  // Update Chainage End
+  updateChainageEnd(value: number): void {
+    this.chainageEnd = value;
+    this.inventoryForm.patchValue({ chainage_end: value });
+  }
+
+  // Select/Deselect Sub Asset (Multi-selection)
+  toggleSubAsset(subAsset: string): void {
+    const index = this.selectedSubAssets.indexOf(subAsset);
+
+    if (index > -1) {
+      // Already selected, remove it
+      this.selectedSubAssets.splice(index, 1);
+      delete this.subAssetDetails[subAsset];
+    } else {
+      // Not selected, add it
+      this.selectedSubAssets.push(subAsset);
+      // Initialize details for this sub-asset
+      this.subAssetDetails[subAsset] = {
+        latitude: null,
+        longitude: null,
+        quantity: 0,
+      };
+    }
+
+    console.log('Selected sub-assets:', this.selectedSubAssets);
+    console.log('Sub-asset details:', this.subAssetDetails);
+  }
+
+  // Check if sub-asset is selected
+  isSubAssetSelected(subAsset: string): boolean {
+    return this.selectedSubAssets.includes(subAsset);
+  }
+
+  // Update lat/long for specific sub-asset
+  updateSubAssetLatitude(subAsset: string, value: number): void {
+    if (this.subAssetDetails[subAsset]) {
+      this.subAssetDetails[subAsset].latitude = value;
+      console.log(`📍 Updated latitude for ${subAsset}:`, value);
+      console.log('Current details:', this.subAssetDetails[subAsset]);
+    }
+  }
+
+  updateSubAssetLongitude(subAsset: string, value: number): void {
+    if (this.subAssetDetails[subAsset]) {
+      this.subAssetDetails[subAsset].longitude = value;
+      console.log(`📍 Updated longitude for ${subAsset}:`, value);
+      console.log('Current details:', this.subAssetDetails[subAsset]);
+    }
+  }
+
+  updateSubAssetQuantity(subAsset: string, value: number): void {
+    if (this.subAssetDetails[subAsset]) {
+      this.subAssetDetails[subAsset].quantity = value;
+      console.log(`🔢 Updated quantity for ${subAsset}:`, value);
+      console.log('Current details:', this.subAssetDetails[subAsset]);
+    }
+  }
+
+  incrementSubAssetQuantity(subAsset: string): void {
+    if (this.subAssetDetails[subAsset]) {
+      this.subAssetDetails[subAsset].quantity =
+        (this.subAssetDetails[subAsset].quantity || 0) + 1;
+    }
+  }
+
+  decrementSubAssetQuantity(subAsset: string): void {
+    if (this.subAssetDetails[subAsset]) {
+      const currentQty = this.subAssetDetails[subAsset].quantity || 0;
+      if (currentQty > 0) {
+        this.subAssetDetails[subAsset].quantity = currentQty - 1;
+      }
+    }
   }
 
   // Increment/Decrement Quantity
@@ -606,15 +863,268 @@ export class AddInventoryComponent {
     });
   }
 
+  // Check if form can be submitted
+  canSubmit(): boolean {
+    // Quick check: direction must be selected
+    if (!this.selectedDirection) {
+      return false;
+    }
+
+    // For assets with subtypes
+    if (this.subAssetTypes.length > 0) {
+      // Must have at least one sub-asset selected
+      if (this.selectedSubAssets.length === 0) {
+        return false;
+      }
+
+      // Check if all selected sub-assets have valid lat/long
+      for (const subAsset of this.selectedSubAssets) {
+        const details = this.subAssetDetails[subAsset];
+
+        // Check for null or undefined, not just falsy (0 is a valid value)
+        if (!details) {
+          return false;
+        }
+
+        // Both latitude and longitude must be filled (not null/undefined/empty string)
+        // Convert to string to check for empty string case
+        const latStr = String(details.latitude);
+        const lngStr = String(details.longitude);
+        if (
+          details.latitude == null ||
+          details.longitude == null ||
+          latStr === 'null' ||
+          lngStr === 'null' ||
+          latStr.trim() === '' ||
+          lngStr.trim() === ''
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    // For assets without subtypes
+    const lat = this.inventoryForm.get('latitude')?.value;
+    const lng = this.inventoryForm.get('longitude')?.value;
+
+    // Check not null/undefined and not empty
+    if (lat == null || lng == null) {
+      return false;
+    }
+
+    const latStr = String(lat);
+    const lngStr = String(lng);
+    return (
+      latStr.trim() !== '' &&
+      lngStr.trim() !== '' &&
+      latStr !== 'null' &&
+      lngStr !== 'null'
+    );
+  }
+
+  // Debug method - call this from console to see validation status
+  // Usage: Open console and type: window['ngComponent'].debugCanSubmit()
+  debugCanSubmit(): void {
+    console.log('\n=== 🔍 DEBUG CAN SUBMIT ===');
+    console.log('📍 Selected Direction:', this.selectedDirection);
+    console.log('📋 Sub Asset Types:', this.subAssetTypes);
+    console.log('✅ Selected Sub-Assets:', this.selectedSubAssets);
+    console.log(
+      '📊 Sub-Asset Details:',
+      JSON.stringify(this.subAssetDetails, null, 2)
+    );
+
+    if (this.subAssetTypes.length > 0) {
+      console.log('\n--- Checking Each Sub-Asset ---');
+      for (const subAsset of this.selectedSubAssets) {
+        const details = this.subAssetDetails[subAsset];
+        console.log(`\n${subAsset}:`);
+        console.log('  ✓ Details exists:', !!details);
+        if (details) {
+          console.log(
+            '  📍 Latitude:',
+            details.latitude,
+            '| Type:',
+            typeof details.latitude
+          );
+          console.log(
+            '  📍 Longitude:',
+            details.longitude,
+            '| Type:',
+            typeof details.longitude
+          );
+          console.log('  🔢 Quantity:', details.quantity);
+          console.log('  ❓ Lat == null:', details.latitude == null);
+          console.log('  ❓ Lng == null:', details.longitude == null);
+          const latStr = String(details.latitude);
+          const lngStr = String(details.longitude);
+          console.log('  ❓ Lat as string:', latStr);
+          console.log('  ❓ Lng as string:', lngStr);
+
+          const isValid =
+            details.latitude != null &&
+            details.longitude != null &&
+            latStr !== 'null' &&
+            lngStr !== 'null' &&
+            latStr.trim() !== '' &&
+            lngStr.trim() !== '';
+          console.log('  ✅ Is Valid:', isValid);
+        }
+      }
+    } else {
+      const lat = this.inventoryForm.get('latitude')?.value;
+      const lng = this.inventoryForm.get('longitude')?.value;
+      console.log('\n--- Asset Without Subtypes ---');
+      console.log('  📍 Latitude:', lat, '| Type:', typeof lat);
+      console.log('  📍 Longitude:', lng, '| Type:', typeof lng);
+    }
+
+    const result = this.canSubmit();
+    console.log('\n🎯 FINAL RESULT - Can Submit?', result);
+    console.log('=========================\n');
+  }
+
+  // Get submit button title
+  getSubmitButtonTitle(): string {
+    if (!this.selectedDirection) return 'Please select a direction first';
+
+    if (this.subAssetTypes.length > 0) {
+      if (this.selectedSubAssets.length === 0)
+        return 'Please select at least one sub-asset type';
+
+      for (const subAsset of this.selectedSubAssets) {
+        const details = this.subAssetDetails[subAsset];
+        // Check for null or undefined, not just falsy (0 is a valid value)
+        if (!details || details.latitude == null || details.longitude == null) {
+          return `Please fill latitude and longitude for ${subAsset}`;
+        }
+      }
+    } else {
+      const lat = this.inventoryForm.get('latitude')?.value;
+      const lng = this.inventoryForm.get('longitude')?.value;
+      if (lat == null || lng == null) {
+        return 'Please fill latitude and longitude';
+      }
+    }
+
+    return '';
+  }
+
   // Submit from modal
   onSubmitFromModal(): void {
-    if (this.inventoryForm.invalid) {
-      this.inventoryForm.markAllAsTouched();
-      this.toastr.error('Please fill all required fields', 'Validation Error');
+    console.log('=== SUBMIT FROM MODAL CALLED ===');
+    console.log('Selected Direction:', this.selectedDirection);
+    console.log('Selected Asset:', this.selectedAsset);
+    console.log('Selected SubAssets:', this.selectedSubAssets);
+    console.log('Sub-Asset Details:', this.subAssetDetails);
+    console.log('Has Subtypes:', this.subAssetTypes.length > 0);
+
+    // Check if direction is selected
+    if (!this.selectedDirection) {
+      this.toastr.error('Please select a direction first', 'Validation Error');
       return;
     }
 
-    // Update form with selected values
+    // For assets with subtypes - create multiple inventory items
+    if (this.subAssetTypes.length > 0 && this.selectedSubAssets.length > 0) {
+      this.submitMultipleInventories();
+    } else {
+      // For assets without subtypes - single inventory
+      this.submitSingleInventory();
+    }
+  }
+
+  // Submit multiple inventories (one for each selected sub-asset)
+  async submitMultipleInventories(): Promise<void> {
+    let apiSuccessCount = 0;
+    let apiFailCount = 0;
+
+    // Show loading toast
+    this.toastr.info('Submitting inventories...', 'Please wait', {
+      timeOut: 0,
+      positionClass: 'toast-top-right',
+    });
+
+    for (const subAsset of this.selectedSubAssets) {
+      const details = this.subAssetDetails[subAsset];
+
+      // Check for null or undefined, not just falsy (0 is a valid value)
+      if (!details || details.latitude == null || details.longitude == null) {
+        this.toastr.error(`Missing data for ${subAsset}`, 'Validation Error');
+        continue;
+      }
+
+      // Submit to API
+      try {
+        const apiData = {
+          asset_type: this.selectedAsset,
+          sub_asset_type: subAsset,
+          latitude: details.latitude,
+          longitude: details.longitude,
+          quantity: details.quantity || 0,
+        };
+
+        await this.submitToAPI(apiData);
+        apiSuccessCount++;
+        console.log(`✅ API Success for ${subAsset}`);
+      } catch (error) {
+        console.error(`❌ API Failed for ${subAsset}:`, error);
+        apiFailCount++;
+      }
+    }
+
+    // Clear loading toast
+    this.toastr.clear();
+
+    // Close modal and reset
+    this.isModalOpen = false;
+    this.selectedAsset = '';
+    this.selectedSubAssets = [];
+    this.subAssetDetails = {};
+
+    // Show success/error message
+    if (apiSuccessCount > 0 && apiFailCount === 0) {
+      this.toastr.success(
+        `${apiSuccessCount} inventory item(s) submitted successfully!`,
+        'Success',
+        {
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
+        }
+      );
+    } else if (apiSuccessCount > 0 && apiFailCount > 0) {
+      this.toastr.warning(
+        `${apiSuccessCount} item(s) submitted, ${apiFailCount} item(s) failed`,
+        'Partial Success',
+        {
+          timeOut: 4000,
+          positionClass: 'toast-top-right',
+        }
+      );
+    } else {
+      this.toastr.error(
+        `Failed to submit ${apiFailCount} item(s) to API`,
+        'Error',
+        {
+          timeOut: 4000,
+          positionClass: 'toast-top-right',
+        }
+      );
+    }
+
+    // Navigate to road inventory list only if at least one succeeded
+    if (apiSuccessCount > 0) {
+      setTimeout(() => {
+        this.router.navigate(['/ris/road-manage/road-inventory', this.roadId]);
+      }, 500);
+    }
+  }
+
+  // Submit single inventory (for assets without subtypes)
+  async submitSingleInventory(): Promise<void> {
+    // Update form with selected values BEFORE validation
     this.inventoryForm.patchValue({
       geometry_data_id: this.roadId,
       chainage_start: this.chainageStart,
@@ -623,73 +1133,109 @@ export class AddInventoryComponent {
       asset_action: this.selectedAssetAction,
     });
 
-    this.onSubmit();
-  }
+    console.log('Form Values After Patch:', this.inventoryForm.value);
+    console.log('Form Valid:', this.inventoryForm.valid);
+    console.log('Form Errors:', this.getFormErrors());
 
-  onSubmit(): void {
     if (this.inventoryForm.invalid) {
       this.inventoryForm.markAllAsTouched();
       this.toastr.error('Please fill all required fields', 'Validation Error');
+      console.log('Form is invalid, not submitting');
       return;
     }
 
-    // TESTING MODE: Store in localStorage
-    // Get existing inventory items from localStorage
-    let existingInventory = JSON.parse(
-      localStorage.getItem('test_inventory') || '[]'
-    );
+    console.log('Calling onSubmit()...');
+    await this.onSubmit();
+  }
 
-    // Generate a mock ID
-    const mockId =
-      existingInventory.length > 0
-        ? Math.max(
-            ...existingInventory.map((inv: any) => inv.road_inventory_id)
-          ) + 1
-        : 1;
-
-    // Create inventory object (without files for localStorage)
-    const inventoryObj = {
-      road_inventory_id: mockId,
-      geometry_data_id: this.inventoryForm.get('geometry_data_id')?.value,
-      road_name: this.roadName,
-      chainage_start: this.inventoryForm.get('chainage_start')?.value,
-      chainage_end: this.inventoryForm.get('chainage_end')?.value,
-      direction: this.inventoryForm.get('direction')?.value,
-      asset_action: this.inventoryForm.get('asset_action')?.value,
-      asset_type: this.inventoryForm.get('asset_type')?.value,
-      sub_asset_type: this.inventoryForm.get('sub_asset_type')?.value,
-      latitude: this.inventoryForm.get('latitude')?.value,
-      longitude: this.inventoryForm.get('longitude')?.value,
-      numbers_inventory:
-        this.inventoryForm.get('numbers_inventory')?.value || '',
-      inventory_image: this.inventoryForm.get('image_file')?.value?.name || '',
-      inventory_video: this.inventoryForm.get('video_file')?.value?.name || '',
-      created_on: new Date().toISOString(),
-    };
-
-    // Add to existing inventory
-    existingInventory.push(inventoryObj);
-
-    // Save back to localStorage
-    localStorage.setItem('test_inventory', JSON.stringify(existingInventory));
-
-    // Show success message
-    this.toastr.success(
-      `Road Inventory added successfully! ID: ${mockId}`,
-      'NHAI RAMS (Test Mode)',
-      {
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
+  // Helper method to get form errors
+  getFormErrors(): any {
+    const errors: any = {};
+    Object.keys(this.inventoryForm.controls).forEach((key) => {
+      const control = this.inventoryForm.get(key);
+      if (control && control.errors) {
+        errors[key] = control.errors;
       }
-    );
+    });
+    return errors;
+  }
 
-    // Navigate to road inventory list
-    this.router.navigate(['/ris/road-manage/road-inventory', this.roadId]);
+  async onSubmit(): Promise<void> {
+    console.log('=== ON SUBMIT CALLED ===');
+    console.log('Form Valid:', this.inventoryForm.valid);
 
-    // Log JSON response
-    console.log('=== ROAD INVENTORY JSON RESPONSE ===');
-    console.log(JSON.stringify(inventoryObj, null, 2));
-    console.log('All road inventory items:', existingInventory);
+    if (this.inventoryForm.invalid) {
+      this.inventoryForm.markAllAsTouched();
+      this.toastr.error('Please fill all required fields', 'Validation Error');
+      console.log('Form is invalid in onSubmit');
+      return;
+    }
+
+    console.log('Proceeding with submission...');
+
+    // Show loading toast
+    this.toastr.info('Submitting inventory...', 'Please wait', {
+      timeOut: 0,
+      positionClass: 'toast-top-right',
+    });
+
+    // Submit to API
+    let apiSuccess = false;
+    try {
+      const apiData = {
+        asset_type: this.inventoryForm.get('asset_type')?.value,
+        sub_asset_type: this.inventoryForm.get('sub_asset_type')?.value || '',
+        latitude: this.inventoryForm.get('latitude')?.value,
+        longitude: this.inventoryForm.get('longitude')?.value,
+        quantity: this.inventoryForm.get('numbers_inventory')?.value || 0,
+      };
+
+      await this.submitToAPI(apiData);
+      apiSuccess = true;
+      console.log('✅ API Success');
+    } catch (error) {
+      console.error('❌ API Failed:', error);
+    }
+
+    // Clear loading toast
+    this.toastr.clear();
+
+    // Close the modal
+    this.isModalOpen = false;
+
+    // Reset form and selections
+    this.selectedAsset = '';
+    this.selectedSubAssets = [];
+    this.subAssetDetails = {};
+    this.inventoryForm.reset({
+      geometry_data_id: this.roadId,
+      chainage_start: this.chainageStart,
+      chainage_end: this.chainageEnd,
+      direction: this.selectedDirection,
+      asset_action: this.selectedAssetAction,
+    });
+
+    // Show success/error message
+    if (apiSuccess) {
+      this.toastr.success(
+        'Inventory submitted to API successfully!',
+        'Success',
+        {
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
+        }
+      );
+
+      // Navigate to road inventory list after a short delay
+      setTimeout(() => {
+        this.router.navigate(['/ris/road-manage/road-inventory', this.roadId]);
+      }, 500);
+    } else {
+      this.toastr.error('Failed to submit to API. Please try again.', 'Error', {
+        timeOut: 4000,
+        positionClass: 'toast-top-right',
+      });
+    }
 
     // PRODUCTION MODE: Uncomment below to use API
     // const formData = new FormData();

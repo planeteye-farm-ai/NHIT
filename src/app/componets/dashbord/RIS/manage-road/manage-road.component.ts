@@ -11,6 +11,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RoadService } from './road.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-manage-road',
@@ -37,7 +38,8 @@ export class ManageRoadComponent {
     config: NgbModalConfig,
     private modalService: NgbModal,
     private toastr: ToastrService,
-    private roadService: RoadService
+    private roadService: RoadService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -45,71 +47,136 @@ export class ManageRoadComponent {
   }
 
   getRoadData() {
-    // TESTING MODE: Load from localStorage first
-    const testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
+    // Load roads from dynamic API
+    const apiUrl =
+      'https://fantastic-reportapi-production.up.railway.app/projects-dates/inventory';
 
-    if (testRoads.length > 0) {
-      // Format test roads to match the table structure
-      const formattedTestRoads = testRoads.map((road: any) => ({
-        geometry_data_id: road.geometry_data_id,
-        name_of_road: road.name_of_road,
-        road_section_no: 'TEST-' + road.geometry_data_id,
-        type_of_road: road.type_of_road,
-        length_of_road: road.length_of_road,
-        road_location: 'Test Location',
-        first_name: 'Test',
-        last_name: 'User',
-        created_on: new Date().toISOString(),
-        carriage_way_lanes: road.carriage_way_lanes,
-      }));
+    this.http.get<{ [key: string]: string[] }>(apiUrl).subscribe(
+      (response) => {
+        console.log('Loaded roads from API:', response);
 
-      // Try to get API data and merge
-      this.roadService.getRoadData().subscribe(
-        (res) => {
-          console.log('road data list from API', res);
-          // Merge test roads with API roads (test roads first)
-          this.tableData = [...formattedTestRoads, ...(res.data || [])];
-          console.log(
-            'Combined road data (localStorage + API):',
-            this.tableData
-          );
+        // Transform API response to table format
+        const apiRoads = Object.keys(response).map((roadName, index) => ({
+          geometry_data_id: index + 1000, // Generate unique IDs starting from 1000
+          name_of_road: roadName,
+          road_section_no: 'SEC-' + (index + 1),
+          type_of_road: 'National Highway',
+          length_of_road: '0.000', // Will be calculated from chainage
+          road_location: 'India',
+          first_name: 'API',
+          last_name: 'Data',
+          created_on: new Date().toISOString(),
+          carriage_way_lanes: 4,
+          chainage_start: 0,
+          chainage_end: 0,
+        }));
 
-          if (formattedTestRoads.length > 0) {
-            this.toastr.info(
-              `Showing ${formattedTestRoads.length} road(s) from Test Mode`,
-              'NHAI RAMS',
-              {
-                timeOut: 2000,
-                positionClass: 'toast-top-right',
-              }
-            );
-          }
-        },
-        (err) => {
-          // If API fails, just show test roads
-          console.log('API failed, showing only localStorage roads');
-          this.tableData = formattedTestRoads;
-          this.toastr.info(
-            `Showing ${formattedTestRoads.length} road(s) from Test Mode (API unavailable)`,
-            'NHAI RAMS',
+        // TESTING MODE: Load from localStorage and merge
+        const testRoads = JSON.parse(
+          localStorage.getItem('test_roads') || '[]'
+        );
+
+        if (testRoads.length > 0) {
+          // Format test roads to match the table structure
+          const formattedTestRoads = testRoads.map((road: any) => ({
+            geometry_data_id: road.geometry_data_id,
+            name_of_road: road.name_of_road,
+            road_section_no: 'TEST-' + road.geometry_data_id,
+            type_of_road: road.type_of_road,
+            length_of_road: road.length_of_road,
+            road_location: 'Test Location',
+            first_name: 'Test',
+            last_name: 'User',
+            created_on: new Date().toISOString(),
+            carriage_way_lanes: road.carriage_way_lanes,
+          }));
+
+          // Merge: localStorage test roads + API roads
+          this.tableData = [...formattedTestRoads, ...apiRoads];
+
+          this.toastr.success(
+            `Loaded ${apiRoads.length} roads from API + ${formattedTestRoads.length} from Test Mode`,
+            'Roads Loaded',
             {
               timeOut: 3000,
               positionClass: 'toast-top-right',
             }
           );
+        } else {
+          // No test roads, just show API roads
+          this.tableData = apiRoads;
+
+          this.toastr.success(
+            `Loaded ${apiRoads.length} roads from API`,
+            'Roads Loaded',
+            {
+              timeOut: 2000,
+              positionClass: 'toast-top-right',
+            }
+          );
         }
-      );
-    } else {
-      // No test roads, load from API only
-      this.roadService.getRoadData().subscribe((res) => {
-        console.log('road data list', res);
-        this.tableData = res.data;
-      });
-    }
+
+        console.log('All roads in table:', this.tableData);
+      },
+      (error) => {
+        console.error('Failed to load roads from API:', error);
+
+        // Fallback to localStorage only
+        const testRoads = JSON.parse(
+          localStorage.getItem('test_roads') || '[]'
+        );
+
+        if (testRoads.length > 0) {
+          const formattedTestRoads = testRoads.map((road: any) => ({
+            geometry_data_id: road.geometry_data_id,
+            name_of_road: road.name_of_road,
+            road_section_no: 'TEST-' + road.geometry_data_id,
+            type_of_road: road.type_of_road,
+            length_of_road: road.length_of_road,
+            road_location: 'Test Location',
+            first_name: 'Test',
+            last_name: 'User',
+            created_on: new Date().toISOString(),
+            carriage_way_lanes: road.carriage_way_lanes,
+          }));
+
+          this.tableData = formattedTestRoads;
+
+          this.toastr.warning(
+            'Failed to load API roads. Showing localStorage roads only.',
+            'API Error',
+            {
+              timeOut: 3000,
+              positionClass: 'toast-top-right',
+            }
+          );
+        } else {
+          // Try original API call as final fallback
+          this.roadService.getRoadData().subscribe((res) => {
+            console.log('road data list from original API', res);
+            this.tableData = res.data;
+          });
+        }
+      }
+    );
   }
 
   delete() {
     if (this.selectedId !== null) {
+      // Check if this is an API road (ID >= 1000)
+      if (this.selectedId >= 1000) {
+        this.toastr.error(
+          'Cannot delete roads loaded from API. Only test roads can be deleted.',
+          'Cannot Delete',
+          {
+            timeOut: 3000,
+            positionClass: 'toast-top-right',
+          }
+        );
+        this.modalService.dismissAll();
+        return;
+      }
+
       // TESTING MODE: Check if road exists in localStorage
       let testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
       const testRoadIndex = testRoads.findIndex(

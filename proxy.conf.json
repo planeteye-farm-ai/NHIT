@@ -1,0 +1,11 @@
+{
+  "/api": {
+    "target": "https://insertdata-api.onrender.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api": ""
+    },
+    "logLevel": "debug"
+  }
+}
