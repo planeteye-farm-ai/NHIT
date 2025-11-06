@@ -673,7 +673,8 @@ export class RisReportedDashboardComponent
     const series: any[] = [];
     laserLines.forEach((laserLine, idx) => {
       const lineData = laserLineData[laserLine];
-      const seriesData = lineData.map(point => [point.distance, point.grayValue]);
+      // Multiply gray value by 0.2 for Y-axis
+      const seriesData = lineData.map(point => [point.distance, point.grayValue * 0.2]);
       
       series.push({
         name: `L${laserLine}`,
@@ -750,10 +751,11 @@ export class RisReportedDashboardComponent
           
           // Show data for all laser lines at this point
           params.forEach((param: any) => {
-            const grayValue = param.value[1];
-            const severity = this.getGrayValueSeverity(grayValue);
+            const depthValue = param.value[1];  // This is already multiplied by 0.2
+            const originalGrayValue = depthValue / 0.2;  // Convert back to original for severity
+            const severity = this.getGrayValueSeverity(originalGrayValue);
             const marker = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${param.color};margin-right:5px;"></span>`;
-            tooltip += `${marker}<strong>${param.seriesName}:</strong> ${grayValue.toFixed(0)} (${severity})<br/>`;
+            tooltip += `${marker}<strong>${param.seriesName}:</strong> ${depthValue.toFixed(1)}mm (Gray: ${originalGrayValue.toFixed(0)}, ${severity})<br/>`;
           });
           
           return tooltip;
@@ -815,12 +817,12 @@ export class RisReportedDashboardComponent
       },
       yAxis: {
         type: 'value',
-        name: 'Gray Value (0=Deep Pothole, 255=Normal)',
+        name: 'Depth (mm) - 0=Deep Pothole, 51=Normal',
         nameLocation: 'middle',
         nameGap: 55,
         min: 0,
-        max: 250,
-        interval: 50,  // Major ticks every 50 (like reference image: 0, 50, 100, 150, 200, 250)
+        max: 51,
+        interval: 10,  // Major ticks every 10 (0, 10, 20, 30, 40, 50)
         nameTextStyle: {
           color: '#ffffff',
           fontSize: 12,
@@ -1519,8 +1521,9 @@ export class RisReportedDashboardComponent
       return;
     }
 
-    // Detect mobile view for responsive chart layout
+    // Detect mobile/tablet view for responsive chart layout
     const isMobileView = window.innerWidth <= 768;
+    const isTabletOrSmaller = window.innerWidth <= 1024; // Use horizontal bars for tablet and smaller
 
     // Create chainage bins using SELECTED chainage range (not full project range)
     const chainageMin = this.filters.chainageRange.min;
@@ -1565,10 +1568,11 @@ export class RisReportedDashboardComponent
         data: binData,
         itemStyle: { 
           color: distressColor,
-          borderRadius: [4, 4, 0, 0],
+          borderRadius: isTabletOrSmaller ? [0, 4, 4, 0] : [4, 4, 0, 0], // Horizontal bars for tablet/mobile, vertical for desktop
           shadowBlur: 10,
           shadowColor: 'rgba(0, 0, 0, 0.3)',
-          shadowOffsetY: 3
+          shadowOffsetX: isTabletOrSmaller ? 3 : 0,
+          shadowOffsetY: isTabletOrSmaller ? 0 : 3
         },
         emphasis: {
           focus: 'series',
@@ -1661,19 +1665,18 @@ export class RisReportedDashboardComponent
         inactiveColor: 'rgba(255, 255, 255, 0.3)'
       },
       grid: {
-        left: isMobileView ? '15%' : '3%',
-        right: '4%',
-        bottom: isMobileView ? '20%' : '15%',
-        top: isMobileView ? '25%' : '20%',
+        left: isTabletOrSmaller ? (isMobileView ? '15%' : '10%') : '3%',
+        right: isTabletOrSmaller ? (isMobileView ? '8%' : '15%') : '4%',
+        bottom: isTabletOrSmaller ? (isMobileView ? '12%' : '10%') : '15%',
+        top: isTabletOrSmaller ? (isMobileView ? '25%' : '15%') : '20%',
         containLabel: true
       },
-      xAxis: {
-        type: 'category',
-        boundaryGap: true,
-        data: xAxisLabels,
-        name: 'Chainage',
+      xAxis: isTabletOrSmaller ? {
+        // Horizontal bars for tablet/mobile - X is value (Distress Count)
+        type: 'value',
+        name: 'Distress Count',
         nameLocation: 'middle',
-        nameGap: isMobileView ? 20 : 40,
+        nameGap: isMobileView ? 25 : 35,
         nameTextStyle: {
           color: '#fff',
           fontSize: isMobileView ? 11 : 13,
@@ -1681,12 +1684,49 @@ export class RisReportedDashboardComponent
         },
         axisLabel: {
           color: '#fff',
-          rotate: isMobileView ? 90 : 45,
-          fontSize: isMobileView ? 8 : 10,
-          interval: isMobileView ? 'auto' : 0, // Auto interval on mobile to reduce congestion
-          margin: isMobileView ? 5 : 10,
-          width: isMobileView ? 35 : undefined,
-          overflow: isMobileView ? 'truncate' : 'none'
+          fontSize: isMobileView ? 9 : 11,
+          formatter: '{value}'
+        },
+        axisLine: {
+          show: true,
+          lineStyle: { 
+            color: 'rgba(255, 255, 255, 0.3)',
+            width: 2
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.2)'
+          }
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.1)',
+            type: 'dashed'
+          }
+        },
+        min: 0
+      } : {
+        // Vertical bars for desktop - X is category (Chainage)
+        type: 'category',
+        boundaryGap: true,
+        data: xAxisLabels,
+        name: 'Chainage',
+        nameLocation: 'middle',
+        nameGap: 40,
+        nameTextStyle: {
+          color: '#fff',
+          fontSize: 13,
+          fontWeight: 'bold'
+        },
+        axisLabel: {
+          color: '#fff',
+          rotate: 45,
+          fontSize: 10,
+          interval: 0,
+          margin: 10
         },
         axisLine: {
           lineStyle: { 
@@ -1701,9 +1741,14 @@ export class RisReportedDashboardComponent
           }
         }
       },
-      yAxis: {
-        type: 'value',
-        name: 'Distress Count',
+      yAxis: isTabletOrSmaller ? {
+        // Horizontal bars for tablet/mobile - Y is category (Chainage)
+        type: 'category',
+        boundaryGap: true,
+        data: xAxisLabels,
+        name: 'Chainage',
+        nameLocation: 'end',
+        nameGap: isMobileView ? 10 : 15,
         nameTextStyle: {
           color: '#fff',
           fontSize: isMobileView ? 11 : 13,
@@ -1711,7 +1756,34 @@ export class RisReportedDashboardComponent
         },
         axisLabel: {
           color: '#fff',
-          fontSize: isMobileView ? 9 : 11,
+          fontSize: isMobileView ? 8 : 10,
+          margin: isMobileView ? 5 : 8
+        },
+        axisLine: {
+          lineStyle: { 
+            color: 'rgba(255, 255, 255, 0.3)',
+            width: 2
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.2)'
+          }
+        },
+        inverse: true
+      } : {
+        // Vertical bars for desktop - Y is value (Distress Count)
+        type: 'value',
+        name: 'Distress Count',
+        nameTextStyle: {
+          color: '#fff',
+          fontSize: 13,
+          fontWeight: 'bold'
+        },
+        axisLabel: {
+          color: '#fff',
+          fontSize: 11,
           formatter: '{value}'
         },
         axisLine: {

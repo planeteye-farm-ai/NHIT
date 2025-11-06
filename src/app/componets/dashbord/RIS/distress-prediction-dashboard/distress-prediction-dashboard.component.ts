@@ -266,8 +266,9 @@ export class DistressPredictionDashboardComponent
       return;
     }
 
-    // Detect mobile view for responsive chart layout
+    // Detect mobile/tablet view for responsive chart layout
     const isMobileView = window.innerWidth <= 768;
+    const isTabletOrSmaller = window.innerWidth <= 1024; // Use horizontal bars for tablet and smaller
 
     // Create chainage bins using SELECTED chainage range (not full project range)
     const chainageMin = this.filters.chainageRange.min;
@@ -312,10 +313,11 @@ export class DistressPredictionDashboardComponent
         data: binData,
         itemStyle: { 
           color: distressColor,
-          borderRadius: [4, 4, 0, 0],
+          borderRadius: isTabletOrSmaller ? [0, 4, 4, 0] : [4, 4, 0, 0], // Horizontal bars for tablet/mobile, vertical for desktop
           shadowBlur: 10,
           shadowColor: 'rgba(0, 0, 0, 0.3)',
-          shadowOffsetY: 3
+          shadowOffsetX: isTabletOrSmaller ? 3 : 0,
+          shadowOffsetY: isTabletOrSmaller ? 0 : 3
         },
         emphasis: {
           focus: 'series',
@@ -408,19 +410,18 @@ export class DistressPredictionDashboardComponent
         inactiveColor: 'rgba(255, 255, 255, 0.3)'
       },
       grid: {
-        left: isMobileView ? '15%' : '3%',
-        right: '4%',
-        bottom: isMobileView ? '20%' : '15%',
-        top: isMobileView ? '25%' : '20%',
+        left: isTabletOrSmaller ? (isMobileView ? '15%' : '10%') : '3%',
+        right: isTabletOrSmaller ? (isMobileView ? '8%' : '15%') : '4%',
+        bottom: isTabletOrSmaller ? (isMobileView ? '12%' : '10%') : '15%',
+        top: isTabletOrSmaller ? (isMobileView ? '25%' : '15%') : '20%',
         containLabel: true
       },
-      xAxis: {
-        type: 'category',
-        boundaryGap: true,
-        data: xAxisLabels,
-        name: 'Chainage',
+      xAxis: isTabletOrSmaller ? {
+        // Horizontal bars for tablet/mobile - X is value (Distress Count)
+        type: 'value',
+        name: 'Predicted Distress Count',
         nameLocation: 'middle',
-        nameGap: isMobileView ? 20 : 40,
+        nameGap: isMobileView ? 25 : 35,
         nameTextStyle: {
           color: '#fff',
           fontSize: isMobileView ? 11 : 13,
@@ -428,12 +429,49 @@ export class DistressPredictionDashboardComponent
         },
         axisLabel: {
           color: '#fff',
-          rotate: isMobileView ? 90 : 45,
-          fontSize: isMobileView ? 8 : 10,
-          interval: isMobileView ? 'auto' : 0, // Auto interval on mobile to reduce congestion
-          margin: isMobileView ? 5 : 10,
-          width: isMobileView ? 35 : undefined,
-          overflow: isMobileView ? 'truncate' : 'none'
+          fontSize: isMobileView ? 9 : 11,
+          formatter: '{value}'
+        },
+        axisLine: {
+          show: true,
+          lineStyle: { 
+            color: 'rgba(255, 255, 255, 0.3)',
+            width: 2
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.2)'
+          }
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.1)',
+            type: 'dashed'
+          }
+        },
+        min: 0
+      } : {
+        // Vertical bars for desktop - X is category (Chainage)
+        type: 'category',
+        boundaryGap: true,
+        data: xAxisLabels,
+        name: 'Chainage',
+        nameLocation: 'middle',
+        nameGap: 40,
+        nameTextStyle: {
+          color: '#fff',
+          fontSize: 13,
+          fontWeight: 'bold'
+        },
+        axisLabel: {
+          color: '#fff',
+          rotate: 45,
+          fontSize: 10,
+          interval: 0,
+          margin: 10
         },
         axisLine: {
           lineStyle: { 
@@ -448,9 +486,14 @@ export class DistressPredictionDashboardComponent
           }
         }
       },
-      yAxis: {
-        type: 'value',
-        name: 'Predicted Distress Count',
+      yAxis: isTabletOrSmaller ? {
+        // Horizontal bars for tablet/mobile - Y is category (Chainage)
+        type: 'category',
+        boundaryGap: true,
+        data: xAxisLabels,
+        name: 'Chainage',
+        nameLocation: 'end',
+        nameGap: isMobileView ? 10 : 15,
         nameTextStyle: {
           color: '#fff',
           fontSize: isMobileView ? 11 : 13,
@@ -458,7 +501,34 @@ export class DistressPredictionDashboardComponent
         },
         axisLabel: {
           color: '#fff',
-          fontSize: isMobileView ? 9 : 11,
+          fontSize: isMobileView ? 8 : 10,
+          margin: isMobileView ? 5 : 8
+        },
+        axisLine: {
+          lineStyle: { 
+            color: 'rgba(255, 255, 255, 0.3)',
+            width: 2
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(255, 255, 255, 0.2)'
+          }
+        },
+        inverse: true
+      } : {
+        // Vertical bars for desktop - Y is value (Distress Count)
+        type: 'value',
+        name: 'Predicted Distress Count',
+        nameTextStyle: {
+          color: '#fff',
+          fontSize: 13,
+          fontWeight: 'bold'
+        },
+        axisLabel: {
+          color: '#fff',
+          fontSize: 11,
           formatter: '{value}'
         },
         axisLine: {

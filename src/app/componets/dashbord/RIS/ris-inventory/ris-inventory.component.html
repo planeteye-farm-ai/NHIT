@@ -280,115 +280,57 @@
         </div>
         
         <div class="modal-body comparison-modal-body">
-          <!-- Asset Selection Icons -->
-          <div class="asset-selection-section">
-            <div class="subsection-header">
-              <h4>
-                <i class="fas fa-layer-group"></i>
-                Select Assets (Max 5)
-              </h4>
-              <span class="selection-count">{{ selectedAssetsForComparison.length }}/5 Selected</span>
-            </div>
-            <div class="asset-icons-container">
-              <div
-                *ngFor="let asset of availableAssetsForComparison"
-                class="asset-icon-wrapper"
-                [class.selected]="isAssetSelectedForComparison(asset)"
-                (click)="toggleAssetForComparison(asset)"
-                [title]="asset"
-              >
-                <div class="asset-icon-circle" [style.background-color]="getAssetIconColor(asset)">
-                  <i [class]="getAssetIconClass(asset)"></i>
-                </div>
-                <span class="asset-icon-label">{{ asset }}</span>
-                <div *ngIf="isAssetSelectedForComparison(asset)" class="selected-indicator">
-                  <i class="fas fa-check-circle"></i>
+          <!-- Horizontal Layout Container -->
+          <div class="horizontal-layout-container">
+            <!-- Left Sidebar: Asset Selection Icons (10% width) -->
+            <div class="asset-selection-sidebar">
+              <div class="sidebar-header">
+                <h4>
+                  <i class="fas fa-layer-group"></i>
+                  Assets
+                </h4>
+                <span class="selection-count">{{ selectedAssetsForComparison.length }}/5</span>
+              </div>
+              <div class="asset-icons-vertical">
+                <div
+                  *ngFor="let asset of availableAssetsForComparison"
+                  class="asset-icon-wrapper"
+                  [class.selected]="isAssetSelectedForComparison(asset)"
+                  (click)="toggleAssetForComparison(asset)"
+                  [title]="asset"
+                >
+                  <div class="asset-icon-circle" [style.background-color]="getAssetIconColor(asset)">
+                    <i [class]="getAssetIconClass(asset)"></i>
+                  </div>
+                  <span class="asset-icon-label">{{ asset }}</span>
+                  <div *ngIf="isAssetSelectedForComparison(asset)" class="selected-indicator">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Comparison Chart -->
-          <div class="comparison-chart-container">
-            <div *ngIf="selectedAssetsForComparison.length === 0" class="no-assets-selected">
-              <p>Please select at least one asset to view the comparison chart</p>
-            </div>
+            <!-- Right Content: Chart (90% width) -->
+            <div class="chart-content-area">
+              <!-- Comparison Chart -->
+              <div class="comparison-chart-container">
+                <div *ngIf="selectedAssetsForComparison.length === 0" class="no-assets-selected">
+                  <p>Please select at least one asset to view the comparison chart</p>
+                </div>
             <div 
               *ngIf="selectedAssetsForComparison.length > 0 && chainageComparisonChartOptions && chainageComparisonChartOptions.series" 
               echarts 
               [options]="chainageComparisonChartOptions" 
               class="comparison-echarts-chart"
-              style="width: 100%; height: 500px; background: rgba(0,0,0,0.2);"
+              style="background: rgba(0,0,0,0.2);"
             ></div>
-            <div *ngIf="selectedAssetsForComparison.length > 0 && (!chainageComparisonChartOptions || !chainageComparisonChartOptions.series)" class="loading-chart">
-              <div class="loading-spinner"></div>
-              <p>Generating chart...</p>
+                <div *ngIf="selectedAssetsForComparison.length > 0 && (!chainageComparisonChartOptions || !chainageComparisonChartOptions.series)" class="loading-chart">
+                  <div class="loading-spinner"></div>
+                  <p>Generating chart...</p>
+                </div>
+              </div>
             </div>
-              <!-- Chainage Range Selector -->
-            <!-- <div class="chainage-range-section"> -->
-              <!-- <div class="subsection-header">
-                <h4>
-                  <i class="fas fa-road"></i>
-                  Chainage Range
-                </h4>
-                <span class="range-display">{{ comparisonChainageMin.toFixed(2) }} - {{ comparisonChainageMax.toFixed(2) }} KM</span>
-              </div> -->
-              
-              <!-- Input Fields -->
-              <!-- <div class="chainage-input-group">
-                <div class="chainage-input-wrapper">
-                  <label>From (KM)</label>
-                  <input 
-                    type="number" 
-                    class="chainage-input"
-                    [(ngModel)]="comparisonChainageMin"
-                    (change)="updateComparisonChainageRange()"
-                    [min]="filters.chainageRange.min"
-                    [max]="comparisonChainageMax"
-                    step="0.1"
-                  />
-                </div>
-                <span class="range-separator">-</span>
-                <div class="chainage-input-wrapper">
-                  <label>To (KM)</label>
-                  <input 
-                    type="number" 
-                    class="chainage-input"
-                    [(ngModel)]="comparisonChainageMax"
-                    (change)="updateComparisonChainageRange()"
-                    [min]="comparisonChainageMin"
-                    [max]="filters.chainageRange.max"
-                    step="0.1"
-                  />
-                </div>
-              </div> -->
-  
-              <!-- Visual Range Slider -->
-              <!-- <div class="chainage-slider-wrapper">
-                <div class="chainage-slider-track">
-                  <div 
-                    class="chainage-slider-fill"
-                    [style.left.%]="getComparisonSliderLeft()"
-                    [style.width.%]="getComparisonSliderWidth()"
-                  ></div>
-                  <div 
-                    class="chainage-slider-handle left"
-                    [style.left.%]="getComparisonSliderLeft()"
-                    (mousedown)="startDragComparisonHandle('min', $event)"
-                    (touchstart)="startDragComparisonHandle('min', $event)"
-                  ></div>
-                  <div 
-                    class="chainage-slider-handle right"
-                    [style.left.%]="getComparisonSliderLeft() + getComparisonSliderWidth()"
-                    (mousedown)="startDragComparisonHandle('max', $event)"
-                    (touchstart)="startDragComparisonHandle('max', $event)"
-                  ></div>
-                </div>
-                
-              </div> -->
-            <!-- </div> -->
           </div>
-
 
           <!-- Chart Legend Info -->
           <!-- <div *ngIf="selectedAssetsForComparison.length > 0" class="chart-info">
