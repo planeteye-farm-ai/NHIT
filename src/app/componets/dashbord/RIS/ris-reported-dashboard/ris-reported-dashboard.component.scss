@@ -3291,7 +3291,7 @@
 
       .pothole-area-chart {
         height: 350px; // Shorter for horizontal area distribution
-        background: #ffffff;  // White background for area chart
+        background: transparent;  // Transparent background to match dashboard
         border-radius: 8px;
       }
     }

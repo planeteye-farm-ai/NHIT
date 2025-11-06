@@ -121,7 +121,6 @@ export class RisReportedDashboardComponent
   // Pothole Detection Properties
   isPotholeModalOpen: boolean = false;
   isLoadingPotholeData: boolean = false;
-  potholeData: any = null;
   potholeDepthChartOptions: any = null;
   potholeAreaChartOptions: any = null;
   potholeProfileHeatmapOptions: any = null;
@@ -185,10 +184,6 @@ export class RisReportedDashboardComponent
     this.isLoadingPotholeData = true;
 
     try {
-      // Load pothole data from JSON
-      const response = await fetch('/assets/pothole_data.json');
-      this.potholeData = await response.json();
-
       // Load profile heatmap data
       const heatmapResponse = await fetch('/assets/profile_heatmap_data.json');
       this.profileHeatmapData = await heatmapResponse.json();
@@ -197,16 +192,15 @@ export class RisReportedDashboardComponent
       const polygonsResponse = await fetch('/assets/pothole_polygons.json');
       this.potholePolygonsData = await polygonsResponse.json();
 
-      console.log('âœ… Loaded pothole data:', this.potholeData.metadata);
-      console.log('âœ… Loaded profile heatmap data:', this.profileHeatmapData.metadata);
-      console.log('âœ… Loaded pothole polygons:', this.potholePolygonsData.metadata);
+      console.log('✅ Loaded profile heatmap data:', this.profileHeatmapData.metadata);
+      console.log('✅ Loaded pothole polygons:', this.potholePolygonsData.metadata);
 
-      // Calculate total segments based on total distance
-      const totalDistance = this.potholeData.metadata.total_distance_m || 100;
-      this.totalSegments = Math.ceil(totalDistance / this.segmentSize);
+      // Calculate total segments from profile heatmap data
+      const totalDistance = this.profileHeatmapData.metadata.total_distance_m || 100;
+      this.totalSegments = this.profileHeatmapData.metadata.num_segments || Math.ceil(totalDistance / this.segmentSize);
       this.currentSegmentIndex = 0; // Start with first segment
 
-      console.log(`ðŸ“Š Total segments: ${this.totalSegments} (${this.segmentSize}m each)`);
+      console.log(`📊 Total segments: ${this.totalSegments} (${this.segmentSize}m each)`);
 
       // Generate charts for first segment
       console.log('ðŸŽ¨ Generating all charts...');
@@ -572,21 +566,19 @@ export class RisReportedDashboardComponent
 
   getCurrentSegmentInfo(): string {
     const startDistance = this.currentSegmentIndex * this.segmentSize;
-    const endDistance = Math.min(startDistance + this.segmentSize, this.potholeData?.metadata?.total_distance_m || 100);
-    const startChainage = (this.potholeData?.metadata?.chainage_start_km || 0) + (startDistance / 1000);
-    const endChainage = (this.potholeData?.metadata?.chainage_start_km || 0) + (endDistance / 1000);
+    const endDistance = Math.min(startDistance + this.segmentSize, this.profileHeatmapData?.metadata?.total_distance_m || 100);
+    const startChainage = (this.profileHeatmapData?.metadata?.chainage_start_km || 0) + (startDistance / 1000);
+    const endChainage = (this.profileHeatmapData?.metadata?.chainage_start_km || 0) + (endDistance / 1000);
     return `${startChainage.toFixed(3)} - ${endChainage.toFixed(3)} km (${startDistance}m - ${endDistance}m)`;
   }
 
   getSegmentPotholes(): any[] {
-    if (!this.potholeData?.potholes) return [];
+    if (!this.potholePolygonsData?.segments) return [];
     
-    const startDistance = this.currentSegmentIndex * this.segmentSize;
-    const endDistance = startDistance + this.segmentSize;
+    const currentSegment = this.potholePolygonsData.segments[this.currentSegmentIndex];
+    if (!currentSegment) return [];
     
-    return this.potholeData.potholes.filter((p: any) => {
-      return p.distance_m >= startDistance && p.distance_m < endDistance;
-    });
+    return currentSegment.potholes || [];
   }
 
   getAverageDepth(): string {
@@ -594,7 +586,12 @@ export class RisReportedDashboardComponent
     if (segmentPotholes.length === 0) {
       return '0';
     }
-    const total = segmentPotholes.reduce((sum: number, p: any) => sum + p.depth_mm, 0);
+    // Calculate depth from min_gray_value (inverted: lower gray = deeper)
+    // Convert gray value to mm using the 0.2 multiplier: depth_mm = (255 - gray_value) * 0.2
+    const total = segmentPotholes.reduce((sum: number, p: any) => {
+      const depth_mm = (255 - p.min_gray_value) * 0.2;
+      return sum + depth_mm;
+    }, 0);
     return (total / segmentPotholes.length).toFixed(1);
   }
 
@@ -603,8 +600,9 @@ export class RisReportedDashboardComponent
     if (segmentPotholes.length === 0) {
       return '0';
     }
-    const total = segmentPotholes.reduce((sum: number, p: any) => sum + p.area_cm2, 0);
-    return (total / segmentPotholes.length).toFixed(1);
+    // Use area_cells as a proxy for area (each cell represents a small area)
+    const total = segmentPotholes.reduce((sum: number, p: any) => sum + (p.area_cells || 0), 0);
+    return (total / segmentPotholes.length).toFixed(0);
   }
 
   getSeverityCount(severity: string): number {
@@ -932,150 +930,130 @@ export class RisReportedDashboardComponent
     const segmentDistanceCount = gridDimensions.num_distances;
     const segmentDistances = gridDimensions.distances || [];
     
-    // Background grid layer (white cells with purple borders)
-    // Use display index (0 to laserDisplayCount-1) for Y coordinate
-    const gridData: any[] = [];
-    for (let yIdx = 0; yIdx < laserDisplayCount; yIdx++) {
-      for (let x = 0; x < segmentDistanceCount; x++) {
-        gridData.push([x, yIdx, 150]);  // yIdx is 0-indexed display position
-      }
-    }
+    console.log(`   Grid cells: ${segmentDistanceCount} × ${laserDisplayCount}`);
     
-    series.push({
-      type: 'heatmap',
-      data: gridData,
-      itemStyle: {
-        color: '#ffffff',
-        borderColor: '#9966cc',  // Purple grid lines
-        borderWidth: 1
-      },
-      emphasis: {
-        disabled: true
-      },
-      z: 1
+    // Create a map of heatmap data for quick lookup: key = "distance_laser", value = gray_value
+    const heatmapMap = new Map<string, number>();
+    heatmapData.forEach((point: any) => {
+      const key = `${point.distance.toFixed(6)}_${point.laser_line}`;
+      heatmapMap.set(key, point.gray_value);
     });
     
-    console.log(`   Grid cells: ${gridData.length} (${segmentDistanceCount} × ${laserDisplayCount})`);
+    // Create heatmap data with actual gray values from the Excel data
+    const cellData: any[] = [];
     
-    // Add pothole regions as filled heatmap cells
-    potholes.forEach((pothole: any, potholeIdx: number) => {
-      const polygon = pothole.polygon;
-      
-      // Find grid indices for this pothole
-      // polygon format: [distance, laser_line_number] where laser_line_number is 1-indexed
-      const minDist = Math.min(...polygon.map((p: any) => p[0]));
-      const maxDist = Math.max(...polygon.map((p: any) => p[0]));
-      const polygonLaserLines = polygon.map((p: any) => Number(p[1])).filter((l: number) => uniqueLaserLines.includes(l));
-      
-      if (polygonLaserLines.length === 0) {
-        console.warn(`   Pothole ${pothole.id}: No matching laser lines in segment`);
-        return; // Skip potholes with no matching laser lines
-      }
-      
-      const minLaserNum = Math.min(...polygonLaserLines);
-      const maxLaserNum = Math.max(...polygonLaserLines);
-      
-      // Convert laser line numbers to display indices
-      const minLaserDisplayIdx = laserLineToIndexMap.get(minLaserNum);
-      const maxLaserDisplayIdx = laserLineToIndexMap.get(maxLaserNum);
-      
-      if (minLaserDisplayIdx === undefined || maxLaserDisplayIdx === undefined) {
-        console.warn(`   Pothole ${pothole.id}: Could not map laser lines to display indices`);
-        return;
-      }
-      
-      // Map to segment-local distance indices
-      let minDistIdx = segmentDistances.findIndex((d: number) => d >= minDist);
-      let maxDistIdx = segmentDistances.findIndex((d: number) => d >= maxDist);
-      
-      if (minDistIdx === -1) minDistIdx = 0;
-      if (maxDistIdx === -1) maxDistIdx = segmentDistanceCount - 1;
-      
-      // Fill pothole area cells using display indices
-      const potholeData: any[] = [];
-      for (let yIdx = minLaserDisplayIdx; yIdx <= maxLaserDisplayIdx; yIdx++) {
-        for (let x = minDistIdx; x <= maxDistIdx && x < segmentDistanceCount; x++) {
-          potholeData.push([x, yIdx, pothole.severity === 'Very High' ? 50 : 100]);
-        }
-      }
-      
-      if (potholeIdx === 0) {
-        console.log(`   Pothole ${pothole.id}: ${potholeData.length} cells filled`);
-      }
-      
-      // Add filled pothole region as heatmap
-      series.push({
-        type: 'heatmap',
-        data: potholeData,
-        itemStyle: {
-          color: pothole.fill_color,
-          borderColor: pothole.fill_color,
-          borderWidth: 0
-        },
-        z: 2,
-        tooltip: {
-          formatter: () => {
-            return `
-              <strong>Pothole ${pothole.id}</strong><br/>
-              <strong>Size:</strong> ${pothole.size_category} (${pothole.area_cells} cells)<br/>
-              <strong>Severity:</strong> ${pothole.severity}<br/>
-              <strong>Min Gray:</strong> ${pothole.min_gray_value.toFixed(1)}<br/>
-              <strong>Center:</strong> ${pothole.center_distance.toFixed(2)}m, L${pothole.center_laser}
-            `;
-          }
-        }
-      });
-      
-      // Add boundary lines - create rectangle outlines
-      const boundaryConfigs = [
-        { color: '#0000ff', offset: 0.4, width: 2 },   // Blue outer
-        { color: '#ff0000', offset: 0.25, width: 2 },  // Red middle
-        { color: '#00ff00', offset: 0.1, width: 2 }    // Green inner
-      ];
-      
-      boundaryConfigs.forEach(config => {
-        const boundaryPoints: any[] = [
-          [minDistIdx - config.offset, minLaserDisplayIdx - config.offset],
-          [maxDistIdx + config.offset, minLaserDisplayIdx - config.offset],
-          [maxDistIdx + config.offset, maxLaserDisplayIdx + config.offset],
-          [minDistIdx - config.offset, maxLaserDisplayIdx + config.offset],
-          [minDistIdx - config.offset, minLaserDisplayIdx - config.offset]
-        ];
+    // For each cell in the grid, find the corresponding gray value
+    uniqueLaserLines.forEach((laserNum, yIdx) => {
+      segmentDistances.forEach((distance: number, xIdx: number) => {
+        // Try to find exact match first
+        let key = `${distance.toFixed(6)}_${laserNum}`;
+        let grayValue = heatmapMap.get(key);
         
-        series.push({
-          type: 'line',
-          data: boundaryPoints,
-          lineStyle: {
-            color: config.color,
-            width: config.width,
-            type: 'solid'
-          },
-          showSymbol: false,
-          z: 3 + boundaryConfigs.indexOf(config),
-          silent: true
-        });
+        // If no exact match, try to find closest distance for this laser line
+        if (grayValue === undefined) {
+          // Find closest distance
+          let closestDist = distance;
+          let minDiff = Infinity;
+          
+          heatmapData.forEach((point: any) => {
+            if (point.laser_line === laserNum) {
+              const diff = Math.abs(point.distance - distance);
+              if (diff < minDiff) {
+                minDiff = diff;
+                closestDist = point.distance;
+                grayValue = point.gray_value;
+              }
+            }
+          });
+        }
+        
+        // If still no value, use default (200 = no pothole)
+        if (grayValue === undefined) {
+          grayValue = 200;
+        }
+        
+        cellData.push([xIdx, yIdx, grayValue]);
       });
+    });
+    
+    console.log(`   Total cells with gray values: ${cellData.length}`);
+    
+    // Helper function to determine color based on gray value ranges (like Excel)
+    const getColorForGrayValue = (grayValue: number): string => {
+      if (grayValue < 50) {
+        return '#0000ff';  // Blue for 0-50
+      } else if (grayValue < 100) {
+        return '#ff0000';  // Red for 50-100
+      } else if (grayValue < 150) {
+        return '#ffff00';  // Yellow for 100-150
+      } else {
+        return 'rgba(255, 255, 255, 0.2)';  // Semi-transparent white for 150-200 (no pothole)
+      }
+    };
+    
+    // Add main heatmap with custom color mapping
+    series.push({
+      type: 'heatmap',
+      data: cellData,
+      itemStyle: {
+        borderColor: '#ff0000',  // Red grid lines like Excel
+        borderWidth: 1,
+        color: (params: any) => {
+          const grayValue = params.data[2];
+          return getColorForGrayValue(grayValue);
+        }
+      },
+      emphasis: {
+        itemStyle: {
+          borderColor: '#000000',
+          borderWidth: 2
+        }
+      },
+      tooltip: {
+        formatter: (params: any) => {
+          const xIdx = params.data[0];
+          const yIdx = params.data[1];
+          const grayValue = params.data[2];
+          const distance = segmentDistances[xIdx];
+          const laserNum = uniqueLaserLines[yIdx];
+          const depthMm = (255 - grayValue) * 0.2;
+          
+          let severity = 'Normal';
+          if (grayValue < 50) severity = 'Very High (0-50)';
+          else if (grayValue < 100) severity = 'High (50-100)';
+          else if (grayValue < 150) severity = 'Medium (100-150)';
+          else severity = 'Low/None (150-200)';
+          
+          return `
+            <strong>Position:</strong> ${distance.toFixed(3)}m, L${laserNum}<br/>
+            <strong>Gray Value:</strong> ${grayValue.toFixed(1)}<br/>
+            <strong>Depth:</strong> ${depthMm.toFixed(1)}mm<br/>
+            <strong>Severity:</strong> ${severity}
+          `;
+        }
+      },
+      z: 2
     });
 
     const areaChartOptions = {
-      backgroundColor: '#ffffff',
+      backgroundColor: 'transparent',
       title: {
         text: `Plot ${String.fromCharCode(65 + this.currentSegmentIndex)}`,
         right: '3%',
         bottom: '3%',
         textStyle: {
-          color: '#000000',
+          color: '#ffffff',
           fontSize: 14,
           fontWeight: 400
         }
       },
       tooltip: {
         trigger: 'item',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderColor: '#333333',
+        backgroundColor: 'rgba(30, 30, 46, 0.95)',
+        borderColor: '#667eea',
         borderWidth: 1,
         textStyle: {
-          color: '#000000'
+          color: '#ffffff'
         }
       },
       grid: {
@@ -1091,15 +1069,15 @@ export class RisReportedDashboardComponent
         boundaryGap: true,  // REQUIRED for heatmap!
         axisLine: {
           show: true,
-          lineStyle: { color: '#333333' }
+          lineStyle: { color: 'rgba(255, 255, 255, 0.3)' }
         },
         axisTick: {
           show: true,
-          lineStyle: { color: '#333333' }
+          lineStyle: { color: 'rgba(255, 255, 255, 0.2)' }
         },
         axisLabel: {
           show: true,
-          color: '#000000',
+          color: '#ffffff',
           fontSize: 9,
           interval: Math.floor(segmentDistanceCount / 10),
           formatter: (value: any) => {
@@ -1118,15 +1096,15 @@ export class RisReportedDashboardComponent
         inverse: false,
         axisLine: {
           show: true,
-          lineStyle: { color: '#333333' }
+          lineStyle: { color: 'rgba(255, 255, 255, 0.3)' }
         },
         axisTick: {
           show: true,
-          lineStyle: { color: '#333333' }
+          lineStyle: { color: 'rgba(255, 255, 255, 0.2)' }
         },
         axisLabel: {
           show: true,
-          color: '#000000',
+          color: '#ffffff',
           fontSize: 9,
           interval: uniqueLaserLines.length > 30 ? Math.floor(uniqueLaserLines.length / 15) : 0  // Show fewer labels if >30 lanes
         },
@@ -1135,9 +1113,30 @@ export class RisReportedDashboardComponent
         }
       },
       visualMap: {
-        show: false,
-        min: 0,
-        max: 255
+        show: true,
+        type: 'piecewise',
+        orient: 'horizontal',
+        left: 'center',
+        bottom: '0%',
+        pieces: [
+          { min: 0, max: 50, label: '0-50', color: '#0000ff' },
+          { min: 50, max: 100, label: '50-100', color: '#ff0000' },
+          { min: 100, max: 150, label: '100-150', color: '#ffff00' },
+          { min: 150, max: 255, label: '150-200', color: 'rgba(255, 255, 255, 0.2)' }
+        ],
+        textStyle: {
+          color: '#ffffff',
+          fontSize: 11,
+          fontWeight: 500
+        },
+        itemWidth: 20,
+        itemHeight: 14,
+        itemGap: 10,
+        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        padding: 8,
+        borderRadius: 5,
+        borderColor: 'rgba(102, 126, 234, 0.3)',
+        borderWidth: 1
       },
       dataZoom: [
         {
