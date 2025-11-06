@@ -715,7 +715,7 @@ export class RisReportedDashboardComponent
     const chartOptions = {
       backgroundColor: 'transparent',
       title: {
-        text: `Pothole Depth Profile - Segment ${this.currentSegmentIndex + 1}`,
+        text: `Distress Depth Profile - Segment ${this.currentSegmentIndex + 1}`,
         left: 'center',
         top: 10,
         textStyle: {
@@ -741,22 +741,11 @@ export class RisReportedDashboardComponent
         formatter: (params: any) => {
           if (!params || params.length === 0) return '';
           
-          const distance = params[0].value[0];
-          const chainage = currentSegment.start_chainage_km + distance / 1000;
+          const distance = params[0].value[0];  // X-axis: Distance in meters
+          const depth = params[0].value[1];     // Y-axis: Depth in mm
           
-          let tooltip = `<strong>Distance:</strong> ${distance.toFixed(3)}m<br/>`;
-          tooltip += `<strong>Chainage:</strong> ${chainage.toFixed(6)} km<br/><br/>`;
-          
-          // Show data for all laser lines at this point
-          params.forEach((param: any) => {
-            const depthValue = param.value[1];  // This is already multiplied by 0.2
-            const originalGrayValue = depthValue / 0.2;  // Convert back to original for severity
-            const severity = this.getGrayValueSeverity(originalGrayValue);
-            const marker = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${param.color};margin-right:5px;"></span>`;
-            tooltip += `${marker}<strong>${param.seriesName}:</strong> ${depthValue.toFixed(1)}mm (Gray: ${originalGrayValue.toFixed(0)}, ${severity})<br/>`;
-          });
-          
-          return tooltip;
+          return `<strong>Distance:</strong> ${distance.toFixed(3)} m<br/>` +
+                 `<strong>Depth:</strong> ${depth.toFixed(1)} mm`;
         }
       },
       legend: {
