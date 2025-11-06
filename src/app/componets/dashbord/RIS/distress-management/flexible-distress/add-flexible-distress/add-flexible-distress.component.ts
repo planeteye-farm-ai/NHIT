@@ -1,24 +1,20 @@
 import { Component } from '@angular/core';
-import { ShowcodeCardComponent } from '../../../../../../shared/common/includes/showcode-card/showcode-card.component';
-import * as prismCodeData from '../../../../../../shared/prismData/forms/form_layouts';
 import { SharedModule } from '../../../../../../shared/common/sharedmodule';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
   FormBuilder,
   FormGroup,
-  FormArray,
   FormsModule,
   ReactiveFormsModule,
   Validators,
-  FormControl,
 } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CommonModule } from '@angular/common';
 import { CustomValidators } from '../../../../../../shared/common/custom-validators';
 import { Router } from '@angular/router';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { RoadService } from '../../../manage-road/road.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-add-flexible-distress',
@@ -28,92 +24,88 @@ import { RoadService } from '../../../manage-road/road.service';
     NgSelectModule,
     FormsModule,
     CommonModule,
-    ShowcodeCardComponent,
     ReactiveFormsModule,
-    RouterLink,
   ],
   templateUrl: './add-flexible-distress.component.html',
   styleUrl: './add-flexible-distress.component.scss',
 })
 export class AddFlexibleDistressComponent {
   distressForm!: FormGroup;
-  prismCode = prismCodeData;
-  geometryList: any;
+  roadId: any;
+  roadName: any;
+  selectedRoadName: string = '';
 
-  // Direction dropdown options
-  directionOptions = ['Increasing', 'Decreasing', 'Median'];
+  // Dynamic Roads from API
+  availableRoads: string[] = [];
+  projectDatesMap: { [key: string]: string[] } = {};
+  isLoadingChainage: boolean = false;
 
-  // Distress Type dropdown options
-  distressTypeOptions = [
-    'Bleeding or Fatty Surface',
-    'Smooth Surface',
-    'Streaking',
-    'Hungry Surface',
-    'Hairline Cracks',
-    'Alligator & Map Cracking',
-    'Longitudinal Cracking',
-    'Transverse Cracks',
-    'Edge Cracking',
-    'Reflection Cracking',
-    'Slippage',
-    'Rutting',
-    'Corrugation',
-    'Shoving',
-    'Shallow Depression',
-    'Settlements and Upheaval',
-    'Stripping',
-    'Ravelling',
-    'Potholes',
-    'Edge Breaking',
+  chainageStart: number = 0;
+  chainageEnd: number = 0;
+
+  // Direction options
+  directionOptions = ['Increasing (LHS)', 'Decreasing (RHS)', 'Median'];
+  selectedDirection: string = '';
+
+  // Distress Types with colors for cards (same as rigid)
+  distressTypes = [
+    { name: 'Bleeding or Fatty Surface', color: '#E91E63' },
+    { name: 'Smooth Surface', color: '#9C27B0' },
+    { name: 'Streaking', color: '#673AB7' },
+    { name: 'Hungry Surface', color: '#3F51B5' },
+    { name: 'Hairline Cracks', color: '#2196F3' },
+    { name: 'Alligator & Map Cracking', color: '#00BCD4' },
+    { name: 'Longitudinal Cracking', color: '#009688' },
+    { name: 'Transverse Cracks', color: '#4CAF50' },
+    { name: 'Edge Cracking', color: '#8BC34A' },
+    { name: 'Reflection Cracking', color: '#CDDC39' },
+    { name: 'Slippage', color: '#FFEB3B' },
+    { name: 'Rutting', color: '#FFC107' },
+    { name: 'Corrugation', color: '#FF9800' },
+    { name: 'Shoving', color: '#FF5722' },
+    { name: 'Shallow Depression', color: '#795548' },
+    { name: 'Settlements and Upheaval', color: '#9E9E9E' },
+    { name: 'Stripping', color: '#607D8B' },
+    { name: 'Ravelling', color: '#F44336' },
+    { name: 'Potholes', color: '#E91E63' },
+    { name: 'Edge Breaking', color: '#9C27B0' },
   ];
+
+  selectedDistressType: string = '';
+
+  // Lane options for flexible pavement
+  laneOptions = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6'];
+
+  // Modal state
+  isModalOpen: boolean = false;
+
+  // Drag and drop states
+  isDraggingImage: boolean = false;
+  isDraggingVideo: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private modalService: NgbModal,
     private toastr: ToastrService,
     private roadService: RoadService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     this.distressForm = this.fb.group({
-      // Common fields
       geometry_data_id: ['', Validators.required],
-      chainage_start: [
-        '',
-        [Validators.required, CustomValidators.numberValidator()],
-      ],
-      chainage_end: [
-        '',
-        [Validators.required, CustomValidators.numberValidator()],
-      ],
+      chainage_start: [0, Validators.required],
+      chainage_end: [0, Validators.required],
       direction: ['', Validators.required],
-      total_length: [
-        '',
-        [Validators.required, CustomValidators.numberValidator()],
-      ],
-      // Repeatable distress entries
-      distressEntries: this.fb.array([this.createDistressEntry()]),
-    });
-
-    this.getGeometryList();
-  }
-
-  // Create a new distress entry FormGroup
-  createDistressEntry(): FormGroup {
-    return this.fb.group({
       carriage_way_lanes: ['', Validators.required],
       distress_type: ['', Validators.required],
-      latitude: ['', [Validators.required, CustomValidators.numberValidator()]],
-      longitude: [
-        '',
-        [Validators.required, CustomValidators.numberValidator()],
-      ],
-      numbers_distress: [''],
-      dimension_length: ['', CustomValidators.numberValidator()],
-      dimension_width: ['', CustomValidators.numberValidator()],
-      dimension_depth: ['', CustomValidators.numberValidator()],
+      latitude: ['', Validators.required],
+      longitude: ['', Validators.required],
+      numbers_distress: [0],
+      dimension_length: [0],
+      dimension_width: [0],
+      dimension_depth: [0],
       distress_image: [''],
       distress_video: [''],
       image_file: [null],
@@ -121,332 +113,603 @@ export class AddFlexibleDistressComponent {
       image_preview: [null],
       video_preview: [null],
     });
+
+    // Load dynamic roads from API
+    this.loadDynamicRoads();
+
+    this.route.paramMap.subscribe((params) => {
+      this.roadId = Number(params.get('id'));
+      this.loadRoadName();
+    });
   }
 
-  // Get distress entries FormArray
-  get distressEntries(): FormArray {
-    return this.distressForm.get('distressEntries') as FormArray;
+  // Load roads dynamically from API
+  loadDynamicRoads(): void {
+    const apiUrl =
+      'https://fantastic-reportapi-production.up.railway.app/projects-dates/inventory';
+
+    this.http.get<{ [key: string]: string[] }>(apiUrl).subscribe(
+      (response) => {
+        console.log('Loaded roads from API:', response);
+        this.availableRoads = Object.keys(response);
+        this.projectDatesMap = response;
+
+        if (this.roadId && this.roadId >= 1000) {
+          const roadIndex = this.roadId - 1000;
+          if (roadIndex >= 0 && roadIndex < this.availableRoads.length) {
+            this.selectedRoadName = this.availableRoads[roadIndex];
+            this.roadName = this.selectedRoadName;
+            this.loadChainageRange(this.selectedRoadName);
+          }
+        } else if (this.availableRoads.length > 0 && !this.selectedRoadName) {
+          this.selectedRoadName = this.availableRoads[0];
+          this.roadName = this.selectedRoadName;
+          this.loadChainageRange(this.selectedRoadName);
+        }
+
+        this.toastr.success(
+          `Loaded ${this.availableRoads.length} roads from API`,
+          'Roads Loaded',
+          {
+            timeOut: 2000,
+            positionClass: 'toast-top-right',
+          }
+        );
+      },
+      (error) => {
+        console.error('Failed to load roads from API:', error);
+        this.toastr.error('Failed to load roads from API', 'Error', {
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
+        });
+      }
+    );
   }
 
-  // Add new distress entry
-  addDistressEntry(): void {
-    this.distressEntries.push(this.createDistressEntry());
-    this.toastr.info('New distress entry added', 'Info');
-  }
+  // Load chainage range from API
+  loadChainageRange(projectName: string): void {
+    if (!projectName) return;
 
-  // Remove distress entry
-  removeDistressEntry(index: number): void {
-    if (this.distressEntries.length > 1) {
-      this.distressEntries.removeAt(index);
-      this.toastr.info('Distress entry removed', 'Info');
-    } else {
-      this.toastr.warning('At least one distress entry is required', 'Warning');
-    }
-  }
+    this.isLoadingChainage = true;
+    const apiUrl =
+      'https://fantastic-reportapi-production.up.railway.app/inventory_filter';
 
-  getGeometryList() {
-    // TESTING MODE: Load test roads from localStorage
-    const testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
+    const availableDates = this.projectDatesMap[projectName] || [];
+    const selectedDate =
+      availableDates.length > 0 ? availableDates[0] : '2025-06-20';
 
-    if (testRoads.length > 0) {
-      // Format test roads for dropdown
-      const formattedTestRoads = testRoads.map((road: any) => ({
-        geometry_data_id: road.geometry_data_id,
-        name_of_road: road.name_of_road + ' (Test)',
-      }));
+    const requestBody = {
+      chainage_start: 0,
+      chainage_end: 10000,
+      date: selectedDate,
+      direction: ['All'],
+      project_name: [projectName],
+      asset_type: ['All'],
+    };
 
-      // Try to get API data and merge
-      this.roadService.getGeometryList().subscribe(
-        (res) => {
-          // Merge test roads with API roads (test roads first)
-          this.geometryList = [...formattedTestRoads, ...(res.data || [])];
-          console.log('Road dropdown (localStorage + API):', this.geometryList);
+    this.http.post<any[]>(apiUrl, requestBody).subscribe(
+      (response) => {
+        if (response && response.length > 0) {
+          const allData = response.flat();
 
-          if (formattedTestRoads.length > 0) {
-            this.toastr.info(
-              `${formattedTestRoads.length} test road(s) available in dropdown`,
-              'NHAI RAMS',
+          if (allData.length > 0) {
+            const minChainage = Math.min(
+              ...allData.map((item: any) => item.chainage_start)
+            );
+            const maxChainage = Math.max(
+              ...allData.map((item: any) => item.chainage_end)
+            );
+
+            this.chainageStart = minChainage;
+            this.chainageEnd = maxChainage;
+
+            this.distressForm.patchValue({
+              chainage_start: minChainage,
+              chainage_end: maxChainage,
+            });
+
+            this.toastr.success(
+              `Chainage range loaded: ${minChainage.toFixed(
+                3
+              )} - ${maxChainage.toFixed(3)} KM`,
+              'Chainage Loaded',
               {
                 timeOut: 2000,
                 positionClass: 'toast-top-right',
               }
             );
           }
+        }
+        this.isLoadingChainage = false;
+      },
+      (error) => {
+        this.toastr.error('Failed to load chainage range from API', 'Error', {
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
+        });
+        this.isLoadingChainage = false;
+      }
+    );
+  }
+
+  // Load road name for display
+  loadRoadName(): void {
+    if (this.roadId >= 1000) {
+      const apiUrl =
+        'https://fantastic-reportapi-production.up.railway.app/projects-dates/inventory';
+
+      this.http.get<{ [key: string]: string[] }>(apiUrl).subscribe(
+        (response) => {
+          const roadNames = Object.keys(response);
+          const roadIndex = this.roadId - 1000;
+
+          if (roadIndex >= 0 && roadIndex < roadNames.length) {
+            this.roadName = roadNames[roadIndex];
+            this.selectedRoadName = this.roadName;
+            this.loadChainageRange(this.roadName);
+          }
         },
-        (err) => {
-          // If API fails, just show test roads
-          console.log('API failed, showing only localStorage roads');
-          this.geometryList = formattedTestRoads;
+        (error) => {
+          this.toastr.error('Failed to load road name', 'Error');
         }
       );
     } else {
-      // No test roads, load from API only
-      this.roadService.getGeometryList().subscribe((res) => {
-        this.geometryList = res.data;
-        console.log(this.geometryList);
-      });
+      const testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
+      const testRoad = testRoads.find(
+        (r: any) => r.geometry_data_id === this.roadId
+      );
+
+      if (testRoad) {
+        this.roadName = testRoad.name_of_road;
+        this.selectedRoadName = this.roadName;
+      }
     }
   }
 
-  // Handle image file selection for specific entry
-  onImageSelected(event: any, index: number): void {
+  // Update chainage values
+  updateChainageStart(value: number): void {
+    this.chainageStart = value;
+    this.distressForm.patchValue({ chainage_start: value });
+  }
+
+  updateChainageEnd(value: number): void {
+    this.chainageEnd = value;
+    this.distressForm.patchValue({ chainage_end: value });
+  }
+
+  // Direction Selection
+  selectDirection(direction: string): void {
+    this.selectedDirection = direction;
+    this.distressForm.patchValue({ direction: direction });
+  }
+
+  // Get shortened direction label for display
+  getDirectionLabel(direction: string): string {
+    if (direction.includes('Increasing')) return 'Inc';
+    if (direction.includes('Decreasing')) return 'Dec';
+    if (direction.includes('Median')) return 'Med';
+    return direction;
+  }
+
+  // Get direction name for API (without LHS/RHS)
+  getDirectionForAPI(direction: string): string {
+    if (direction.includes('Increasing')) return 'Increasing';
+    if (direction.includes('Decreasing')) return 'Decreasing';
+    if (direction.includes('Median')) return 'Median';
+    return direction;
+  }
+
+  // Get current date in MM/DD/YYYY format
+  getCurrentDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${month}/${day}/${year}`;
+  }
+
+  // Submit distress to API
+  async submitToAPI(): Promise<any> {
+    const apiUrl = '/api/append_distressReported_excel/';
+
+    const apiBody = {
+      Latitude: this.distressForm.get('latitude')?.value,
+      Longitude: this.distressForm.get('longitude')?.value,
+      Chainage_Start: this.chainageStart,
+      Chainage_End: this.chainageEnd,
+      Project_Name: this.selectedRoadName || this.roadName,
+      Distress_Type: this.distressForm.get('distress_type')?.value,
+      Direction: this.getDirectionForAPI(this.selectedDirection),
+      Date: this.getCurrentDate(),
+      Length: this.distressForm.get('dimension_length')?.value || 0,
+      Carriage_Type: 'Flexible', // Different from Rigid
+      Width: this.distressForm.get('dimension_width')?.value || 0,
+      Depth: this.distressForm.get('dimension_depth')?.value || 0,
+      Lane: this.distressForm.get('carriage_way_lanes')?.value,
+      No_of_Distress: this.distressForm.get('numbers_distress')?.value || 0,
+    };
+
+    console.log('Submitting flexible distress to API:', apiBody);
+
+    return this.http.post(apiUrl, apiBody).toPromise();
+  }
+
+  // Distress Type Card Click Handler
+  onDistressCardClick(distressName: string): void {
+    if (!this.selectedDirection) {
+      this.toastr.warning('Please select a direction first', 'Warning', {
+        timeOut: 2000,
+        positionClass: 'toast-top-right',
+      });
+      return;
+    }
+
+    this.selectedDistressType = distressName;
+    this.distressForm.patchValue({ distress_type: distressName });
+    this.isModalOpen = true;
+    console.log('Selected distress type:', distressName);
+  }
+
+  // Close Modal
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.selectedDistressType = '';
+
+    // Reset modal-specific fields
+    this.distressForm.patchValue({
+      carriage_way_lanes: '',
+      distress_type: '',
+      latitude: '',
+      longitude: '',
+      numbers_distress: 0,
+      dimension_length: 0,
+      dimension_width: 0,
+      dimension_depth: 0,
+      distress_image: '',
+      distress_video: '',
+      image_file: null,
+      video_file: null,
+      image_preview: null,
+      video_preview: null,
+    });
+  }
+
+  // Check if form can be submitted
+  canSubmit(): boolean {
+    if (!this.selectedDirection) {
+      return false;
+    }
+
+    const lane = this.distressForm.get('carriage_way_lanes')?.value;
+    const lat = this.distressForm.get('latitude')?.value;
+    const lng = this.distressForm.get('longitude')?.value;
+
+    if (!lane || lat == null || lng == null) {
+      return false;
+    }
+
+    const latStr = String(lat);
+    const lngStr = String(lng);
+    return (
+      latStr.trim() !== '' &&
+      lngStr.trim() !== '' &&
+      latStr !== 'null' &&
+      lngStr !== 'null'
+    );
+  }
+
+  // Get submit button title
+  getSubmitButtonTitle(): string {
+    if (!this.selectedDirection) return 'Please select a direction first';
+
+    const lane = this.distressForm.get('carriage_way_lanes')?.value;
+    const lat = this.distressForm.get('latitude')?.value;
+    const lng = this.distressForm.get('longitude')?.value;
+
+    if (!lane) return 'Please select a carriage way lane';
+    if (lat == null || lng == null) return 'Please fill latitude and longitude';
+
+    return '';
+  }
+
+  // Debug method
+  debugCanSubmit(): void {
+    console.log('\n=== 🔍 DEBUG CAN SUBMIT ===');
+    console.log('📍 Selected Direction:', this.selectedDirection);
+    console.log('📍 Selected Distress Type:', this.selectedDistressType);
+    console.log(
+      '🚗 Carriage Way Lane:',
+      this.distressForm.get('carriage_way_lanes')?.value
+    );
+    console.log(
+      '📍 Latitude:',
+      this.distressForm.get('latitude')?.value,
+      '| Type:',
+      typeof this.distressForm.get('latitude')?.value
+    );
+    console.log(
+      '📍 Longitude:',
+      this.distressForm.get('longitude')?.value,
+      '| Type:',
+      typeof this.distressForm.get('longitude')?.value
+    );
+    console.log(
+      '🔢 Numbers Distress:',
+      this.distressForm.get('numbers_distress')?.value
+    );
+    console.log('📏 Length:', this.distressForm.get('dimension_length')?.value);
+    console.log('📏 Width:', this.distressForm.get('dimension_width')?.value);
+    console.log('📏 Depth:', this.distressForm.get('dimension_depth')?.value);
+    console.log('\n🎯 FINAL RESULT - Can Submit?', this.canSubmit());
+    console.log('=========================\n');
+  }
+
+  // Handle image file selection
+  onImageSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-      if (!validTypes.includes(file.type)) {
-        this.toastr.error(
-          'Only JPG and PNG images are allowed',
-          'Invalid File'
-        );
-        event.target.value = '';
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
-        event.target.value = '';
-        return;
-      }
-
-      const entry = this.distressEntries.at(index);
-      entry.patchValue({
-        distress_image: file.name,
-        image_file: file,
-      });
-
-      // Create image preview
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        entry.patchValue({ image_preview: e.target.result });
-      };
-      reader.readAsDataURL(file);
+      this.processImageFile(file);
     }
+    event.target.value = '';
   }
 
-  // Handle video file selection for specific entry
-  onVideoSelected(event: any, index: number): void {
+  // Handle video file selection
+  onVideoSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      // Validate file type
-      const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
-      if (!validTypes.includes(file.type)) {
-        this.toastr.error(
-          'Only MP4, AVI, MOV, and WMV videos are allowed',
-          'Invalid File'
-        );
-        event.target.value = '';
-        return;
-      }
-
-      // Validate file size (max 50MB)
-      if (file.size > 50 * 1024 * 1024) {
-        this.toastr.error(
-          'Video size should not exceed 50MB',
-          'File Too Large'
-        );
-        event.target.value = '';
-        return;
-      }
-
-      const entry = this.distressEntries.at(index);
-      entry.patchValue({
-        distress_video: file.name,
-        video_file: file,
-      });
-
-      // Create video preview
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        entry.patchValue({ video_preview: e.target.result });
-      };
-      reader.readAsDataURL(file);
+      this.processVideoFile(file);
     }
+    event.target.value = '';
   }
 
-  // Remove image from specific entry
-  removeImage(index: number): void {
-    const entry = this.distressEntries.at(index);
-    entry.patchValue({
+  // Process Image File
+  processImageFile(file: File): void {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      this.toastr.error('Only JPG and PNG images are allowed', 'Invalid File');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
+      return;
+    }
+
+    this.distressForm.patchValue({
+      distress_image: file.name,
+      image_file: file,
+    });
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.distressForm.patchValue({ image_preview: e.target.result });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Process Video File
+  processVideoFile(file: File): void {
+    const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
+    if (!validTypes.includes(file.type)) {
+      this.toastr.error(
+        'Only MP4, AVI, MOV, and WMV videos are allowed',
+        'Invalid File'
+      );
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      this.toastr.error('Video size should not exceed 50MB', 'File Too Large');
+      return;
+    }
+
+    this.distressForm.patchValue({
+      distress_video: file.name,
+      video_file: file,
+    });
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.distressForm.patchValue({ video_preview: e.target.result });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Remove image
+  removeImage(): void {
+    this.distressForm.patchValue({
       distress_image: '',
       image_file: null,
       image_preview: null,
     });
   }
 
-  // Remove video from specific entry
-  removeVideo(index: number): void {
-    const entry = this.distressEntries.at(index);
-    entry.patchValue({
+  // Remove video
+  removeVideo(): void {
+    this.distressForm.patchValue({
       distress_video: '',
       video_file: null,
       video_preview: null,
     });
   }
 
-  onSubmit(): void {
-    if (this.distressForm.invalid) {
-      this.distressForm.markAllAsTouched();
-      this.toastr.error(
-        'Please fill all required fields in all entries',
-        'Validation Error'
-      );
+  // Drag and drop handlers for images
+  onImageDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingImage = true;
+  }
+
+  onImageDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingImage = false;
+  }
+
+  onImageDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingImage = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.processImageFile(files[0]);
+    }
+  }
+
+  // Drag and drop handlers for videos
+  onVideoDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingVideo = true;
+  }
+
+  onVideoDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingVideo = false;
+  }
+
+  onVideoDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingVideo = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.processVideoFile(files[0]);
+    }
+  }
+
+  async onSubmit(): Promise<void> {
+    // Patch common fields before validation
+    this.distressForm.patchValue({
+      geometry_data_id: this.roadId,
+      chainage_start: this.chainageStart,
+      chainage_end: this.chainageEnd,
+      direction: this.selectedDirection,
+    });
+
+    console.log('=== SUBMIT CALLED ===');
+    console.log('Form values:', this.distressForm.value);
+    console.log('Can submit?', this.canSubmit());
+
+    if (!this.canSubmit()) {
+      this.toastr.error('Please fill all required fields', 'Validation Error');
       return;
     }
 
-    // Create FormData for file uploads
-    const formData = new FormData();
-
-    // Add common fields
-    formData.append('carriage_type', 'Flexible');
-    formData.append(
-      'geometry_data_id',
-      this.distressForm.get('geometry_data_id')?.value
-    );
-    formData.append(
-      'chainage_start',
-      this.distressForm.get('chainage_start')?.value
-    );
-    formData.append(
-      'chainage_end',
-      this.distressForm.get('chainage_end')?.value
-    );
-    formData.append('direction', this.distressForm.get('direction')?.value);
-    formData.append(
-      'total_length',
-      this.distressForm.get('total_length')?.value
-    );
-
-    // Add distress entries as JSON array
-    const distressEntriesData: any[] = [];
-
-    this.distressEntries.controls.forEach((entry, index) => {
-      const entryData: any = {
-        carriage_way_lanes: entry.get('carriage_way_lanes')?.value,
-        distress_type: entry.get('distress_type')?.value,
-        latitude: entry.get('latitude')?.value,
-        longitude: entry.get('longitude')?.value,
-        numbers_distress: entry.get('numbers_distress')?.value || '',
-        dimension_length: entry.get('dimension_length')?.value || '',
-        dimension_width: entry.get('dimension_width')?.value || '',
-        dimension_depth: entry.get('dimension_depth')?.value || '',
-      };
-
-      distressEntriesData.push(entryData);
-
-      // Add image file if selected for this entry
-      const imageFile = entry.get('image_file')?.value;
-      if (imageFile) {
-        formData.append(`distress_image_${index}`, imageFile, imageFile.name);
-      }
-
-      // Add video file if selected for this entry
-      const videoFile = entry.get('video_file')?.value;
-      if (videoFile) {
-        formData.append(`distress_video_${index}`, videoFile, videoFile.name);
-      }
+    // Show loading toast
+    this.toastr.info('Submitting distress...', 'Please wait', {
+      timeOut: 0,
+      positionClass: 'toast-top-right',
     });
 
-    // Add entries data as JSON string
-    formData.append('distress_entries', JSON.stringify(distressEntriesData));
-    formData.append('entries_count', this.distressEntries.length.toString());
+    // Submit to API
+    let apiSuccess = false;
+    let apiResponse: any = null;
+    try {
+      apiResponse = await this.submitToAPI();
+      apiSuccess = true;
+      console.log('✅ API Success:', apiResponse);
+    } catch (error) {
+      console.error('❌ API Failed:', error);
+    }
 
-    // TESTING MODE: Store in localStorage
-    let existingFlexibleDistress = JSON.parse(
-      localStorage.getItem('test_flexible_distress') || '[]'
-    );
+    // Save to localStorage after successful API submission
+    if (apiSuccess) {
+      let existingFlexibleDistress = JSON.parse(
+        localStorage.getItem('test_flexible_distress') || '[]'
+      );
 
-    // Generate a mock ID
-    const mockId =
-      existingFlexibleDistress.length > 0
-        ? Math.max(
-            ...existingFlexibleDistress.map((d: any) => d.flexible_distress_id)
-          ) + 1
-        : 1;
+      const mockId =
+        existingFlexibleDistress.length > 0
+          ? Math.max(
+              ...existingFlexibleDistress.map(
+                (d: any) => d.flexible_distress_id
+              )
+            ) + 1
+          : 1;
 
-    // Create the flexible distress object
-    const flexibleDistressObj = {
-      flexible_distress_id: mockId,
-      carriage_type: 'Flexible',
-      geometry_data_id: this.distressForm.get('geometry_data_id')?.value,
-      chainage_start: this.distressForm.get('chainage_start')?.value,
-      chainage_end: this.distressForm.get('chainage_end')?.value,
-      direction: this.distressForm.get('direction')?.value,
-      total_length: this.distressForm.get('total_length')?.value,
-      entries_count: this.distressEntries.length,
-      distress_entries: distressEntriesData,
-      created_on: new Date().toISOString(),
-    };
+      const flexibleDistressObj = {
+        flexible_distress_id: mockId,
+        carriage_type: 'Flexible',
+        geometry_data_id: this.roadId,
+        road_name: this.selectedRoadName || this.roadName,
+        chainage_start: this.chainageStart,
+        chainage_end: this.chainageEnd,
+        direction: this.selectedDirection,
+        carriage_way_lanes: this.distressForm.get('carriage_way_lanes')?.value,
+        distress_type: this.distressForm.get('distress_type')?.value,
+        latitude: this.distressForm.get('latitude')?.value,
+        longitude: this.distressForm.get('longitude')?.value,
+        numbers_distress: this.distressForm.get('numbers_distress')?.value || 0,
+        dimension_length: this.distressForm.get('dimension_length')?.value || 0,
+        dimension_width: this.distressForm.get('dimension_width')?.value || 0,
+        dimension_depth: this.distressForm.get('dimension_depth')?.value || 0,
+        distress_image: this.distressForm.get('image_file')?.value?.name || '',
+        distress_video: this.distressForm.get('video_file')?.value?.name || '',
+        created_on: new Date().toISOString(),
+        api_row_inserted_at: apiResponse?.row_inserted_at || null,
+      };
 
-    // Add to existing distress records
-    existingFlexibleDistress.push(flexibleDistressObj);
+      existingFlexibleDistress.push(flexibleDistressObj);
 
-    // Save back to localStorage
-    localStorage.setItem(
-      'test_flexible_distress',
-      JSON.stringify(existingFlexibleDistress)
-    );
+      localStorage.setItem(
+        'test_flexible_distress',
+        JSON.stringify(existingFlexibleDistress)
+      );
 
-    // Show success message
-    this.toastr.success(
-      `Flexible distress added successfully! ID: ${mockId} with ${this.distressEntries.length} entries`,
-      'NHAI RAMS (Test Mode)',
-      {
-        timeOut: 3000,
+      console.log('✅ Saved to localStorage for table view');
+    }
+
+    // Clear loading toast
+    this.toastr.clear();
+
+    // Close modal
+    this.isModalOpen = false;
+
+    // Reset form fields
+    this.selectedDistressType = '';
+    this.distressForm.patchValue({
+      carriage_way_lanes: '',
+      distress_type: '',
+      latitude: '',
+      longitude: '',
+      numbers_distress: 0,
+      dimension_length: 0,
+      dimension_width: 0,
+      dimension_depth: 0,
+      distress_image: '',
+      distress_video: '',
+      image_file: null,
+      video_file: null,
+      image_preview: null,
+      video_preview: null,
+    });
+
+    // Show success/error message
+    if (apiSuccess) {
+      this.toastr.success(
+        `Flexible distress submitted successfully! Row inserted at: ${
+          apiResponse?.row_inserted_at || 'N/A'
+        }`,
+        'Success',
+        {
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
+        }
+      );
+
+      // Navigate to flexible distress list
+      setTimeout(() => {
+        this.router.navigate(['/ris/road-manage/flexible-distress']);
+      }, 500);
+    } else {
+      this.toastr.error('Failed to submit to API. Please try again.', 'Error', {
+        timeOut: 4000,
         positionClass: 'toast-top-right',
-      }
-    );
-
-    // Navigate to flexible distress list
-    this.router.navigate(['/ris/road-manage/flexible-distress']);
-
-    // Log the JSON response
-    console.log('=== FLEXIBLE DISTRESS JSON RESPONSE ===');
-    console.log(JSON.stringify(flexibleDistressObj, null, 2));
-    console.log('All flexible distress records:', existingFlexibleDistress);
-
-    // PRODUCTION MODE: Uncomment below to use API
-    // console.log(
-    //   'Submitting flexible distress data with',
-    //   this.distressEntries.length,
-    //   'entries...'
-    // );
-    //
-    // this.roadService.addFlexibleDistress(formData).subscribe(
-    //   (res) => {
-    //     console.log(res);
-    //     if (res.status) {
-    //       this.router.navigate([
-    //         '/ris/road-manage/edit-flexible-distress',
-    //         res.flexible_distress_id,
-    //       ]);
-    //       this.toastr.success(
-    //         res.msg ||
-    //           `Flexible distress added successfully with ${this.distressEntries.length} entries`,
-    //         'NHAI RAMS',
-    //         {
-    //           timeOut: 3000,
-    //           positionClass: 'toast-top-right',
-    //         }
-    //       );
-    //     } else {
-    //       this.toastr.error(
-    //         res.msg || 'Failed to add flexible distress',
-    //         'NHAI RAMS',
-    //         {
-    //           timeOut: 3000,
-    //           positionClass: 'toast-top-right',
-    //         }
-    //       );
-    //     }
-    //   },
-    //   (err) => {
-    //     this.toastr.error(err.msg || 'An error occurred', 'NHAI RAMS', {
-    //       timeOut: 3000,
-    //       positionClass: 'toast-top-right',
-    //     });
-    //   }
-    // );
+      });
+    }
   }
 }

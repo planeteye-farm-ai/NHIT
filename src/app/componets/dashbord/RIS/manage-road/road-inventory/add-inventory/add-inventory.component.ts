@@ -549,13 +549,13 @@ export class AddInventoryComponent {
     return direction;
   }
 
-  // Get current date in DD-MM-YYYY format
+  // Get current date in MM/DD/YYYY format
   getCurrentDate(): string {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
-    return `${day}-${month}-${year}`;
+    return `${month}/${day}/${year}`;
   }
 
   // Submit inventory to API

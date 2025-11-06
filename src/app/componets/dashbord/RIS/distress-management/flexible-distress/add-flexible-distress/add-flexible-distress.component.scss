@@ -1,0 +1,470 @@
+// Matching exact styles from inventory form
+
+// Info Outline (Dashboard-like card)
+.info-outline {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.outline-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 12px;
+
+  i {
+    font-size: 16px;
+    color: #667eea;
+  }
+}
+
+.outline-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.outline-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.outline-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.outline-value {
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.outline-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Direction Chips (matching inventory form)
+.chips {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &.selected {
+    background: linear-gradient(
+      135deg,
+      rgba(102, 126, 234, 0.2),
+      rgba(118, 75, 162, 0.2)
+    );
+    border-color: #667eea;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+  }
+}
+
+// Step Title
+.step-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 20px;
+    color: #ffc107;
+  }
+}
+
+// Asset Grid (for distress type cards)
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.asset-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 100px;
+  text-align: center;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  &.selected {
+    background: rgba(102, 126, 234, 0.15);
+    border-color: #667eea;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  }
+}
+
+.asset-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+}
+
+.asset-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.asset-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+// Modal Styles
+.inventory-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #1a1d29 0%, #2d1b3d 100%);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  i {
+    font-size: 24px;
+  }
+}
+
+.modal-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+  }
+}
+
+.modal-body {
+  padding: 24px;
+  max-height: calc(90vh - 140px);
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+// Upload Zone
+.upload-zone {
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+  }
+
+  &.dragging {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.2);
+    transform: scale(1.02);
+  }
+}
+
+.upload-icon {
+  font-size: 36px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.upload-formats {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0;
+}
+
+// Upload Preview
+.upload-preview {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.preview-image,
+.preview-video {
+  width: 100%;
+  height: auto;
+  max-height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.preview-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(220, 53, 69, 0.9);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #dc3545;
+    transform: scale(1.1) rotate(90deg);
+  }
+}
+
+// Form Controls
+.form-control,
+.form-select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  &:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    color: #ffffff;
+  }
+
+  option {
+    background: #1a1d29;
+    color: #ffffff;
+  }
+}
+
+.form-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+
+  i {
+    color: #667eea;
+    font-size: 14px;
+  }
+}
+
+// Loading Animation
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.ri-spin {
+  animation: spin 1s linear infinite;
+}
+
+// Responsive
+@media (max-width: 992px) {
+  .outline-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .outline-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chips {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .chip {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .outline-item {
+    padding: 10px;
+  }
+
+  .outline-title {
+    font-size: 15px;
+  }
+
+  .step-title {
+    font-size: 16px;
+  }
+}
