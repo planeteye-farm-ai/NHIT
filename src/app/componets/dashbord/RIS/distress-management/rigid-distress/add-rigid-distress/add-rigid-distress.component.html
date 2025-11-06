@@ -9,7 +9,10 @@
     <div class="card custom-card">
       <div class="card-header bg-danger text-white">
         <h6 class="card-title mb-0">
-          <i class="ri-alert-line me-2"></i>Add Rigid Distress - {{ roadName }}
+          <i class="ri-alert-line me-2"></i>Add Rigid Distress
+          <span *ngIf="selectedRoadName" class="text-warning-emphasis ms-2">
+            - {{ selectedRoadName }}
+          </span>
         </h6>
       </div>
       <div class="card-body wizard-container">
@@ -21,8 +24,20 @@
           </div>
           <div class="outline-grid">
             <div class="outline-item">
-              <div class="outline-label">Road</div>
-              <div class="outline-value">{{ roadName || "Loading..." }}</div>
+              <div class="outline-label">
+                Road <span class="text-danger">*</span>
+              </div>
+              <select
+                class="outline-input"
+                [(ngModel)]="selectedRoadName"
+                (ngModelChange)="onRoadSelect($event)"
+                [ngModelOptions]="{ standalone: true }"
+              >
+                <option value="" disabled>Select Road</option>
+                <option *ngFor="let road of availableRoads" [value]="road">
+                  {{ road }}
+                </option>
+              </select>
             </div>
             <div class="outline-item">
               <div class="outline-label">

@@ -232,6 +232,20 @@ export class AddRigidDistressComponent {
     );
   }
 
+  // Handle road selection from dropdown
+  onRoadSelect(roadName: string): void {
+    if (!roadName) return;
+
+    this.selectedRoadName = roadName;
+    this.roadName = roadName;
+    this.loadChainageRange(roadName);
+
+    this.toastr.info(`Selected: ${roadName}`, 'Road Selected', {
+      timeOut: 2000,
+      positionClass: 'toast-top-right',
+    });
+  }
+
   // Load road name for display
   loadRoadName(): void {
     if (this.roadId >= 1000) {
