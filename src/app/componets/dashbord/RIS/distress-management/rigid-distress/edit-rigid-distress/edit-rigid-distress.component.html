@@ -1,938 +1,215 @@
-
-<app-page-header title="Edit Rigid Distress" title1="Edit Rigid Distress" activeTitle="Edit Rigid Distress"></app-page-header>
+<app-page-header
+  title="Edit Rigid Distress"
+  title1="Edit Rigid Distress"
+  activeTitle="Edit Rigid Distress"
+></app-page-header>
 
 <div class="row">
+  <div class="col-xl-12">
+    <app-showcode-card
+      [title]="'Edit Rigid Distress'"
+      [prism]="prismCode.formlayouts10"
+    >
+      <form [formGroup]="distressForm" (ngSubmit)="onSubmit()">
+        <!-- Road Information -->
+        <div class="card mb-4">
+          <div class="card-header bg-danger text-white">
+            <h6 class="mb-0">
+              <i class="ri-road-map-line me-2"></i>Road Information
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label class="form-label">
+                  Road Name <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="road_name"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Chainage Start (KM) <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="chainage_start"
+                  step="0.001"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Chainage End (KM) <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="chainage_end"
+                  step="0.001"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <div class="col-xl-12">
-        <app-showcode-card [title]="'Edit Rigid Distress'" [prism]="prismCode.formlayouts10">
-            <form [formGroup]="distressForm" (ngSubmit)="onSubmit()">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="geometry_data_id">Road</label><span class="text-danger">*</span>
-                        <select  class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('geometry_data_id')?.invalid && distressForm.get('geometry_data_id')?.touched}" id="geometry_data_id" formControlName="geometry_data_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of geometryList; track $index) {
-                            <option value="{{row.geometry_data_id}}">{{row.name_of_road}}</option>
-                            }
-                        </select>   
-                        
-                        @if(distressForm.get('geometry_data_id')?.invalid && distressForm.get('geometry_data_id')?.touched){
-                            <span  class="text-danger">Please select valid Road</span>
-                        } 
-                    </div>
+        <!-- Distress Information -->
+        <div class="card mb-4">
+          <div class="card-header bg-warning text-white">
+            <h6 class="mb-0">
+              <i class="ri-alert-fill me-2"></i>Distress Information
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Direction <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" formControlName="direction">
+                  <option value="">Select Direction</option>
+                  <option *ngFor="let dir of directionOptions" [value]="dir">
+                    {{ getDirectionLabel(dir) }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Carriage Way Lane <span class="text-danger">*</span>
+                </label>
+                <select
+                  class="form-select"
+                  formControlName="carriage_way_lanes"
+                >
+                  <option value="">Select Lane</option>
+                  <option *ngFor="let lane of laneOptions" [value]="lane">
+                    {{ lane }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-12 mb-3">
+                <label class="form-label">
+                  Distress Type <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" formControlName="distress_type">
+                  <option value="">Select Distress Type</option>
+                  <option *ngFor="let dtype of distressTypes" [value]="dtype">
+                    {{ dtype }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="state_id">State</label><span class="text-danger">*</span>
-                        <select (change)="getDistrctList(distressForm.get('state_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('state_id')?.invalid && distressForm.get('state_id')?.touched}" id="state_id" formControlName="state_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of stateList; track $index) {
-                            <option value="{{row.state_id}}">{{row.state_name}}</option>
-                            }
-                        </select>   
-                        
-                        @if(distressForm.get('state_id')?.invalid && distressForm.get('state_id')?.touched){
-                            <span  class="text-danger">Please select valid state</span>
-                        } 
-                    </div>
+        <!-- Location Information -->
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <h6 class="mb-0">
+              <i class="ri-map-pin-line me-2"></i>Location Information
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Latitude <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="latitude"
+                  placeholder="0.000000"
+                  step="0.000001"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Longitude <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="longitude"
+                  placeholder="0.000000"
+                  step="0.000001"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="district_id">District</label><span class="text-danger">*</span>
-                        <select  (change)="getCitytList(distressForm.get('district_id')?.value)" class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('district_id')?.invalid && distressForm.get('district_id')?.touched}" id="district_id" formControlName="district_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of districtList; track $index) {
-                              <option value="{{row.district_id}}">{{row.district_name}}</option> 
-                            }
-                        </select>   
-                        @if(distressForm.get('district_id')?.invalid && distressForm.get('district_id')?.touched){
-                            <span  class="text-danger">Please select valid district</span>
-                        } 
-                    </div>
+        <!-- Dimension & Quantity Information -->
+        <div class="card mb-4">
+          <div class="card-header bg-success text-white">
+            <h6 class="mb-0">
+              <i class="ri-ruler-line me-2"></i>Dimension & Quantity Information
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Number of Distress</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="numbers_distress"
+                  min="0"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Dimension Length (m)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="dimension_length"
+                  step="0.01"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Dimension Width (m)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="dimension_width"
+                  step="0.01"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Dimension Depth (mm)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="dimension_depth"
+                  step="0.01"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="city_id">Block</label><span class="text-danger">*</span>
-                        <select class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('city_id')?.invalid && distressForm.get('city_id')?.touched}" id="city_id" formControlName="city_id">
-                            <option value="" selected disabled>Select</option>
-                            @for (row of cityList; track $index) {
-                                 <option value="{{row.city_id}}">{{row.city_name}}</option>  
-                            }
-                        </select>   
-                        @if(distressForm.get('city_id')?.invalid && distressForm.get('city_id')?.touched){
-                            <span  class="text-danger">Please select valid Block</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="village">Village</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('village')?.invalid && distressForm.get('village')?.touched}" id="village" formControlName="village" placeholder="Village">
-                        @if(distressForm.get('village')?.invalid && distressForm.get('village')?.touched){
-                            <span  class="text-danger">Please enter valid village</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="chainage_start">Chainage Start</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('chainage_start')?.invalid && distressForm.get('chainage_start')?.touched}" id="chainage_start" formControlName="chainage_start" placeholder="Chainage Start">
-                        @if(distressForm.get('chainage_start')?.invalid && distressForm.get('chainage_start')?.touched){
-                            <span  class="text-danger">Please enter valid chainage start</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="chainage_end">Chainage End</label><span class="text-danger">*</span>
-                        <input type="text" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('chainage_end')?.invalid && distressForm.get('chainage_end')?.touched}" id="chainage_end" formControlName="chainage_end" placeholder="Chainage End">
-                        @if(distressForm.get('chainage_end')?.invalid && distressForm.get('chainage_end')?.touched){
-                            <span  class="text-danger">Please enter valid chainage end</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="type_of_rigid_distress">Type Of Rigid Distress</label><span class="text-danger">*</span>
-                        <select  class="form-select" [ngClass]="{ 'is-invalid':distressForm.get('type_of_rigid_distress')?.invalid && distressForm.get('type_of_rigid_distress')?.touched}" id="type_of_rigid_distress" formControlName="type_of_rigid_distress">
-                            <option value="" selected disabled>Select</option>
-                            <option value="Cracking">Cracking</option>
-                            <option value="Surface">Surface</option>
-                            <option value="Defects">Defects</option>
-                            <option value="Joint Defects">Joint Defects</option>
-                            <option value="Drainage">Drainage</option>
-                        </select>
-                        @if(distressForm.get('type_of_rigid_distress')?.invalid && distressForm.get('type_of_rigid_distress')?.touched){
-                            <span  class="text-danger">Please select valid type of rigid distress</span>
-                        } 
-                    </div>
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="cracking_single_distress">Cracking Single Distress</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('cracking_single_distress')?.invalid && distressForm.get('cracking_single_distress')?.touched}" 
-                        id="cracking_single_distress" formControlName="cracking_single_distress" placeholder="Cracking Single Distress">
-                        @if(distressForm.get('cracking_single_distress')?.invalid && distressForm.get('cracking_single_distress')?.touched){
-                            <span  class="text-danger">Please enter valid cracking single distress</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.cracking_single_distress_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'cracking_single_distress_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.cracking_single_distress_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('cracking_single_distress_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('cracking_single_distress_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="cracking_single_tra">Single Transverse Crack Or Diagonal Crack</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('cracking_single_tra')?.invalid && distressForm.get('cracking_single_tra')?.touched}" 
-                        id="cracking_single_tra" formControlName="cracking_single_tra" placeholder="Single Transverse Crack Or Diagonal Crack">
-                        @if(distressForm.get('cracking_single_tra')?.invalid && distressForm.get('cracking_single_tra')?.touched){
-                            <span  class="text-danger">Please enter valid single transverse crack or diagonal crack</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.cracking_single_tra_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'cracking_single_tra_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.cracking_single_tra_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('cracking_single_tra_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('cracking_single_tra_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="cracking_single_long">Cracking Single Long</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('cracking_single_long')?.invalid && distressForm.get('cracking_single_long')?.touched}" 
-                        id="cracking_single_long" formControlName="cracking_single_long" placeholder="Cracking Single Long">
-                        @if(distressForm.get('cracking_single_long')?.invalid && distressForm.get('cracking_single_long')?.touched){
-                            <span  class="text-danger">Please enter valid cracking single long</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.cracking_single_long_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'cracking_single_long_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.cracking_single_long_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('cracking_single_long_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('cracking_single_long_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="cracking_multiple_cracks">Cracking Multiple Cracks</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('cracking_multiple_cracks')?.invalid && distressForm.get('cracking_multiple_cracks')?.touched}" 
-                        id="cracking_multiple_cracks" formControlName="cracking_multiple_cracks" placeholder="Cracking Multiple Cracks">
-                        @if(distressForm.get('cracking_multiple_cracks')?.invalid && distressForm.get('cracking_multiple_cracks')?.touched){
-                            <span  class="text-danger">Please enter valid cracking multiple cracks</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.cracking_multiple_cracks_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'cracking_multiple_cracks_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.cracking_multiple_cracks_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('cracking_multiple_cracks_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('cracking_multiple_cracks_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="cracking_corner_break">Cracking Corner Break</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('cracking_corner_break')?.invalid && distressForm.get('cracking_corner_break')?.touched}" 
-                        id="cracking_corner_break" formControlName="cracking_corner_break" placeholder="Cracking Corner Break">
-                        @if(distressForm.get('cracking_corner_break')?.invalid && distressForm.get('cracking_corner_break')?.touched){
-                            <span  class="text-danger">Please enter valid cracking corner break</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.cracking_corner_break_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'cracking_corner_break_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.cracking_corner_break_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('cracking_corner_break_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('cracking_corner_break_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="cracking_punchout">Cracking Punchout</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('cracking_punchout')?.invalid && distressForm.get('cracking_punchout')?.touched}" 
-                        id="cracking_punchout" formControlName="cracking_punchout" placeholder="Cracking Punchout">
-                        @if(distressForm.get('cracking_punchout')?.invalid && distressForm.get('cracking_punchout')?.touched){
-                            <span  class="text-danger">Please enter valid cracking punchout</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.cracking_punchout_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'cracking_punchout_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.cracking_punchout_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('cracking_punchout_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('cracking_punchout_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="surface_defect_ravelling">Surface Defect Ravelling</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('surface_defect_ravelling')?.invalid && distressForm.get('surface_defect_ravelling')?.touched}" 
-                        id="surface_defect_ravelling" formControlName="surface_defect_ravelling" placeholder="Surface Defect Ravelling">
-                        @if(distressForm.get('surface_defect_ravelling')?.invalid && distressForm.get('surface_defect_ravelling')?.touched){
-                            <span  class="text-danger">Please enter valid surface defect ravelling</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.surface_defect_ravelling_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'surface_defect_ravelling_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.surface_defect_ravelling_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('surface_defect_ravelling_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('surface_defect_ravelling_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="surface_defect_scaling">Surface Defect Scaling</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('surface_defect_scaling')?.invalid && distressForm.get('surface_defect_scaling')?.touched}" 
-                        id="surface_defect_scaling" formControlName="surface_defect_scaling" placeholder="Surface Defect Scaling">
-                        @if(distressForm.get('surface_defect_scaling')?.invalid && distressForm.get('surface_defect_scaling')?.touched){
-                            <span  class="text-danger">Please enter valid surface defect scaling</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.surface_defect_scaling_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'surface_defect_scaling_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.surface_defect_scaling_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('surface_defect_scaling_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('surface_defect_scaling_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-                    <!-- ADD BELOW -->
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="surface_defect_polished">Surface Defect Polished</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('surface_defect_polished')?.invalid && distressForm.get('surface_defect_polished')?.touched}" 
-                        id="surface_defect_polished" formControlName="surface_defect_polished" placeholder="Surface Defect Polished">
-                        @if(distressForm.get('surface_defect_polished')?.invalid && distressForm.get('surface_defect_polished')?.touched){
-                            <span  class="text-danger">Please enter valid surface defect polished</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.surface_defect_polished_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'surface_defect_polished_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.surface_defect_polished_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('surface_defect_polished_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('surface_defect_polished_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="surface_defect_popout">Surface Defect Popout</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('surface_defect_popout')?.invalid && distressForm.get('surface_defect_popout')?.touched}" 
-                        id="surface_defect_popout" formControlName="surface_defect_popout" placeholder="Surface Defect Popout">
-                        @if(distressForm.get('surface_defect_popout')?.invalid && distressForm.get('surface_defect_popout')?.touched){
-                            <span  class="text-danger">Please enter valid surface defect popout</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.surface_defect_popout_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'surface_defect_popout_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.surface_defect_popout_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('surface_defect_popout_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('surface_defect_popout_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="join_defects_seal">Join Defects Seal</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('join_defects_seal')?.invalid && distressForm.get('join_defects_seal')?.touched}" 
-                        id="join_defects_seal" formControlName="join_defects_seal" placeholder="Join Defects Seal">
-                        @if(distressForm.get('join_defects_seal')?.invalid && distressForm.get('join_defects_seal')?.touched){
-                            <span  class="text-danger">Please enter valid join defects seal</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.join_defects_seal_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'join_defects_seal_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.join_defects_seal_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_seal_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('join_defects_seal_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="join_defects_spalling">Join Defects Spalling</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('join_defects_spalling')?.invalid && distressForm.get('join_defects_spalling')?.touched}" 
-                        id="join_defects_spalling" formControlName="join_defects_spalling" placeholder="Join Defects Spalling">
-                        @if(distressForm.get('join_defects_spalling')?.invalid && distressForm.get('join_defects_spalling')?.touched){
-                            <span  class="text-danger">Please enter valid join defects spalling</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.join_defects_spalling_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'join_defects_spalling_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.join_defects_spalling_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_spalling_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('join_defects_spalling_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="join_defects_faulting">Join Defects Faulting</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('join_defects_faulting')?.invalid && distressForm.get('join_defects_faulting')?.touched}" 
-                        id="join_defects_faulting" formControlName="join_defects_faulting" placeholder="Join Defects Faulting">
-                        @if(distressForm.get('join_defects_faulting')?.invalid && distressForm.get('join_defects_faulting')?.touched){
-                            <span  class="text-danger">Please enter valid join defects faulting</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.join_defects_faulting_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'join_defects_faulting_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.join_defects_faulting_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_faulting_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('join_defects_faulting_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="join_defects_blowup">Join Defects Blowup</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('join_defects_blowup')?.invalid && distressForm.get('join_defects_blowup')?.touched}" 
-                        id="join_defects_blowup" formControlName="join_defects_blowup" placeholder="Join Defects Blowup">
-                        @if(distressForm.get('join_defects_blowup')?.invalid && distressForm.get('join_defects_blowup')?.touched){
-                            <span  class="text-danger">Please enter valid join defects blowup</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.join_defects_blowup_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'join_defects_blowup_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.join_defects_blowup_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_blowup_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('join_defects_blowup_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="join_defects_depression">Join Defects Depression</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('join_defects_depression')?.invalid && distressForm.get('join_defects_depression')?.touched}" 
-                        id="join_defects_depression" formControlName="join_defects_depression" placeholder="Join Defects Depression">
-                        @if(distressForm.get('join_defects_depression')?.invalid && distressForm.get('join_defects_depression')?.touched){
-                            <span  class="text-danger">Please enter valid join defects depression</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.join_defects_depression_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'join_defects_depression_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.join_defects_depression_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_depression_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('join_defects_depression_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="join_defects_heave">Join Defects Heave</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('join_defects_heave')?.invalid && distressForm.get('join_defects_heave')?.touched}" 
-                        id="join_defects_heave" formControlName="join_defects_heave" placeholder="Join Defects Heave">
-                        @if(distressForm.get('join_defects_heave')?.invalid && distressForm.get('join_defects_heave')?.touched){
-                            <span  class="text-danger">Please enter valid join defects heave</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.join_defects_heave_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'join_defects_heave_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.join_defects_heave_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_heave_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('join_defects_heave_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="join_defects_bump">Join Defects Bump</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('join_defects_bump')?.invalid && distressForm.get('join_defects_bump')?.touched}" 
-                        id="join_defects_bump" formControlName="join_defects_bump" placeholder="Join Defects Bump">
-                        @if(distressForm.get('join_defects_bump')?.invalid && distressForm.get('join_defects_bump')?.touched){
-                            <span  class="text-danger">Please enter valid join defects bump</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.join_defects_bump_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'join_defects_bump_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.join_defects_bump_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_bump_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('join_defects_bump_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="join_defects_lane">Join Defects Lane</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('join_defects_lane')?.invalid && distressForm.get('join_defects_lane')?.touched}" 
-                        id="join_defects_lane" formControlName="join_defects_lane" placeholder="Join Defects Lane">
-                        @if(distressForm.get('join_defects_lane')?.invalid && distressForm.get('join_defects_lane')?.touched){
-                            <span  class="text-danger">Please enter valid join defects lane</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.join_defects_lane_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'join_defects_lane_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.join_defects_lane_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('join_defects_lane_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('join_defects_lane_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="drainage_pumping">Drainage Pumping</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('drainage_pumping')?.invalid && distressForm.get('drainage_pumping')?.touched}" 
-                        id="drainage_pumping" formControlName="drainage_pumping" placeholder="Drainage Pumping">
-                        @if(distressForm.get('drainage_pumping')?.invalid && distressForm.get('drainage_pumping')?.touched){
-                            <span  class="text-danger">Please enter valid drainage pumping</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.drainage_pumping_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'drainage_pumping_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.drainage_pumping_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('drainage_pumping_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('drainage_pumping_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-                    
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="drainage_ponding">Drainage Ponding</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('drainage_ponding')?.invalid && distressForm.get('drainage_ponding')?.touched}" 
-                        id="drainage_ponding" formControlName="drainage_ponding" placeholder="Drainage Ponding">
-                        @if(distressForm.get('drainage_ponding')?.invalid && distressForm.get('drainage_ponding')?.touched){
-                            <span  class="text-danger">Please enter valid drainage ponding</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.drainage_ponding_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'drainage_ponding_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.drainage_ponding_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('drainage_ponding_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('drainage_ponding_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="patching">Patching</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('patching')?.invalid && distressForm.get('patching')?.touched}" 
-                        id="patching" formControlName="patching" placeholder="Patching">
-                        @if(distressForm.get('patching')?.invalid && distressForm.get('patching')?.touched){
-                            <span  class="text-danger">Please enter valid patching</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.patching_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'patching_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.patching_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('patching_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('patching_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="texture_depth">Texture Depth</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('texture_depth')?.invalid && distressForm.get('texture_depth')?.touched}" 
-                        id="texture_depth" formControlName="texture_depth" placeholder="Texture Depth">
-                        @if(distressForm.get('texture_depth')?.invalid && distressForm.get('texture_depth')?.touched){
-                            <span  class="text-danger">Please enter valid texture depth</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.texture_depth_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'texture_depth_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.texture_depth_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('texture_depth_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('texture_depth_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="roughness">Roughness</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('roughness')?.invalid && distressForm.get('roughness')?.touched}" 
-                        id="roughness" formControlName="roughness" placeholder="Roughness">
-                        @if(distressForm.get('roughness')?.invalid && distressForm.get('roughness')?.touched){
-                            <span  class="text-danger">Please enter valid roughness</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.roughness_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'roughness_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.roughness_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('roughness_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('roughness_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="geometry">Geometry</label><span class="text-danger">*</span>
-                        <input type="number" class="form-control" [ngClass]="{ 'is-invalid':distressForm.get('geometry')?.invalid && distressForm.get('geometry')?.touched}" 
-                        id="geometry" formControlName="geometry" placeholder="Geometry">
-                        @if(distressForm.get('geometry')?.invalid && distressForm.get('geometry')?.touched){
-                            <span  class="text-danger">Please enter valid geometry</span>
-                        } 
-                    </div>
-
-                    @if(!distressData.geometry_image){
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" class="form-control" (change)="onFileChange($event, 'geometry_image')" accept=".jpg, .jpeg, .png">
-                            <!-- <span  class="text-danger">Only .jpg, .jpeg, and .png are allowed.</span> -->
-                        </div>
-                        }
-                    
-                    @if(distressData.geometry_image){
-                        <div class="col-md-2 mb-3 ">
-                            <label class="form-label">Image</label><br>
-                            <div class="hstack gap-2 fs-15">
-                                <a href="javascript:void(0);" (click)="downloadImage('geometry_image')"   title="Download"
-                                 class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i
-                                    class="ri-download-2-fill"></i>
-                                </a>
-                                <a href="javascript:void(0);" title="Delete" (click)="delete('geometry_image')"
-                                    class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                    class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    @if(!distressData.video){
-                        @if(!videoSpeenerShow){
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="video">Video</label>
-                            <input type="file" class="form-control"  (change)="addVideo($event, 'video')" id="video" accept="video/*">
-                        </div>
-                        }
-                        @if(videoSpeenerShow){
-                            <div class="col-md-6 mb-3">
-                                <div class=" form-control">
-                                    Video Uploading&nbsp;&nbsp;
-                                    <div class="spinner-border" role="status" >
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    }
-                    @if(distressData.video){
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="video">Video</label>
-                            <div class="hstack gap-2 fs-15">
-                                <video id="videoPreview" class="form-control mt-3" controls style="display: block; max-height: 300px; max-width:500 px" >
-                                    <source [src]="urlLive+'/upload/distress_video/'+distressData.video" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                            
-                                <a href="javascript:void(0);" title="Delete" (click)="deleteVideo('video')"
-                                            class="btn btn-icon btn-sm btn-danger-transparent rounded-pill"><i
-                                            class="ri-delete-bin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    }
-                    
-                    <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-2">
-                        <button type="submit" class="btn btn-primary">Update</button>
-                    </div>
-                </div>
-            </form>
-
-        </app-showcode-card>
-    </div>
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2 mt-4">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="distressForm.invalid"
+          >
+            <i class="ri-save-line me-1"></i>Update Distress
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [routerLink]="['/ris/road-manage/rigid-distress']"
+          >
+            <i class="ri-close-line me-1"></i>Cancel
+          </button>
+        </div>
+      </form>
+    </app-showcode-card>
+  </div>
 </div>

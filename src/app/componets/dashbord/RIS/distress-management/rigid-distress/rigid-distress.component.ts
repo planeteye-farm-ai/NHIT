@@ -116,12 +116,14 @@ export class RigidDistressComponent {
       const formattedTestDistress = testRigidDistress.map((distress: any) => ({
         rigid_distress_id: distress.rigid_distress_id,
         geometry_data_id: distress.geometry_data_id,
-        name_of_road: 'Test Road ' + distress.geometry_data_id,
+        name_of_road:
+          distress.road_name || 'Test Road ' + distress.geometry_data_id,
         chainage_start: distress.chainage_start,
         chainage_end: distress.chainage_end,
         direction: distress.direction,
-        total_length: distress.total_length,
-        entries_count: distress.entries_count,
+        distress_type: distress.distress_type,
+        carriage_way_lanes: distress.carriage_way_lanes,
+        numbers_distress: distress.numbers_distress || 0,
         created_on: distress.created_on,
       }));
 
@@ -199,29 +201,57 @@ export class RigidDistressComponent {
 
   delete() {
     if (this.selectedId !== null) {
-      this.roadService.deleteRigidDistress(this.selectedId).subscribe(
-        (res) => {
-          // console.log("edelete result",res);
-          if (res.status) {
-            this.getDistressData();
-            this.toastr.success(res.msg, 'NHAI RAMS', {
-              timeOut: 3000,
-              positionClass: 'toast-top-right',
-            });
-          } else {
-            this.toastr.error(res.msg, 'NHAI RAMS', {
+      // Check if distress exists in localStorage
+      let testRigidDistress = JSON.parse(
+        localStorage.getItem('test_rigid_distress') || '[]'
+      );
+      const testDistressIndex = testRigidDistress.findIndex(
+        (d: any) => d.rigid_distress_id === this.selectedId
+      );
+
+      if (testDistressIndex !== -1) {
+        // Delete from localStorage
+        testRigidDistress.splice(testDistressIndex, 1);
+        localStorage.setItem(
+          'test_rigid_distress',
+          JSON.stringify(testRigidDistress)
+        );
+
+        // Reload distress data
+        this.getDistressData();
+
+        this.toastr.success('Rigid distress deleted successfully!', 'Success', {
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
+        });
+
+        console.log('Distress deleted from localStorage:', this.selectedId);
+        this.modalService.dismissAll();
+      } else {
+        // Not in localStorage, delete from API
+        this.roadService.deleteRigidDistress(this.selectedId).subscribe(
+          (res) => {
+            if (res.status) {
+              this.getDistressData();
+              this.toastr.success(res.msg, 'NHAI RAMS', {
+                timeOut: 3000,
+                positionClass: 'toast-top-right',
+              });
+            } else {
+              this.toastr.error(res.msg, 'NHAI RAMS', {
+                timeOut: 3000,
+                positionClass: 'toast-top-right',
+              });
+            }
+          },
+          (err) => {
+            this.toastr.error(err.msg, 'NHAI RAMS', {
               timeOut: 3000,
               positionClass: 'toast-top-right',
             });
           }
-        },
-        (err) => {
-          this.toastr.error(err.msg, 'NHAI RAMS', {
-            timeOut: 3000,
-            positionClass: 'toast-top-right',
-          });
-        }
-      );
+        );
+      }
     }
   }
 
