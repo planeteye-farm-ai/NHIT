@@ -630,7 +630,10 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       return; // Exit early, don't update map
     }
 
-    // Default behavior: Filter map only
+    // Default behavior: Open sub-asset modal
+    this.openSubAssetModal(assetType);
+    
+    // Also update map filter
     if (this.selectedAssetType === assetType) {
       // If clicking the same asset, deselect it (show all assets)
       this.selectedAssetType = null;
