@@ -99,7 +99,6 @@
               <th scope="col">Chainage Start (KM)</th>
               <th scope="col">Chainage End (KM)</th>
               <th scope="col">Direction</th>
-              <th scope="col">Total Length (KM)</th>
               <th scope="col">No. of Entries</th>
               <th scope="col">Created On</th>
               <th scope="col">Action</th>
@@ -113,7 +112,6 @@
               <td>{{ row.chainage_start }}</td>
               <td>{{ row.chainage_end }}</td>
               <td>{{ row.direction || "N/A" }}</td>
-              <td>{{ row.total_length || "N/A" }}</td>
               <td>
                 <span class="badge bg-info"
                   >{{ row.entries_count || 0 }} entries</span
