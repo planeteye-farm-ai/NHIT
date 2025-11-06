@@ -1,329 +1,202 @@
 <app-page-header
-  title="Update Road Inventory"
-  title1="Update Road Inventory"
-  activeTitle="Update Road Inventory"
+  title="Edit Inventory"
+  title1="Edit Inventory"
+  activeTitle="Edit Inventory"
 ></app-page-header>
 
 <div class="row">
   <div class="col-xl-12">
     <app-showcode-card
-      [title]="'Update Road Inventory'"
+      [title]="'Edit Inventory'"
       [prism]="prismCode.formlayouts10"
     >
       <form [formGroup]="inventoryForm" (ngSubmit)="onSubmit()">
-        <div class="card custom-card">
+        <!-- Road Information -->
+        <div class="card mb-4">
           <div class="card-header bg-primary text-white">
-            <h6 class="card-title mb-0">
-              <i class="ri-map-pin-line me-2"></i>Inventory Information
+            <h6 class="mb-0">
+              <i class="ri-road-map-line me-2"></i>Road Information
             </h6>
           </div>
           <div class="card-body">
             <div class="row">
-              <!-- Chainage Start -->
+              <div class="col-md-12 mb-3">
+                <label class="form-label">
+                  Road Name <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="road_name"
+                  readonly
+                />
+              </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label" for="chainage_start"
-                  >Chainage Start (KM)</label
-                ><span class="text-danger">*</span>
+                <label class="form-label">
+                  Chainage Start (KM) <span class="text-danger">*</span>
+                </label>
                 <input
                   type="number"
                   class="form-control"
-                  [ngClass]="{
-                    'is-invalid':
-                      inventoryForm.get('chainage_start')?.invalid &&
-                      inventoryForm.get('chainage_start')?.touched
-                  }"
-                  id="chainage_start"
                   formControlName="chainage_start"
-                  placeholder="0.000"
+                  step="0.001"
                 />
-                @if(inventoryForm.get('chainage_start')?.invalid &&
-                inventoryForm.get('chainage_start')?.touched){
-                <span class="text-danger">Please enter chainage start</span>
-                }
               </div>
-
-              <!-- Chainage End -->
               <div class="col-md-6 mb-3">
-                <label class="form-label" for="chainage_end"
-                  >Chainage End (KM)</label
-                ><span class="text-danger">*</span>
+                <label class="form-label">
+                  Chainage End (KM) <span class="text-danger">*</span>
+                </label>
                 <input
                   type="number"
                   class="form-control"
-                  [ngClass]="{
-                    'is-invalid':
-                      inventoryForm.get('chainage_end')?.invalid &&
-                      inventoryForm.get('chainage_end')?.touched
-                  }"
-                  id="chainage_end"
                   formControlName="chainage_end"
-                  placeholder="0.000"
+                  step="0.001"
                 />
-                @if(inventoryForm.get('chainage_end')?.invalid &&
-                inventoryForm.get('chainage_end')?.touched){
-                <span class="text-danger">Please enter chainage end</span>
-                }
-              </div>
-
-              <!-- Direction -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label" for="direction">Direction</label
-                ><span class="text-danger">*</span>
-                <select
-                  class="form-select"
-                  [ngClass]="{
-                    'is-invalid':
-                      inventoryForm.get('direction')?.invalid &&
-                      inventoryForm.get('direction')?.touched
-                  }"
-                  id="direction"
-                  formControlName="direction"
-                >
-                  <option value="" selected disabled>Select</option>
-                  @for (opt of directionOptions; let i = $index; track i) {
-                  <option [value]="opt">{{ opt }}</option>
-                  }
-                </select>
-                @if(inventoryForm.get('direction')?.invalid &&
-                inventoryForm.get('direction')?.touched){
-                <span class="text-danger">Please select direction</span>
-                }
-              </div>
-
-              <!-- Asset Action Checkbox -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Asset Action</label
-                ><span class="text-danger">*</span>
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    id="add_asset"
-                    formControlName="asset_action"
-                    value="add"
-                  />
-                  <label class="form-check-label" for="add_asset">
-                    Add Asset
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    id="report_missing"
-                    formControlName="asset_action"
-                    value="report_missing"
-                  />
-                  <label class="form-check-label" for="report_missing">
-                    Report Missing Asset
-                  </label>
-                </div>
-              </div>
-
-              <!-- Asset Type -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label" for="asset_type">Asset Type</label
-                ><span class="text-danger">*</span>
-                <select
-                  class="form-select"
-                  [ngClass]="{
-                    'is-invalid':
-                      inventoryForm.get('asset_type')?.invalid &&
-                      inventoryForm.get('asset_type')?.touched
-                  }"
-                  id="asset_type"
-                  formControlName="asset_type"
-                  (change)="onAssetTypeChange($any($event.target).value)"
-                >
-                  <option value="" selected disabled>Select</option>
-                  @for (asset of assetTypes; let i = $index; track i) {
-                  <option [value]="asset">{{ asset }}</option>
-                  }
-                </select>
-                @if(inventoryForm.get('asset_type')?.invalid &&
-                inventoryForm.get('asset_type')?.touched){
-                <span class="text-danger">Please select asset type</span>
-                }
-              </div>
-
-              <!-- Sub Asset Type -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label" for="sub_asset_type"
-                  >Sub Asset Type</label
-                ><span class="text-danger">*</span>
-                <select
-                  class="form-select"
-                  [ngClass]="{
-                    'is-invalid':
-                      inventoryForm.get('sub_asset_type')?.invalid &&
-                      inventoryForm.get('sub_asset_type')?.touched
-                  }"
-                  id="sub_asset_type"
-                  formControlName="sub_asset_type"
-                  [disabled]="subAssetTypes.length === 0"
-                >
-                  <option value="" selected disabled>
-                    {{
-                      subAssetTypes.length > 0
-                        ? "Select"
-                        : "Select Asset Type First"
-                    }}
-                  </option>
-                  @for (subAsset of subAssetTypes; let i = $index; track i) {
-                  <option [value]="subAsset">{{ subAsset }}</option>
-                  }
-                </select>
-                @if(inventoryForm.get('sub_asset_type')?.invalid &&
-                inventoryForm.get('sub_asset_type')?.touched){
-                <span class="text-danger">Please select sub asset type</span>
-                }
-              </div>
-
-              <!-- Latitude -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label" for="latitude"
-                  >Latitude (Inventory)</label
-                ><span class="text-danger">*</span>
-                <input
-                  type="number"
-                  class="form-control"
-                  [ngClass]="{
-                    'is-invalid':
-                      inventoryForm.get('latitude')?.invalid &&
-                      inventoryForm.get('latitude')?.touched
-                  }"
-                  id="latitude"
-                  formControlName="latitude"
-                  placeholder="0.000000"
-                  step="0.000001"
-                />
-                @if(inventoryForm.get('latitude')?.invalid &&
-                inventoryForm.get('latitude')?.touched){
-                <span class="text-danger">Please enter latitude</span>
-                }
-              </div>
-
-              <!-- Longitude -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label" for="longitude"
-                  >Longitude (Inventory)</label
-                ><span class="text-danger">*</span>
-                <input
-                  type="number"
-                  class="form-control"
-                  [ngClass]="{
-                    'is-invalid':
-                      inventoryForm.get('longitude')?.invalid &&
-                      inventoryForm.get('longitude')?.touched
-                  }"
-                  id="longitude"
-                  formControlName="longitude"
-                  placeholder="0.000000"
-                  step="0.000001"
-                />
-                @if(inventoryForm.get('longitude')?.invalid &&
-                inventoryForm.get('longitude')?.touched){
-                <span class="text-danger">Please enter longitude</span>
-                }
-              </div>
-
-              <!-- Numbers (Inventories) -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label" for="numbers_inventory"
-                  >Numbers (Inventories)</label
-                >
-                <input
-                  type="number"
-                  class="form-control"
-                  id="numbers_inventory"
-                  formControlName="numbers_inventory"
-                  placeholder="Quantity/Count"
-                />
-              </div>
-
-              <!-- Image Upload -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label" for="inventory_image"
-                  >Image (JPG/PNG)</label
-                >
-                <input
-                  type="file"
-                  class="form-control"
-                  id="inventory_image"
-                  accept=".jpg,.jpeg,.png"
-                  (change)="onImageSelected($event)"
-                />
-                @if(inventoryForm.get('image_preview')?.value) {
-                <div class="mt-2 position-relative" style="max-width: 200px">
-                  <img
-                    [src]="inventoryForm.get('image_preview')?.value"
-                    alt="Image Preview"
-                    class="img-thumbnail"
-                    style="max-width: 100%"
-                  />
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                    (click)="removeImage()"
-                    style="margin: 5px"
-                  >
-                    <i class="ri-close-line"></i>
-                  </button>
-                </div>
-                }
-              </div>
-
-              <!-- Video Upload -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label" for="inventory_video">Video</label>
-                <input
-                  type="file"
-                  class="form-control"
-                  id="inventory_video"
-                  accept=".mp4,.avi,.mov,.wmv"
-                  (change)="onVideoSelected($event)"
-                />
-                @if(inventoryForm.get('video_preview')?.value) {
-                <div class="mt-2 position-relative" style="max-width: 300px">
-                  <video
-                    [src]="inventoryForm.get('video_preview')?.value"
-                    controls
-                    class="img-thumbnail"
-                    style="max-width: 100%"
-                  ></video>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                    (click)="removeVideo()"
-                    style="margin: 5px"
-                  >
-                    <i class="ri-close-line"></i>
-                  </button>
-                </div>
-                }
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Submit Button -->
-        <div class="col-md-12 d-flex align-items-end flex-column mb-3 mt-3">
-          <div class="d-flex gap-2">
-            <button
-              type="submit"
-              class="btn btn-primary"
-              [disabled]="inventoryForm.invalid"
-            >
-              <i class="ri-save-line me-1"></i> Update Inventory
-            </button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              [routerLink]="['/ris/road-manage/road-inventory', roadId]"
-            >
-              <i class="ri-close-line me-1"></i> Cancel
-            </button>
+        <!-- Asset Information -->
+        <div class="card mb-4">
+          <div class="card-header bg-success text-white">
+            <h6 class="mb-0">
+              <i class="ri-building-line me-2"></i>Asset Information
+            </h6>
           </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Direction <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" formControlName="direction">
+                  <option value="">Select Direction</option>
+                  <option *ngFor="let dir of directionOptions" [value]="dir">
+                    {{ getDirectionLabel(dir) }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Asset Action <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" formControlName="asset_action">
+                  <option value="add">Add Asset</option>
+                  <option value="report_missing">Report Missing</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Asset Type <span class="text-danger">*</span>
+                </label>
+                <select
+                  class="form-select"
+                  formControlName="asset_type"
+                  (change)="onAssetTypeChange($any($event.target).value)"
+                >
+                  <option value="">Select Asset Type</option>
+                  <option *ngFor="let asset of assetTypes" [value]="asset.name">
+                    {{ asset.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3" *ngIf="subAssetTypes.length > 0">
+                <label class="form-label">
+                  Sub Asset Type <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" formControlName="sub_asset_type">
+                  <option value="">Select Sub Asset Type</option>
+                  <option
+                    *ngFor="let subType of subAssetTypes"
+                    [value]="subType"
+                  >
+                    {{ subType }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Information -->
+        <div class="card mb-4">
+          <div class="card-header bg-warning text-white">
+            <h6 class="mb-0">
+              <i class="ri-map-pin-line me-2"></i>Location Information
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Latitude <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="latitude"
+                  placeholder="0.000000"
+                  step="0.000001"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  Longitude <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="longitude"
+                  placeholder="0.000000"
+                  step="0.000001"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quantity Information -->
+        <div class="card mb-4">
+          <div class="card-header bg-info text-white">
+            <h6 class="mb-0">
+              <i class="ri-sort-number-asc me-2"></i>Quantity Information
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label"> Number of Inventories </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="numbers_inventory"
+                  min="0"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2 mt-4">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="inventoryForm.invalid"
+          >
+            <i class="ri-save-line me-1"></i>Update Inventory
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [routerLink]="[
+              '/ris/road-manage/road-inventory',
+              inventoryData?.geometry_data_id
+            ]"
+          >
+            <i class="ri-close-line me-1"></i>Cancel
+          </button>
         </div>
       </form>
     </app-showcode-card>

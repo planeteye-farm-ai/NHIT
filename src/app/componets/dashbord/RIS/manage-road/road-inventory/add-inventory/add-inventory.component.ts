@@ -1040,6 +1040,9 @@ export class AddInventoryComponent {
   async submitMultipleInventories(): Promise<void> {
     let apiSuccessCount = 0;
     let apiFailCount = 0;
+    let existingInventory = JSON.parse(
+      localStorage.getItem('test_inventory') || '[]'
+    );
 
     // Show loading toast
     this.toastr.info('Submitting inventories...', 'Please wait', {
@@ -1069,10 +1072,46 @@ export class AddInventoryComponent {
         await this.submitToAPI(apiData);
         apiSuccessCount++;
         console.log(`✅ API Success for ${subAsset}`);
+
+        // Save to localStorage after successful API submission (for viewing in table)
+        const mockId =
+          existingInventory.length > 0
+            ? Math.max(
+                ...existingInventory.map((inv: any) => inv.road_inventory_id)
+              ) + 1
+            : apiSuccessCount;
+
+        const inventoryObj = {
+          road_inventory_id: mockId,
+          geometry_data_id: this.roadId,
+          road_name: this.selectedRoadName || this.roadName,
+          chainage_start: this.chainageStart,
+          chainage_end: this.chainageEnd,
+          direction: this.selectedDirection,
+          asset_action: this.selectedAssetAction,
+          asset_type: this.selectedAsset,
+          sub_asset_type: subAsset,
+          latitude: details.latitude,
+          longitude: details.longitude,
+          numbers_inventory: details.quantity || 0,
+          inventory_image:
+            this.inventoryForm.get('image_file')?.value?.name || '',
+          inventory_video:
+            this.inventoryForm.get('video_file')?.value?.name || '',
+          created_on: new Date().toISOString(),
+        };
+
+        existingInventory.push(inventoryObj);
       } catch (error) {
         console.error(`❌ API Failed for ${subAsset}:`, error);
         apiFailCount++;
       }
+    }
+
+    // Save to localStorage for viewing in table
+    if (apiSuccessCount > 0) {
+      localStorage.setItem('test_inventory', JSON.stringify(existingInventory));
+      console.log('✅ Saved to localStorage for table view');
     }
 
     // Clear loading toast
@@ -1193,6 +1232,43 @@ export class AddInventoryComponent {
       await this.submitToAPI(apiData);
       apiSuccess = true;
       console.log('✅ API Success');
+
+      // Save to localStorage after successful API submission (for viewing in table)
+      let existingInventory = JSON.parse(
+        localStorage.getItem('test_inventory') || '[]'
+      );
+
+      const mockId =
+        existingInventory.length > 0
+          ? Math.max(
+              ...existingInventory.map((inv: any) => inv.road_inventory_id)
+            ) + 1
+          : 1;
+
+      const inventoryObj = {
+        road_inventory_id: mockId,
+        geometry_data_id: this.inventoryForm.get('geometry_data_id')?.value,
+        road_name: this.selectedRoadName || this.roadName,
+        chainage_start: this.inventoryForm.get('chainage_start')?.value,
+        chainage_end: this.inventoryForm.get('chainage_end')?.value,
+        direction: this.inventoryForm.get('direction')?.value,
+        asset_action: this.inventoryForm.get('asset_action')?.value,
+        asset_type: this.inventoryForm.get('asset_type')?.value,
+        sub_asset_type: this.inventoryForm.get('sub_asset_type')?.value,
+        latitude: this.inventoryForm.get('latitude')?.value,
+        longitude: this.inventoryForm.get('longitude')?.value,
+        numbers_inventory:
+          this.inventoryForm.get('numbers_inventory')?.value || 0,
+        inventory_image:
+          this.inventoryForm.get('image_file')?.value?.name || '',
+        inventory_video:
+          this.inventoryForm.get('video_file')?.value?.name || '',
+        created_on: new Date().toISOString(),
+      };
+
+      existingInventory.push(inventoryObj);
+      localStorage.setItem('test_inventory', JSON.stringify(existingInventory));
+      console.log('✅ Saved to localStorage for table view');
     } catch (error) {
       console.error('❌ API Failed:', error);
     }

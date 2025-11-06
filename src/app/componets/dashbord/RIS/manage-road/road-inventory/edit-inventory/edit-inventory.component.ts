@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { ShowcodeCardComponent } from '../../../../../../shared/common/includes/showcode-card/showcode-card.component';
 import * as prismCodeData from '../../../../../../shared/prismData/forms/form_layouts';
 import { SharedModule } from '../../../../../../shared/common/sharedmodule';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
   FormBuilder,
   FormGroup,
@@ -17,6 +16,7 @@ import { CustomValidators } from '../../../../../../shared/common/custom-validat
 import { Router } from '@angular/router';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RoadService } from '../../road.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-edit-inventory',
@@ -36,546 +36,306 @@ import { RoadService } from '../../road.service';
 export class EditInventoryComponent {
   inventoryForm!: FormGroup;
   prismCode = prismCodeData;
-  roadId: any;
   inventoryId: any;
   inventoryData: any;
 
   // Direction options
   directionOptions = ['Increasing (LHS)', 'Decreasing (RHS)', 'Median'];
 
-  // Asset Types (Complete list from Inventory Report)
+  // Asset Types
   assetTypes = [
-    'Adjacent Road',
-    'Bridges',
-    'Bus Stop',
-    'Crash Barrier',
-    'Culvert',
-    'Emergency Call Box',
-    'Footpath',
-    'Fuel Station',
-    'Junction',
-    'KM Stones',
-    'Median Opening',
-    'Median Plants',
-    'RCC Drain',
-    'Rest Area',
-    'Service Road',
-    'Sign Boards',
-    'Solar Blinker',
-    'Street Lights',
-    'Toilet Blocks',
-    'Toll Plaza',
-    'Traffic Signals',
-    'Trees',
-    'Truck LayBy',
-    'Tunnels',
+    { name: 'Trees', color: '#4CAF50' },
+    { name: 'Adjacent Road', color: '#2196F3' },
+    { name: 'Sign Boards', color: '#FF9800' },
+    { name: 'Culvert', color: '#9C27B0' },
+    { name: 'Toll Plaza', color: '#F44336' },
+    { name: 'Bus Stop', color: '#00BCD4' },
+    { name: 'Crash Barrier', color: '#FF9800' },
+    { name: 'Emergency Call Box', color: '#E91E63' },
+    { name: 'KM Stones', color: '#607D8B' },
+    { name: 'Street Lights', color: '#FFC107' },
+    { name: 'Truck LayBy', color: '#8BC34A' },
+    { name: 'Service Road', color: '#FF5722' },
+    { name: 'Junction', color: '#9E9E9E' },
+    { name: 'Fuel Station', color: '#3F51B5' },
+    { name: 'Toilet Blocks', color: '#009688' },
+    { name: 'RCC Drain', color: '#673AB7' },
+    { name: 'Solar Blinker', color: '#FFEB3B' },
+    { name: 'Median Opening', color: '#CDDC39' },
+    { name: 'Bridges', color: '#795548' },
+    { name: 'Footpath', color: '#00BCD4' },
+    { name: 'Median Plants', color: '#4CAF50' },
+    { name: 'Rest Area', color: '#FF5722' },
+    { name: 'Traffic Signals', color: '#F44336' },
+    { name: 'Tunnels', color: '#607D8B' },
   ];
 
-  // Sub Asset Types (will be populated based on selected Asset Type)
-  subAssetTypes: string[] = [];
-
-  // Asset Type to Sub Asset Type mapping (Comprehensive)
+  // Sub Asset Types mapping
   assetSubTypeMap: { [key: string]: string[] } = {
-    'Adjacent Road': [
-      'Parallel Road',
-      'Cross Road',
-      'Access Road',
-      'Connecting Road',
-    ],
-    Bridges: [
-      'RCC Bridge',
-      'Steel Bridge',
-      'Cable Stayed',
-      'Suspension Bridge',
-      'Arch Bridge',
-      'Beam Bridge',
-    ],
-    'Bus Stop': [
-      'Covered Shelter',
-      'Open Shelter',
-      'With Seating',
-      'Basic Stand',
-    ],
-    'Crash Barrier': [
-      'Metal Beam Barrier',
-      'Concrete Barrier',
-      'Cable Barrier',
-      'Water Filled Barrier',
-    ],
-    Culvert: ['Box Culvert', 'Pipe Culvert', 'Slab Culvert', 'Arch Culvert'],
-    'Emergency Call Box': [
-      'SOS Box',
-      'Call Pillar',
-      'Digital Panel',
-      'Emergency Telephone',
-    ],
-    Footpath: [
-      'Paved Footpath',
-      'Unpaved Footpath',
-      'Elevated Walkway',
-      'Pedestrian Crossing',
-    ],
-    'Fuel Station': [
-      'Petrol Pump',
-      'Diesel Pump',
-      'CNG Station',
-      'EV Charging Station',
-      'Multi-Fuel',
-    ],
-    Junction: [
-      'T-Junction',
-      'Y-Junction',
-      'Roundabout',
-      'Intersection',
-      'Interchange',
-    ],
-    'KM Stones': [
-      'Concrete Post',
-      'Metal Post',
-      'Reflective Marker',
-      'Mile Stone',
-    ],
-    'Median Opening': [
-      'Emergency Opening',
-      'U-Turn Opening',
-      'Service Vehicle Access',
-      'Crossover',
-    ],
-    'Median Plants': [
-      'Shrubs',
-      'Flowering Plants',
-      'Grass',
-      'Ornamental Plants',
-      'Trees',
-    ],
-    'RCC Drain': ['Covered Drain', 'Open Drain', 'Grated Drain', 'Side Drain'],
-    'Rest Area': [
-      'Parking Bay',
-      'Picnic Spot',
-      'Food Court',
-      'Tourist Rest Area',
-    ],
-    'Service Road': [
-      'Left Side Service Road',
-      'Right Side Service Road',
-      'Both Sides',
-      'Frontage Road',
-    ],
     'Sign Boards': [
-      'Informatory Signs',
-      'Regulatory Signs',
-      'Warning Signs',
-      'Direction Signs',
-      'Tourist Signs',
-    ],
-    'Solar Blinker': [
-      'Red Blinker',
-      'Yellow Blinker',
-      'White Blinker',
-      'Amber Blinker',
+      'Informatory sign boards',
+      'Mandatory sign boards',
+      'Cautionary sign boards',
     ],
     'Street Lights': [
-      'LED Lights',
-      'Sodium Vapor Lights',
-      'Halogen Lights',
-      'Solar Lights',
-      'High Mast',
+      'Single arm street light',
+      'Double arm street light',
+      'High mast street light',
     ],
-    'Toilet Blocks': [
-      'Public Toilet',
-      'Staff Toilet',
-      'Disabled Access',
-      'Male Toilet',
-      'Female Toilet',
-      'Unisex',
+    'Truck LayBy': ['Truck LayBy', 'Bus Layby'],
+    Junction: [
+      'Simple/Cross Junction',
+      'T-Junction',
+      'Skew or Y-Junction',
+      'Ghost Island Junction',
     ],
-    'Toll Plaza': [
-      'Manual Toll',
-      'FASTag Toll',
-      'Hybrid Toll',
-      'Automated Toll',
-    ],
-    'Traffic Signals': [
-      '3-Light Signal',
-      '4-Light Signal',
-      'Pedestrian Signal',
-      'Countdown Timer',
-    ],
-    Trees: [
-      'Roadside Trees',
-      'Median Trees',
-      'Avenue Trees',
-      'Landscaping Trees',
-    ],
-    'Truck LayBy': [
-      'Single Lane Bay',
-      'Double Lane Bay',
-      'Truck Parking Area',
-      'Rest Bay',
-    ],
-    Tunnels: [
-      'Road Tunnel',
-      'Underpass',
-      'Flyover Underpass',
-      'Pedestrian Tunnel',
-    ],
+    'Crash Barrier': ['W Beam Crash Barrier', 'Concrete Beam Crash Barrier'],
+    Trees: ['1m and above', '1-3m', 'above 3m'],
+    // Assets without subtypes
+    'Adjacent Road': [],
+    Bridges: [],
+    'Bus Stop': [],
+    Culvert: [],
+    'Emergency Call Box': [],
+    Footpath: [],
+    'Fuel Station': [],
+    'KM Stones': [],
+    'Median Opening': [],
+    'Median Plants': [],
+    'RCC Drain': [],
+    'Rest Area': [],
+    'Service Road': [],
+    'Solar Blinker': [],
+    'Toilet Blocks': [],
+    'Toll Plaza': [],
+    'Traffic Signals': [],
+    Tunnels: [],
   };
+
+  subAssetTypes: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private modalService: NgbModal,
     private toastr: ToastrService,
     private roadService: RoadService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
-      this.roadId = Number(params.get('id'));
-      this.inventoryId = Number(params.get('id'));
-      if (this.inventoryId) {
-        this.loadInventoryDetails(this.inventoryId);
-      }
-    });
-
     this.inventoryForm = this.fb.group({
-      chainage_start: [
-        '',
-        [Validators.required, CustomValidators.numberValidator()],
-      ],
-      chainage_end: [
-        '',
-        [Validators.required, CustomValidators.numberValidator()],
-      ],
+      road_name: ['', Validators.required],
+      chainage_start: [0, Validators.required],
+      chainage_end: [0, Validators.required],
       direction: ['', Validators.required],
-      asset_action: ['add', Validators.required], // 'add' or 'report_missing'
+      asset_action: ['add', Validators.required],
       asset_type: ['', Validators.required],
-      sub_asset_type: ['', Validators.required],
+      sub_asset_type: [''],
       latitude: ['', [Validators.required, CustomValidators.numberValidator()]],
       longitude: [
         '',
         [Validators.required, CustomValidators.numberValidator()],
       ],
-      numbers_inventory: ['', CustomValidators.numberValidator()],
+      numbers_inventory: [0],
       inventory_image: [''],
       inventory_video: [''],
-      image_file: [null],
-      video_file: [null],
-      image_preview: [null],
-      video_preview: [null],
+    });
+
+    this.route.paramMap.subscribe((params) => {
+      this.inventoryId = Number(params.get('id'));
+      if (this.inventoryId) {
+        this.loadInventoryDetails(this.inventoryId);
+      }
     });
   }
 
-  // Update sub asset types when asset type changes
-  onAssetTypeChange(assetType: string): void {
-    this.subAssetTypes = this.assetSubTypeMap[assetType] || [];
-    this.inventoryForm.patchValue({ sub_asset_type: '' });
-  }
-
   loadInventoryDetails(id: number): void {
-    // TESTING MODE: Load from localStorage first
+    // Try to load from localStorage first
     const testInventory = JSON.parse(
       localStorage.getItem('test_inventory') || '[]'
     );
-    const foundInventory = testInventory.find(
+    const found = testInventory.find(
       (inv: any) => inv.road_inventory_id === id
     );
 
-    if (foundInventory) {
-      console.log('Inventory loaded from localStorage:', foundInventory);
-      this.inventoryData = foundInventory;
-      this.patchValue({ data: [foundInventory] });
-      this.toastr.info('Loaded from Test Mode (localStorage)', 'NHAI RAMS', {
+    if (found) {
+      this.inventoryData = found;
+      console.log('Loaded inventory from localStorage:', this.inventoryData);
+
+      // Update sub-asset types based on selected asset
+      this.updateSubAssetTypes(found.asset_type);
+
+      // Patch form with existing data
+      this.inventoryForm.patchValue({
+        road_name: found.road_name,
+        chainage_start: found.chainage_start,
+        chainage_end: found.chainage_end,
+        direction: found.direction,
+        asset_action: found.asset_action,
+        asset_type: found.asset_type,
+        sub_asset_type: found.sub_asset_type,
+        latitude: found.latitude,
+        longitude: found.longitude,
+        numbers_inventory: found.numbers_inventory,
+        inventory_image: found.inventory_image,
+        inventory_video: found.inventory_video,
+      });
+
+      this.toastr.success('Inventory details loaded', 'Success', {
         timeOut: 2000,
         positionClass: 'toast-top-right',
       });
     } else {
       // Fallback to API if not found in localStorage
-      this.toastr.warning(
-        'Inventory not found in localStorage. Using API...',
-        'NHAI RAMS',
-        {
-          timeOut: 2000,
-          positionClass: 'toast-top-right',
-        }
-      );
-
       this.roadService.getInventoryById(id).subscribe(
         (inventory: any) => {
-          console.log('get inventory details', inventory);
+          console.log('get inventory details from API', inventory);
           if (inventory && inventory.data && inventory.data.length > 0) {
             this.inventoryData = inventory.data[0];
-            this.patchValue(inventory);
+            // Patch form with API data
+            this.inventoryForm.patchValue(this.inventoryData);
           }
         },
         (err) => {
-          this.toastr.error(
-            err.msg || 'Failed to load inventory',
-            'NHAI RAMS',
-            {
-              timeOut: 3000,
-              positionClass: 'toast-top-right',
-            }
-          );
+          this.toastr.error('Failed to load inventory details', 'Error', {
+            timeOut: 3000,
+            positionClass: 'toast-top-right',
+          });
         }
       );
     }
   }
 
-  patchValue(inventory: any): void {
-    const data = inventory.data[0];
-
-    // Set sub asset types based on asset type
-    if (data.asset_type) {
-      this.subAssetTypes = this.assetSubTypeMap[data.asset_type] || [];
-    }
-
-    this.inventoryForm.patchValue({
-      chainage_start: data.chainage_start,
-      chainage_end: data.chainage_end,
-      direction: data.direction,
-      asset_action: data.asset_action || 'add',
-      asset_type: data.asset_type,
-      sub_asset_type: data.sub_asset_type,
-      latitude: data.latitude,
-      longitude: data.longitude,
-      numbers_inventory: data.numbers_inventory,
-      inventory_image: data.inventory_image,
-      inventory_video: data.inventory_video,
-    });
+  updateSubAssetTypes(assetType: string): void {
+    this.subAssetTypes = this.assetSubTypeMap[assetType] || [];
   }
 
-  // Handle image file selection
-  onImageSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-      if (!validTypes.includes(file.type)) {
-        this.toastr.error(
-          'Only JPG and PNG images are allowed',
-          'Invalid File'
-        );
-        event.target.value = '';
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
-        event.target.value = '';
-        return;
-      }
-
-      this.inventoryForm.patchValue({
-        inventory_image: file.name,
-        image_file: file,
-      });
-
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.inventoryForm.patchValue({ image_preview: e.target.result });
-      };
-      reader.readAsDataURL(file);
-    }
+  onAssetTypeChange(assetType: string): void {
+    this.updateSubAssetTypes(assetType);
+    // Reset sub-asset type when asset type changes
+    this.inventoryForm.patchValue({ sub_asset_type: '' });
   }
 
-  // Handle video file selection
-  onVideoSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
-      if (!validTypes.includes(file.type)) {
-        this.toastr.error(
-          'Only MP4, AVI, MOV, and WMV videos are allowed',
-          'Invalid File'
-        );
-        event.target.value = '';
-        return;
-      }
-
-      if (file.size > 50 * 1024 * 1024) {
-        this.toastr.error(
-          'Video size should not exceed 50MB',
-          'File Too Large'
-        );
-        event.target.value = '';
-        return;
-      }
-
-      this.inventoryForm.patchValue({
-        inventory_video: file.name,
-        video_file: file,
-      });
-
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.inventoryForm.patchValue({ video_preview: e.target.result });
-      };
-      reader.readAsDataURL(file);
-    }
+  // Get shortened direction label for display
+  getDirectionLabel(direction: string): string {
+    if (direction.includes('Increasing')) return 'Inc';
+    if (direction.includes('Decreasing')) return 'Dec';
+    if (direction.includes('Median')) return 'Med';
+    return direction;
   }
 
-  // Remove image
-  removeImage(): void {
-    this.inventoryForm.patchValue({
-      inventory_image: '',
-      image_file: null,
-      image_preview: null,
-    });
+  // Get direction name for API
+  getDirectionForAPI(direction: string): string {
+    if (direction.includes('Increasing')) return 'Increasing';
+    if (direction.includes('Decreasing')) return 'Decreasing';
+    if (direction.includes('Median')) return 'Median';
+    return direction;
   }
 
-  // Remove video
-  removeVideo(): void {
-    this.inventoryForm.patchValue({
-      inventory_video: '',
-      video_file: null,
-      video_preview: null,
-    });
+  // Get current date in DD-MM-YYYY format
+  getCurrentDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${day}-${month}-${year}`;
   }
 
-  onSubmit(): void {
+  // Submit updated inventory to API
+  async submitToAPI(inventoryData: any): Promise<any> {
+    const apiUrl = '/api/append_inventory_excel/';
+
+    const apiBody = {
+      Project_Name: inventoryData.road_name,
+      Chainage_start: inventoryData.chainage_start,
+      Chainage_end: inventoryData.chainage_end,
+      Direction: this.getDirectionForAPI(inventoryData.direction),
+      Asset_type: inventoryData.asset_type,
+      Latitude: inventoryData.latitude,
+      Longitude: inventoryData.longitude,
+      Date: this.getCurrentDate(),
+      Sub_Asset_Type: inventoryData.sub_asset_type || '',
+      Carriage_Type: 'Flexible',
+      Lane: 'L2',
+      No_of_inventories: inventoryData.numbers_inventory || 0,
+    };
+
+    console.log('Updating via API:', apiBody);
+
+    return this.http.post(apiUrl, apiBody).toPromise();
+  }
+
+  async onSubmit(): Promise<void> {
     if (this.inventoryForm.invalid) {
       this.inventoryForm.markAllAsTouched();
       this.toastr.error('Please fill all required fields', 'Validation Error');
       return;
     }
 
-    // TESTING MODE: Update in localStorage
+    // Show loading toast
+    this.toastr.info('Updating inventory...', 'Please wait', {
+      timeOut: 0,
+      positionClass: 'toast-top-right',
+    });
+
+    const formValue = this.inventoryForm.value;
+
+    // Submit to API
+    let apiSuccess = false;
+    try {
+      await this.submitToAPI(formValue);
+      apiSuccess = true;
+      console.log('✅ API Update Success');
+    } catch (error) {
+      console.error('❌ API Update Failed:', error);
+    }
+
+    // Update in localStorage
     let testInventory = JSON.parse(
       localStorage.getItem('test_inventory') || '[]'
     );
-    const inventoryIndex = testInventory.findIndex(
+    const index = testInventory.findIndex(
       (inv: any) => inv.road_inventory_id === this.inventoryId
     );
 
-    if (inventoryIndex !== -1) {
-      // Update the inventory in localStorage
-      testInventory[inventoryIndex] = {
+    if (index !== -1) {
+      // Update existing item
+      testInventory[index] = {
+        ...testInventory[index],
+        ...formValue,
         road_inventory_id: this.inventoryId,
-        geometry_data_id: testInventory[inventoryIndex].geometry_data_id,
-        chainage_start: this.inventoryForm.get('chainage_start')?.value,
-        chainage_end: this.inventoryForm.get('chainage_end')?.value,
-        direction: this.inventoryForm.get('direction')?.value,
-        asset_action: this.inventoryForm.get('asset_action')?.value,
-        asset_type: this.inventoryForm.get('asset_type')?.value,
-        sub_asset_type: this.inventoryForm.get('sub_asset_type')?.value,
-        latitude: this.inventoryForm.get('latitude')?.value,
-        longitude: this.inventoryForm.get('longitude')?.value,
-        numbers_inventory:
-          this.inventoryForm.get('numbers_inventory')?.value || '',
-        inventory_image:
-          this.inventoryForm.get('image_file')?.value?.name ||
-          testInventory[inventoryIndex].inventory_image,
-        inventory_video:
-          this.inventoryForm.get('video_file')?.value?.name ||
-          testInventory[inventoryIndex].inventory_video,
-        created_on: testInventory[inventoryIndex].created_on,
+        geometry_data_id: this.inventoryData.geometry_data_id,
+        created_on: this.inventoryData.created_on,
       };
-
-      // Save back to localStorage
       localStorage.setItem('test_inventory', JSON.stringify(testInventory));
+      console.log('✅ Updated in localStorage');
+    }
 
-      // Reload the inventory details
-      this.loadInventoryDetails(this.inventoryId);
+    // Clear loading toast
+    this.toastr.clear();
 
-      this.toastr.success(
-        'Inventory updated successfully!',
-        'NHAI RAMS (Test Mode)',
-        {
-          timeOut: 3000,
-          positionClass: 'toast-top-right',
-        }
-      );
+    // Show success/error message
+    if (apiSuccess) {
+      this.toastr.success('Inventory updated successfully!', 'Success', {
+        timeOut: 3000,
+        positionClass: 'toast-top-right',
+      });
 
-      console.log(
-        'Inventory updated in localStorage:',
-        testInventory[inventoryIndex]
-      );
+      // Navigate back to inventory list
+      setTimeout(() => {
+        this.router.navigate([
+          '/ris/road-manage/road-inventory',
+          this.inventoryData.geometry_data_id,
+        ]);
+      }, 500);
     } else {
-      // Not found in localStorage, use API
-      this.toastr.warning(
-        'Inventory not found in localStorage. Using API...',
-        'NHAI RAMS',
+      this.toastr.error(
+        'Failed to update via API. Please try again.',
+        'Error',
         {
-          timeOut: 2000,
+          timeOut: 4000,
           positionClass: 'toast-top-right',
-        }
-      );
-
-      const formData = new FormData();
-
-      // Add all form fields
-      formData.append(
-        'chainage_start',
-        this.inventoryForm.get('chainage_start')?.value
-      );
-      formData.append(
-        'chainage_end',
-        this.inventoryForm.get('chainage_end')?.value
-      );
-      formData.append('direction', this.inventoryForm.get('direction')?.value);
-      formData.append(
-        'asset_action',
-        this.inventoryForm.get('asset_action')?.value
-      );
-      formData.append(
-        'asset_type',
-        this.inventoryForm.get('asset_type')?.value
-      );
-      formData.append(
-        'sub_asset_type',
-        this.inventoryForm.get('sub_asset_type')?.value
-      );
-      formData.append('latitude', this.inventoryForm.get('latitude')?.value);
-      formData.append('longitude', this.inventoryForm.get('longitude')?.value);
-      formData.append(
-        'numbers_inventory',
-        this.inventoryForm.get('numbers_inventory')?.value || ''
-      );
-
-      // Add image file if selected
-      const imageFile = this.inventoryForm.get('image_file')?.value;
-      if (imageFile) {
-        formData.append('inventory_image', imageFile, imageFile.name);
-      }
-
-      // Add video file if selected
-      const videoFile = this.inventoryForm.get('video_file')?.value;
-      if (videoFile) {
-        formData.append('inventory_video', videoFile, videoFile.name);
-      }
-
-      console.log('Submitting inventory update...');
-
-      this.roadService.updateInventory(formData, this.inventoryId).subscribe(
-        (res) => {
-          console.log(res);
-          if (res.status) {
-            this.loadInventoryDetails(this.inventoryId);
-            this.toastr.success(
-              res.msg || 'Inventory updated successfully',
-              'NHAI RAMS',
-              {
-                timeOut: 3000,
-                positionClass: 'toast-top-right',
-              }
-            );
-          } else {
-            this.toastr.error(
-              res.msg || 'Failed to update inventory',
-              'NHAI RAMS',
-              {
-                timeOut: 3000,
-                positionClass: 'toast-top-right',
-              }
-            );
-          }
-        },
-        (err) => {
-          this.toastr.error(err.msg || 'An error occurred', 'NHAI RAMS', {
-            timeOut: 3000,
-            positionClass: 'toast-top-right',
-          });
         }
       );
     }

@@ -1,7 +1,71 @@
-.form-label {
-    padding-left: 10px;
+.pdf-content {
+  background: white;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
 
-.page-title {
-    padding-left: 10px;
+.pdf-header {
+  border-bottom: 3px solid #667eea;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+
+  h2 {
+    color: #667eea;
+    font-weight: 700;
+    font-size: 32px;
+  }
+
+  h4 {
+    color: #555;
+    font-weight: 500;
+  }
+}
+
+.pdf-section {
+  margin-bottom: 30px;
+
+  .section-title {
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+
+    i {
+      font-size: 20px;
+    }
+  }
+
+  table {
+    margin-bottom: 0;
+
+    td {
+      padding: 12px;
+      vertical-align: middle;
+    }
+
+    .fw-semibold {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+    }
+  }
+}
+
+.pdf-footer {
+  border-top: 2px solid #ddd;
+  padding-top: 20px;
+  margin-top: 40px;
+
+  small {
+    font-size: 12px;
+  }
+}
+
+@media print {
+  .pdf-content {
+    border: none;
+    box-shadow: none;
+  }
 }
