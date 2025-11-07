@@ -1404,7 +1404,7 @@ export class HomeDashboardComponent implements OnInit {
           return {
             bituminous: { sum: 0, count: 0 },
             concrete: { sum: 0, count: 0 },
-            riIndex: { sum: 0, count: 0 },
+            riIndex: { sum: 0, count: 0, average: null },
             lengths: { bituminous: 0, concrete: 0 },
           };
         }
@@ -1480,7 +1480,14 @@ export class HomeDashboardComponent implements OnInit {
           return {
             bituminous: { sum: bituminousSum, count: bituminousCount },
             concrete: { sum: concreteSum, count: concreteCount },
-            riIndex: { sum: riIndexSum, count: riIndexCount },
+            riIndex: {
+              sum: riIndexSum,
+              count: riIndexCount,
+              average:
+                riIndexCount > 0
+                  ? riIndexSum / Math.max(riIndexCount, 1)
+                  : null,
+            },
             lengths: { bituminous: bituminousLength, concrete: concreteLength },
           };
         } catch (error) {
@@ -1488,12 +1495,17 @@ export class HomeDashboardComponent implements OnInit {
           return {
             bituminous: { sum: 0, count: 0 },
             concrete: { sum: 0, count: 0 },
-            riIndex: { sum: 0, count: 0 },
+            riIndex: { sum: 0, count: 0, average: null },
             lengths: { bituminous: 0, concrete: 0 },
           };
         }
       })
     );
+
+    const clampRi = (value: number): number => {
+      const clamped = Math.max(0, Math.min(16, value));
+      return Number.isFinite(clamped) ? clamped : 0;
+    };
 
     const totalBituminous = aggregates.reduce(
       (acc, entry) => ({
@@ -1527,6 +1539,18 @@ export class HomeDashboardComponent implements OnInit {
       { bituminous: 0, concrete: 0 }
     );
 
+    const roadAverages = aggregates
+      .map((entry) =>
+        entry.riIndex.average !== null ? clampRi(entry.riIndex.average) : null
+      )
+      .filter((value): value is number => value !== null);
+
+    const averagedRiIndex =
+      roadAverages.length > 0
+        ? roadAverages.reduce((acc, value) => acc + value, 0) /
+          roadAverages.length
+        : 0;
+
     return {
       averageBituminousRi:
         totalBituminous.count > 0
@@ -1535,7 +1559,7 @@ export class HomeDashboardComponent implements OnInit {
       averageConcreteRi:
         totalConcrete.count > 0 ? totalConcrete.sum / totalConcrete.count : 0,
       averageRiIndex:
-        totalRiIndex.count > 0 ? totalRiIndex.sum / totalRiIndex.count : 0,
+        totalRiIndex.count > 0 ? clampRi(averagedRiIndex) : clampRi(0),
       totalBituminousLength: totalLengths.bituminous,
       totalConcreteLength: totalLengths.concrete,
     };

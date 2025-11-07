@@ -27,7 +27,10 @@
                 <div class="system-metrics">
                   <div class="system-metric">
                     <span class="metric-label">Total Projects</span>
-                    <span class="metric-value pis-value-primary">
+                    <span
+                      class="metric-value pis-value-primary"
+                      style="padding-right: 25px"
+                    >
                       {{ totalPisProjects }}
                     </span>
                   </div>
@@ -107,7 +110,11 @@
                 <div class="system-metrics">
                   <div class="system-metric">
                     <span class="metric-label">Total Bridges</span>
-                    <span class="metric-value bis-value-primary">3</span>
+                    <span
+                      class="metric-value bis-value-primary"
+                      style="padding-right: 10px"
+                      >3</span
+                    >
                   </div>
                 </div>
               </ng-container>
@@ -118,7 +125,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/tis">
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/tis/tis-dashboard">
         <div class="card custom-card overflow-hidden system-card tis-card">
           <div class="card-body p-0">
             <div class="mb-2 p-3 pb-0">
@@ -143,7 +150,7 @@
         </div>
       </div>
 
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/ais">
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/ais/ais-dashboard">
         <div class="card custom-card overflow-hidden system-card ais-card">
           <div class="card-body p-0">
             <div class="mb-2 p-3 pb-0">
@@ -175,7 +182,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/pms">
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/pms/pms-dashboard">
         <div class="card custom-card overflow-hidden system-card pms-card">
           <div class="card-body p-0">
             <div class="mb-2 p-3 pb-0">
@@ -205,7 +212,10 @@
           </div>
         </div>
       </div>
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/rwfis">
+      <div
+        class="col-md-6 col-lg-3 col-xl-3"
+        routerLink="/rwfis/rwfis-dashboard"
+      >
         <div class="card custom-card overflow-hidden system-card rwfis-card">
           <div class="card-body p-0">
             <div class="mb-2 p-3 pb-0">
@@ -239,7 +249,7 @@
         </div>
       </div>
 
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/bis/bis-dashboard">
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/reports">
         <div class="card custom-card overflow-hidden system-card reports-card">
           <div class="card-body p-0">
             <div class="mb-2 p-3 pb-0">
@@ -248,16 +258,10 @@
             <div class="system-card-content px-3">
               <div class="system-metrics">
                 <div class="system-metric">
-                  <span class="metric-label">Inventory Reports</span>
-                  <span class="metric-value reports-value-primary">
-                    {{ reportSummary.inventoryReports | number : "1.0-0" }}
-                  </span>
+                  <span class="metric-label">Inventory</span>
                 </div>
                 <div class="system-metric">
-                  <span class="metric-label">Distress Reports</span>
-                  <span class="metric-value reports-value-secondary">
-                    {{ reportSummary.distressReports | number : "1.0-0" }}
-                  </span>
+                  <span class="metric-label">Distress</span>
                 </div>
               </div>
             </div>
