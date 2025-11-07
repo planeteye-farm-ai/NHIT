@@ -146,6 +146,12 @@
             <h3>Location wise AIS Distribution</h3>
           </div>
           <div class="map-wrapper">
+            <div class="section-loading-overlay" *ngIf="isLoading">
+              <div class="section-loading-content">
+                <div class="loading-spinner small"></div>
+                <p>Loading map data…</p>
+              </div>
+            </div>
             <div *ngIf="!filters.date" class="map-placeholder">
               <p>Select a date to view map data</p>
             </div>
@@ -179,6 +185,12 @@
             </button>
           </div>
           <div class="asset-grid mobile-grid">
+            <div class="section-loading-overlay" *ngIf="isLoading">
+              <div class="section-loading-content">
+                <div class="loading-spinner small"></div>
+                <p>Loading accident information…</p>
+              </div>
+            </div>
             <div *ngIf="!filters.date" class="asset-placeholder">
               <p>Select a date to view accident information</p>
             </div>

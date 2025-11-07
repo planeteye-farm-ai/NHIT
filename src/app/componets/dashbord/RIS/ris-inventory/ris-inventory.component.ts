@@ -835,26 +835,31 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async updateDashboard(skipComparisonChart: boolean = false) {
-    // Update asset summary based on current filters
-    this.calculateAssetSummary();
-
-    // Update chainage chart data based on current filters
-    this.generateChainageData();
-
-    // Reinitialize chart options with new data
-    this.initChartOptions();
-
-    // Force chart refresh to ensure tooltip works properly
-    this.refreshChart();
-
-    // Update map markers based on filtered data
-    if (this.map) {
-      await this.addInfrastructureMarkers();
-    }
-
-    // Update date comparison chart ONLY if needed (not during asset selection)
-    if (this.isBrowser && !skipComparisonChart) {
-      await this.prepareDateComparisonData();
+    this.isLoading = true;
+    try {
+      // Update asset summary based on current filters
+      this.calculateAssetSummary();
+ 
+      // Update chainage chart data based on current filters
+      this.generateChainageData();
+ 
+      // Reinitialize chart options with new data
+      this.initChartOptions();
+ 
+      // Force chart refresh to ensure tooltip works properly
+      this.refreshChart();
+ 
+      // Update map markers based on filtered data
+      if (this.map) {
+        await this.addInfrastructureMarkers();
+      }
+ 
+      // Update date comparison chart ONLY if needed (not during asset selection)
+      if (this.isBrowser && !skipComparisonChart) {
+        await this.prepareDateComparisonData();
+      }
+    } finally {
+      this.isLoading = false;
     }
   }
 

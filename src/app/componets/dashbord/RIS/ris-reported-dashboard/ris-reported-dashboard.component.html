@@ -127,6 +127,12 @@
             </button>
           </div>
           <div class="map-wrapper">
+            <div class="section-loading-overlay" *ngIf="isLoading">
+              <div class="section-loading-content">
+                <div class="loading-spinner small"></div>
+                <p>Loading map data…</p>
+              </div>
+            </div>
             <div *ngIf="!filters.date" class="map-placeholder">
               <p>Select a date to view map data</p>
             </div>
@@ -143,7 +149,7 @@
       <div class="right-panel" [class.sidebar-open]="isSidebarOpen">
         <div class="asset-summary">
           <div class="asset-summary-header">
-            <h3>Distress Summary ({{ distressSummary.length }} Types)</h3>
+            <h3>Distress Summary</h3>
             <div class="header-buttons">
               <button 
                 class="month-comparison-toggle"
@@ -167,6 +173,12 @@
             </div>
           </div>
           <div class="asset-grid mobile-grid">
+            <div class="section-loading-overlay" *ngIf="isLoading">
+              <div class="section-loading-content">
+                <div class="loading-spinner small"></div>
+                <p>Loading distress data…</p>
+              </div>
+            </div>
             <div *ngIf="!filters.date" class="asset-placeholder">
               <p>Select a date to view distress data</p>
             </div>

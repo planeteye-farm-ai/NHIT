@@ -37,6 +37,14 @@ export class SidebarComponent {
     // console.log("access type",this.access_type)
   }
 
+  private closeSidebarOnMobile(): void {
+    if (typeof window !== 'undefined' && window.innerWidth <= 992) {
+      const html = this.elementRef.nativeElement.ownerDocument.documentElement;
+      html?.setAttribute('data-toggled', 'close');
+      html?.removeAttribute('data-icon-overlay');
+    }
+  }
+
   clearNavDropdown() {
     this.menuItems?.forEach((a: any) => {
       a.active = false;
@@ -75,6 +83,7 @@ export class SidebarComponent {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.setNavActive(null, this.router.url);
+        this.closeSidebarOnMobile();
       }
     });
 
@@ -106,6 +115,7 @@ export class SidebarComponent {
           item.active = true;
           item.selected = true;
           this.setMenuAncestorsActive(item);
+          this.closeSidebarOnMobile();
         } else if (!item.active && !item.selected) {
           item.active = false; // Set active to false for items not matching the target
           item.selected = false; // Set active to false for items not matching the target

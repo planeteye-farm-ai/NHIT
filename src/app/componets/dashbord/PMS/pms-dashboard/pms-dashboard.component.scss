@@ -1382,18 +1382,13 @@
     gap: 6px;
   }
   
-  /* Make chainage range span both columns - REMOVED, now side by side with Lane */
-  /* .filter-group.chainage-range-group {
-    grid-column: 1 / -1;
-    min-width: auto;
-    max-width: none;
-  } */
-  
+  /* Make chainage range span both columns for mobile */
   .filter-group.chainage-range-group {
     display: flex;
     flex-direction: column;
     min-width: auto;
     max-width: none;
+    grid-column: 1 / -1;
   }
   
   .filter-group label {
@@ -1409,8 +1404,9 @@
   }
   
   .chainage-inputs {
-    flex-direction: column;
+    flex-direction: row;
     gap: 6px;
+    width: 100%;
   }
   
   .chainage-input {
@@ -1426,6 +1422,7 @@
   
   .chainage-slider-container {
     height: 30px;
+    width: 100%;
   }
 }
 
@@ -1465,6 +1462,10 @@
     text-overflow: unset;
   }
   
+  .filter-group.chainage-range-group {
+    grid-column: 1 / -1;
+  }
+  
   .chainage-input {
     padding: 8px 10px;
     font-size: 11px;
@@ -1477,6 +1478,7 @@
   
   .chainage-slider-container {
     height: 28px;
+    width: 100%;
   }
 }
 
@@ -1497,10 +1499,17 @@
   .filter-group {
     padding: 6px;
     gap: 2px;
+    min-width: 100%;
+    max-width: 100%;
+  }
+  
+  .filter-group.chainage-range-group {
+    grid-column: 1 / -1;
   }
   
   .filter-group label {
     font-size: 9px;
+    letter-spacing: 0.2px;
     margin-bottom: 2px;
   }
   
@@ -1518,12 +1527,8 @@
   }
   
   .chainage-slider-container {
-    height: 24px;
-  }
-  
-  .right-panel .asset-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
+    height: 26px;
+    width: 100%;
   }
 }
 
@@ -1607,7 +1612,7 @@
   }
   
   .chainage-inputs {
-    flex-direction: column;
+    flex-direction: row;
     gap: 6px;
   }
   
@@ -2572,5 +2577,123 @@
   .comparison-echarts-chart {
     height: 350px;
   }
+}
+
+.filter-group.chainage-range-group {
+  display: flex;
+  flex-direction: column;
+  min-width: auto;
+  max-width: none;
+  grid-column: 1 / -1;
+  justify-self: stretch;
+  align-self: stretch;
+  width: 100%;
+}
+
+.chainage-inputs {
+  flex-direction: row;
+  gap: 6px;
+  width: 100%;
+}
+
+.chainage-slider-container {
+  height: 30px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.chainage-slider-container .chainage-slider {
+  flex: 1;
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .filter-group.chainage-range-group {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .chainage-inputs {
+    flex-direction: row;
+    gap: 6px;
+    width: 100%;
+  }
+  
+  .chainage-slider-container {
+    height: 28px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  
+  .chainage-slider-container .chainage-slider {
+    flex: 1;
+    width: 100%;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+  .filter-group.chainage-range-group {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .chainage-inputs {
+    flex-direction: row;
+    gap: 6px;
+    width: 100%;
+  }
+  
+  .chainage-slider-container {
+    height: 26px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  
+  .chainage-slider-container .chainage-slider {
+    flex: 1;
+    width: 100%;
+  }
+}
+
+.map-wrapper,
+.asset-grid {
+  position: relative;
+}
+
+.section-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 19, 30, 0.78);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  pointer-events: all;
+}
+
+.section-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.loading-spinner.small {
+  width: 36px;
+  height: 36px;
+  border-width: 4px;
 }
 

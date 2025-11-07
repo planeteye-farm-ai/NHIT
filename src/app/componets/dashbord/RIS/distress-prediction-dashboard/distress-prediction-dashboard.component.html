@@ -134,6 +134,12 @@
             </button>
           </div>
           <div class="map-wrapper">
+            <div class="section-loading-overlay" *ngIf="isLoading">
+              <div class="section-loading-content">
+                <div class="loading-spinner small"></div>
+                <p>Loading map data…</p>
+              </div>
+            </div>
             <div *ngIf="!filters.date" class="map-placeholder">
               <p>Select a date to view map data</p>
             </div>
@@ -156,6 +162,12 @@
       <!-- Right Panel (30% width) -->
       <div class="right-panel">
         <div class="asset-summary">
+          <div class="section-loading-overlay" *ngIf="isLoading">
+            <div class="section-loading-content">
+              <div class="loading-spinner small"></div>
+              <p>Loading distress data…</p>
+            </div>
+          </div>
           <div class="asset-summary-header">
             <h3>Predicted Distress Summary</h3>
             <button 

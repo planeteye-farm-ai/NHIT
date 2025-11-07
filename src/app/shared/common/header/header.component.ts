@@ -1,6 +1,7 @@
 import {
   Component,
   ElementRef,
+  HostListener,
   OnInit,
   Renderer2,
   inject,
@@ -78,6 +79,19 @@ export class HeaderComponent implements OnInit {
   }
   toggleSidebar() {
     let html = this.elementRef.nativeElement.ownerDocument.documentElement;
+
+    if (window.innerWidth <= 992) {
+      const currentState = html?.getAttribute('data-toggled');
+      const nextState = currentState === 'open' ? 'close' : 'open';
+      if (nextState === 'close') {
+        html?.setAttribute('data-toggled', 'close');
+      } else {
+        html?.setAttribute('data-toggled', 'open');
+      }
+      html?.removeAttribute('data-icon-overlay');
+      return;
+    }
+
     if (html?.getAttribute('data-toggled') == 'true') {
       document.querySelector('html')?.getAttribute('data-toggled') ==
         'icon-overlay-close';
@@ -151,13 +165,6 @@ export class HeaderComponent implements OnInit {
           document.querySelector('.slide.open')?.classList.contains('has-sub')
           ? 'double-menu-open'
           : 'double-menu-close'
-      );
-    }
-
-    if (window.innerWidth <= 992) {
-      html?.setAttribute(
-        'data-toggled',
-        html?.getAttribute('data-toggled') == 'open' ? 'close' : 'open'
       );
     }
   }
@@ -401,5 +408,33 @@ export class HeaderComponent implements OnInit {
     localStorage.clear();
     sessionStorage.clear();
     this.router.navigate(['/auth/login']);
+  }
+
+  @HostListener('document:click', ['$event'])
+  handleDocumentClick(event: MouseEvent): void {
+    if (window.innerWidth > 992) {
+      return;
+    }
+
+    const html = this.elementRef.nativeElement.ownerDocument.documentElement;
+    if (html?.getAttribute('data-toggled') !== 'open') {
+      return;
+    }
+
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+
+    if (target.closest('.app-sidebar')) {
+      return;
+    }
+
+    if (target.closest('.horizontal-navtoggle')) {
+      return;
+    }
+
+    html?.setAttribute('data-toggled', 'close');
+    html?.removeAttribute('data-icon-overlay');
   }
 }
