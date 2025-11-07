@@ -1527,8 +1527,8 @@ export class RisReportedDashboardComponent
     // Generate series data for each selected distress
     const series: any[] = [];
 
-    console.log('ðŸ” Generating chart for distresses:', this.selectedDistressesForComparison);
-    console.log('ðŸ” Chainage range:', chainageMin, 'to', chainageMax);
+    console.log('ðŸ" Generating chart for distresses:', this.selectedDistressesForComparison);
+    console.log('ðŸ" Chainage range:', chainageMin, 'to', chainageMax);
 
     this.selectedDistressesForComparison.forEach(distressName => {
       const distressColor = this.distressSummary.find(d => d.name === distressName)?.color || '#4CAF50';
@@ -1548,7 +1548,7 @@ export class RisReportedDashboardComponent
       });
 
       const totalCount = binData.reduce((sum, val) => sum + val, 0);
-      console.log(`ðŸ“Š ${distressName}: Total count = ${totalCount}, Color = ${distressColor}`);
+      console.log(`ðŸ" ${distressName}: Total count = ${totalCount}, Color = ${distressColor}`);
 
       series.push({
         name: distressName,
@@ -1577,12 +1577,70 @@ export class RisReportedDashboardComponent
       });
     });
 
-    console.log('ðŸ“ˆ Generated series count:', series.length);
+    console.log('ðŸˆ Generated series count:', series.length);
 
     // Generate X-axis labels
     const xAxisLabels = chainageBins.slice(0, binCount).map(chainage => 
       chainage.toFixed(2)
     );
+
+    const insideDataZoom = isTabletOrSmaller ? {
+      type: 'inside',
+      yAxisIndex: 0,
+      start: 0,
+      end: 100,
+      moveOnMouseWheel: true,
+      moveOnMouseMove: true
+    } : {
+      type: 'inside',
+      start: 0,
+      end: 100
+    };
+
+    const sliderDataZoom = isTabletOrSmaller ? {
+      type: 'slider',
+      yAxisIndex: 0,
+      orient: 'vertical',
+      left: isMobileView ? '4%' : '2%',
+      top: isMobileView ? '24%' : '18%',
+      bottom: isMobileView ? '18%' : '14%',
+      width: isMobileView ? 16 : 18,
+      start: 0,
+      end: 100,
+      borderColor: '#667eea',
+      backgroundColor: 'rgba(102, 126, 234, 0.15)',
+      fillerColor: 'rgba(102, 126, 234, 0.35)',
+      handleIcon: 'path://M2,0 L2,8 L6,4 Z',
+      handleSize: '120%',
+      handleStyle: {
+        color: '#ffffff',
+        borderColor: '#667eea',
+        borderWidth: 1,
+        shadowBlur: 6,
+        shadowColor: 'rgba(102, 126, 234, 0.6)'
+      },
+      moveHandleStyle: {
+        color: '#ffffff',
+        borderColor: '#667eea'
+      },
+      brushSelect: false,
+      showDetail: false,
+      filterMode: 'filter'
+    } : {
+      type: 'slider',
+      start: 0,
+      end: 100,
+      height: 20,
+      bottom: 5,
+      borderColor: '#667eea',
+      fillerColor: 'rgba(102, 126, 234, 0.3)',
+      handleStyle: {
+        color: '#667eea'
+      },
+      textStyle: {
+        color: '#fff'
+      }
+    };
 
     // Configure chart options
     this.chainageComparisonChartOptions = Object.assign({}, {
@@ -1619,7 +1677,7 @@ export class RisReportedDashboardComponent
           if (!params || params.length === 0) return '';
           
           let tooltip = `<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #667eea;">
-            ðŸ“ ${params[0].axisValue}
+            ðŸ" ${params[0].axisValue}
           </div>`;
           
           const sortedParams = params.sort((a: any, b: any) => b.value - a.value);
@@ -1653,8 +1711,8 @@ export class RisReportedDashboardComponent
         inactiveColor: 'rgba(255, 255, 255, 0.3)'
       },
       grid: {
-        left: isTabletOrSmaller ? (isMobileView ? '15%' : '10%') : '3%',
-        right: isTabletOrSmaller ? (isMobileView ? '8%' : '15%') : '4%',
+        left: isTabletOrSmaller ? (isMobileView ? '24%' : '18%') : '3%',
+        right: isTabletOrSmaller ? (isMobileView ? '8%' : '12%') : '4%',
         bottom: isTabletOrSmaller ? (isMobileView ? '12%' : '10%') : '15%',
         top: isTabletOrSmaller ? (isMobileView ? '25%' : '15%') : '20%',
         containLabel: true
@@ -1802,26 +1860,8 @@ export class RisReportedDashboardComponent
       animationEasing: 'cubicOut',
       animationDelay: (idx: number) => idx * 50,
       dataZoom: [
-        {
-          type: 'inside',
-          start: 0,
-          end: 100
-        },
-        {
-          type: 'slider',
-          start: 0,
-          end: 100,
-          height: 20,
-          bottom: 5,
-          borderColor: '#667eea',
-          fillerColor: 'rgba(102, 126, 234, 0.3)',
-          handleStyle: {
-            color: '#667eea'
-          },
-          textStyle: {
-            color: '#fff'
-          }
-        }
+        insideDataZoom,
+        sliderDataZoom
       ],
       toolbox: {
         feature: {
@@ -2856,7 +2896,7 @@ export class RisReportedDashboardComponent
           distress_type: ['All'],
         };
 
-        console.log(`ðŸ“¥ Preloading data for month ${month}, request:`, requestBody);
+        console.log(`ðŸ" Preloading data for month ${month}, request:`, requestBody);
 
         try {
           const response = await fetch(
@@ -2872,7 +2912,7 @@ export class RisReportedDashboardComponent
           );
 
           const apiResponse = await response.json();
-          console.log(`ðŸ“¥ API response for ${month}:`, apiResponse);
+          console.log(`ðŸ" API response for ${month}:`, apiResponse);
           const monthData = Array.isArray(apiResponse) ? apiResponse.flat() : [];
           
           this.monthDataCache[monthCacheKey] = monthData;
@@ -3103,7 +3143,7 @@ export class RisReportedDashboardComponent
     
     // Ensure data is loaded
     if (Object.keys(this.monthDataCache).length === 0) {
-      console.log('ðŸ“¥ Cache is empty, preloading month data first...');
+      console.log('ðŸ" Cache is empty, preloading month data first...');
       await this.preloadMonthData();
     }
     
@@ -3210,7 +3250,7 @@ export class RisReportedDashboardComponent
         const distressColor = this.getDistressColor(distressName);
         const monthData: number[] = [];
         
-        console.log(`ðŸ“Š Processing distress: ${distressName}`);
+        console.log(`ðŸ" Processing distress: ${distressName}`);
         
         this.availableMonthsForComparison.forEach(month => {
           const data = monthDataMap[month] || [];
@@ -3236,7 +3276,7 @@ export class RisReportedDashboardComponent
           monthData.push(totalCount);
         });
 
-        console.log(`ðŸ“Š Final data for ${distressName}:`, monthData);
+        console.log(`ðŸ" Final data for ${distressName}:`, monthData);
 
         series.push({
           name: distressName,
@@ -3249,8 +3289,8 @@ export class RisReportedDashboardComponent
         });
       });
 
-      console.log('ðŸ“ˆ Generated series:', series);
-      console.log(`ðŸ“ˆ Series count: ${series.length}`);
+      console.log('ðŸˆ Generated series:', series);
+      console.log(`ðŸˆ Series count: ${series.length}`);
       
       const isMobileView = window.innerWidth <= 768;
 

@@ -3090,6 +3090,64 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       chainage.toFixed(2) 
     );
 
+    const insideDataZoom = isTabletOrSmaller ? {
+      type: 'inside',
+      yAxisIndex: 0,
+      start: 0,
+      end: 100,
+      moveOnMouseWheel: true,
+      moveOnMouseMove: true
+    } : {
+      type: 'inside',
+      start: 0,
+      end: 100
+    };
+
+    const sliderDataZoom = isTabletOrSmaller ? {
+      type: 'slider',
+      yAxisIndex: 0,
+      orient: 'vertical',
+      left: isMobileView ? '4%' : '2%',
+      top: isMobileView ? '24%' : '18%',
+      bottom: isMobileView ? '18%' : '14%',
+      width: isMobileView ? 16 : 18,
+      start: 0,
+      end: 100,
+      borderColor: '#667eea',
+      backgroundColor: 'rgba(102, 126, 234, 0.15)',
+      fillerColor: 'rgba(102, 126, 234, 0.35)',
+      handleIcon: 'path://M2,0 L2,8 L6,4 Z',
+      handleSize: '120%',
+      handleStyle: {
+        color: '#ffffff',
+        borderColor: '#667eea',
+        borderWidth: 1,
+        shadowBlur: 6,
+        shadowColor: 'rgba(102, 126, 234, 0.6)'
+      },
+      moveHandleStyle: {
+        color: '#ffffff',
+        borderColor: '#667eea'
+      },
+      brushSelect: false,
+      showDetail: false,
+      filterMode: 'filter'
+    } : {
+      type: 'slider',
+      start: 0,
+      end: 100,
+      height: 20,
+      bottom: 5,
+      borderColor: '#667eea',
+      fillerColor: 'rgba(102, 126, 234, 0.3)',
+      handleStyle: {
+        color: '#667eea'
+      },
+      textStyle: {
+        color: '#fff'
+      }
+    };
+
     // Configure chart options (create new object to trigger change detection)
     this.chainageComparisonChartOptions = Object.assign({}, {
       title: {
@@ -3160,8 +3218,8 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
         inactiveColor: 'rgba(255, 255, 255, 0.3)'
       },
       grid: {
-        left: isTabletOrSmaller ? (isMobileView ? '15%' : '10%') : '3%',
-        right: isTabletOrSmaller ? (isMobileView ? '8%' : '15%') : '4%',
+        left: isTabletOrSmaller ? (isMobileView ? '24%' : '18%') : '3%',
+        right: isTabletOrSmaller ? (isMobileView ? '8%' : '12%') : '4%',
         bottom: isTabletOrSmaller ? (isMobileView ? '12%' : '10%') : '15%',
         top: isTabletOrSmaller ? (isMobileView ? '25%' : '15%') : '20%',
         containLabel: true
@@ -3309,26 +3367,8 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       animationEasing: 'cubicOut',
       animationDelay: (idx: number) => idx * 50, // Stagger animation for each bar
       dataZoom: [
-        {
-          type: 'inside', // Allow zooming with mouse wheel
-          start: 0,
-          end: 100
-        },
-        {
-          type: 'slider', // Show zoom slider at bottom
-          start: 0,
-          end: 100,
-          height: 20,
-          bottom: 5,
-          borderColor: '#667eea',
-          fillerColor: 'rgba(102, 126, 234, 0.3)',
-          handleStyle: {
-            color: '#667eea'
-          },
-          textStyle: {
-            color: '#fff'
-          }
-        }
+        insideDataZoom,
+        sliderDataZoom
       ],
       toolbox: {
         feature: {
