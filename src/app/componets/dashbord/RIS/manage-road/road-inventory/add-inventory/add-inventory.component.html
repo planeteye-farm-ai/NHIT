@@ -116,7 +116,7 @@
               (click)="onAssetCardClick(asset.name)"
             >
               <div class="asset-icon" [style.background-color]="asset.color">
-                <i class="ri-building-line"></i>
+                <i [class]="getAssetIconClass(asset.name)"></i>
               </div>
               <div class="asset-info">
                 <div class="asset-name">{{ asset.name }}</div>

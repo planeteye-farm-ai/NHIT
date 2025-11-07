@@ -47,29 +47,129 @@ export class AddRigidDistressComponent {
   directionOptions = ['Increasing (LHS)', 'Decreasing (RHS)', 'Median'];
   selectedDirection: string = '';
 
-  // Distress Types with colors for cards
-  distressTypes = [
-    { name: 'Bleeding or Fatty Surface', color: '#E91E63' },
-    { name: 'Smooth Surface', color: '#9C27B0' },
-    { name: 'Streaking', color: '#673AB7' },
-    { name: 'Hungry Surface', color: '#3F51B5' },
-    { name: 'Hairline Cracks', color: '#2196F3' },
-    { name: 'Alligator & Map Cracking', color: '#00BCD4' },
-    { name: 'Longitudinal Cracking', color: '#009688' },
-    { name: 'Transverse Cracks', color: '#4CAF50' },
-    { name: 'Edge Cracking', color: '#8BC34A' },
-    { name: 'Reflection Cracking', color: '#CDDC39' },
-    { name: 'Slippage', color: '#FFEB3B' },
-    { name: 'Rutting', color: '#FFC107' },
-    { name: 'Corrugation', color: '#FF9800' },
-    { name: 'Shoving', color: '#FF5722' },
-    { name: 'Shallow Depression', color: '#795548' },
-    { name: 'Settlements and Upheaval', color: '#9E9E9E' },
-    { name: 'Stripping', color: '#607D8B' },
-    { name: 'Ravelling', color: '#F44336' },
-    { name: 'Potholes', color: '#E91E63' },
-    { name: 'Edge Breaking', color: '#9C27B0' },
+  // Distress Types with icons & colors (aligned with Distress Reported dashboard)
+  private distressTypeOrder: string[] = [
+    'Bleeding or Fatty Surface',
+    'Smooth Surface',
+    'Streaking',
+    'Hungry Surface',
+    'Hairline Cracks',
+    'Alligator & Map Cracking',
+    'Longitudinal Cracking',
+    'Transverse Cracks',
+    'Edge Cracking',
+    'Reflection Cracking',
+    'Slippage',
+    'Rutting',
+    'Corrugation',
+    'Shoving',
+    'Shallow Depression',
+    'Settlements and Upheaval',
+    'Stripping',
+    'Ravelling',
+    'Potholes',
+    'Edge Breaking',
   ];
+
+  private distressStyleMap: { [key: string]: { icon: string; color: string } } =
+    {
+      'Bleeding or Fatty Surface': {
+        icon: 'fa-solid fa-droplet',
+        color: '#E91E63',
+      },
+      'Smooth Surface': {
+        icon: 'fa-solid fa-grip-lines',
+        color: '#9C27B0',
+      },
+      Streaking: {
+        icon: 'fa-solid fa-grip-lines-vertical',
+        color: '#673AB7',
+      },
+      'Hungry Surface': {
+        icon: 'fa-solid fa-warehouse',
+        color: '#3F51B5',
+      },
+      'Hairline Cracks': {
+        icon: 'fa-solid fa-minus',
+        color: '#2196F3',
+      },
+      'Alligator & Map Cracking': {
+        icon: 'fa-solid fa-wave-square',
+        color: '#00BCD4',
+      },
+      'Longitudinal Cracking': {
+        icon: 'fa-solid fa-arrows-up-down',
+        color: '#009688',
+      },
+      'Transverse Cracks': {
+        icon: 'fa-solid fa-arrows-left-right',
+        color: '#4CAF50',
+      },
+      'Edge Cracking': {
+        icon: 'fa-solid fa-divide',
+        color: '#8BC34A',
+      },
+      'Reflection Cracking': {
+        icon: 'fa-solid fa-link-slash',
+        color: '#CDDC39',
+      },
+      Slippage: {
+        icon: 'fa-solid fa-person-skiing',
+        color: '#FFEB3B',
+      },
+      Rutting: {
+        icon: 'fa-solid fa-road',
+        color: '#FFC107',
+      },
+      Corrugation: {
+        icon: 'fa-solid fa-wave-square',
+        color: '#FF9800',
+      },
+      Shoving: {
+        icon: 'fa-solid fa-left-right',
+        color: '#FF5722',
+      },
+      'Shallow Depression': {
+        icon: 'fa-solid fa-arrow-down',
+        color: '#795548',
+      },
+      'Settlements and Upheaval': {
+        icon: 'fa-solid fa-chart-line',
+        color: '#9E9E9E',
+      },
+      Stripping: {
+        icon: 'fa-solid fa-layer-group',
+        color: '#607D8B',
+      },
+      Ravelling: {
+        icon: 'fa-solid fa-hands',
+        color: '#F44336',
+      },
+      Potholes: {
+        icon: 'fa-solid fa-circle',
+        color: '#E91E63',
+      },
+      'Edge Breaking': {
+        icon: 'fa-solid fa-divide',
+        color: '#9C27B0',
+      },
+    };
+
+  distressTypes = this.distressTypeOrder.map((name) => ({
+    name,
+    color: this.getDistressIconColor(name),
+  }));
+
+  private getDistressIconColor(distressName: string): string {
+    return this.distressStyleMap[distressName]?.color || '#6c5ce7';
+  }
+
+  getDistressIconClass(distressName: string): string {
+    return (
+      this.distressStyleMap[distressName]?.icon ||
+      'fa-solid fa-triangle-exclamation'
+    );
+  }
 
   selectedDistressType: string = '';
 

@@ -86,6 +86,37 @@ export class AddInventoryComponent {
     { name: 'Tunnels', color: '#607D8B' },
   ];
 
+  private assetIconMap: { [key: string]: string } = {
+    Trees: 'fa-solid fa-tree',
+    'Adjacent Road': 'fa-solid fa-road',
+    'Sign Boards': 'fa-solid fa-sign-hanging',
+    Culvert: 'fa-solid fa-bridge-water',
+    'Toll Plaza': 'fa-solid fa-building',
+    'Bus Stop': 'fa-solid fa-bus',
+    'Crash Barrier': 'fa-solid fa-triangle-exclamation',
+    'Emergency Call Box': 'fa-solid fa-phone',
+    'KM Stones': 'fa-solid fa-map-pin',
+    'Street Lights': 'fa-solid fa-lightbulb',
+    'Truck LayBy': 'fa-solid fa-truck',
+    'Service Road': 'fa-solid fa-route',
+    Junction: 'fa-solid fa-arrows-split-up-and-left',
+    'Fuel Station': 'fa-solid fa-gas-pump',
+    'Toilet Blocks': 'fa-solid fa-restroom',
+    'RCC Drain': 'fa-solid fa-water',
+    'Solar Blinker': 'fa-solid fa-sun',
+    'Median Opening': 'fa-solid fa-arrows-left-right',
+    Bridges: 'fa-solid fa-bridge',
+    Footpath: 'fa-solid fa-person-walking',
+    'Median Plants': 'fa-solid fa-seedling',
+    'Rest Area': 'fa-solid fa-bed',
+    'Traffic Signals': 'fa-solid fa-traffic-light',
+    Tunnels: 'fa-solid fa-mountain',
+  };
+
+  getAssetIconClass(assetName: string): string {
+    return this.assetIconMap[assetName] || 'fa-solid fa-location-dot';
+  }
+
   selectedAsset: string = '';
   selectedSubAssets: string[] = []; // Changed to array for multi-selection
 
