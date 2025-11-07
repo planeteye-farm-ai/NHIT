@@ -461,14 +461,14 @@ export class AddInventoryComponent {
         }
       );
     } else {
-      // Check localStorage first
-      const testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
-      const testRoad = testRoads.find(
-        (r: any) => r.geometry_data_id === this.roadId
-      );
+    // Check localStorage first
+    const testRoads = JSON.parse(localStorage.getItem('test_roads') || '[]');
+    const testRoad = testRoads.find(
+      (r: any) => r.geometry_data_id === this.roadId
+    );
 
-      if (testRoad) {
-        this.roadName = testRoad.name_of_road;
+    if (testRoad) {
+      this.roadName = testRoad.name_of_road;
         this.selectedRoadName = this.roadName;
         this.selectedRoad = testRoad;
         // Auto-populate chainage from road data
@@ -481,19 +481,19 @@ export class AddInventoryComponent {
           chainage_end: this.chainageEnd,
         });
 
-        console.log('Road name loaded from localStorage:', this.roadName);
+      console.log('Road name loaded from localStorage:', this.roadName);
         console.log(
           'Chainage Start:',
           this.chainageStart,
           'Chainage End:',
           this.chainageEnd
         );
-      } else {
-        // Fallback to API
-        this.roadService.getDetailsById(this.roadId).subscribe(
-          (res) => {
-            if (res && res.data && res.data.length > 0) {
-              this.roadName = res.data[0].name_of_road;
+    } else {
+      // Fallback to API
+      this.roadService.getDetailsById(this.roadId).subscribe(
+        (res) => {
+          if (res && res.data && res.data.length > 0) {
+            this.roadName = res.data[0].name_of_road;
               this.selectedRoadName = this.roadName;
               this.selectedRoad = res.data[0];
               this.chainageStart = Number(res.data[0].chainage_start) || 0;
@@ -512,12 +512,12 @@ export class AddInventoryComponent {
                 'Chainage End:',
                 this.chainageEnd
               );
-            }
-          },
-          (err) => {
-            console.log('Failed to load road name', err);
           }
-        );
+        },
+        (err) => {
+          console.log('Failed to load road name', err);
+        }
+      );
       }
     }
   }
@@ -803,55 +803,55 @@ export class AddInventoryComponent {
 
   // Process Image File
   processImageFile(file: File): void {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
       this.toastr.error('Only JPG and PNG images are allowed', 'Invalid File');
-      return;
-    }
+        return;
+      }
 
-    if (file.size > 5 * 1024 * 1024) {
-      this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
-      return;
-    }
+      if (file.size > 5 * 1024 * 1024) {
+        this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
+        return;
+      }
 
-    this.inventoryForm.patchValue({
-      inventory_image: file.name,
-      image_file: file,
-    });
+      this.inventoryForm.patchValue({
+        inventory_image: file.name,
+        image_file: file,
+      });
 
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.inventoryForm.patchValue({ image_preview: e.target.result });
-    };
-    reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.inventoryForm.patchValue({ image_preview: e.target.result });
+      };
+      reader.readAsDataURL(file);
   }
 
   // Process Video File
   processVideoFile(file: File): void {
-    const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
-    if (!validTypes.includes(file.type)) {
-      this.toastr.error(
-        'Only MP4, AVI, MOV, and WMV videos are allowed',
-        'Invalid File'
-      );
-      return;
-    }
+      const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
+      if (!validTypes.includes(file.type)) {
+        this.toastr.error(
+          'Only MP4, AVI, MOV, and WMV videos are allowed',
+          'Invalid File'
+        );
+        return;
+      }
 
-    if (file.size > 50 * 1024 * 1024) {
+      if (file.size > 50 * 1024 * 1024) {
       this.toastr.error('Video size should not exceed 50MB', 'File Too Large');
-      return;
-    }
+        return;
+      }
 
-    this.inventoryForm.patchValue({
-      inventory_video: file.name,
-      video_file: file,
-    });
+      this.inventoryForm.patchValue({
+        inventory_video: file.name,
+        video_file: file,
+      });
 
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.inventoryForm.patchValue({ video_preview: e.target.result });
-    };
-    reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.inventoryForm.patchValue({ video_preview: e.target.result });
+      };
+      reader.readAsDataURL(file);
   }
 
   // Update sub asset types when asset type changes
@@ -1265,40 +1265,40 @@ export class AddInventoryComponent {
       console.log('✅ API Success');
 
       // Save to localStorage after successful API submission (for viewing in table)
-      let existingInventory = JSON.parse(
-        localStorage.getItem('test_inventory') || '[]'
-      );
+    let existingInventory = JSON.parse(
+      localStorage.getItem('test_inventory') || '[]'
+    );
 
-      const mockId =
-        existingInventory.length > 0
-          ? Math.max(
-              ...existingInventory.map((inv: any) => inv.road_inventory_id)
-            ) + 1
-          : 1;
+    const mockId =
+      existingInventory.length > 0
+        ? Math.max(
+            ...existingInventory.map((inv: any) => inv.road_inventory_id)
+          ) + 1
+        : 1;
 
-      const inventoryObj = {
-        road_inventory_id: mockId,
-        geometry_data_id: this.inventoryForm.get('geometry_data_id')?.value,
+    const inventoryObj = {
+      road_inventory_id: mockId,
+      geometry_data_id: this.inventoryForm.get('geometry_data_id')?.value,
         road_name: this.selectedRoadName || this.roadName,
-        chainage_start: this.inventoryForm.get('chainage_start')?.value,
-        chainage_end: this.inventoryForm.get('chainage_end')?.value,
-        direction: this.inventoryForm.get('direction')?.value,
-        asset_action: this.inventoryForm.get('asset_action')?.value,
-        asset_type: this.inventoryForm.get('asset_type')?.value,
-        sub_asset_type: this.inventoryForm.get('sub_asset_type')?.value,
-        latitude: this.inventoryForm.get('latitude')?.value,
-        longitude: this.inventoryForm.get('longitude')?.value,
-        numbers_inventory:
+      chainage_start: this.inventoryForm.get('chainage_start')?.value,
+      chainage_end: this.inventoryForm.get('chainage_end')?.value,
+      direction: this.inventoryForm.get('direction')?.value,
+      asset_action: this.inventoryForm.get('asset_action')?.value,
+      asset_type: this.inventoryForm.get('asset_type')?.value,
+      sub_asset_type: this.inventoryForm.get('sub_asset_type')?.value,
+      latitude: this.inventoryForm.get('latitude')?.value,
+      longitude: this.inventoryForm.get('longitude')?.value,
+      numbers_inventory:
           this.inventoryForm.get('numbers_inventory')?.value || 0,
         inventory_image:
           this.inventoryForm.get('image_file')?.value?.name || '',
         inventory_video:
           this.inventoryForm.get('video_file')?.value?.name || '',
-        created_on: new Date().toISOString(),
-      };
+      created_on: new Date().toISOString(),
+    };
 
-      existingInventory.push(inventoryObj);
-      localStorage.setItem('test_inventory', JSON.stringify(existingInventory));
+    existingInventory.push(inventoryObj);
+    localStorage.setItem('test_inventory', JSON.stringify(existingInventory));
       console.log('✅ Saved to localStorage for table view');
     } catch (error) {
       console.error('❌ API Failed:', error);
@@ -1324,18 +1324,18 @@ export class AddInventoryComponent {
 
     // Show success/error message
     if (apiSuccess) {
-      this.toastr.success(
+    this.toastr.success(
         'Inventory submitted to API successfully!',
         'Success',
-        {
-          timeOut: 3000,
-          positionClass: 'toast-top-right',
-        }
-      );
+      {
+        timeOut: 3000,
+        positionClass: 'toast-top-right',
+      }
+    );
 
       // Navigate to road inventory list after a short delay
       setTimeout(() => {
-        this.router.navigate(['/ris/road-manage/road-inventory', this.roadId]);
+    this.router.navigate(['/ris/road-manage/road-inventory', this.roadId]);
       }, 500);
     } else {
       this.toastr.error('Failed to submit to API. Please try again.', 'Error', {

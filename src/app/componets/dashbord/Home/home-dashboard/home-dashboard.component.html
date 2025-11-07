@@ -1,275 +1,276 @@
 <!-- <app-page-header title="Information System" title1="Information System" activeTitle="Information System"></app-page-header> -->
- <!-- Page Header -->
- <div class="d-flex align-items-center justify-content-between my-4 page-header-breadcrumb flex-wrap gap-2">
-    <div >
-      <h3 class="fw-medium fs-20 mb-0 mt-0">Road Asset Management System (RAMS)</h3>
-    </div>
+<!-- Page Header -->
+<div
+  class="d-flex align-items-center justify-content-between my-4 page-header-breadcrumb flex-wrap gap-2"
+>
+  <div>
+    <h3 class="fw-medium fs-20 mb-0 mt-0">
+      Road Asset Management System (RAMS)
+    </h3>
   </div>
+</div>
 
 <!-- Start::row-1 -->
 <div class="row">
-    <div class="col-md-12 col-xl-12">
-        <div class="row">
-            <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/pis">
-                <div class="card custom-card overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="mb-2 p-3 pb-0">
-                            <div class="flex-fill fs-15">Project Information System(PIS)</div>
-                        </div>
-                        <div class="d-flex align-items-center ps-3">
-                            <div class="flex-fill">
-                                <!-- <div class="fs-25 fw-normal mb-2">$170k+</div>
-                                    <p class="mb-0">
-                                        <i class="ri-arrow-up-line text-primary fs-15 align-middle"></i>
-                                        <span  class="text-primary fs-12"> 26.35% last month</span>
-                                    </p>
-                                </div> -->
-                                <div class="fs-25 fw-normal mb-2"></div>
-                                <p class="mb-0">
-                                    <span  class="text-primary fs-12">View</span>&nbsp;
-                                    <i class="ri-arrow-right-line text-primary fs-15 align-middle"></i>
-                                </p>
-                            </div>
-                            <div id="sales-card" class="crm-card-chart">
-                                <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart"
-                                [xaxis]="chartOptions.xaxis" [colors]="chartOptions.colors" [fill]="chartOptions.fill"
-                                [stroke]="chartOptions.stroke" [tooltip]="chartOptions.tooltip"
-                                [dataLabels]="chartOptions.dataLabels" [grid]="chartOptions.grid"
-                                [yaxis]="chartOptions.yaxis">
-                            </apx-chart>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <div class="col-md-12 col-xl-12">
+    <div class="row">
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/pis">
+        <div class="card custom-card overflow-hidden system-card pis-card">
+          <div class="card-body p-0">
+            <div class="mb-2 p-3 pb-0">
+              <div class="pis-title flex-fill fs-15">
+                Project Information System(PIS)
+              </div>
             </div>
-            <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/ris/inventory-dashboard">
-                <div class="card custom-card overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="mb-2 p-3 pb-0">
-                            <div class="flex-fill fs-15">Road Inventory System <br>(RIS)</div>
-                        </div>
-                        <div class="d-flex align-items-center ps-3">
-                            <div class="flex-fill">
-                                <!-- <div class="fs-25 fw-normal mb-2">$115k</div>
-                                    <p class="mb-0">
-                                        <i class="ri-arrow-down-line text-danger fs-15 align-middle"></i>
-                                        <span  class="text-danger fs-12"> 11.35% last month</span>
-                                    </p>
-                                 </div> -->
-                                 <div class="fs-25 fw-normal mb-2"></div>
-                                    <p class="mb-0">
-                                        <span  class="text-danger fs-12">view</span>
-                                        <i class="ri-arrow-right-line text-danger fs-15 align-middle"></i>
-                                    </p>
-                                 </div>
-
-                            <div id="revenue-card" class="crm-card-chart">
-                                <apx-chart [series]="chartOptions1.series" [chart]="chartOptions1.chart"
-                                [xaxis]="chartOptions1.xaxis" [colors]="chartOptions1.colors" [fill]="chartOptions1.fill"
-                                [stroke]="chartOptions1.stroke" [tooltip]="chartOptions1.tooltip"
-                                [dataLabels]="chartOptions1.dataLabels" [grid]="chartOptions1.grid"
-                                [yaxis]="chartOptions1.yaxis">
-                            </apx-chart>
-                            </div>
-                        </div>
-                    </div>
+            <div class="system-card-content px-3">
+              <ng-container *ngIf="!pisSummaryLoading; else systemLoadingTpl">
+                <div class="system-metrics">
+                  <div class="system-metric">
+                    <span class="metric-label">Total Projects</span>
+                    <span class="metric-value pis-value-primary">
+                      {{ totalPisProjects }}
+                    </span>
+                  </div>
+                  <div class="system-metric">
+                    <span class="metric-label">Total Road Length</span>
+                    <span class="metric-value pis-value-accent">
+                      {{ totalPisRoadLengthKm | number : "1.0-0" }}
+                      <span class="metric-unit">KM</span>
+                    </span>
+                  </div>
                 </div>
+              </ng-container>
+              <div *ngIf="pisSummaryError" class="system-error mt-2">
+                {{ pisSummaryError }}
+              </div>
             </div>
-            <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/bis/bis-dashboard">
-                <div class="card custom-card overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="mb-2 p-3 pb-0">
-                            <div class="flex-fill fs-15">Bridge Management System <br>(BMS)</div>
-                        </div>
-                        <div class="d-flex align-items-center ps-3">
-                            <div class="flex-fill">
-                                <!-- <div class="fs-25 fw-normal mb-2">1500+</div>
-                                    <p class="mb-0">
-                                        <i class="ri-arrow-up-line text-secondary fs-15 align-middle"></i>
-                                        <span  class="text-secondary fs-12"> 26.35% last month</span>
-                                    </p>
-                                </div> -->
-                                <div class="fs-25 fw-normal mb-2"></div>
-                                    <p class="mb-0">
-                                        <span  class="text-secondary fs-12">view</span>
-                                        <i class="ri-arrow-right-line text-secondary fs-15 align-middle"></i>
-                                    </p>
-                                </div>
-                            <div id="customers-card" class="crm-card-chart">
-                                <apx-chart [series]="chartOptions2.series" [chart]="chartOptions2.chart"
-                                [xaxis]="chartOptions2.xaxis" [colors]="chartOptions2.colors" [fill]="chartOptions2.fill"
-                                [stroke]="chartOptions2.stroke" [tooltip]="chartOptions2.tooltip"
-                                [dataLabels]="chartOptions2.dataLabels" [grid]="chartOptions2.grid"
-                                [yaxis]="chartOptions2.yaxis">
-                            </apx-chart>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/tis">
-                <div class="card custom-card overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="mb-2 p-3 pb-0">
-                            <div class="flex-fill fs-15">Traffic Information System(TIS)</div>
-                        </div>
-                        <div class="d-flex align-items-center ps-3">
-                            <div class="flex-fill">
-                                <!-- <div class="fs-25 fw-normal mb-2">30k+</div>
-                                    <p class="mb-0">
-                                        <i class="ri-arrow-up-line text-info fs-15 align-middle"></i>
-                                        <span  class="text-info fs-12"> 16.35% last month</span>
-                                    </p>
-                                </div> -->
-                                <div class="fs-25 fw-normal mb-2"></div>
-                                    <p class="mb-0">
-                                        <span  class="text-info fs-12">view</span>
-                                        <i class="ri-arrow-right-line text-info fs-15 align-middle"></i>
-                                    </p>
-                                </div>
-                            <div id="orders-card" class="crm-card-chart">
-                                <apx-chart [series]="chartOptions3.series" [chart]="chartOptions3.chart"
-                                [xaxis]="chartOptions3.xaxis" [colors]="chartOptions3.colors" [fill]="chartOptions3.fill"
-                                [stroke]="chartOptions3.stroke" [tooltip]="chartOptions3.tooltip"
-                                [dataLabels]="chartOptions3.dataLabels" [grid]="chartOptions3.grid"
-                                [yaxis]="chartOptions3.yaxis">
-                            </apx-chart>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-           
-            <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/ais">
-                <div class="card custom-card overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="mb-2 p-3 pb-0">
-                            <div class="flex-fill fs-15">Accident Information System (AIS)</div>
-                        </div>
-                        <div class="d-flex align-items-center ps-3">
-                            <div class="flex-fill">
-                                <!-- <div class="fs-25 fw-normal mb-2">$115k</div>
-                                    <p class="mb-0">
-                                        <i class="ri-arrow-down-line text-danger fs-15 align-middle"></i>
-                                        <span  class="text-danger fs-12"> 11.35% last month</span>
-                                    </p>
-                                 </div> -->
-                                 <div class="fs-25 fw-normal mb-2"></div>
-                                    <p class="mb-0">
-                                        <span  class="text-danger fs-12">view</span>
-                                        <i class="ri-arrow-right-line text-danger fs-15 align-middle"></i>
-                                    </p>
-                                 </div>
-
-                            <div id="revenue-card" class="crm-card-chart">
-                                <apx-chart [series]="chartOptions1.series" [chart]="chartOptions4.chart"
-                                [xaxis]="chartOptions1.xaxis" [colors]="chartOptions1.colors" [fill]="chartOptions1.fill"
-                                [stroke]="chartOptions1.stroke" [tooltip]="chartOptions1.tooltip"
-                                [dataLabels]="chartOptions1.dataLabels" [grid]="chartOptions1.grid"
-                                [yaxis]="chartOptions1.yaxis">
-                            </apx-chart>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3 col-xl-3"  routerLink="/pms">
-                <div class="card custom-card overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="mb-2 p-3 pb-0">
-                            <div class="flex-fill fs-15">Pavement Management System(PMS)</div>
-                        </div>
-                        <div class="d-flex align-items-center ps-3">
-                            <div class="flex-fill">
-                                <!-- <div class="fs-25 fw-normal mb-2">30k+</div>
-                                    <p class="mb-0">
-                                        <i class="ri-arrow-up-line text-info fs-15 align-middle"></i>
-                                        <span  class="text-info fs-12"> 16.35% last month</span>
-                                    </p>
-                                </div> -->
-                                <div class="fs-25 fw-normal mb-2"></div>
-                                    <p class="mb-0">
-                                        <span  class="text-info fs-12">view</span>
-                                        <i class="ri-arrow-right-line text-info fs-15 align-middle"></i>
-                                    </p>
-                                </div>
-                            <div id="orders-card" class="crm-card-chart">
-                                <apx-chart [series]="chartOptions3.series" [chart]="chartOptions5.chart"
-                                [xaxis]="chartOptions3.xaxis" [colors]="chartOptions3.colors" [fill]="chartOptions3.fill"
-                                [stroke]="chartOptions3.stroke" [tooltip]="chartOptions3.tooltip"
-                                [dataLabels]="chartOptions3.dataLabels" [grid]="chartOptions3.grid"
-                                [yaxis]="chartOptions3.yaxis">
-                            </apx-chart>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/rwfis">
-                <div class="card custom-card overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="mb-2 p-3 pb-0">
-                            <div class="flex-fill fs-15">Road Way Features Information System(RWFIS)</div>
-                        </div>
-                        <div class="d-flex align-items-center ps-3">
-                            <div class="flex-fill">
-                                <!-- <div class="fs-25 fw-normal mb-2">$170k+</div>
-                                    <p class="mb-0">
-                                        <i class="ri-arrow-up-line text-primary fs-15 align-middle"></i>
-                                        <span  class="text-primary fs-12"> 26.35% last month</span>
-                                    </p>
-                                </div> -->
-                                <div class="fs-25 fw-normal mb-2"></div>
-                                <p class="mb-0">
-                                    <span  class="text-primary fs-12">View</span>&nbsp;
-                                    <i class="ri-arrow-right-line text-primary fs-15 align-middle"></i>
-                                </p>
-                            </div>
-                            <div id="sales-card" class="crm-card-chart">
-                                <apx-chart [series]="chartOptions.series" [chart]="chartOptions6.chart"
-                                [xaxis]="chartOptions.xaxis" [colors]="chartOptions.colors" [fill]="chartOptions.fill"
-                                [stroke]="chartOptions.stroke" [tooltip]="chartOptions.tooltip"
-                                [dataLabels]="chartOptions.dataLabels" [grid]="chartOptions.grid"
-                                [yaxis]="chartOptions.yaxis">
-                            </apx-chart>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/bis/bis-dashboard">
-                <div class="card custom-card overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="mb-2 p-3 pb-0">
-                            <div class="flex-fill fs-15">Report</div>
-                        </div>
-                        <div class="d-flex align-items-center ps-3">
-                            <div class="flex-fill">
-                                <!-- <div class="fs-25 fw-normal mb-2">1500+</div>
-                                    <p class="mb-0">
-                                        <i class="ri-arrow-up-line text-secondary fs-15 align-middle"></i>
-                                        <span  class="text-secondary fs-12"> 26.35% last month</span>
-                                    </p>
-                                </div> -->
-                                <div class="fs-25 fw-normal mb-2"></div>
-                                    <p class="mb-0">
-                                        <span  class="text-secondary fs-12">view</span>
-                                        <i class="ri-arrow-right-line text-secondary fs-15 align-middle"></i>
-                                    </p>
-                                </div>
-                            <div id="customers-card" class="crm-card-chart">
-                                <apx-chart [series]="chartOptions2.series" [chart]="chartOptions2.chart"
-                                [xaxis]="chartOptions2.xaxis" [colors]="chartOptions2.colors" [fill]="chartOptions2.fill"
-                                [stroke]="chartOptions2.stroke" [tooltip]="chartOptions2.tooltip"
-                                [dataLabels]="chartOptions2.dataLabels" [grid]="chartOptions2.grid"
-                                [yaxis]="chartOptions2.yaxis">
-                            </apx-chart>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+      </div>
+      <div
+        class="col-md-6 col-lg-3 col-xl-3"
+        routerLink="/ris/inventory-dashboard"
+      >
+        <div class="card custom-card overflow-hidden system-card ris-card">
+          <div class="card-body p-0">
+            <div class="mb-2 p-3 pb-0">
+              <div class="flex-fill fs-15">
+                Road Inventory System <br />(RIS)
+              </div>
+            </div>
+            <div class="system-card-content px-3">
+              <ng-container *ngIf="!risSummaryLoading; else systemLoadingTpl">
+                <div class="system-metrics ris-metrics">
+                  <div class="system-metric ris-primary-metric">
+                    <span class="metric-label">Total Inventory</span>
+                    <span class="metric-value ris-value-primary">
+                      {{ risSummary.totalInventory | number : "1.0-0" }}
+                    </span>
+                  </div>
+                  <div class="ris-secondary-metrics">
+                    <div class="system-metric">
+                      <span class="metric-label">Distress Reported</span>
+                      <span class="metric-value ris-value-secondary">
+                        {{
+                          risSummary.totalDistressReported | number : "1.0-0"
+                        }}
+                      </span>
+                    </div>
+                    <div class="system-metric">
+                      <span class="metric-label">Distress Predicted</span>
+                      <span class="metric-value ris-value-tertiary">
+                        {{
+                          risSummary.totalDistressPredicted | number : "1.0-0"
+                        }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+              <div *ngIf="risSummaryError" class="system-error mt-2">
+                {{ risSummaryError }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/bis/bis-dashboard">
+        <div class="card custom-card overflow-hidden system-card bis-card">
+          <div class="card-body p-0">
+            <div class="mb-2 p-3 pb-0">
+              <div class="flex-fill fs-15">
+                Bridge Management System <br />(BMS)
+              </div>
+            </div>
+            <div class="system-card-content px-3">
+              <ng-container *ngIf="!bisSummaryLoading; else systemLoadingTpl">
+                <div class="system-metrics">
+                  <div class="system-metric">
+                    <span class="metric-label">Total Bridges</span>
+                    <span class="metric-value bis-value-primary">3</span>
+                  </div>
+                </div>
+              </ng-container>
+              <div *ngIf="bisSummaryError" class="system-error mt-2">
+                {{ bisSummaryError }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/tis">
+        <div class="card custom-card overflow-hidden system-card tis-card">
+          <div class="card-body p-0">
+            <div class="mb-2 p-3 pb-0">
+              <div class="flex-fill fs-15">Traffic Information System(TIS)</div>
+            </div>
+            <div class="system-card-content px-3">
+              <ng-container *ngIf="!tisSummaryLoading; else systemLoadingTpl">
+                <div class="system-metrics">
+                  <div class="system-metric tis-primary-metric">
+                    <span class="metric-label">Average AADT</span>
+                    <span class="metric-value tis-value-primary">
+                      {{ tisSummary.averageAadt | number : "1.0-0" }}
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+              <div *ngIf="tisSummaryError" class="system-error mt-2">
+                {{ tisSummaryError }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/ais">
+        <div class="card custom-card overflow-hidden system-card ais-card">
+          <div class="card-body p-0">
+            <div class="mb-2 p-3 pb-0">
+              <div class="flex-fill fs-15">
+                Accident Information System (AIS)
+              </div>
+            </div>
+            <div class="system-card-content px-3">
+              <ng-container *ngIf="!aisSummaryLoading; else systemLoadingTpl">
+                <div class="system-metrics">
+                  <div class="system-metric">
+                    <span class="metric-label">Total Accidents</span>
+                    <span class="metric-value ais-value-primary">
+                      {{ aisSummary.totalAccidents | number : "1.0-0" }}
+                    </span>
+                  </div>
+                  <div class="system-metric">
+                    <span class="metric-label">Total Injuries</span>
+                    <span class="metric-value ais-value-secondary">
+                      {{ aisSummary.totalInjuries | number : "1.0-0" }}
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+              <div *ngIf="aisSummaryError" class="system-error mt-2">
+                {{ aisSummaryError }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/pms">
+        <div class="card custom-card overflow-hidden system-card pms-card">
+          <div class="card-body p-0">
+            <div class="mb-2 p-3 pb-0">
+              <div class="flex-fill fs-15">Pavement Management System(PMS)</div>
+            </div>
+            <div class="system-card-content px-3">
+              <ng-container *ngIf="!pmsSummaryLoading; else systemLoadingTpl">
+                <div class="system-metrics pms-metrics pms-single">
+                  <div
+                    class="system-metric pms-placeholder"
+                    aria-hidden="true"
+                  ></div>
+                  <div class="pms-secondary-metrics single">
+                    <div class="system-metric">
+                      <span class="metric-label">Avg RI Index</span>
+                      <span class="metric-value pms-value-primary">
+                        {{ pmsSummary.averageRiIndex | number : "1.2-2" }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+              <div *ngIf="pmsSummaryError" class="system-error mt-2">
+                {{ pmsSummaryError }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/rwfis">
+        <div class="card custom-card overflow-hidden system-card rwfis-card">
+          <div class="card-body p-0">
+            <div class="mb-2 p-3 pb-0">
+              <div class="flex-fill fs-15">
+                Road Way Features Information System(RWFIS)
+              </div>
+            </div>
+            <div class="system-card-content px-3">
+              <ng-container *ngIf="!rwfisSummaryLoading; else systemLoadingTpl">
+                <div class="system-metrics">
+                  <div class="system-metric">
+                    <span class="metric-label">Average Offset</span>
+                    <span class="metric-value rwfis-value-primary">
+                      {{ rwfisSummary.averageOffset | number : "1.2-2" }}
+                      <span class="metric-unit">m</span>
+                    </span>
+                  </div>
+                  <div class="system-metric">
+                    <span class="metric-label">Number of Features</span>
+                    <span class="metric-value rwfis-value-secondary">
+                      {{ rwfisSummary.featureCount | number : "1.0-0" }}
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+              <div *ngIf="rwfisSummaryError" class="system-error mt-2">
+                {{ rwfisSummaryError }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/bis/bis-dashboard">
+        <div class="card custom-card overflow-hidden system-card reports-card">
+          <div class="card-body p-0">
+            <div class="mb-2 p-3 pb-0">
+              <div class="flex-fill fs-15">Reports</div>
+            </div>
+            <div class="system-card-content px-3">
+              <div class="system-metrics">
+                <div class="system-metric">
+                  <span class="metric-label">Inventory Reports</span>
+                  <span class="metric-value reports-value-primary">
+                    {{ reportSummary.inventoryReports | number : "1.0-0" }}
+                  </span>
+                </div>
+                <div class="system-metric">
+                  <span class="metric-label">Distress Reports</span>
+                  <span class="metric-value reports-value-secondary">
+                    {{ reportSummary.distressReports | number : "1.0-0" }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
+
+<ng-template #systemLoadingTpl>
+  <div class="system-loading">
+    <span class="skeleton-line"></span>
+    <span class="skeleton-line w-75"></span>
+  </div>
+</ng-template>

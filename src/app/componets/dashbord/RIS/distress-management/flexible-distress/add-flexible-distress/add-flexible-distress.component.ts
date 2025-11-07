@@ -578,55 +578,55 @@ export class AddFlexibleDistressComponent {
 
   // Process Image File
   processImageFile(file: File): void {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
       this.toastr.error('Only JPG and PNG images are allowed', 'Invalid File');
-      return;
-    }
+        return;
+      }
 
-    if (file.size > 5 * 1024 * 1024) {
-      this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
-      return;
-    }
+      if (file.size > 5 * 1024 * 1024) {
+        this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
+        return;
+      }
 
     this.distressForm.patchValue({
-      distress_image: file.name,
-      image_file: file,
-    });
+        distress_image: file.name,
+        image_file: file,
+      });
 
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
       this.distressForm.patchValue({ image_preview: e.target.result });
-    };
-    reader.readAsDataURL(file);
+      };
+      reader.readAsDataURL(file);
   }
 
   // Process Video File
   processVideoFile(file: File): void {
-    const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
-    if (!validTypes.includes(file.type)) {
-      this.toastr.error(
-        'Only MP4, AVI, MOV, and WMV videos are allowed',
-        'Invalid File'
-      );
-      return;
-    }
+      const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
+      if (!validTypes.includes(file.type)) {
+        this.toastr.error(
+          'Only MP4, AVI, MOV, and WMV videos are allowed',
+          'Invalid File'
+        );
+        return;
+      }
 
-    if (file.size > 50 * 1024 * 1024) {
+      if (file.size > 50 * 1024 * 1024) {
       this.toastr.error('Video size should not exceed 50MB', 'File Too Large');
-      return;
-    }
+        return;
+      }
 
     this.distressForm.patchValue({
-      distress_video: file.name,
-      video_file: file,
-    });
+        distress_video: file.name,
+        video_file: file,
+      });
 
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
       this.distressForm.patchValue({ video_preview: e.target.result });
-    };
-    reader.readAsDataURL(file);
+      };
+      reader.readAsDataURL(file);
   }
 
   // Remove image
@@ -732,22 +732,22 @@ export class AddFlexibleDistressComponent {
 
     // Save to localStorage after successful API submission
     if (apiSuccess) {
-      let existingFlexibleDistress = JSON.parse(
-        localStorage.getItem('test_flexible_distress') || '[]'
-      );
+    let existingFlexibleDistress = JSON.parse(
+      localStorage.getItem('test_flexible_distress') || '[]'
+    );
 
-      const mockId =
-        existingFlexibleDistress.length > 0
-          ? Math.max(
+    const mockId =
+      existingFlexibleDistress.length > 0
+        ? Math.max(
               ...existingFlexibleDistress.map(
                 (d: any) => d.flexible_distress_id
               )
-            ) + 1
-          : 1;
+          ) + 1
+        : 1;
 
-      const flexibleDistressObj = {
-        flexible_distress_id: mockId,
-        carriage_type: 'Flexible',
+    const flexibleDistressObj = {
+      flexible_distress_id: mockId,
+      carriage_type: 'Flexible',
         geometry_data_id: this.roadId,
         road_name: this.selectedRoadName || this.roadName,
         chainage_start: this.chainageStart,
@@ -763,16 +763,16 @@ export class AddFlexibleDistressComponent {
         dimension_depth: this.distressForm.get('dimension_depth')?.value || 0,
         distress_image: this.distressForm.get('image_file')?.value?.name || '',
         distress_video: this.distressForm.get('video_file')?.value?.name || '',
-        created_on: new Date().toISOString(),
+      created_on: new Date().toISOString(),
         api_row_inserted_at: apiResponse?.row_inserted_at || null,
-      };
+    };
 
-      existingFlexibleDistress.push(flexibleDistressObj);
+    existingFlexibleDistress.push(flexibleDistressObj);
 
-      localStorage.setItem(
-        'test_flexible_distress',
-        JSON.stringify(existingFlexibleDistress)
-      );
+    localStorage.setItem(
+      'test_flexible_distress',
+      JSON.stringify(existingFlexibleDistress)
+    );
 
       console.log('✅ Saved to localStorage for table view');
     }
@@ -804,20 +804,20 @@ export class AddFlexibleDistressComponent {
 
     // Show success/error message
     if (apiSuccess) {
-      this.toastr.success(
+    this.toastr.success(
         `Flexible distress submitted successfully! Row inserted at: ${
           apiResponse?.row_inserted_at || 'N/A'
         }`,
         'Success',
-        {
-          timeOut: 3000,
-          positionClass: 'toast-top-right',
-        }
-      );
+      {
+        timeOut: 3000,
+        positionClass: 'toast-top-right',
+      }
+    );
 
-      // Navigate to flexible distress list
+    // Navigate to flexible distress list
       setTimeout(() => {
-        this.router.navigate(['/ris/road-manage/flexible-distress']);
+    this.router.navigate(['/ris/road-manage/flexible-distress']);
       }, 500);
     } else {
       this.toastr.error('Failed to submit to API. Please try again.', 'Error', {

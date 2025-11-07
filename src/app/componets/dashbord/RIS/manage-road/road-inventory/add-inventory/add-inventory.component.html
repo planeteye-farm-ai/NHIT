@@ -6,12 +6,12 @@
 
 <div class="row">
   <div class="col-xl-12">
-    <div class="card custom-card">
-      <div class="card-header bg-primary text-white">
-        <h6 class="card-title mb-0">
+        <div class="card custom-card">
+          <div class="card-header bg-primary text-white">
+            <h6 class="card-title mb-0">
           <i class="ri-add-circle-line me-2"></i>Add Inventory - {{ roadName }}
-        </h6>
-      </div>
+            </h6>
+          </div>
       <div class="card-body wizard-container">
         <!-- ONE-STEP LAYOUT -->
 
@@ -143,7 +143,7 @@
     </div>
     <div class="modal-body">
       <form [formGroup]="inventoryForm">
-        <div class="row">
+            <div class="row">
           <!-- Sub Asset Type Cards (only show if subtypes exist) -->
           <div class="col-md-12 mb-4" *ngIf="subAssetTypes.length > 0">
             <label class="form-label mb-3">
@@ -176,7 +176,7 @@
             <span *ngIf="selectedSubAssets.length === 0" class="text-danger">
               Please select at least one sub asset type
             </span>
-          </div>
+              </div>
 
           <!-- Details for Each Selected Sub-Asset -->
           <div class="col-md-12" *ngIf="selectedSubAssets.length > 0">
@@ -198,34 +198,34 @@
                 </button>
               </div>
               <div class="row">
-                <div class="col-md-6 mb-3">
+              <div class="col-md-6 mb-3">
                   <label class="form-label">
                     Latitude<span class="text-danger">*</span>
                   </label>
-                  <input
-                    type="number"
-                    class="form-control"
+                <input
+                  type="number"
+                  class="form-control"
                     [ngModel]="subAssetDetails[subAsset].latitude"
                     (ngModelChange)="updateSubAssetLatitude(subAsset, $event)"
                     [ngModelOptions]="{ standalone: true }"
                     placeholder="0.000000"
                     step="0.000001"
                   />
-                </div>
-                <div class="col-md-6 mb-3">
+              </div>
+              <div class="col-md-6 mb-3">
                   <label class="form-label">
                     Longitude<span class="text-danger">*</span>
                   </label>
-                  <input
-                    type="number"
-                    class="form-control"
+                <input
+                  type="number"
+                  class="form-control"
                     [ngModel]="subAssetDetails[subAsset].longitude"
                     (ngModelChange)="updateSubAssetLongitude(subAsset, $event)"
                     [ngModelOptions]="{ standalone: true }"
                     placeholder="0.000000"
                     step="0.000001"
                   />
-                </div>
+              </div>
                 <div class="col-md-12 mb-3">
                   <label class="form-label">
                     <i class="ri-sort-number-asc me-2"></i>Quantity
@@ -238,7 +238,7 @@
                     >
                       <i class="ri-subtract-line"></i>
                     </button>
-                    <input
+                  <input
                       type="number"
                       class="quantity-input"
                       [ngModel]="subAssetDetails[subAsset].quantity"
@@ -256,9 +256,9 @@
                     </button>
                   </div>
                 </div>
+                </div>
+                </div>
               </div>
-            </div>
-          </div>
 
           <!-- Info message for assets without subtypes -->
           <div class="col-md-12 mb-3" *ngIf="subAssetTypes.length === 0">
@@ -266,27 +266,27 @@
               <i class="ri-information-line me-2"></i>
               <strong>{{ selectedAsset }}</strong> does not have sub-types. Fill
               in the details below.
-            </div>
-          </div>
+              </div>
+              </div>
 
           <!-- Latitude and Longitude (only for assets without subtypes) -->
           <div class="col-md-6 mb-3" *ngIf="subAssetTypes.length === 0">
             <label class="form-label" for="latitude">
               Latitude<span class="text-danger">*</span>
             </label>
-            <input
-              type="number"
-              class="form-control"
-              [ngClass]="{
-                'is-invalid':
-                  inventoryForm.get('latitude')?.invalid &&
-                  inventoryForm.get('latitude')?.touched
-              }"
-              id="latitude"
-              formControlName="latitude"
-              placeholder="0.000000"
-              step="0.000001"
-            />
+                <input
+                  type="number"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      inventoryForm.get('latitude')?.invalid &&
+                      inventoryForm.get('latitude')?.touched
+                  }"
+                  id="latitude"
+                  formControlName="latitude"
+                  placeholder="0.000000"
+                  step="0.000001"
+                />
             <span
               *ngIf="
                 inventoryForm.get('latitude')?.invalid &&
@@ -296,26 +296,26 @@
             >
               Please enter latitude
             </span>
-          </div>
+              </div>
 
           <!-- Longitude (only for assets without subtypes) -->
           <div class="col-md-6 mb-3" *ngIf="subAssetTypes.length === 0">
             <label class="form-label" for="longitude">
               Longitude<span class="text-danger">*</span>
             </label>
-            <input
-              type="number"
-              class="form-control"
-              [ngClass]="{
-                'is-invalid':
-                  inventoryForm.get('longitude')?.invalid &&
-                  inventoryForm.get('longitude')?.touched
-              }"
-              id="longitude"
-              formControlName="longitude"
-              placeholder="0.000000"
-              step="0.000001"
-            />
+                <input
+                  type="number"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':
+                      inventoryForm.get('longitude')?.invalid &&
+                      inventoryForm.get('longitude')?.touched
+                  }"
+                  id="longitude"
+                  formControlName="longitude"
+                  placeholder="0.000000"
+                  step="0.000001"
+                />
             <span
               *ngIf="
                 inventoryForm.get('longitude')?.invalid &&
@@ -325,7 +325,7 @@
             >
               Please enter longitude
             </span>
-          </div>
+              </div>
 
           <!-- Numbers (Inventories) with Increment/Decrement (only for assets without subtypes) -->
           <div class="col-md-12 mb-4" *ngIf="subAssetTypes.length === 0">
@@ -340,10 +340,10 @@
               >
                 <i class="ri-subtract-line"></i>
               </button>
-              <input
-                type="number"
+                <input
+                  type="number"
                 class="quantity-input"
-                formControlName="numbers_inventory"
+                  formControlName="numbers_inventory"
                 placeholder="0"
                 min="0"
               />
@@ -359,10 +359,10 @@
               <i class="ri-information-line me-1"></i>Use the + and - buttons to
               adjust quantity
             </small>
-          </div>
+              </div>
 
           <!-- Image Upload with Drag & Drop (common for all assets) -->
-          <div class="col-md-6 mb-3">
+              <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="ri-image-line me-2"></i>Image Upload
               <small
@@ -389,34 +389,34 @@
               </div>
               <div class="upload-formats">JPG, PNG (Max 5MB)</div>
             </div>
-            <input
-              type="file"
+                <input
+                  type="file"
               #imageFileInput
               class="d-none"
-              accept=".jpg,.jpeg,.png"
-              (change)="onImageSelected($event)"
-            />
+                  accept=".jpg,.jpeg,.png"
+                  (change)="onImageSelected($event)"
+                />
             <div
               *ngIf="inventoryForm.get('image_preview')?.value"
               class="upload-preview"
             >
-              <img
-                [src]="inventoryForm.get('image_preview')?.value"
-                alt="Image Preview"
+                  <img
+                    [src]="inventoryForm.get('image_preview')?.value"
+                    alt="Image Preview"
                 class="preview-image"
-              />
-              <button
-                type="button"
+                  />
+                  <button
+                    type="button"
                 class="preview-remove"
-                (click)="removeImage()"
-              >
+                    (click)="removeImage()"
+                  >
                 <i class="ri-delete-bin-line"></i>
-              </button>
-            </div>
-          </div>
+                  </button>
+                </div>
+              </div>
 
           <!-- Video Upload with Drag & Drop (common for all assets) -->
-          <div class="col-md-6 mb-3">
+              <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="ri-video-line me-2"></i>Video Upload
               <small
@@ -443,43 +443,43 @@
               </div>
               <div class="upload-formats">MP4, AVI, MOV (Max 50MB)</div>
             </div>
-            <input
-              type="file"
+                <input
+                  type="file"
               #videoFileInput
               class="d-none"
-              accept=".mp4,.avi,.mov,.wmv"
-              (change)="onVideoSelected($event)"
-            />
+                  accept=".mp4,.avi,.mov,.wmv"
+                  (change)="onVideoSelected($event)"
+                />
             <div
               *ngIf="inventoryForm.get('video_preview')?.value"
               class="upload-preview"
             >
-              <video
-                [src]="inventoryForm.get('video_preview')?.value"
-                controls
+                  <video
+                    [src]="inventoryForm.get('video_preview')?.value"
+                    controls
                 class="preview-video"
-              ></video>
-              <button
-                type="button"
+                  ></video>
+                  <button
+                    type="button"
                 class="preview-remove"
-                (click)="removeVideo()"
-              >
+                    (click)="removeVideo()"
+                  >
                 <i class="ri-delete-bin-line"></i>
-              </button>
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
       </form>
-    </div>
+          </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" (click)="closeModal()">
         <i class="ri-close-line me-1"></i>Cancel
       </button>
       <button type="button" class="btn btn-info" (click)="debugCanSubmit()">
         <i class="ri-bug-line me-1"></i>Debug
-      </button>
-      <button
-        type="button"
+            </button>
+            <button
+              type="button"
         class="btn btn-primary"
         [disabled]="!canSubmit()"
         (click)="onSubmitFromModal()"
@@ -492,7 +492,7 @@
         >
           {{ selectedSubAssets.length }} items
         </span>
-      </button>
-    </div>
+            </button>
+          </div>
   </div>
 </div>
