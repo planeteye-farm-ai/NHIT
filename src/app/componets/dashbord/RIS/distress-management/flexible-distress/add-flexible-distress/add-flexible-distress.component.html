@@ -130,7 +130,7 @@
               (click)="onDistressCardClick(distress.name)"
             >
               <div class="asset-icon" [style.background-color]="distress.color">
-                <i class="ri-alert-fill"></i>
+                <i [class]="getDistressIconClass(distress.name)"></i>
               </div>
               <div class="asset-info">
                 <div class="asset-name">{{ distress.name }}</div>
