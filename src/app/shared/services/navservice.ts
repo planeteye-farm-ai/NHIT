@@ -177,6 +177,14 @@ export class NavService implements OnDestroy {
                     selected: false,
                     path: '/ris/distress-prediction',
                   },
+                  {
+                    title: 'AI Identifier',
+                    dirchange: false,
+                    type: 'link',
+                    active: false,
+                    selected: false,
+                    path: '/ris/ai-identifier',
+                  },
                 ]
                 },
 
@@ -956,6 +964,14 @@ export class NavService implements OnDestroy {
                     selected: false,
                     path: '/ris/distress-prediction',
                   },
+                  {
+                    title: 'AI Identifier',
+                    dirchange: false,
+                    type: 'link',
+                    active: false,
+                    selected: false,
+                    path: '/ris/ai-identifier',
+                  },
                 ]
                 },
 
@@ -1239,6 +1255,14 @@ export class NavService implements OnDestroy {
                     active: false,
                     selected: false,
                     path: '/ris/distress-prediction',
+                  },
+                  {
+                    title: 'AI Identifier',
+                    dirchange: false,
+                    type: 'link',
+                    active: false,
+                    selected: false,
+                    path: '/ris/ai-identifier',
                   },
                 ]
                 },

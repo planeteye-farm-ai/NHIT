@@ -23,6 +23,12 @@ const routes: Routes = [
     },
 
     {
+      path: 'ai-identifier',
+      loadComponent: () =>
+       import('../ai-identifier/ai-identifier.component').then((m) => m.AiIdentifierComponent),
+    },
+
+    {
       path: 'road-manage', children: [
         {
           path: '',
