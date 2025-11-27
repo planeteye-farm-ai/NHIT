@@ -4,15 +4,21 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+**IMPORTANT:** Due to the large project size, always use npm scripts instead of direct Angular CLI commands to avoid "JavaScript heap out of memory" errors.
+
+Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+
+**Note:** Do NOT run `ng serve` directly. Always use `npm start` which includes the necessary memory configuration.
 
 ## Code scaffolding
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run `npm run ng generate component component-name` to generate a new component. You can also use `npm run ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Run `npm run build` or `npm run build:prod` to build the project. The build artifacts will be stored in the `dist/` directory.
+
+**Note:** Do NOT run `ng build` directly. Always use `npm run build` which includes the necessary memory configuration (10GB heap size).
 
 ## Running unit tests
 

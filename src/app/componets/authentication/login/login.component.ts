@@ -79,10 +79,8 @@ export class LoginComponent {
   }
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
-      // username: ['', [Validators.required]],
-      // password: ['', Validators.required],
-      email: ['user@gmail.com', [Validators.required, Validators.email]],
-      password: ['admin', Validators.required],
+      username: ['', [Validators.required]],
+      password: ['', Validators.required],
     });
   }
 
@@ -138,26 +136,8 @@ export class LoginComponent {
 
     const formData = this.loginForm.value;
 
-    // --- Hardcoded login for development ---
-    if (formData.email === 'user@gmail.com' && formData.password === 'admin') {
-      localStorage.setItem('token', 'hardcoded-token-for-dev');
-      localStorage.setItem('admin_id', '1');
-      localStorage.setItem('uid', 'user@gmail.com');
-      localStorage.setItem('role', 'admin');
-      localStorage.setItem('name', 'Default Admin User');
-      localStorage.setItem('access_type', 'default');
-      this.toastr.success('Login successful (hardcoded)', 'NHAI RAMS', {
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
-      });
-      this.router.navigate(['home-dashboard']);
-      return; // Bypass backend call
-    }
-    // --- End of hardcoded login ---
-
-    // Original backend login logic
     const loginData = {
-      uid: formData.email,
+      uid: formData.username,
       password: formData.password,
     };
 

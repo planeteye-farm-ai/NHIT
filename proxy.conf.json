@@ -1,11 +1,8 @@
 {
   "/api": {
-    "target": "https://insertdata-api.onrender.com",
+    "target": "https://fantastic-reportapi-production.up.railway.app",
     "secure": true,
     "changeOrigin": true,
-    "pathRewrite": {
-      "^/api": ""
-    },
     "logLevel": "debug"
   }
 }

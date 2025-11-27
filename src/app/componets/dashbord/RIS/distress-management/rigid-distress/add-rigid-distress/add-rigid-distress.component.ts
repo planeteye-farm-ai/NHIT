@@ -424,7 +424,7 @@ export class AddRigidDistressComponent {
 
   // Submit distress to API
   async submitToAPI(): Promise<any> {
-    const apiUrl = '/api/append_distressReported_excel/';
+    const apiUrl = 'https://fantastic-reportapi-production.up.railway.app/api/append_distressReported_excel/';
 
     const apiBody = {
       Latitude: this.distressForm.get('latitude')?.value,
@@ -443,7 +443,8 @@ export class AddRigidDistressComponent {
       No_of_Distress: this.distressForm.get('numbers_distress')?.value || 0,
     };
 
-    console.log('Submitting distress to API:', apiBody);
+    console.log('Submitting rigid distress to API:', apiBody);
+    console.log('API URL:', apiUrl);
 
     return this.http.post(apiUrl, apiBody).toPromise();
   }
@@ -581,55 +582,55 @@ export class AddRigidDistressComponent {
 
   // Process Image File
   processImageFile(file: File): void {
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-      if (!validTypes.includes(file.type)) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
       this.toastr.error('Only JPG and PNG images are allowed', 'Invalid File');
-        return;
-      }
+      return;
+    }
 
-      if (file.size > 5 * 1024 * 1024) {
-        this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
-        return;
-      }
+    if (file.size > 5 * 1024 * 1024) {
+      this.toastr.error('Image size should not exceed 5MB', 'File Too Large');
+      return;
+    }
 
     this.distressForm.patchValue({
-        distress_image: file.name,
-        image_file: file,
-      });
+      distress_image: file.name,
+      image_file: file,
+    });
 
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
       this.distressForm.patchValue({ image_preview: e.target.result });
-      };
-      reader.readAsDataURL(file);
+    };
+    reader.readAsDataURL(file);
   }
 
   // Process Video File
   processVideoFile(file: File): void {
-      const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
-      if (!validTypes.includes(file.type)) {
-        this.toastr.error(
-          'Only MP4, AVI, MOV, and WMV videos are allowed',
-          'Invalid File'
-        );
-        return;
-      }
+    const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
+    if (!validTypes.includes(file.type)) {
+      this.toastr.error(
+        'Only MP4, AVI, MOV, and WMV videos are allowed',
+        'Invalid File'
+      );
+      return;
+    }
 
-      if (file.size > 50 * 1024 * 1024) {
+    if (file.size > 50 * 1024 * 1024) {
       this.toastr.error('Video size should not exceed 50MB', 'File Too Large');
-        return;
-      }
+      return;
+    }
 
     this.distressForm.patchValue({
-        distress_video: file.name,
-        video_file: file,
-      });
+      distress_video: file.name,
+      video_file: file,
+    });
 
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
       this.distressForm.patchValue({ video_preview: e.target.result });
-      };
-      reader.readAsDataURL(file);
+    };
+    reader.readAsDataURL(file);
   }
 
   // Remove image
@@ -736,22 +737,22 @@ export class AddRigidDistressComponent {
 
     // Save to localStorage after successful API submission (for viewing in table)
     if (apiSuccess) {
-    let existingRigidDistress = JSON.parse(
-      localStorage.getItem('test_rigid_distress') || '[]'
-    );
+      let existingRigidDistress = JSON.parse(
+        localStorage.getItem('test_rigid_distress') || '[]'
+      );
 
-    // Generate a mock ID
-    const mockId =
-      existingRigidDistress.length > 0
-        ? Math.max(
-            ...existingRigidDistress.map((d: any) => d.rigid_distress_id)
-          ) + 1
-        : 1;
+      // Generate a mock ID
+      const mockId =
+        existingRigidDistress.length > 0
+          ? Math.max(
+              ...existingRigidDistress.map((d: any) => d.rigid_distress_id)
+            ) + 1
+          : 1;
 
-    // Create the rigid distress object
-    const rigidDistressObj = {
-      rigid_distress_id: mockId,
-      carriage_type: 'Rigid',
+      // Create the rigid distress object
+      const rigidDistressObj = {
+        rigid_distress_id: mockId,
+        carriage_type: 'Rigid',
         geometry_data_id: this.roadId,
         road_name: this.selectedRoadName || this.roadName,
         chainage_start: this.chainageStart,
@@ -767,18 +768,18 @@ export class AddRigidDistressComponent {
         dimension_depth: this.distressForm.get('dimension_depth')?.value || 0,
         distress_image: this.distressForm.get('image_file')?.value?.name || '',
         distress_video: this.distressForm.get('video_file')?.value?.name || '',
-      created_on: new Date().toISOString(),
+        created_on: new Date().toISOString(),
         api_row_inserted_at: apiResponse?.row_inserted_at || null,
-    };
+      };
 
-    // Add to existing distress records
-    existingRigidDistress.push(rigidDistressObj);
+      // Add to existing distress records
+      existingRigidDistress.push(rigidDistressObj);
 
-    // Save back to localStorage
-    localStorage.setItem(
-      'test_rigid_distress',
-      JSON.stringify(existingRigidDistress)
-    );
+      // Save back to localStorage
+      localStorage.setItem(
+        'test_rigid_distress',
+        JSON.stringify(existingRigidDistress)
+      );
 
       console.log('✅ Saved to localStorage for table view');
     }
@@ -810,20 +811,20 @@ export class AddRigidDistressComponent {
 
     // Show success/error message
     if (apiSuccess) {
-    this.toastr.success(
+      this.toastr.success(
         `Rigid distress submitted successfully! Row inserted at: ${
           apiResponse?.row_inserted_at || 'N/A'
         }`,
         'Success',
-      {
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
-      }
-    );
+        {
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
+        }
+      );
 
-    // Navigate to rigid distress list
+      // Navigate to rigid distress list
       setTimeout(() => {
-    this.router.navigate(['/ris/road-manage/rigid-distress']);
+        this.router.navigate(['/ris/road-manage/rigid-distress']);
       }, 500);
     } else {
       this.toastr.error('Failed to submit to API. Please try again.', 'Error', {

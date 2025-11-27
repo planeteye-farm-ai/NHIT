@@ -12,7 +12,7 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CommonModule } from '@angular/common';
-import { CustomValidators } from '../../../../../../shared/common/custom-validators'; 
+import { CustomValidators } from '../../../../../../shared/common/custom-validators';
 import { Router } from '@angular/router';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RoadService } from '../../../manage-road/road.service';
@@ -35,7 +35,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class EditFlexibleDistressComponent {
   distressForm!: FormGroup;
-    prismCode = prismCodeData;
+  prismCode = prismCodeData;
   distressId: any;
   distressData: any;
 
@@ -65,17 +65,17 @@ export class EditFlexibleDistressComponent {
     'Edge Breaking',
   ];
 
-    constructor(
-      private route: ActivatedRoute,
-      private fb: FormBuilder,
-      private toastr: ToastrService,
+  constructor(
+    private route: ActivatedRoute,
+    private fb: FormBuilder,
+    private toastr: ToastrService,
     private roadService: RoadService,
-      private router: Router,
+    private router: Router,
     private http: HttpClient
-    ) {}
-    
-    ngOnInit(): void {
-      this.distressForm = this.fb.group({
+  ) {}
+
+  ngOnInit(): void {
+    this.distressForm = this.fb.group({
       road_name: ['', Validators.required],
       chainage_start: [0, Validators.required],
       chainage_end: [0, Validators.required],
@@ -93,8 +93,8 @@ export class EditFlexibleDistressComponent {
     });
 
     this.route.paramMap.subscribe((params) => {
-        this.distressId = Number(params.get('id'));
-        if (this.distressId) {
+      this.distressId = Number(params.get('id'));
+      if (this.distressId) {
         this.loadDistressDetails(this.distressId);
       }
     });
@@ -134,8 +134,8 @@ export class EditFlexibleDistressComponent {
 
       this.toastr.success('Distress details loaded', 'Success', {
         timeOut: 2000,
-              positionClass: 'toast-top-right',
-            });
+        positionClass: 'toast-top-right',
+      });
     } else {
       this.roadService.geFlexibleDistressById(id).subscribe(
         (distress: any) => {
@@ -147,10 +147,10 @@ export class EditFlexibleDistressComponent {
         },
         (err: any) => {
           this.toastr.error('Failed to load distress details', 'Error', {
-                timeOut: 3000,
-                positionClass: 'toast-top-right',
-              });
-          }
+            timeOut: 3000,
+            positionClass: 'toast-top-right',
+          });
+        }
       );
     }
   }
@@ -178,7 +178,7 @@ export class EditFlexibleDistressComponent {
   }
 
   async submitToAPI(distressData: any): Promise<any> {
-    const apiUrl = '/api/append_distressReported_excel/';
+    const apiUrl = 'https://fantastic-reportapi-production.up.railway.app/api/append_distressReported_excel/';
 
     const apiBody = {
       Latitude: distressData.latitude,
@@ -198,6 +198,7 @@ export class EditFlexibleDistressComponent {
     };
 
     console.log('Updating flexible distress via API:', apiBody);
+    console.log('API URL:', apiUrl);
     return this.http.post(apiUrl, apiBody).toPromise();
   }
 
@@ -255,8 +256,8 @@ export class EditFlexibleDistressComponent {
         'Flexible distress updated successfully!',
         'Success',
         {
-            timeOut: 3000,
-            positionClass: 'toast-top-right',
+          timeOut: 3000,
+          positionClass: 'toast-top-right',
         }
       );
 
@@ -269,7 +270,7 @@ export class EditFlexibleDistressComponent {
         'Error',
         {
           timeOut: 4000,
-            positionClass: 'toast-top-right',
+          positionClass: 'toast-top-right',
         }
       );
     }

@@ -178,7 +178,7 @@ export class EditRigidDistressComponent {
   }
 
   async submitToAPI(distressData: any): Promise<any> {
-    const apiUrl = '/api/append_distressReported_excel/';
+    const apiUrl = 'https://fantastic-reportapi-production.up.railway.app/api/append_distressReported_excel/';
 
     const apiBody = {
       Latitude: distressData.latitude,
@@ -198,6 +198,7 @@ export class EditRigidDistressComponent {
     };
 
     console.log('Updating rigid distress via API:', apiBody);
+    console.log('API URL:', apiUrl);
     return this.http.post(apiUrl, apiBody).toPromise();
   }
 
