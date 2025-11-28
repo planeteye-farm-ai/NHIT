@@ -244,7 +244,8 @@ export class EditInventoryComponent {
 
   // Submit updated inventory to API
   async submitToAPI(inventoryData: any): Promise<any> {
-    const apiUrl = '/api/append_inventory_excel/';
+    const apiUrl =
+      'https://fantastic-reportapi-production.up.railway.app/append_inventory_excel/';
 
     const apiBody = {
       Project_Name: inventoryData.road_name,
@@ -261,9 +262,32 @@ export class EditInventoryComponent {
       No_of_inventories: inventoryData.numbers_inventory || 0,
     };
 
-    console.log('Updating via API:', apiBody);
+    console.log('Updating inventory via API:', apiBody);
+    console.log('API URL:', apiUrl);
 
-    return this.http.post(apiUrl, apiBody).toPromise();
+    try {
+      const response = await this.http.post(apiUrl, apiBody).toPromise();
+      return response;
+    } catch (error: any) {
+      console.error('❌ API Failed - Full Error Details:', {
+        status: error?.status,
+        statusText: error?.statusText,
+        message: error?.message,
+        url: apiUrl,
+        body: apiBody,
+        error: error?.error,
+      });
+
+      // Re-throw with more context
+      throw {
+        ...error,
+        apiUrl,
+        apiBody,
+        errorMessage: `API call failed: ${error?.status} ${
+          error?.statusText || error?.message || 'Unknown error'
+        }`,
+      };
+    }
   }
 
   async onSubmit(): Promise<void> {

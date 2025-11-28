@@ -178,7 +178,8 @@ export class EditFlexibleDistressComponent {
   }
 
   async submitToAPI(distressData: any): Promise<any> {
-    const apiUrl = 'https://fantastic-reportapi-production.up.railway.app/api/append_distressReported_excel/';
+    const apiUrl =
+      'https://fantastic-reportapi-production.up.railway.app/append_distressReported_excel';
 
     const apiBody = {
       Latitude: distressData.latitude,
@@ -199,7 +200,29 @@ export class EditFlexibleDistressComponent {
 
     console.log('Updating flexible distress via API:', apiBody);
     console.log('API URL:', apiUrl);
-    return this.http.post(apiUrl, apiBody).toPromise();
+    
+    try {
+      const response = await this.http.post(apiUrl, apiBody).toPromise();
+      return response;
+    } catch (error: any) {
+      console.error('❌ API Failed - Full Error Details:', {
+        status: error?.status,
+        statusText: error?.statusText,
+        message: error?.message,
+        url: apiUrl,
+        body: apiBody,
+        error: error?.error,
+      });
+
+      throw {
+        ...error,
+        apiUrl,
+        apiBody,
+        errorMessage: `API call failed: ${error?.status} ${
+          error?.statusText || error?.message || 'Unknown error'
+        }`,
+      };
+    }
   }
 
   async onSubmit(): Promise<void> {

@@ -47,6 +47,18 @@ export class LoginComponent {
   toggleClass = 'las la-eye-slash';
   active = 'Angular';
   token: any;
+
+  // Static login credentials (you can modify these)
+  private staticCredentials = {
+    username: 'admin',
+    password: 'admin123',
+    admin_id: 'static_admin_001',
+    uid: 'admin',
+    user_role: 'admin',
+    first_name: 'Static',
+    last_name: 'User',
+    access_type: 'BIS', // or 'RIS' based on your needs
+  };
   public togglePassword() {
     this.showPassword = !this.showPassword;
     if (this.toggleClass === 'las la-eye') {
@@ -136,6 +148,55 @@ export class LoginComponent {
 
     const formData = this.loginForm.value;
 
+    // Try static login first, if credentials don't match, fall back to dynamic login
+    const isStaticLogin = this.handleStaticLogin(formData);
+
+    // If static login didn't succeed, try dynamic login
+    if (!isStaticLogin) {
+      this.handleDynamicLogin(formData);
+    }
+  }
+
+  /**
+   * Handle static login with hardcoded credentials
+   * @returns true if static login succeeded, false otherwise
+   */
+  private handleStaticLogin(formData: any): boolean {
+    if (
+      formData.username === this.staticCredentials.username &&
+      formData.password === this.staticCredentials.password
+    ) {
+      // Generate a mock token for static login
+      this.token = 'static_token_' + Date.now();
+      localStorage.setItem('token', this.token);
+      localStorage.setItem('admin_id', this.staticCredentials.admin_id);
+      localStorage.setItem('uid', this.staticCredentials.uid);
+      localStorage.setItem('role', this.staticCredentials.user_role);
+      localStorage.setItem(
+        'name',
+        `${this.staticCredentials.first_name} ${this.staticCredentials.last_name}`
+      );
+      localStorage.setItem('access_type', this.staticCredentials.access_type);
+
+      this.toastr.success('Login successful', 'NHAI RAMS', {
+        timeOut: 3000,
+        positionClass: 'toast-top-right',
+      });
+
+      if (this.staticCredentials.access_type === 'BIS') {
+        this.router.navigate(['home-dashboard']);
+      } else {
+        this.router.navigate(['home-dashboard']);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Handle dynamic login via API
+   */
+  private handleDynamicLogin(formData: any) {
     const loginData = {
       uid: formData.username,
       password: formData.password,

@@ -424,7 +424,8 @@ export class AddRigidDistressComponent {
 
   // Submit distress to API
   async submitToAPI(): Promise<any> {
-    const apiUrl = 'https://fantastic-reportapi-production.up.railway.app/api/append_distressReported_excel/';
+    const apiUrl =
+      'https://fantastic-reportapi-production.up.railway.app/append_distressReported_excel';
 
     const apiBody = {
       Latitude: this.distressForm.get('latitude')?.value,
@@ -446,7 +447,29 @@ export class AddRigidDistressComponent {
     console.log('Submitting rigid distress to API:', apiBody);
     console.log('API URL:', apiUrl);
 
-    return this.http.post(apiUrl, apiBody).toPromise();
+    try {
+      const response = await this.http.post(apiUrl, apiBody).toPromise();
+      return response;
+    } catch (error: any) {
+      console.error('❌ API Failed - Full Error Details:', {
+        status: error?.status,
+        statusText: error?.statusText,
+        message: error?.message,
+        url: apiUrl,
+        body: apiBody,
+        error: error?.error,
+      });
+
+      // Re-throw with more context
+      throw {
+        ...error,
+        apiUrl,
+        apiBody,
+        errorMessage: `API call failed: ${error?.status} ${
+          error?.statusText || error?.message || 'Unknown error'
+        }`,
+      };
+    }
   }
 
   // Distress Type Card Click Handler
@@ -727,12 +750,27 @@ export class AddRigidDistressComponent {
     // Submit to API
     let apiSuccess = false;
     let apiResponse: any = null;
+    let errorDetails: any = null;
     try {
       apiResponse = await this.submitToAPI();
       apiSuccess = true;
       console.log('✅ API Success:', apiResponse);
-    } catch (error) {
+    } catch (error: any) {
+      errorDetails = error;
       console.error('❌ API Failed:', error);
+
+      // Log detailed error information
+      if (error?.status) {
+        console.error(`HTTP Status: ${error.status} ${error.statusText || ''}`);
+        console.error(
+          `Error Message: ${
+            error.errorMessage || error.message || 'Unknown error'
+          }`
+        );
+        if (error?.error) {
+          console.error('Error Response:', error.error);
+        }
+      }
     }
 
     // Save to localStorage after successful API submission (for viewing in table)
@@ -827,10 +865,22 @@ export class AddRigidDistressComponent {
         this.router.navigate(['/ris/road-manage/rigid-distress']);
       }, 500);
     } else {
-      this.toastr.error('Failed to submit to API. Please try again.', 'Error', {
-        timeOut: 4000,
+      // Show detailed error message
+      const errorMsg =
+        errorDetails?.status === 404
+          ? 'API endpoint not found (404). Please check if the API URL is correct.'
+          : errorDetails?.status === 500
+          ? 'Server error (500). Please try again later.'
+          : errorDetails?.errorMessage ||
+            errorDetails?.message ||
+            'Failed to submit to API. Please try again.';
+
+      this.toastr.error(errorMsg, 'API Error', {
+        timeOut: 5000,
         positionClass: 'toast-top-right',
       });
+
+      console.error('Full error details:', errorDetails);
     }
   }
 }
