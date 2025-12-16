@@ -470,7 +470,7 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         title: 'AADT in Vehicles',
         value:
           typeof aadtInVehicles === 'number'
-            ? aadtInVehicles.toFixed(2)
+            ? aadtInVehicles.toFixed(0)
             : aadtInVehicles,
         unit: '',
       },
@@ -478,13 +478,13 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         title: 'CVD in Vehicles',
         value:
           typeof cvdInVehicles === 'number'
-            ? cvdInVehicles.toFixed(2)
+            ? cvdInVehicles.toFixed(0)
             : cvdInVehicles,
         unit: '',
       },
       {
         title: 'AADT in PCU',
-        value: typeof aadtInPCU === 'number' ? aadtInPCU.toFixed(2) : aadtInPCU,
+        value: typeof aadtInPCU === 'number' ? aadtInPCU.toFixed(0) : aadtInPCU,
         unit: '',
       },
       {
