@@ -4,14 +4,15 @@
 export const environment = {
   production: true,
   firebase: {
-    apiKey: "***************************************",
-    authDomain: "************************",
-    projectId: "***********************************",
-    storageBucket: "************************",
-    messagingSenderId: "*********************",
-    appId: "*******************************************",
-    measurementId: "*********************"
+    apiKey: '***************************************',
+    authDomain: '************************',
+    projectId: '***********************************',
+    storageBucket: '************************',
+    messagingSenderId: '*********************',
+    appId: '*******************************************',
+    measurementId: '*********************',
   },
+  googleMapsApiKey: 'AIzaSyA0C4pYp1Y958dJzPjrsFLQ4iPmKIvu-MA',
 };
 /*
  * For easier debugging in development mode, you can import the following file

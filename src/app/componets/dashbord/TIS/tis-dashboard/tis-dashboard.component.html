@@ -38,7 +38,11 @@
 
           <div class="filter-group">
             <label>Direction:</label>
-            <select [value]="filters.direction" (change)="onDirectionChange($any($event.target).value)" class="filter-select">
+            <select
+              [value]="filters.direction"
+              (change)="onDirectionChange($any($event.target).value)"
+              class="filter-select"
+            >
               <option value="Increasing">Increasing</option>
               <option value="Decreasing">Decreasing</option>
             </select>
@@ -140,10 +144,43 @@
           </div>
         </div> -->
 
+        <!-- Error Message -->
+        <div
+          class="traffic-error"
+          *ngIf="trafficError"
+          style="
+            padding: 10px;
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            border-radius: 8px;
+            color: #f44336;
+            margin-bottom: 10px;
+          "
+        >
+          {{ trafficError }}
+        </div>
+
         <!-- Actual Distress Map -->
         <div class="map-container">
           <div class="chart-header">
             <h3>Location wise TIS Distribution</h3>
+            <button
+              class="btn-traffic-analysis"
+              (click)="openTrafficAnalysisModal()"
+              [disabled]="
+                isFetchingTraffic || !filters.date || !filters.projectName
+              "
+              [class.loading]="isFetchingTraffic"
+            >
+              <i
+                class="fas"
+                [class.fa-spinner]="isFetchingTraffic"
+                [class.fa-spin]="isFetchingTraffic"
+                [class.fa-route]="!isFetchingTraffic"
+              ></i>
+              <span *ngIf="!isFetchingTraffic">Show Traffic Analysis</span>
+              <span *ngIf="isFetchingTraffic">Fetching Traffic Data...</span>
+            </button>
           </div>
           <div class="map-wrapper">
             <div class="section-loading-overlay" *ngIf="isLoading">
@@ -162,7 +199,74 @@
               <div class="loading-spinner"></div>
               <p>Loading map data...</p>
             </div>
-            <div *ngIf="filters.date" id="mapContainer" class="map"></div>
+            <div *ngIf="filters.date" id="mapContainer" class="map">
+              <!-- Traffic Analysis Overlay on Map -->
+              <div
+                class="traffic-analysis-overlay"
+                *ngIf="
+                  showTrafficAnalysis &&
+                  routeData &&
+                  routeData.segments &&
+                  routeData.segments.length > 0
+                "
+              >
+                <!-- <div class="traffic-analysis-panel">
+                  <h6>Traffic Analysis</h6>
+
+                  <div class="traffic-route-info">
+                    <div class="traffic-route-row">
+                      <strong>Date & Time:</strong> {{ routeData.date_times }}
+                    </div>
+                  </div>
+
+                  <div class="traffic-stats-panel">
+                    <div class="traffic-stat-row">
+                      <div class="traffic-stat-item">
+                        <strong>Total Time:</strong>
+                        {{ getTotalTimeFormatted() }} ({{
+                          getTotalTimeInMinutes()
+                        }}
+                        minutes)
+                      </div>
+                      <div class="traffic-stat-item">
+                        <strong>Total Distance:</strong>
+                        {{ routeData.total_kms }} km
+                      </div>
+                      <div class="traffic-stat-item">
+                        <strong>Average Time per km:</strong>
+                        {{ getAverageTimePerKm() }} minutes
+                      </div>
+                    </div>
+                  </div>
+                  <div class="traffic-distribution-panel">
+                    <h6>Traffic Distribution</h6>
+                    <div class="traffic-density-stats">
+                      <span class="traffic-status traffic-green"
+                        >Free Flow: {{ trafficDensity.freeFlow }}</span
+                      >
+                      <span class="traffic-status traffic-yellow"
+                        >Light: {{ trafficDensity.light }}</span
+                      >
+                      <span class="traffic-status traffic-orange"
+                        >Moderate: {{ trafficDensity.moderate }}</span
+                      >
+                      <span class="traffic-status traffic-red"
+                        >Heavy: {{ trafficDensity.heavy }}</span
+                      >
+                      <span class="traffic-status traffic-dark-red"
+                        >Severe: {{ trafficDensity.severe }}</span
+                      >
+                    </div>
+                    <p class="traffic-density-note">
+                      <small
+                        >Based on {{ routeData.segments.length }} route
+                        segments</small
+                      >
+                    </p>
+                  </div>
+                </div> -->
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -172,16 +276,25 @@
         <div class="asset-summary">
           <div class="asset-summary-header">
             <h3>Traffic Information Summary</h3>
-            <button 
+            <button
               class="month-comparison-toggle"
               [class.active]="isMonthComparisonMode"
               [class.loading]="isPreloadingMonthData"
               (click)="toggleMonthComparisonMode()"
-              title="{{ isMonthComparisonMode ? 'Click to disable month comparison mode' : 'Click to enable month comparison mode' }}"
+              title="{{
+                isMonthComparisonMode
+                  ? 'Click to disable month comparison mode'
+                  : 'Click to enable month comparison mode'
+              }}"
             >
               <i *ngIf="!isPreloadingMonthData" class="fas fa-calendar-alt"></i>
-              <i *ngIf="isPreloadingMonthData" class="fas fa-spinner fa-spin"></i>
-              <span class="toggle-label">{{ isMonthComparisonMode ? 'ON' : 'OFF' }}</span>
+              <i
+                *ngIf="isPreloadingMonthData"
+                class="fas fa-spinner fa-spin"
+              ></i>
+              <span class="toggle-label">{{
+                isMonthComparisonMode ? "ON" : "OFF"
+              }}</span>
             </button>
           </div>
           <div class="asset-grid mobile-grid">
@@ -201,12 +314,12 @@
               <div class="loading-spinner"></div>
               <p>Loading traffic information...</p>
             </div>
-            <div 
-              *ngFor="let info of trafficInfoData" 
+            <div
+              *ngFor="let info of trafficInfoData"
               class="asset-card clickable-card"
               [class.selected]="selectedInfoCard === info.title"
               (click)="onInfoCardClick(info)"
-              style="cursor: pointer;"
+              style="cursor: pointer"
               title="Click to highlight on map"
             >
               <div class="asset-info">
@@ -223,12 +336,250 @@
   </div>
 </div>
 
+<!-- Traffic Analysis Modal -->
+<div
+  *ngIf="isTrafficAnalysisModalOpen"
+  class="traffic-modal-backdrop"
+  (click)="closeTrafficAnalysisModal()"
+>
+  <div class="traffic-modal-content" (click)="$event.stopPropagation()">
+    <div class="traffic-modal-header">
+      <h2>Traffic Analysis</h2>
+      <button class="close-btn" (click)="closeTrafficAnalysisModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Navbar with Chainage, Date, Time, and Get Live Traffic Button -->
+    <div class="traffic-modal-navbar">
+      <div class="traffic-navbar-item">
+        <label>Chainage:</label>
+        <span
+          >{{ filters.chainageRange.min.toFixed(3) }} -
+          {{ filters.chainageRange.max.toFixed(3) }}</span
+        >
+      </div>
+      <div class="traffic-navbar-item">
+        <label>Project Date:</label>
+        <span>{{ filters.date }}</span>
+      </div>
+      <div class="traffic-navbar-item">
+        <label>Analysis Date:</label>
+        <input
+          type="date"
+          [(ngModel)]="trafficAnalysisDate"
+          class="date-input"
+          (change)="onTrafficAnalysisDateChange()"
+        />
+      </div>
+      <div class="traffic-navbar-item">
+        <label>Direction:</label>
+        <select
+          [(ngModel)]="filters.direction"
+          class="direction-select"
+          (change)="onTrafficModalDirectionChange()"
+        >
+          <option value="Increasing">Increasing</option>
+          <option value="Decreasing">Decreasing</option>
+        </select>
+      </div>
+      <div class="traffic-navbar-item">
+        <label>Time:</label>
+        <input
+          type="time"
+          [(ngModel)]="trafficModalTime"
+          class="time-input"
+          (change)="onTrafficModalTimeChange()"
+        />
+      </div>
+      <div class="traffic-navbar-item">
+        <button
+          class="btn-get-live-traffic"
+          (click)="getLiveTraffic()"
+          [disabled]="isFetchingTraffic"
+          [class.loading]="isFetchingTraffic"
+        >
+          <i
+            class="fas"
+            [class.fa-spinner]="isFetchingTraffic"
+            [class.fa-spin]="isFetchingTraffic"
+            [class.fa-sync]="!isFetchingTraffic"
+          ></i>
+          <span>{{
+            isFetchingTraffic ? "Fetching..." : "Get Live Traffic"
+          }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Body Container -->
+    <div class="traffic-modal-body">
+      <!-- Map Section - Separate Div -->
+      <div class="traffic-modal-map-section">
+        <div class="traffic-modal-map-container">
+          <div id="trafficModalMap" class="traffic-modal-map"></div>
+          <div *ngIf="trafficError" class="traffic-error-message">
+            {{ trafficError }}
+          </div>
+        </div>
+      </div>
+
+      <!-- 24hr Traffic Trend Chart Section - Below Map -->
+      <div class="traffic-modal-chart-section">
+        <div class="traffic-modal-chart-container">
+          <div class="chart-header-section">
+            <h3>24hr Traffic Trend</h3>
+            <div class="traffic-stats-badges">
+              <div *ngIf="totalTravelTime" class="total-time-badge">
+                <i class="fas fa-hourglass-half"></i>
+                <span
+                  >Total Time: Avg {{ totalTravelTime.average.toFixed(1) }} min
+                  (Min: {{ totalTravelTime.min.toFixed(1) }} - Max:
+                  {{ totalTravelTime.max.toFixed(1) }} min)</span
+                >
+              </div>
+              <div *ngIf="bestTravelTime" class="best-time-badge">
+                <i class="fas fa-clock"></i>
+                <span
+                  >Best Time: {{ bestTravelTime.time }} ({{
+                    bestTravelTime.minutes.toFixed(1)
+                  }}
+                  min)</span
+                >
+              </div>
+            </div>
+          </div>
+          <div *ngIf="isLoading24hrTrafficTrend" class="chart-loading">
+            <div class="loading-spinner"></div>
+            <p>Loading 24hr traffic trend...</p>
+            <div
+              class="progress-bar-container"
+              *ngIf="trafficTrendProgress > 0"
+            >
+              <div
+                class="progress-bar"
+                [style.width.%]="trafficTrendProgress"
+              ></div>
+              <span class="progress-text">{{ trafficTrendProgress }}%</span>
+            </div>
+          </div>
+          <div
+            *ngIf="!isLoading24hrTrafficTrend && !has24hrTrafficData"
+            class="chart-empty"
+          >
+            <i class="bi bi-bar-chart-line"></i>
+            <p>No 24hr traffic data available</p>
+          </div>
+          <div
+            *ngIf="!isLoading24hrTrafficTrend && has24hrTrafficData"
+            class="traffic-trend-chart"
+            echarts
+            [options]="traffic24hrTrendChartOptions"
+          ></div>
+        </div>
+
+        <!-- Future 24hr + Past Week + Past Month Traffic Chart -->
+        <div class="traffic-modal-chart-container forecast-chart-container">
+          <div class="chart-header-section">
+            <h3>Future 24hr + Past 1 Week Traffic Forecast</h3>
+            <div class="forecast-controls">
+              <button
+                class="btn-load-month"
+                (click)="loadPastMonthTrafficData()"
+                [disabled]="isLoadingMonthData || showMonthData"
+                [class.loading]="isLoadingMonthData"
+                [class.active]="showMonthData"
+              >
+                <i
+                  class="fas"
+                  [class.fa-spinner]="isLoadingMonthData"
+                  [class.fa-spin]="isLoadingMonthData"
+                  [class.fa-calendar-alt]="!isLoadingMonthData"
+                ></i>
+                <span>{{
+                  isLoadingMonthData
+                    ? "Loading..."
+                    : showMonthData
+                    ? "1 Month Loaded"
+                    : "Load Past 1 Month"
+                }}</span>
+              </button>
+              <div
+                *ngIf="forecastBestTime"
+                class="best-time-badge forecast-badge"
+              >
+                <i class="fas fa-clock"></i>
+                <span
+                  >Best Time: {{ forecastBestTime.time }} ({{
+                    forecastBestTime.minutes.toFixed(1)
+                  }}
+                  min) {{ forecastBestTime.is24hr ? "(24hr)" : "(Past)" }}</span
+                >
+              </div>
+            </div>
+          </div>
+          <div
+            *ngIf="isLoadingForecastTraffic || isLoadingMonthData"
+            class="chart-loading"
+          >
+            <div class="loading-spinner"></div>
+            <p>
+              {{
+                isLoadingMonthData
+                  ? "Loading past month traffic data..."
+                  : "Loading forecast traffic data..."
+              }}
+            </p>
+            <div class="progress-bar-container" *ngIf="forecastProgress > 0">
+              <div
+                class="progress-bar"
+                [style.width.%]="forecastProgress"
+              ></div>
+              <span class="progress-text">{{ forecastProgress }}%</span>
+            </div>
+          </div>
+          <div
+            *ngIf="
+              !isLoadingForecastTraffic &&
+              !isLoadingMonthData &&
+              !hasForecastTrafficData
+            "
+            class="chart-empty"
+          >
+            <i class="bi bi-bar-chart-line"></i>
+            <p>No forecast traffic data available</p>
+          </div>
+          <div
+            *ngIf="
+              !isLoadingForecastTraffic &&
+              !isLoadingMonthData &&
+              hasForecastTrafficData
+            "
+            class="traffic-trend-chart forecast-chart"
+            echarts
+            [options]="trafficForecastChartOptions"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Month Comparison Modal -->
-<div *ngIf="isMonthComparisonModalOpen" class="comparison-modal-backdrop" (click)="closeMonthComparisonModal()">
+<div
+  *ngIf="isMonthComparisonModalOpen"
+  class="comparison-modal-backdrop"
+  (click)="closeMonthComparisonModal()"
+>
   <div class="comparison-modal-content" (click)="$event.stopPropagation()">
     <div class="comparison-modal-header">
       <h2>
-        {{ selectedMetricsForMonthComparison.length === 1 ? selectedMetricsForMonthComparison[0] : 'Traffic Metrics' }} - Month-wise Comparison
+        {{
+          selectedMetricsForMonthComparison.length === 1
+            ? selectedMetricsForMonthComparison[0]
+            : "Traffic Metrics"
+        }}
+        - Month-wise Comparison
       </h2>
       <button class="close-btn" (click)="closeMonthComparisonModal()">
         <i class="bi bi-x-lg"></i>
@@ -241,16 +592,37 @@
         <h3>Select Metrics to Compare (Max 5)</h3>
         <div class="asset-chips-container">
           <div
-            *ngFor="let metric of ['AADT in Vehicles', 'CVD in Vehicles', 'AADT in PCU', 'Car/ Jeep/ Van/ Taxi', '3 Axle Trucks', '2 Axle Trucks', 'MAV', 'OSV', 'LCV', 'Standard Bus']"
+            *ngFor="
+              let metric of [
+                'AADT in Vehicles',
+                'CVD in Vehicles',
+                'AADT in PCU',
+                'Car/ Jeep/ Van/ Taxi',
+                '3 Axle Trucks',
+                '2 Axle Trucks',
+                'MAV',
+                'OSV',
+                'LCV',
+                'Standard Bus'
+              ]
+            "
             class="asset-chip"
             [class.selected]="isMetricSelectedForMonthComparison(metric)"
             [style.border-color]="getMetricColor(metric)"
-            [style.background-color]="getMetricChipBackgroundColorForMonth(metric)"
+            [style.background-color]="
+              getMetricChipBackgroundColorForMonth(metric)
+            "
             (click)="toggleMetricForMonthComparison(metric)"
           >
-            <span class="chip-color-indicator" [style.background-color]="getMetricColor(metric)"></span>
+            <span
+              class="chip-color-indicator"
+              [style.background-color]="getMetricColor(metric)"
+            ></span>
             <span class="chip-label">{{ metric }}</span>
-            <i class="bi bi-check-circle-fill chip-checkmark" *ngIf="isMetricSelectedForMonthComparison(metric)"></i>
+            <i
+              class="bi bi-check-circle-fill chip-checkmark"
+              *ngIf="isMetricSelectedForMonthComparison(metric)"
+            ></i>
           </div>
         </div>
       </div>
@@ -262,13 +634,21 @@
           <p>Loading month-wise data...</p>
         </div>
 
-        <div *ngIf="!isLoadingMonthChart && selectedMetricsForMonthComparison.length === 0" class="chart-empty">
+        <div
+          *ngIf="
+            !isLoadingMonthChart &&
+            selectedMetricsForMonthComparison.length === 0
+          "
+          class="chart-empty"
+        >
           <i class="bi bi-bar-chart-line"></i>
           <p>Please select at least one metric to compare</p>
         </div>
 
         <div
-          *ngIf="!isLoadingMonthChart && selectedMetricsForMonthComparison.length > 0"
+          *ngIf="
+            !isLoadingMonthChart && selectedMetricsForMonthComparison.length > 0
+          "
           class="comparison-echarts-chart"
           echarts
           [options]="monthComparisonChartOptions"
@@ -277,9 +657,17 @@
       </div>
 
       <!-- Info Banner -->
-      <div class="chart-info" *ngIf="!isLoadingMonthChart && selectedMetricsForMonthComparison.length > 0">
+      <div
+        class="chart-info"
+        *ngIf="
+          !isLoadingMonthChart && selectedMetricsForMonthComparison.length > 0
+        "
+      >
         <i class="bi bi-info-circle"></i>
-        <span>Showing {{ selectedMetricsForMonthComparison.length }} metric(s) across {{ availableMonthsForComparison.length }} month(s)</span>
+        <span
+          >Showing {{ selectedMetricsForMonthComparison.length }} metric(s)
+          across {{ availableMonthsForComparison.length }} month(s)</span
+        >
       </div>
     </div>
   </div>
