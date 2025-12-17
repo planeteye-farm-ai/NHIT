@@ -87,32 +87,58 @@ export class DistressPredictionReportComponent {
   }
 
   filterDistress() {
-    // Create data object from form values
+    // Get form values
+    const formDate = this.filterForm.get('date')?.value;
+    const formProjectName = this.filterForm.get('project_name')?.value || [];
+    const formDirection = this.filterForm.get('direction')?.value;
+    const formChainageStart = this.filterForm.get('chainage_start')?.value;
+    const formChainageEnd = this.filterForm.get('chainage_end')?.value;
+    const formDistressType = this.filterForm.get('distress_type')?.value || [];
+
+    // Format data according to API requirements
     let dataObj = {
-      date: this.filterForm.get('date')?.value,
-      project_name: this.filterForm.get('project_name')?.value,
-      direction: this.filterForm.get('direction')?.value,
-      chainage_start: this.filterForm.get('chainage_start')?.value,
-      chainage_end: this.filterForm.get('chainage_end')?.value,
-      distress_type: this.filterForm.get('distress_type')?.value,
+      date: formDate || new Date().toISOString().split('T')[0],
+      project_name: Array.isArray(formProjectName)
+        ? formProjectName
+        : formProjectName
+        ? [formProjectName]
+        : [],
+      direction: formDirection
+        ? Array.isArray(formDirection)
+          ? formDirection
+          : [formDirection]
+        : [],
+      chainage_start: formChainageStart ? parseFloat(formChainageStart) : 0,
+      chainage_end: formChainageEnd ? parseFloat(formChainageEnd) : 0,
+      distress_type: Array.isArray(formDistressType)
+        ? formDistressType
+        : formDistressType
+        ? [formDistressType]
+        : [],
     };
 
     this.filterDataShow = dataObj;
     // Fetch distress report data
-    this.inventoryReportService.getDistressPredictedData(dataObj).subscribe((res) => {
-      // 🔁 Flatten nested arrays from API response
-      const flatData = res.flat();
+    this.inventoryReportService.getDistressPredictedData(dataObj).subscribe({
+      next: (res) => {
+        // 🔁 Flatten nested arrays from API response
+        const flatData = res.flat();
 
-      // ✅ Assign flattened data directly to tableData for display
-      this.tableData = flatData;
+        // ✅ Assign flattened data directly to tableData for display
+        this.tableData = flatData;
 
-      // ✅ Keep original nested array for export (PDF or Excel, if needed)
-      this.distressReport = res;
+        // ✅ Keep original nested array for export (PDF or Excel, if needed)
+        this.distressReport = res;
 
-      // Optional debugging logs
-      // console.log('Raw Response:', res);
-      // console.log('Flattened Table Data:', this.tableData);
+        // Optional debugging logs
+        // console.log('Raw Response:', res);
+        // console.log('Flattened Table Data:', this.tableData);
         console.log('tableData', this.tableData);
+      },
+      error: (error) => {
+        console.error('Error fetching distress prediction report:', error);
+        this.toastr.error('Failed to fetch distress prediction report data', 'Error');
+      },
     });
   }
   resetFilter() {
