@@ -719,16 +719,21 @@ export class DistressPredictionDashboardComponent
 
     try {
       // Prepare API request body with selected filters
+      // Use a large chainage range to ensure we capture all data for all dates
       const requestBody = {
         chainage_start: 0,
-        chainage_end: 1381,
+        chainage_end: 10000, // Increased from 1381 to capture all possible chainage values
         date: this.filters.date,
         direction: ['All'],
         project_name: [this.filters.projectName.trim()],
         distress_type: ['All'],
       };
 
-      // API request prepared
+      console.log('Distress Prediction API Request:', {
+        project: this.filters.projectName,
+        date: this.filters.date,
+        chainageRange: `${requestBody.chainage_start}-${requestBody.chainage_end}`
+      });
 
       const response = await fetch(
         'https://fantastic-reportapi-production.up.railway.app/distress_predic_filter',
@@ -742,13 +747,14 @@ export class DistressPredictionDashboardComponent
         }
       );
 
-      const apiResponse = await response.json();
-      // API response received
-
-      if (!apiResponse) {
-        console.error('No data received from API');
+      if (!response.ok) {
+        console.error(`API returned HTTP ${response.status}: ${response.statusText}`);
+        this.rawData = [];
+        this.resetChainageCache();
         return;
       }
+
+      const apiResponse = await response.json();
 
       // Handle API response - check if it's an error or valid data
       if (apiResponse && apiResponse.detail) {
@@ -771,6 +777,11 @@ export class DistressPredictionDashboardComponent
       } else {
         flatData = [];
       }
+
+      console.log(`Distress Prediction API Response for ${this.filters.date}:`, {
+        totalItems: flatData.length,
+        project: this.filters.projectName
+      });
 
       // Data flattened successfully
 
@@ -871,10 +882,12 @@ export class DistressPredictionDashboardComponent
     const chainages = this.rawData.flatMap((item) => [
       item.chainage_start,
       item.chainage_end,
-    ]);
+    ]).filter(val => val != null && !isNaN(val) && isFinite(val)); // Filter out invalid values
+    
     if (chainages.length > 0) {
-      this.filters.chainageRange.min = Math.min(...chainages);
-      this.filters.chainageRange.max = Math.max(...chainages);
+      // Use reduce to avoid stack overflow with large arrays
+      this.filters.chainageRange.min = chainages.reduce((min, val) => val < min ? val : min, chainages[0]);
+      this.filters.chainageRange.max = chainages.reduce((max, val) => val > max ? val : max, chainages[0]);
       console.log('Updated chainage range:', this.filters.chainageRange);
     }
   }
