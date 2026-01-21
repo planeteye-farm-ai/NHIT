@@ -1,0 +1,103 @@
+<div class="comparison-container">
+  <div class="comparison-header">
+    <h2>
+      <i class="bi bi-graph-up-arrow"></i>
+      Chainage Comparison Chart
+    </h2>
+    <button class="close-btn" (click)="closeWindow()" *ngIf="isBrowser">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="comparison-body">
+    <!-- Card Selection Section -->
+    <div class="card-selection-section">
+      <h3>Select Cards to Compare (Max 5)</h3>
+      <div class="card-chips-container">
+        <div
+          *ngFor="let card of dashboardCards"
+          class="card-chip"
+          [class.selected]="isCardSelectedForComparison(card.title)"
+          [style.border-color]="getCardColor(card.apiType || '')"
+          [style.background-color]="getCardChipBackgroundColor(card.title)"
+          (click)="toggleCardForComparison(card.title)"
+        >
+          <span
+            class="chip-color-indicator"
+            [style.background-color]="getCardColor(card.apiType || '')"
+          ></span>
+          <span class="chip-label">{{ card.title }}</span>
+          <i
+            class="bi bi-check-circle-fill chip-checkmark"
+            *ngIf="isCardSelectedForComparison(card.title)"
+          ></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chainage Range Selection -->
+    <div class="chainage-range-section">
+      <h3>Chainage Range</h3>
+      <div class="chainage-inputs">
+        <div class="chainage-input-group">
+          <label>Min:</label>
+          <input
+            type="number"
+            [min]="filters.chainageRange.min"
+            [max]="comparisonChainageMax"
+            [value]="comparisonChainageMin"
+            (input)="onChainageMinChange($event)"
+            class="chainage-input"
+            step="0.001"
+          />
+        </div>
+        <div class="chainage-input-group">
+          <label>Max:</label>
+          <input
+            type="number"
+            [min]="comparisonChainageMin"
+            [max]="filters.chainageRange.max"
+            [value]="comparisonChainageMax"
+            (input)="onChainageMaxChange($event)"
+            class="chainage-input"
+            step="0.001"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Container -->
+    <div class="comparison-chart-container">
+      <div
+        *ngIf="selectedCardsForComparison.size === 0"
+        class="no-cards-selected"
+      >
+        <i class="bi bi-bar-chart-line"></i>
+        <p>Please select at least one card to view the comparison chart</p>
+      </div>
+      <div
+        *ngIf="
+          selectedCardsForComparison.size > 0 &&
+          chainageComparisonChartOptions &&
+          chainageComparisonChartOptions.series
+        "
+        echarts
+        [options]="chainageComparisonChartOptions"
+        class="comparison-echarts-chart"
+        style="background: rgba(0,0,0,0.2);"
+      ></div>
+      <div
+        *ngIf="
+          selectedCardsForComparison.size > 0 &&
+          (!chainageComparisonChartOptions ||
+            !chainageComparisonChartOptions.series)
+        "
+        class="loading-chart"
+      >
+        <div class="loading-spinner"></div>
+        <p>Generating chart...</p>
+      </div>
+    </div>
+  </div>
+</div>
+

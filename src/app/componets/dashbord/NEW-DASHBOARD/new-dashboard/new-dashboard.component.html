@@ -1,0 +1,398 @@
+<div class="dashboard-container">
+  <!-- Main Content Area -->
+  <div>
+    <!-- Filter Containers -->
+    <div class="filters-container">
+      <!-- Main Filters Container -->
+      <div class="main-filters-container">
+        <div class="filter-row-main">
+          <div class="filter-group">
+            <label>Project Name:</label>
+            <select
+              [value]="filters.projectName"
+              (change)="onProjectChange($event)"
+              class="filter-select"
+            >
+              <option
+                *ngFor="let project of availableProjects"
+                [value]="project"
+              >
+                {{ project }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Date:</label>
+            <select
+              [value]="filters.date"
+              (change)="onDateChange($event)"
+              class="filter-select"
+            >
+              <option *ngFor="let date of availableDates" [value]="date">
+                {{ date }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Direction:</label>
+            <select
+              [value]="filters.direction"
+              (change)="onDirectionChange($any($event.target).value)"
+              class="filter-select"
+            >
+              <option value="Increasing">Increasing</option>
+              <option value="Decreasing">Decreasing</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Pavement Type:</label>
+            <select
+              [value]="filters.pavementType"
+              (change)="onPavementTypeChange($event)"
+              class="filter-select"
+            >
+              <option value="All">All</option>
+              <option
+                *ngFor="let type of availablePavementTypes"
+                [value]="type"
+              >
+                {{ type }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Lane:</label>
+            <select
+              [value]="filters.lane"
+              (change)="onLaneChange($event)"
+              class="filter-select"
+            >
+              <option value="All">All</option>
+              <option *ngFor="let lane of availableLanes" [value]="lane">
+                {{ lane }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group chainage-range-group">
+            <div class="chainage-inputs">
+              <input
+                type="number"
+                [min]="getChainageMin()"
+                [max]="filters.chainageRange.max"
+                [value]="filters.chainageRange.min"
+                (input)="onChainageMinChange($event)"
+                class="chainage-input"
+                step="0.001"
+              />
+              <input
+                type="number"
+                [min]="filters.chainageRange.min"
+                [max]="getChainageMax()"
+                [value]="filters.chainageRange.max"
+                (input)="onChainageMaxChange($event)"
+                class="chainage-input"
+                step="0.001"
+              />
+            </div>
+            <div class="chainage-slider-container">
+              <input
+                type="range"
+                [min]="getChainageMin()"
+                [max]="getChainageMax()"
+                [value]="filters.chainageRange.min"
+                (input)="onChainageMinSliderChange($event)"
+                class="chainage-slider min-slider"
+                step="0.001"
+              />
+              <input
+                type="range"
+                [min]="getChainageMin()"
+                [max]="getChainageMax()"
+                [value]="filters.chainageRange.max"
+                (input)="onChainageMaxSliderChange($event)"
+                class="chainage-slider max-slider"
+                step="0.001"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div
+      class="sidebar-overlay"
+      [class.active]="isSidebarOpen"
+      (click)="toggleSidebar()"
+    ></div>
+
+    <!-- Main Dashboard Container -->
+    <div class="main-dashboard-container">
+      <!-- Left Panel (90% width) -->
+      <div class="left-panel">
+        <!-- Map Container -->
+        <div class="map-container">
+          <div class="chart-header">
+            <h3>Location wise Data Distribution</h3>
+            <div class="chart-buttons">
+              <button 
+                class="comparison-chart-btn"
+                (click)="openChainageComparisonModal()"
+                title="View Chainage Comparison Chart"
+              >
+                <i class="bi bi-graph-up-arrow"></i>
+                Chainage Comparison
+              </button>
+            </div>
+          </div>
+          <div class="map-wrapper">
+            <div class="section-loading-overlay" *ngIf="isLoading">
+              <div class="section-loading-content">
+                <div class="loading-spinner small"></div>
+                <p>Loading map data…</p>
+              </div>
+            </div>
+            <div *ngIf="!filters.date" class="map-placeholder">
+              <p>Select a date to view map data</p>
+            </div>
+            <div
+              *ngIf="filters.date && rawData.length === 0"
+              class="map-placeholder"
+            >
+              <div class="loading-spinner"></div>
+              <p>Loading map data...</p>
+            </div>
+            <div *ngIf="filters.date" id="mapContainer" class="map"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel (10% width) -->
+      <div class="right-panel" [class.sidebar-open]="isSidebarOpen">
+        <div class="asset-summary">
+          <div class="asset-summary-header">
+            <h3>Cards</h3>
+          </div>
+          <div class="asset-grid mobile-grid">
+            <div
+              *ngFor="let card of dashboardCards"
+              class="asset-card dashboard-nav-card"
+              [class.active]="isCardSelected(card.title)"
+              (click)="onCardClick(card)"
+            >
+              <div class="asset-info">
+                <div class="asset-icon-wrapper">
+                  <i [class]="card.icon"></i>
+                </div>
+                <div class="asset-name">{{ card.title }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Month Comparison Modal -->
+<div
+  *ngIf="isMonthComparisonModalOpen"
+  class="comparison-modal-backdrop"
+  (click)="closeMonthComparisonModal()"
+>
+  <div class="comparison-modal-content" (click)="$event.stopPropagation()">
+    <div class="comparison-modal-header">
+      <h2>
+        {{ selectedMetricsForMonthComparison.length === 1 ? selectedMetricsForMonthComparison[0] : 'Metrics' }} - Month-wise Comparison
+      </h2>
+      <button class="close-btn" (click)="closeMonthComparisonModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="comparison-modal-body">
+      <!-- Metric Selection -->
+      <div class="asset-selection-section" *ngIf="showMetricSelectionInModal">
+        <h3>Select Metrics to Compare (Max 5)</h3>
+        <div class="asset-chips-container">
+          <div
+            *ngFor="let metric of ['Metric1', 'Metric2', 'Metric3']"
+            class="asset-chip"
+            [class.selected]="isMetricSelectedForMonthComparison(metric)"
+            [style.border-color]="getMetricColor(metric)"
+            [style.background-color]="getMetricChipBackgroundColorForMonth(metric)"
+            (click)="toggleMetricForMonthComparison(metric)"
+          >
+            <span class="chip-color-indicator" [style.background-color]="getMetricColor(metric)"></span>
+            <span class="chip-label">{{ metric }}</span>
+            <i class="bi bi-check-circle-fill chip-checkmark" *ngIf="isMetricSelectedForMonthComparison(metric)"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Container -->
+      <div class="comparison-chart-container">
+        <div *ngIf="isLoadingMonthChart" class="chart-loading">
+          <div class="loading-spinner"></div>
+          <p>Loading month-wise data...</p>
+        </div>
+
+        <div
+          *ngIf="!isLoadingMonthChart && selectedMetricsForMonthComparison.length === 0"
+          class="chart-empty"
+        >
+          <i class="bi bi-bar-chart-line"></i>
+          <p>Please select at least one metric to compare</p>
+        </div>
+
+        <div
+          *ngIf="!isLoadingMonthChart && selectedMetricsForMonthComparison.length > 0"
+          class="comparison-echarts-chart"
+          echarts
+          [options]="monthComparisonChartOptions"
+          [loading]="isLoadingMonthChart"
+        ></div>
+      </div>
+
+      <!-- Info Banner -->
+      <div
+        *ngIf="!isLoadingMonthChart && selectedMetricsForMonthComparison.length > 0"
+        class="chart-info"
+      >
+        <i class="bi bi-info-circle"></i>
+        <span
+          >Showing {{ selectedMetricsForMonthComparison.length }} metric(s)
+          across {{ availableMonthsForComparison.length }} month(s)</span
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chainage Comparison Chart Modal -->
+<div *ngIf="isChainageComparisonModalOpen" class="modal-backdrop comparison-modal-backdrop" (click)="closeChainageComparisonModal()">
+  <div class="modal-content comparison-modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>
+        <i class="bi bi-graph-up-arrow"></i>
+        Chainage Comparison Chart
+      </h3>
+      <button class="modal-close-btn" (click)="closeChainageComparisonModal()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body comparison-modal-body">
+      <!-- Horizontal Layout Container -->
+      <div class="horizontal-layout-container">
+        <!-- Left Sidebar: Card Selection (25% width) -->
+        <div class="asset-selection-sidebar">
+          <div class="sidebar-header">
+            <h4>
+              <i class="bi bi-layers"></i>
+              Cards
+            </h4>
+            <span class="selection-count">{{ selectedCardsForComparison.size }}/5</span>
+          </div>
+          <div class="cards-container-comparison">
+            <div *ngFor="let card of dashboardCards" class="card-section-comparison">
+              <!-- Card Header -->
+              <div 
+                class="card-header-comparison"
+                [class.selected]="isCardSelectedForComparison(card.title)"
+                (click)="toggleCardForComparison(card.title)"
+                [title]="card.title"
+              >
+                <div class="card-header-content-comparison">
+                  <div class="card-icon-wrapper-comparison" [style.background-color]="getCardColorForComparison(card.title)">
+                    <i [class]="card.icon"></i>
+                  </div>
+                  <div class="card-title-comparison">{{ card.title }}</div>
+                  <div *ngIf="isCardSelectedForComparison(card.title)" class="selected-indicator-comparison">
+                    <i class="bi bi-check-circle-fill"></i>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Card Assets (show for all cards that have assets from comparison data) -->
+              <div *ngIf="comparisonCardAssetsMap[card.title]" class="card-assets-grid-comparison">
+                <div
+                  *ngFor="let asset of comparisonCardAssetsMap[card.title]"
+                  class="asset-card-small-comparison"
+                  [class.selected]="isAssetSelectedForComparison(card.title, asset.name)"
+                  (click)="toggleAssetForComparison(card.title, asset.name)"
+                  [title]="asset.name"
+                >
+                  <div class="asset-name-small-comparison">{{ asset.name }}</div>
+                  <div class="asset-count-small-comparison">
+                    {{ asset.count | number:'1.0-2' }}{{ asset.unit ? ' ' + asset.unit : '' }}
+                  </div>
+                  <div *ngIf="isAssetSelectedForComparison(card.title, asset.name)" class="asset-selected-indicator">
+                    <i class="bi bi-check-circle-fill"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Content: Chart (75% width) -->
+        <div class="chart-content-area">
+          <!-- Chainage Range Selection -->
+          <div class="chainage-range-section">
+            <div class="chainage-range-label">Chainage Range (km)</div>
+            <div class="chainage-slider-container">
+              <input 
+                type="range" 
+                [min]="getComparisonChainageMin()" 
+                [max]="getComparisonChainageMax()" 
+                [value]="comparisonChainageMin"
+                (input)="onComparisonChainageMinSliderChange($event)"
+                class="chainage-slider min-slider"
+                step="0.001">
+              <input 
+                type="range" 
+                [min]="getComparisonChainageMin()" 
+                [max]="getComparisonChainageMax()" 
+                [value]="comparisonChainageMax"
+                (input)="onComparisonChainageMaxSliderChange($event)"
+                class="chainage-slider max-slider"
+                step="0.001">
+            </div>
+            <div class="chainage-values">
+              <span>{{ comparisonChainageMin.toFixed(2) }} km</span>
+              <span>{{ comparisonChainageMax.toFixed(2) }} km</span>
+            </div>
+          </div>
+
+          <!-- Comparison Chart -->
+          <div class="comparison-chart-container">
+            <div *ngIf="selectedCardsForComparison.size === 0" class="no-assets-selected">
+              <i class="bi bi-bar-chart-line"></i>
+              <p>Please select at least one card to view the comparison chart</p>
+            </div>
+            <div 
+              *ngIf="selectedCardsForComparison.size > 0 && chainageComparisonChartOptions && chainageComparisonChartOptions.series" 
+              echarts 
+              [options]="chainageComparisonChartOptions" 
+              class="comparison-echarts-chart"
+              style="background: rgba(0,0,0,0.2);"
+            ></div>
+            <div *ngIf="selectedCardsForComparison.size > 0 && (!chainageComparisonChartOptions || !chainageComparisonChartOptions.series)" class="loading-chart">
+              <div class="loading-spinner"></div>
+              <p>Generating chart...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

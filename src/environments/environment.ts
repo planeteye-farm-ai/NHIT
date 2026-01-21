@@ -12,7 +12,7 @@ export const environment = {
     appId: '*******************************************',
     measurementId: '*********************',
   },
-  googleMapsApiKey: 'AIzaSyBQhzGzmSUIgsj5MhnAQgcLcDzz9lJMqj8',
+  googleMapsApiKey: 'AIzaSyBIulIk9GjlhZ1p5SwPZJ3O19mbAki9lPY',
 };
 /*
  * For easier debugging in development mode, you can import the following file

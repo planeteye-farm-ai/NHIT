@@ -79,6 +79,14 @@ export const admin: Routes = [
 
 ]},
 
+{path:'new-dashboard',children:[
+  {
+    path: '',
+    loadComponent: () =>
+      import('./NEW-DASHBOARD/new-dashboard/new-dashboard.component').then((m) => m.NewDashboardComponent),
+  },
+]},
+
 
 {path:'rwfis',children:[
   {

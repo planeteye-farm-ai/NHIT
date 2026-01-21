@@ -134,6 +134,14 @@ export class NavService implements OnDestroy {
                   selected: false,
                   path: '/pis',
                 },
+                {
+                  title: 'Integrated Dashboard',
+                  dirchange: false,
+                  type: 'link',
+                  active: false,
+                  selected: false,
+                  path: '/new-dashboard',
+                },
 
               ]
             },
@@ -921,6 +929,14 @@ export class NavService implements OnDestroy {
                   selected: false,
                   path: '/pis',
                 },
+                {
+                  title: 'NEW-DASHBOARD',
+                  dirchange: false,
+                  type: 'link',
+                  active: false,
+                  selected: false,
+                  path: '/new-dashboard',
+                },
 
               ]
             },
@@ -1212,6 +1228,14 @@ export class NavService implements OnDestroy {
                   active: false,
                   selected: false,
                   path: '/pis',
+                },
+                {
+                  title: 'NEW-DASHBOARD',
+                  dirchange: false,
+                  type: 'link',
+                  active: false,
+                  selected: false,
+                  path: '/new-dashboard',
                 },
 
               ]

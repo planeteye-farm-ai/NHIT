@@ -9,5 +9,5 @@ export const environment = {
     appId: "**********************************************",
     measurementId: "**********************************************"
   },
-  googleMapsApiKey: 'AIzaSyA0C4pYp1Y958dJzPjrsFLQ4iPmKIvu-MA',
+  googleMapsApiKey: 'AIzaSyBIulIk9GjlhZ1p5SwPZJ3O19mbAki9lPY',
 };
