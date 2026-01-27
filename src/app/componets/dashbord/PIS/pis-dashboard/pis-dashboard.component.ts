@@ -69,9 +69,9 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     projectName: '',
     direction: 'Increasing',
     chainageRange: { min: 0, max: 1380.387 },
-    pavementType: 'All',
-    lane: 'All',
-    distressType: 'All', // Not used in PIS API
+    pavementType: '', // Will be set to first available option
+    lane: '', // Will be set to first available option
+    distressType: '', // Not used in PIS API
   };
 
   // Available filter options
@@ -317,6 +317,14 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.availableLanes = [
       ...new Set(this.rawData.map((item) => item.lane).filter(Boolean)),
     ];
+    
+    // Set default values to first available option if current value is empty or 'All'
+    if ((!this.filters.pavementType || this.filters.pavementType === 'All') && this.availablePavementTypes.length > 0) {
+      this.filters.pavementType = this.availablePavementTypes[0];
+    }
+    if ((!this.filters.lane || this.filters.lane === 'All') && this.availableLanes.length > 0) {
+      this.filters.lane = this.availableLanes[0];
+    }
 
     // Update chainage range based on current data
     const chainages = this.rawData.flatMap((item) => [
@@ -337,10 +345,10 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.filters.direction === 'All' ||
         item.direction === this.filters.direction;
       const matchesPavement =
-        this.filters.pavementType === 'All' ||
+        !this.filters.pavementType ||
         item.pavement_type === this.filters.pavementType;
       const matchesLane =
-        this.filters.lane === 'All' || item.lane === this.filters.lane;
+        !this.filters.lane || item.lane === this.filters.lane;
       const matchesChainage =
         item.chainage_start <= this.filters.chainageRange.max &&
         item.chainage_end >= this.filters.chainageRange.min;

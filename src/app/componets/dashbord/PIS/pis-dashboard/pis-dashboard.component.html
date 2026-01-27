@@ -51,7 +51,6 @@
               (change)="onPavementTypeChange($event)"
               class="filter-select"
             >
-              <option value="All">All</option>
               <option
                 *ngFor="let type of availablePavementTypes"
                 [value]="type"
@@ -68,7 +67,6 @@
               (change)="onLaneChange($event)"
               class="filter-select"
             >
-              <option value="All">All</option>
               <option *ngFor="let lane of availableLanes" [value]="lane">
                 {{ lane }}
               </option>
