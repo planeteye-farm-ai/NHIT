@@ -345,6 +345,84 @@
 
         <!-- Right Content: Chart (75% width) -->
         <div class="chart-content-area">
+          <!-- Filters Section -->
+          <div class="comparison-filters-section">
+            <div class="filter-row-comparison">
+              <div class="filter-group-comparison">
+                <label>PROJECT NAME:</label>
+                <select
+                  [value]="comparisonFilters.projectName"
+                  (change)="onComparisonProjectChange($event)"
+                  class="filter-select-comparison"
+                >
+                  <option
+                    *ngFor="let project of availableProjects"
+                    [value]="project"
+                  >
+                    {{ project }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="filter-group-comparison">
+                <label>DATE:</label>
+                <select
+                  [value]="comparisonFilters.date"
+                  (change)="onComparisonDateChange($event)"
+                  class="filter-select-comparison"
+                >
+                  <option *ngFor="let date of (projectDatesMap[comparisonFilters.projectName] || availableDates)" [value]="date">
+                    {{ date }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="filter-group-comparison">
+                <label>DIRECTION:</label>
+                <select 
+                  [value]="comparisonFilters.direction" 
+                  (change)="onComparisonDirectionChange($any($event.target).value)" 
+                  class="filter-select-comparison"
+                >
+                  <option value="All">All</option>
+                  <option value="Increasing">Increasing</option>
+                  <option value="Decreasing">Decreasing</option>
+                </select>
+              </div>
+
+              <div class="filter-group-comparison">
+                <label>PAVEMENT TYPE:</label>
+                <select
+                  [value]="comparisonFilters.pavementType"
+                  (change)="onComparisonPavementTypeChange($event)"
+                  class="filter-select-comparison"
+                >
+                  <option value="All">All</option>
+                  <option
+                    *ngFor="let type of availablePavementTypes"
+                    [value]="type"
+                  >
+                    {{ type }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="filter-group-comparison">
+                <label>LANE:</label>
+                <select
+                  [value]="comparisonFilters.lane"
+                  (change)="onComparisonLaneChange($event)"
+                  class="filter-select-comparison"
+                >
+                  <option value="All">All</option>
+                  <option *ngFor="let lane of availableLanes" [value]="lane">
+                    {{ lane }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <!-- Chainage Range Selection -->
           <div class="chainage-range-section">
             <div class="chainage-range-label">Chainage Range (km)</div>

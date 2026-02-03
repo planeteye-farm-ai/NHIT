@@ -471,7 +471,7 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     // Initialize accident info data with rounded up values
     this.accidentInfoData = [
       {
-        title: 'Non-Injured Accident',
+        title: 'Non-Injured',
         value: Math.ceil(totalStats.non_injured_accident),
         unit: '',
       },
@@ -531,12 +531,12 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         unit: '',
       },
       {
-        title: 'Nature of Accident',
+        title: 'Nature',
         value: natureOfAccident,
         unit: '',
       },
       {
-        title: 'Cause of Accident',
+        title: 'Cause',
         value: causeOfAccident,
         unit: '',
       },
@@ -551,17 +551,17 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         unit: '',
       },
       {
-        title: 'Vehicle lost Control',
+        title: 'Vehicle lost',
         value: Math.ceil(totalStats.vehicle_lost_control),
         unit: '',
       },
       {
-        title: 'Grievous Accident',
+        title: 'Grievous',
         value: Math.ceil(totalStats.grievous_accident),
         unit: '',
       },
       {
-        title: 'Pedestrian Related',
+        title: 'Pedestrian',
         value: Math.ceil(totalStats.pedestrian_related),
         unit: '',
       },

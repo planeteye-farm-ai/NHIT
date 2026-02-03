@@ -444,7 +444,7 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         unit: '',
       },
       {
-        title: 'Drainage Condition',
+        title: 'Drainage',
         value: rawData['drainage_condition:'] || 'N/A',
         unit: '',
       },

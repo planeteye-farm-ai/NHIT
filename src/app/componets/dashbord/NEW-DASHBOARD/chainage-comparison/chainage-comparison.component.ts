@@ -65,6 +65,8 @@ export class ChainageComparisonComponent implements OnInit, OnDestroy {
   selectedCards: string[] = [];
 
   selectedCardsForComparison: Set<string> = new Set();
+  // Store data fetched per card so we can re-use it when toggling
+  comparisonDataByCard: { [cardTitle: string]: ReportData[] } = {};
   chainageComparisonChartOptions: any = {};
   comparisonChainageMin: number = 0;
   comparisonChainageMax: number = 1380.387;
@@ -157,17 +159,39 @@ export class ChainageComparisonComponent implements OnInit, OnDestroy {
     return this.selectedCardsForComparison.has(cardTitle);
   }
 
-  toggleCardForComparison(cardTitle: string) {
+  /**
+   * Toggle a card for comparison.
+   * On select: fetch data from the respective endpoint ONLY for this card.
+   * On deselect: remove its data.
+   * The chart always uses only data fetched for the currently selected cards.
+   */
+  async toggleCardForComparison(cardTitle: string) {
     if (this.selectedCardsForComparison.has(cardTitle)) {
       this.selectedCardsForComparison.delete(cardTitle);
+      // Remove cached data for this card when it is deselected
+      delete this.comparisonDataByCard[cardTitle];
     } else {
       if (this.selectedCardsForComparison.size < 5) {
         this.selectedCardsForComparison.add(cardTitle);
+        // Fetch fresh data for this specific card from its endpoint
+        const dataForCard = await this.loadDataForCard(cardTitle);
+        this.comparisonDataByCard[cardTitle] = dataForCard;
       } else {
         console.warn('Maximum 5 cards can be selected for comparison');
         return;
       }
     }
+
+    // Rebuild rawData as the union of all selected cards' data
+    const allData: ReportData[] = [];
+    this.selectedCardsForComparison.forEach((title) => {
+      const cardData = this.comparisonDataByCard[title];
+      if (cardData && cardData.length > 0) {
+        allData.push(...cardData);
+      }
+    });
+    this.rawData = allData;
+
     this.generateChainageComparisonChart();
   }
 
@@ -184,6 +208,257 @@ export class ChainageComparisonComponent implements OnInit, OnDestroy {
       }
     }
     return 'transparent';
+  }
+
+  /**
+   * Fetch data for a single card from its respective endpoint.
+   * This does NOT depend on the main dashboard's rawData – it calls the API directly.
+   */
+  private async loadDataForCard(cardTitle: string): Promise<ReportData[]> {
+    if (!this.isBrowser) {
+      return [];
+    }
+
+    const projectName = this.filters.projectName;
+    const date = this.filters.date;
+
+    if (!projectName || !date) {
+      console.error('❌ Cannot load comparison data: missing project or date', {
+        projectName,
+        date,
+      });
+      return [];
+    }
+
+    const card = this.dashboardCards.find((c) => c.title === cardTitle);
+    if (!card) {
+      console.error('❌ Card not found for comparison:', cardTitle);
+      return [];
+    }
+
+    if (!card.apiType) {
+      console.error('❌ Card has no apiType for comparison:', cardTitle);
+      return [];
+    }
+
+    const apiType = card.apiType;
+
+    // Map each apiType to its endpoint and request body.
+    // These bodies fetch the full chainage range; the chart will filter by chainage slider.
+    const endpointConfigMap: {
+      [key: string]: { endpoint: string; requestBody: any };
+    } = {
+      inventory: {
+        endpoint:
+          'https://fantastic-reportapi-production.up.railway.app/inventory_filter',
+        requestBody: {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date,
+          direction: ['All'],
+          project_name: [projectName.trim()],
+          asset_type: ['All'],
+        },
+      },
+      reported: {
+        endpoint:
+          'https://fantastic-reportapi-production.up.railway.app/distress_report_filter',
+        requestBody: {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date,
+          direction: ['All'],
+          project_name: [projectName.trim()],
+          distress_type: ['All'],
+        },
+      },
+      predicted: {
+        endpoint:
+          'https://fantastic-reportapi-production.up.railway.app/distress_predic_filter',
+        requestBody: {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date,
+          direction: ['All'],
+          project_name: [projectName.trim()],
+          distress_type: ['All'],
+        },
+      },
+      tis: {
+        endpoint:
+          'https://fantastic-reportapi-production.up.railway.app/tis_filter',
+        requestBody: {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date,
+          direction: ['All'],
+          project_name: [projectName.trim()],
+        },
+      },
+      ais: {
+        endpoint:
+          'https://fantastic-reportapi-production.up.railway.app/ais_filter',
+        requestBody: {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date,
+          direction: ['All'],
+          project_name: [projectName.trim()],
+        },
+      },
+      pms: {
+        endpoint:
+          'https://fantastic-reportapi-production.up.railway.app/pms_filter',
+        requestBody: {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date,
+          direction: ['All'],
+          project_name: [projectName.trim()],
+        },
+      },
+      rwfis: {
+        endpoint:
+          'https://fantastic-reportapi-production.up.railway.app/rwfis_filter',
+        requestBody: {
+          chainage_start: 0,
+          chainage_end: 1381,
+          date,
+          direction: ['All'],
+          project_name: [projectName.trim()],
+        },
+      },
+    };
+
+    const config = endpointConfigMap[apiType];
+    if (!config) {
+      console.warn('⚠️ No endpoint configuration found for apiType:', apiType);
+      return [];
+    }
+
+    try {
+      console.log(
+        `📤 Fetching comparison data for card "${cardTitle}" (${apiType})`,
+        {
+          endpoint: config.endpoint,
+          requestBody: config.requestBody,
+        }
+      );
+
+      const response = await fetch(config.endpoint, {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(config.requestBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `❌ HTTP error while fetching comparison data for ${cardTitle} (${apiType}):`,
+          {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText,
+          }
+        );
+        return [];
+      }
+
+      const apiResponse = await response.json();
+      console.log(
+        `📥 API response for comparison card "${cardTitle}" (${apiType}):`,
+        apiResponse
+      );
+
+      // Handle "No match" or similar messages
+      if (
+        apiResponse &&
+        typeof apiResponse === 'object' &&
+        apiResponse.message
+      ) {
+        const message = String(apiResponse.message).toLowerCase();
+        if (
+          message === 'no match' ||
+          message.includes('no data') ||
+          message.includes('not found')
+        ) {
+          console.warn(
+            `⚠️ Comparison API for ${cardTitle} (${apiType}) returned: ${apiResponse.message}`
+          );
+          return [];
+        }
+      }
+
+      // Flatten response into a simple array of items
+      const flatData: any[] = [];
+
+      if (Array.isArray(apiResponse)) {
+        apiResponse.forEach((group: any) => {
+          if (Array.isArray(group)) {
+            flatData.push(...group);
+          } else if (group && typeof group === 'object') {
+            flatData.push(group);
+          }
+        });
+      } else if (apiResponse && typeof apiResponse === 'object') {
+        if (Array.isArray(apiResponse.data)) {
+          apiResponse.data.forEach((group: any) => {
+            if (Array.isArray(group)) {
+              flatData.push(...group);
+            } else if (group && typeof group === 'object') {
+              flatData.push(group);
+            }
+          });
+        } else if (Array.isArray(apiResponse.result)) {
+          apiResponse.result.forEach((group: any) => {
+            if (Array.isArray(group)) {
+              flatData.push(...group);
+            } else if (group && typeof group === 'object') {
+              flatData.push(group);
+            }
+          });
+        }
+      }
+
+      console.log(
+        `📊 Flattened ${flatData.length} items for comparison card "${cardTitle}" (${apiType})`
+      );
+
+      // Map raw items into ReportData, tagging them with apiType
+      const transformed: ReportData[] = flatData.map((item: any) => {
+        const mapped: ReportData = {
+          project_name: item.project_name ?? projectName,
+          chainage_start: Number(item.chainage_start ?? item.chainage_Start ?? 0),
+          chainage_end: Number(item.chainage_end ?? item.chainage_End ?? 0),
+          direction: item.direction ?? this.filters.direction ?? 'Increasing',
+          pavement_type: item.pavement_type ?? item.pavementType ?? 'N/A',
+          lane: item.lane ?? 'N/A',
+          distress_type: item.distress_type ?? item.distressType ?? '',
+          latitude: Number(item.latitude ?? item.lat ?? 0),
+          longitude: Number(item.longitude ?? item.lon ?? item.lng ?? 0),
+          date: item.date ?? date,
+          severity: item.severity ?? '',
+          apiType,
+          _rawItem: item,
+        };
+        return mapped;
+      });
+
+      console.log(
+        `✅ Loaded ${transformed.length} transformed items for comparison card "${cardTitle}" (${apiType})`
+      );
+
+      return transformed;
+    } catch (error) {
+      console.error(
+        `❌ Error while fetching comparison data for ${cardTitle} (${apiType}):`,
+        error
+      );
+      return [];
+    }
   }
 
   generateChainageComparisonChart() {

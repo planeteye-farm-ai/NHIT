@@ -422,22 +422,22 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     // Initialize road info data with extracted values from PIS API
     this.roadInfoData = [
       {
-        title: 'Road Length (KM)',
+        title: 'Road Length',
         value: roadLength.toFixed(3),
         unit: 'KM',
       },
       {
-        title: 'Toll Plaza/Chainage',
+        title: 'Toll Plaza',
         value: tollPlazaInfo,
         unit: '',
       },
       {
-        title: 'Originating Village',
+        title: 'Originating',
         value: originatingVillage,
         unit: '',
       },
       {
-        title: 'Terminating Village',
+        title: 'Terminating',
         value: terminatingVillage,
         unit: '',
       },
@@ -447,7 +447,7 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         unit: '',
       },
       {
-        title: 'Carriage Width',
+        title: 'Carriage',
         value: carriageWidth,
         unit: '',
       },

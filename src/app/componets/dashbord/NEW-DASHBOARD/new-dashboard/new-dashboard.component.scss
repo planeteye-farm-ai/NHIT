@@ -2722,8 +2722,8 @@
 }
 
 .chainage-range-section {
-  margin-bottom: 15px;
-  padding: 15px;
+  margin-bottom: 5px;
+  padding: 5px;
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
   border-radius: 15px;
   border: 1px solid rgba(102, 126, 234, 0.2);
@@ -2735,15 +2735,15 @@
     color: #ffffff;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
 
   .chainage-slider-container {
     position: relative;
-    height: 32px;
+    height: 20px;
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
   }
 
   .chainage-slider {
@@ -3017,7 +3017,7 @@
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
   border-radius: 16px;
   padding: 30px;
-  min-height: 500px;
+  min-height: 350px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3026,6 +3026,116 @@
   position: relative;
 }
 
+/* ================================
+   Chainage Comparison - Filters
+   ================================ */
+
+.comparison-filters-section {
+  margin-bottom: 5px;
+  padding: 5px 5px;
+  border-radius: 12px;
+  background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 55%),
+              radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.12), transparent 55%);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.45);
+}
+
+.filter-row-comparison {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.filter-group-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.85);
+  }
+}
+
+.filter-select-comparison {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  padding: 8px 32px 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.85)),
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 55%);
+  color: #e5e7eb;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease,
+    transform 0.08s ease;
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.9),
+    0 12px 30px rgba(15, 23, 42, 0.9);
+  position: relative;
+}
+
+.filter-select-comparison:hover {
+  border-color: rgba(129, 140, 248, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.6),
+    0 16px 40px rgba(30, 64, 175, 0.8);
+}
+
+.filter-select-comparison:focus {
+  border-color: rgba(59, 130, 246, 1);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.9),
+    0 18px 42px rgba(37, 99, 235, 0.85);
+  transform: translateY(-1px);
+}
+
+.filter-select-comparison option {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+/* Small arrow indicator for select (using background image) */
+.filter-select-comparison {
+  background-image: linear-gradient(45deg, transparent 50%, #9ca3af 50%),
+    linear-gradient(135deg, #9ca3af 50%, transparent 50%);
+  background-position: right 10px top 50%, right 6px top 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 1200px) {
+  .filter-row-comparison {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .filter-row-comparison {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .comparison-filters-section {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+
+  .filter-row-comparison {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+}
 .comparison-echarts-chart {
   width: 100%;
   height: 100%;

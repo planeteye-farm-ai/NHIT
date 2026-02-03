@@ -427,7 +427,7 @@ export class RwfisDashboardComponent
         unit: '',
       },
       {
-        title: 'Inventory Material Type',
+        title: 'Inventory Type',
         value:
           rawData.inventory_material_type ||
           rawData.inventoryMaterialType ||
@@ -456,7 +456,7 @@ export class RwfisDashboardComponent
         unit: '',
       },
       {
-        title: 'Cross Section Location',
+        title: 'Cross Section',
         value:
           rawData.cross_section_location ||
           rawData.crossSectionLocation ||
@@ -464,7 +464,7 @@ export class RwfisDashboardComponent
         unit: '',
       },
       {
-        title: 'Offset From Center line (M)',
+        title: 'Offset (m)',
         value:
           rawData.offset_from_centerline ||
           rawData.offsetFromCenterline ||

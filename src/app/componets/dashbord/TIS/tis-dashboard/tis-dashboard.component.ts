@@ -488,7 +488,7 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         unit: '',
       },
       {
-        title: 'Car/ Jeep/ Van/ Taxi',
+        title: 'Car/ Jeep/ Van',
         value: carJeepVanTaxi,
         unit: '',
       },

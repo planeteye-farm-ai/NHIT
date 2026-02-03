@@ -205,6 +205,8 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private zoomThreshold: number = 16;
   private markers: any[] = [];
   private iconCache: Map<string, any> = new Map();
+  private zoomUpdateTimeout: any = null;
+  private lastMarkerMode: 'dots' | 'icons' | null = null; // Track current marker mode
 
   // TIS Traffic route visualization
   private trafficRoutePolylines: any[] = [];
@@ -230,6 +232,22 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   comparisonChartData: ReportData[] = []; // Data specifically loaded for comparison chart
   isLoadingComparisonData: boolean = false; // Loading state for comparison data
   comparisonDataByCard: { [cardTitle: string]: ReportData[] } = {}; // Store data per card
+  comparisonDataCache: { [key: string]: { data: ReportData[]; projectName: string; date: string } } = {}; // Cache data by project/date/apiType
+  
+  // Comparison chart filters (separate from main dashboard filters)
+  comparisonFilters: {
+    projectName: string;
+    date: string;
+    direction: string;
+    pavementType: string;
+    lane: string;
+  } = {
+    projectName: '',
+    date: '',
+    direction: 'All',
+    pavementType: 'All',
+    lane: 'All',
+  };
 
   // Month-wise comparison chart modal properties
   isMonthComparisonModalOpen: boolean = false;
@@ -1271,6 +1289,42 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             console.log(`✅ ${apiType}: Found exact project name from raw response: "${exactProjectName}"`);
           } else {
             console.warn(`⚠️ ${apiType}: Could not find exact project name, using: "${exactProjectName}"`);
+          }
+        }
+
+        // If still using dropdown name (e.g. "Abu Road to Swaroopganj"), fetch this API's projects-dates to get exact casing (e.g. "Abu Road to swaroopganj")
+        if (normalizedProjectName && exactProjectName === this.filters.projectName.trim() && (!originalNamesMap || !originalNamesMap[normalizedProjectName])) {
+          const projectsDatesEndpointMap: { [key: string]: string } = {
+            inventory: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/inventory',
+            reported: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/distress_reported',
+            predicted: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/distress_predicted',
+            tis: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/tis',
+            ais: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/ais',
+            pms: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/pms',
+            rwfis: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/rwfis',
+          };
+          const projectsDatesUrl = projectsDatesEndpointMap[apiType];
+          if (projectsDatesUrl) {
+            try {
+              const pdResponse = await fetch(projectsDatesUrl, { method: 'GET', headers: { accept: 'application/json' } });
+              if (pdResponse.ok) {
+                const rawProjectDatesForType: ProjectDatesResponse = await pdResponse.json();
+                const projectKeys = Object.keys(rawProjectDatesForType || {});
+                const matchingKey = projectKeys.find((key) => normalizeProjectName(key) === normalizedProjectName);
+                if (matchingKey) {
+                  exactProjectName = matchingKey;
+                  console.log(`✅ ${apiType}: Using exact project name from projects-dates: "${exactProjectName}"`);
+                  if (!this.rawProjectDatesByApiType) this.rawProjectDatesByApiType = {};
+                  this.rawProjectDatesByApiType[apiType] = rawProjectDatesForType;
+                  if (!this.originalProjectNamesByApiType) this.originalProjectNamesByApiType = {};
+                  const orig: { [norm: string]: string } = {};
+                  projectKeys.forEach((key) => { orig[normalizeProjectName(key)] = key; });
+                  this.originalProjectNamesByApiType[apiType] = orig;
+                }
+              }
+            } catch (e) {
+              console.warn(`⚠️ ${apiType}: Could not fetch projects-dates for exact name:`, e);
+            }
           }
         }
         
@@ -2580,11 +2634,31 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       googleSatelliteLayer.addTo(this.map);
       console.log('✅ Satellite tile layer added');
 
-      // Add zoom event listener
+      // Add zoom event listener with debouncing and threshold checking
       this.map.on('zoomend', () => {
         if (this.map) {
-          this.currentZoomLevel = this.map.getZoom();
-          this.updateMapMarkersOnly();
+          // Clear any pending zoom update
+          if (this.zoomUpdateTimeout) {
+            clearTimeout(this.zoomUpdateTimeout);
+          }
+          
+          // Debounce zoom updates to reduce lag
+          this.zoomUpdateTimeout = setTimeout(() => {
+            if (!this.map) return;
+            
+            const newZoom = this.map.getZoom();
+            const wasAboveThreshold = this.currentZoomLevel >= this.zoomThreshold;
+            const isAboveThreshold = newZoom >= this.zoomThreshold;
+            
+            this.currentZoomLevel = newZoom;
+            
+            // Only update markers if zoom crossed the threshold
+            // This prevents unnecessary marker recreation during zoom
+            if (wasAboveThreshold !== isAboveThreshold) {
+              console.log(`🔄 Zoom threshold crossed: ${wasAboveThreshold ? 'icons' : 'dots'} -> ${isAboveThreshold ? 'icons' : 'dots'}`);
+              this.updateMapMarkersOnly();
+            }
+          }, 150); // 150ms debounce
         }
       });
 
@@ -2670,19 +2744,38 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
 
+      // Always start with dots (colorful points) regardless of current zoom
+      // Icons will show when user zooms in via the zoom event listener
       this.currentZoomLevel = this.map.getZoom();
+      console.log(`🔍 Current zoom level: ${this.currentZoomLevel}, Threshold: ${this.zoomThreshold}`);
 
-      if (this.currentZoomLevel >= this.zoomThreshold) {
-        await this.showIconMarkers(dataForMarkers, L);
-      } else {
-        await this.showColorfulPoints(dataForMarkers, L);
-      }
+      // Force dots mode initially - icons will appear only when user manually zooms in
+      this.lastMarkerMode = 'dots';
+      await this.showColorfulPoints(dataForMarkers, L);
 
-      console.log(`✅ Markers added: ${this.markers.length} markers on map`);
+      console.log(`✅ Markers added: ${this.markers.length} markers on map (dots mode)`);
 
       // Only adjust bounds if we have markers (don't interfere with TIS route bounds)
       if (dataForMarkers.length > 0 && !(this.currentRouteData && this.trafficRoutePolylines.length > 0)) {
+        // Store current zoom before adjusting bounds
+        const zoomBeforeBounds = this.map.getZoom();
         this.adjustMapBounds();
+        
+        // After adjusting bounds, ensure we're still showing dots (don't auto-switch to icons)
+        setTimeout(() => {
+          if (this.map && this.lastMarkerMode === 'dots') {
+            const newZoom = this.map.getZoom();
+            // Only switch to icons if user manually zoomed in (not from bounds adjustment)
+            // If bounds adjustment zoomed us too high, force it back to dots mode
+            if (newZoom >= this.zoomThreshold) {
+              // If we got zoomed too high by bounds, reduce zoom to stay in dots mode
+              if (zoomBeforeBounds < this.zoomThreshold) {
+                this.map.setZoom(12); // Force zoom to 12 to stay in dots mode
+                console.log(`🔧 Adjusted zoom from ${newZoom} to 12 to keep dots mode`);
+              }
+            }
+          }
+        }, 200);
       }
     } catch (error) {
       console.error('Error adding markers:', error);
@@ -2695,12 +2788,28 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       const L = await import('leaflet');
 
-      this.clearMapMarkers();
       const filteredData = this.getFilteredData(true);
+      
+      if (filteredData.length === 0) {
+        this.clearMapMarkers();
+        return;
+      }
 
       this.currentZoomLevel = this.map.getZoom();
+      const shouldShowIcons = this.currentZoomLevel >= this.zoomThreshold;
+      const newMode = shouldShowIcons ? 'icons' : 'dots';
+      
+      // Only update if mode actually changed
+      if (this.lastMarkerMode === newMode) {
+        return; // No change needed
+      }
+      
+      console.log(`🔄 Switching marker mode: ${this.lastMarkerMode || 'none'} -> ${newMode} (zoom: ${this.currentZoomLevel})`);
+      
+      this.clearMapMarkers();
+      this.lastMarkerMode = newMode;
 
-      if (this.currentZoomLevel >= this.zoomThreshold) {
+      if (shouldShowIcons) {
         await this.showIconMarkers(filteredData, L);
       } else {
         await this.showColorfulPoints(filteredData, L);
@@ -2917,7 +3026,7 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               <strong>Severity:</strong> ${item.severity || 'N/A'}
             </p>
             <p style="margin: 5px 0; font-size: 12px;">
-              <strong>IRI:</strong> ${iriDisplay}
+              <strong>RI:</strong> ${iriDisplay}
             </p>
           `;
         } else {
@@ -2958,8 +3067,8 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     
-    // Process location groups in batches
-    const batchSize = 100;
+    // Process location groups in batches (reduced batch size for better performance)
+    const batchSize = 50; // Reduced from 100 to improve responsiveness
     const locationArray = Array.from(locationGroups.entries());
     let currentIndex = 0;
 
@@ -3144,7 +3253,8 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       currentIndex = endIndex;
 
       if (currentIndex < locationArray.length) {
-        setTimeout(() => addBatch(), 0);
+        // Use requestAnimationFrame for smoother rendering during zoom
+        requestAnimationFrame(() => addBatch());
       }
     };
 
@@ -3181,16 +3291,29 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       if (coordinates.length === 1) {
-        this.map.setView(coordinates[0], 15);
+        // Set zoom to 12 to ensure dots are shown (threshold is 16)
+        this.map.setView(coordinates[0], 12);
         return;
       }
 
       const bounds = L.latLngBounds(coordinates);
 
+      // Calculate appropriate zoom to fit bounds while staying below threshold
+      const boundsZoom = this.map.getBoundsZoom(bounds, false);
+      const targetZoom = Math.min(boundsZoom, 12); // Cap at 12 to ensure dots mode (threshold is 16)
+      
       this.map.fitBounds(bounds, {
         padding: [20, 20],
-        maxZoom: 16,
+        maxZoom: 12, // Strictly limit to 12 to ensure dots show initially (threshold is 16)
       });
+      
+      // Double-check and enforce max zoom after fitBounds
+      setTimeout(() => {
+        if (this.map && this.map.getZoom() >= this.zoomThreshold) {
+          this.map.setZoom(12);
+          console.log(`🔧 Enforced zoom to 12 to keep dots mode`);
+        }
+      }, 100);
     } catch (error) {
       console.error('Error adjusting map bounds:', error);
     }
@@ -3199,8 +3322,12 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   clearMapMarkers() {
     if (!this.map) return;
     try {
-      // Remove all tracked markers
-      this.markers.forEach((marker: any) => {
+      // Remove all tracked markers in batch for better performance
+      const markersToRemove = [...this.markers]; // Create copy to avoid issues during iteration
+      this.markers = []; // Clear array immediately to prevent re-rendering
+      
+      // Remove markers from map (batch operation)
+      markersToRemove.forEach((marker: any) => {
         try {
           if (this.map && marker && this.map.hasLayer && this.map.hasLayer(marker)) {
             this.map.removeLayer(marker);
@@ -3209,7 +3336,6 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           // Marker might already be removed, ignore
         }
       });
-      this.markers = [];
     } catch (error) {
       console.warn('Error clearing markers:', error);
       this.markers = [];
@@ -3233,6 +3359,11 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    // Clear comparison cache when date changes (data is now for different date)
+    this.comparisonDataCache = {};
+    this.comparisonDataByCard = {};
+    this.comparisonChartData = [];
+
     if (this.filters.date) {
       await this.loadData();
       // Update markers after data is loaded
@@ -3251,6 +3382,11 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.rawData = [];
     this.infoData = [];
     this.monthDataCache = {};
+    
+    // Clear comparison cache when project changes (data is now for different project)
+    this.comparisonDataCache = {};
+    this.comparisonDataByCard = {};
+    this.comparisonChartData = [];
 
     this.filters.projectName = event.target.value;
 
@@ -3837,6 +3973,23 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    // Initialize comparison filters from main dashboard filters
+    this.comparisonFilters = {
+      projectName: this.filters.projectName,
+      date: this.filters.date,
+      direction: this.filters.direction || 'All',
+      pavementType: this.filters.pavementType === 'All' ? 'All' : (this.filters.pavementType || 'All'),
+      lane: this.filters.lane === 'All' ? 'All' : (this.filters.lane || 'All'),
+    };
+    
+    // Update available dates for the selected project
+    const projectDates = this.projectDatesMap[this.comparisonFilters.projectName] || [];
+    if (projectDates.length > 0 && !projectDates.includes(this.comparisonFilters.date)) {
+      this.comparisonFilters.date = projectDates[0];
+    }
+    
+    console.log('🔧 Initialized comparison filters:', this.comparisonFilters);
+
     // Don't auto-initialize comparison chainage range
     // Preserve user's custom selection (default is 0-1 km)
     
@@ -3853,8 +4006,10 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isChainageComparisonModalOpen = true;
 
     // Don't auto-load data - data will load when user clicks on cards
-    // Clear any existing comparison data
+    // Clear comparison data, but keep cache intact so we can reuse data for same project/date
     this.comparisonChartData = [];
+    // Only clear comparisonDataByCard if project/date changed, otherwise keep it for reuse
+    // We'll check cache when cards are clicked, so clearing is fine here
     this.comparisonDataByCard = {};
 
     // Generate chart (will be empty initially until cards are clicked)
@@ -3871,6 +4026,129 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.comparisonDataByCard = {}; // Clear per-card data
   }
 
+  // Handle comparison filter changes
+  async onComparisonProjectChange(event: any) {
+    const newProject = event.target.value;
+    if (newProject === this.comparisonFilters.projectName) return;
+    
+    this.comparisonFilters.projectName = newProject;
+    // Update available dates for the new project
+    const projectDates = this.projectDatesMap[newProject] || [];
+    if (projectDates.length > 0) {
+      this.comparisonFilters.date = projectDates[0];
+    } else {
+      this.comparisonFilters.date = '';
+    }
+    
+    // Clear cache and reload data for all selected cards
+    this.comparisonDataCache = {};
+    this.comparisonDataByCard = {};
+    this.comparisonChartData = [];
+    
+    // Reload data for all selected cards
+    for (const cardTitle of Array.from(this.selectedCardsForComparison)) {
+      await this.loadComparisonChartDataForCard(cardTitle);
+    }
+    
+    this.updateCombinedComparisonData();
+    // Extract filter options from loaded data
+    this.extractComparisonFilterOptions();
+    this.generateChainageComparisonChart();
+  }
+
+  async onComparisonDateChange(event: any) {
+    const newDate = event.target.value;
+    if (newDate === this.comparisonFilters.date) return;
+    
+    this.comparisonFilters.date = newDate;
+    
+    // Clear cache and reload data for all selected cards
+    this.comparisonDataCache = {};
+    this.comparisonDataByCard = {};
+    this.comparisonChartData = [];
+    
+    // Reload data for all selected cards
+    for (const cardTitle of Array.from(this.selectedCardsForComparison)) {
+      await this.loadComparisonChartDataForCard(cardTitle);
+    }
+    
+    this.updateCombinedComparisonData();
+    // Extract filter options from loaded data
+    this.extractComparisonFilterOptions();
+    this.generateChainageComparisonChart();
+  }
+
+  // Extract filter options from comparison chart data
+  extractComparisonFilterOptions() {
+    if (!this.comparisonChartData || this.comparisonChartData.length === 0) {
+      console.log('⚠️ No comparison chart data available for extracting filter options');
+      return;
+    }
+
+    // Extract unique values from comparison data
+    const pavementTypes = [
+      ...new Set(this.comparisonChartData.map((item) => item.pavement_type).filter(Boolean))
+    ].sort();
+    
+    const lanes = [
+      ...new Set(this.comparisonChartData.map((item) => item.lane).filter(Boolean))
+    ].sort();
+
+    // Only update if we have new values
+    if (pavementTypes.length > 0) {
+      this.availablePavementTypes = pavementTypes;
+    }
+    
+    if (lanes.length > 0) {
+      this.availableLanes = lanes;
+    }
+
+    console.log('📊 Extracted filter options from comparison data:', {
+      pavementTypes: this.availablePavementTypes,
+      lanes: this.availableLanes,
+      currentFilters: this.comparisonFilters
+    });
+
+    // Don't auto-change filter values - let user keep "All" if they want
+    // Only set if filter is empty (not "All")
+    if (!this.comparisonFilters.pavementType) {
+      if (this.availablePavementTypes.length > 0) {
+        this.comparisonFilters.pavementType = this.availablePavementTypes[0];
+      } else {
+        this.comparisonFilters.pavementType = 'All';
+      }
+    }
+
+    if (!this.comparisonFilters.lane) {
+      if (this.availableLanes.length > 0) {
+        this.comparisonFilters.lane = this.availableLanes[0];
+      } else {
+        this.comparisonFilters.lane = 'All';
+      }
+    }
+  }
+
+  onComparisonDirectionChange(valueOrEvent: any) {
+    const direction = typeof valueOrEvent === 'string' ? valueOrEvent : valueOrEvent?.target?.value ?? '';
+    this.comparisonFilters.direction = direction;
+    this.filters.direction = direction;
+    this.generateChainageComparisonChart();
+  }
+
+  onComparisonPavementTypeChange(event: any) {
+    const value = event?.target?.value ?? 'All';
+    this.comparisonFilters.pavementType = value;
+    // Just regenerate chart with new filter (no need to reload data)
+    this.generateChainageComparisonChart();
+  }
+
+  onComparisonLaneChange(event: any) {
+    const value = event?.target?.value ?? 'All';
+    this.comparisonFilters.lane = value;
+    // Just regenerate chart with new filter (no need to reload data)
+    this.generateChainageComparisonChart();
+  }
+
   // Update combined comparison data from all selected cards
   updateCombinedComparisonData() {
     const allData: ReportData[] = [];
@@ -3880,18 +4158,17 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     this.comparisonChartData = allData;
     
+    console.log(`📊 Updated combined comparison data: ${allData.length} items from ${this.selectedCardsForComparison.size} cards`);
+    
     // Update chainage range based on combined data
     if (allData.length > 0) {
       const minChainage = Math.floor(Math.min(...allData.map((item) => item.chainage_start || 0)));
       const maxChainage = Math.ceil(Math.max(...allData.map((item) => item.chainage_end || 0)));
       if (maxChainage > minChainage && maxChainage > 0) {
-        // Only update if current range is too narrow (default 0-1) or invalid
-        if (this.comparisonChainageMax <= this.comparisonChainageMin || 
-            (this.comparisonChainageMin === 0 && this.comparisonChainageMax === 1)) {
-          this.comparisonChainageMin = minChainage;
-          this.comparisonChainageMax = maxChainage;
-          console.log(`📊 Updated chainage range from combined data: ${minChainage} - ${maxChainage} km`);
-        }
+        // Always reset the comparison range to fully cover the loaded data
+        this.comparisonChainageMin = minChainage;
+        this.comparisonChainageMax = maxChainage;
+        console.log(`📊 Updated chainage range from combined data: ${minChainage} - ${maxChainage} km`);
       }
     } else if (this.filters.chainageRange && 
                this.filters.chainageRange.min >= 0 && 
@@ -3908,6 +4185,12 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // Update comparison card assets
     this.updateComparisonCardAssets();
+    
+    // Extract filter options from loaded data (this will update availablePavementTypes and availableLanes)
+    this.extractComparisonFilterOptions();
+    
+    // Regenerate chart with current filters
+    this.generateChainageComparisonChart();
   }
 
   // Load data for a single card in comparison chart
@@ -3942,7 +4225,84 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const apiType = card.apiType;
-    console.log(`🔄 Loading comparison data for card: ${cardTitle} (${apiType})`);
+    
+    // Use comparisonFilters, fallback to main filters
+    const projectName = this.comparisonFilters.projectName || this.filters.projectName;
+    const date = this.comparisonFilters.date || this.filters.date;
+    
+    // Normalize project name for consistent cache key (same as used elsewhere)
+    const normalizeProjectName = (name: string): string => {
+      return name.toLowerCase().trim();
+    };
+    const normalizedProjectName = normalizeProjectName(projectName);
+    
+    // Create cache key: normalizedProjectName_date_apiType
+    const cacheKey = `${normalizedProjectName}_${date}_${apiType}`;
+    
+    console.log(`🔍 Checking cache for ${cardTitle} (${apiType}) with key: ${cacheKey}`);
+    console.log(`🔍 Current filters - Project: "${projectName}", Date: "${date}"`);
+    
+    // Check if data is already cached for this project/date/apiType combination
+    if (this.comparisonDataCache[cacheKey]) {
+      const cachedEntry = this.comparisonDataCache[cacheKey];
+      const cachedProjectNormalized = normalizeProjectName(cachedEntry.projectName);
+      
+      // Verify cache entry matches current project/date (using normalized names)
+      if (cachedProjectNormalized === normalizedProjectName && 
+          cachedEntry.date === date) {
+        console.log(`✅ Using cached data for ${cardTitle} (${apiType}) - Project: ${projectName}, Date: ${date}, Items: ${cachedEntry.data.length}`);
+        this.comparisonDataByCard[cardTitle] = cachedEntry.data;
+        return;
+      } else {
+        console.log(`⚠️ Cache key exists but project/date mismatch - clearing cache entry`);
+        console.log(`   Cached: Project="${cachedEntry.projectName}" (normalized: "${cachedProjectNormalized}"), Date="${cachedEntry.date}"`);
+        console.log(`   Current: Project="${projectName}" (normalized: "${normalizedProjectName}"), Date="${date}"`);
+        // Remove invalid cache entry
+        delete this.comparisonDataCache[cacheKey];
+      }
+    }
+    
+    // Check if data is already loaded in comparisonDataByCard for this card
+    if (this.comparisonDataByCard[cardTitle] && this.comparisonDataByCard[cardTitle].length > 0) {
+      // Verify the data matches current project/date by checking a sample item
+      const sampleItem = this.comparisonDataByCard[cardTitle][0];
+      if (sampleItem && 
+          sampleItem.project_name === this.filters.projectName.trim() &&
+          sampleItem.date === this.filters.date &&
+          sampleItem.apiType === apiType) {
+        console.log(`✅ Reusing existing data for ${cardTitle} (${apiType}) - Project: ${this.filters.projectName}, Date: ${this.filters.date}`);
+        // Cache it for future use (use normalized cache key)
+        this.comparisonDataCache[cacheKey] = {
+          data: this.comparisonDataByCard[cardTitle],
+          projectName: this.filters.projectName.trim(),
+          date: this.filters.date
+        };
+        return;
+      }
+    }
+    
+    // Check if we can reuse data from rawData if it matches current filters
+    if (this.rawData && this.rawData.length > 0) {
+      const matchingRawData = this.rawData.filter(item => 
+        item.apiType === apiType &&
+        item.project_name === this.filters.projectName.trim() &&
+        item.date === this.filters.date
+      );
+      
+      if (matchingRawData.length > 0) {
+        console.log(`✅ Reusing data from rawData for ${cardTitle} (${apiType}) - Found ${matchingRawData.length} items`);
+        this.comparisonDataByCard[cardTitle] = matchingRawData;
+        // Cache it for future use (use normalized cache key)
+        this.comparisonDataCache[cacheKey] = {
+          data: matchingRawData,
+          projectName: this.filters.projectName.trim(),
+          date: this.filters.date
+        };
+        return;
+      }
+    }
+    
+    console.log(`🔄 Loading comparison data for card: ${cardTitle} (${apiType}) - Fetching from API...`);
 
     // Get endpoint configuration for this API type
     // Endpoints match API specification:
@@ -3955,10 +4315,10 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         endpoint: 'https://fantastic-reportapi-production.up.railway.app/inventory_filter',
         requestBody: {
           chainage_start: 0,
-          chainage_end: 1381, // Fetch full range, filter client-side by chainage slider
-          date: this.filters.date,
+          chainage_end:1381, // per API spec: 0 means full chainage range
+          date: date,
           direction: ['All'],
-          project_name: [this.filters.projectName.trim()],
+          project_name: [projectName.trim()],
           asset_type: ['All'],
         }
       },
@@ -3966,10 +4326,10 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         endpoint: 'https://fantastic-reportapi-production.up.railway.app/distress_report_filter',
         requestBody: {
           chainage_start: 0,
-          chainage_end: 1381, // Fetch full range, filter client-side by chainage slider
-          date: this.filters.date,
+          chainage_end: 1381, // per API spec: 0 means full chainage range
+          date: date,
           direction: ['All'],
-          project_name: [this.filters.projectName.trim()],
+          project_name: [projectName.trim()],
           distress_type: ['All'],
         }
       },
@@ -3977,10 +4337,10 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         endpoint: 'https://fantastic-reportapi-production.up.railway.app/distress_predic_filter',
         requestBody: {
           chainage_start: 0,
-          chainage_end: 1381, // Fetch full range, filter client-side by chainage slider
-          date: this.filters.date,
+          chainage_end: 1381, // per API spec: 0 means full chainage range
+          date: date,
           direction: ['All'],
-          project_name: [this.filters.projectName.trim()],
+          project_name: [projectName.trim()],
           distress_type: ['All'],
         }
       },
@@ -3988,40 +4348,40 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         endpoint: 'https://fantastic-reportapi-production.up.railway.app/ais_filter',
         requestBody: {
           chainage_start: 0,
-          chainage_end: 1381, // Fetch full range, filter client-side by chainage slider
-          date: this.filters.date,
+          chainage_end: 1381, // per API spec: 0 means full chainage range
+          date: date,
           direction: ['All'],
-          project_name: [this.filters.projectName.trim()],
+          project_name: [projectName.trim()],
         }
       },
       'pms': {
         endpoint: 'https://fantastic-reportapi-production.up.railway.app/pms_filter',
         requestBody: {
           chainage_start: 0,
-          chainage_end: 1381, // Fetch full range, filter client-side by chainage slider
-          date: this.filters.date,
+          chainage_end: 1381, // per API spec: 0 means full chainage range
+          date: date,
           direction: ['All'],
-          project_name: [this.filters.projectName.trim()],
+          project_name: [projectName.trim()],
         }
       },
       'rwfis': {
         endpoint: 'https://fantastic-reportapi-production.up.railway.app/rwfis_filter',
         requestBody: {
           chainage_start: 0,
-          chainage_end: 1381, // Fetch full range, filter client-side by chainage slider
-          date: this.filters.date,
+          chainage_end: 1381, // per API spec: 0 means full chainage range
+          date: date,
           direction: ['All'],
-          project_name: [this.filters.projectName.trim()],
+          project_name: [projectName.trim()],
         }
       },
       'tis': {
         endpoint: 'https://fantastic-reportapi-production.up.railway.app/tis_filter',
         requestBody: {
           chainage_start: 0,
-          chainage_end: 1381, // Fetch full range, filter client-side by chainage slider
-          date: this.filters.date,
+          chainage_end: 1381, // per API spec: 0 means full chainage range
+          date: date,
           direction: ['All'],
-          project_name: [this.filters.projectName.trim()],
+          project_name: [projectName.trim()],
         }
       },
     };
@@ -4034,105 +4394,109 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     try {
-      // Helper function to normalize project names (same as in loadProjectsAndDates)
-      const normalizeProjectName = (name: string): string => {
-        return name.toLowerCase().trim();
-      };
+      // Helper to normalize (kept only to resolve exact project name casing)
+      const normalizeProjectName = (name: string): string =>
+        name.toLowerCase().trim();
 
-      // Try to find a date that works for this specific API type
-      let dateToUse = this.filters.date;
-      const apiTypeDates = this.projectDatesByApiType[apiType];
-      
-      // Normalize project name for lookup (projectDatesByApiType uses normalized keys)
-      const normalizedProjectName = this.filters.projectName ? normalizeProjectName(this.filters.projectName) : null;
-      const availableDatesForApiType = normalizedProjectName && apiTypeDates ? (apiTypeDates[normalizedProjectName] || []) : [];
-      
-      // Find the exact project name for this API type (to handle case differences)
-      let exactProjectName = this.filters.projectName.trim();
+      // Resolve exact project name for this API type, but DO NOT touch the date.
+      let exactProjectName = projectName.trim();
+      const normalizedProjectNameForLookup = projectName
+        ? normalizeProjectName(projectName)
+        : null;
       const originalNamesMap = this.originalProjectNamesByApiType?.[apiType];
       const rawProjectDates = this.rawProjectDatesByApiType?.[apiType];
-      
-      if (originalNamesMap && normalizedProjectName && originalNamesMap[normalizedProjectName]) {
-        exactProjectName = originalNamesMap[normalizedProjectName];
-        console.log(`✅ ${apiType}: Using exact project name: "${exactProjectName}" (normalized: "${normalizedProjectName}")`);
-      } else if (rawProjectDates && normalizedProjectName) {
-        // Fallback: Find the actual project name in the raw response
+
+      if (
+        originalNamesMap &&
+        normalizedProjectNameForLookup &&
+        originalNamesMap[normalizedProjectNameForLookup]
+      ) {
+        exactProjectName = originalNamesMap[normalizedProjectNameForLookup];
+        console.log(
+          `✅ ${apiType}: Using exact project name: "${exactProjectName}" (normalized: "${normalizedProjectNameForLookup}")`
+        );
+      } else if (rawProjectDates && normalizedProjectNameForLookup) {
         const projectKeys = Object.keys(rawProjectDates);
-        const matchingKey = projectKeys.find(key => normalizeProjectName(key) === normalizedProjectName);
+        const matchingKey = projectKeys.find(
+          (key) => normalizeProjectName(key) === normalizedProjectNameForLookup
+        );
         if (matchingKey) {
           exactProjectName = matchingKey;
-          console.log(`✅ ${apiType}: Found exact project name from raw response: "${exactProjectName}"`);
+          console.log(
+            `✅ ${apiType}: Found exact project name from raw response: "${exactProjectName}"`
+          );
         } else {
-          console.warn(`⚠️ ${apiType}: Could not find exact project name, using: "${exactProjectName}"`);
-        }
-      }
-      
-      console.log(`🔍 ${cardTitle} (${apiType}): Checking dates - Current date: ${dateToUse}, Project: ${this.filters.projectName}`);
-      console.log(`🔍 ${cardTitle} (${apiType}): Normalized project name: "${normalizedProjectName}", Exact project name: "${exactProjectName}"`);
-      console.log(`🔍 ${cardTitle} (${apiType}): Available dates for this API type:`, availableDatesForApiType.length > 0 ? availableDatesForApiType : 'None');
-      console.log(`🔍 ${cardTitle} (${apiType}): All available dates (main):`, this.availableDates || []);
-      
-      if (normalizedProjectName && availableDatesForApiType.length > 0) {
-        // If current date is not available for this API type, try to find one that is
-        if (!availableDatesForApiType.includes(dateToUse)) {
-          console.log(`⚠️ ${cardTitle} (${apiType}): Current date ${dateToUse} not available. Available dates:`, availableDatesForApiType);
-          // Try to find a date that exists in both current selection and this API type
-          const currentAvailableDates = this.availableDates || [];
-          const commonDates = availableDatesForApiType.filter(d => currentAvailableDates.includes(d));
-          if (commonDates.length > 0) {
-            dateToUse = commonDates[0];
-            console.log(`✅ ${cardTitle} (${apiType}): Found common date ${dateToUse} (exists in both current selection and ${apiType})`);
-          } else {
-            // If no common date, use first available date for this API type
-            dateToUse = availableDatesForApiType[0];
-            console.log(`✅ ${cardTitle} (${apiType}): Using first available date ${dateToUse} from ${apiType}'s dates`);
-          }
-        } else {
-          console.log(`✅ ${cardTitle} (${apiType}): Current date ${dateToUse} is available for this API type`);
-        }
-      } else {
-        if (availableDatesForApiType.length === 0) {
-          console.warn(`⚠️ ${cardTitle} (${apiType}): No dates available for project "${this.filters.projectName}" in ${apiType}. Available dates list is empty.`);
-          // Try to get dates from the main project dates if available
-          const mainProjectDates = this.projectDatesMap[normalizedProjectName || ''] || [];
-          if (mainProjectDates.length > 0) {
-            // Try to find a date that exists in main dates
-            const commonMainDate = mainProjectDates.find(d => this.availableDates?.includes(d));
-            if (commonMainDate) {
-              dateToUse = commonMainDate;
-              console.log(`✅ ${cardTitle} (${apiType}): Using date from main project dates: ${dateToUse}`);
-            } else if (mainProjectDates.length > 0) {
-              dateToUse = mainProjectDates[0];
-              console.log(`✅ ${cardTitle} (${apiType}): Using first date from main project dates: ${dateToUse}`);
-            } else {
-              console.error(`❌ ${cardTitle} (${apiType}): No dates available for this project. Cannot fetch data.`);
-              this.comparisonDataByCard[cardTitle] = [];
-              return;
-            }
-          } else {
-            console.error(`❌ ${cardTitle} (${apiType}): No dates available for project "${this.filters.projectName}". Cannot fetch data.`);
-            this.comparisonDataByCard[cardTitle] = [];
-            return;
-          }
-        } else {
-          console.warn(`⚠️ ${cardTitle} (${apiType}): No date mapping available for project "${this.filters.projectName}", using current date ${dateToUse}`);
-          // Still try with the current date - it might work even if not in the mapping
-          console.log(`🔄 ${cardTitle} (${apiType}): Proceeding with date ${dateToUse} anyway`);
+          console.warn(
+            `⚠️ ${apiType}: Could not find exact project name, using: "${exactProjectName}"`
+          );
         }
       }
 
-      // Create request body with the exact project name and date for this API type
-      // Use the same approach as main loadData method
-      const requestBody = { ...config.requestBody, date: dateToUse, project_name: [exactProjectName] };
+      // If we still don't have a per-endpoint exact name (e.g. this API type wasn't loaded on main dashboard),
+      // fetch projects-dates for this API type so we use the exact casing this endpoint expects.
+      if (
+        normalizedProjectNameForLookup &&
+        exactProjectName === projectName.trim() &&
+        (!originalNamesMap || !originalNamesMap[normalizedProjectNameForLookup])
+      ) {
+        const projectsDatesEndpointMap: { [key: string]: string } = {
+          inventory: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/inventory',
+          reported: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/distress_reported',
+          predicted: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/distress_predicted',
+          tis: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/tis',
+          ais: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/ais',
+          pms: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/pms',
+          rwfis: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/rwfis',
+        };
+        const projectsDatesUrl = projectsDatesEndpointMap[apiType];
+        if (projectsDatesUrl) {
+          try {
+            const pdResponse = await fetch(projectsDatesUrl, {
+              method: 'GET',
+              headers: { accept: 'application/json' },
+            });
+            if (pdResponse.ok) {
+              const rawProjectDatesForType: ProjectDatesResponse = await pdResponse.json();
+              const projectKeys = Object.keys(rawProjectDatesForType || {});
+              const matchingKey = projectKeys.find(
+                (key) => normalizeProjectName(key) === normalizedProjectNameForLookup
+              );
+              if (matchingKey) {
+                exactProjectName = matchingKey;
+                console.log(
+                  `✅ ${apiType}: Using exact project name from projects-dates: "${exactProjectName}"`
+                );
+                // Cache for future use
+                if (!this.rawProjectDatesByApiType) this.rawProjectDatesByApiType = {};
+                this.rawProjectDatesByApiType[apiType] = rawProjectDatesForType;
+                if (!this.originalProjectNamesByApiType) this.originalProjectNamesByApiType = {};
+                const orig: { [norm: string]: string } = {};
+                projectKeys.forEach((key) => {
+                  orig[normalizeProjectName(key)] = key;
+                });
+                this.originalProjectNamesByApiType[apiType] = orig;
+              }
+            }
+          } catch (e) {
+            console.warn(`⚠️ ${apiType}: Could not fetch projects-dates for exact name:`, e);
+          }
+        }
+      }
+
+      // Create request body with the EXACT filters the user selected.
+      // IMPORTANT: We do NOT modify the date here anymore.
+      const requestBody = {
+        ...config.requestBody,
+        date, // use the exact date selected in filters
+        project_name: [exactProjectName],
+      };
       
       console.log(`📤 Fetching comparison data for ${cardTitle} (${apiType})`);
       console.log(`📤 Request details:`, {
         endpoint: config.endpoint,
-        date: dateToUse,
+        date,
         project_name: exactProjectName,
-        normalized_project_name: normalizedProjectName,
-        available_dates_count: availableDatesForApiType.length,
-        fullRequestBody: requestBody
+        fullRequestBody: requestBody,
       });
 
       console.log(`🌐 Making API call to: ${config.endpoint}`);
@@ -4166,10 +4530,20 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log(`📥 API Response for ${cardTitle} (${apiType}):`, apiResponse);
       console.log(`📥 API Response type for ${apiType}:`, typeof apiResponse, Array.isArray(apiResponse) ? `Array[${apiResponse.length}]` : '');
 
+      // Use the cache key that was defined earlier (based on user's selected date)
+      // Note: We cache by user's selected date, not the dateToUse, so cache is consistent
+      const finalCacheKey = cacheKey;
+
       // Handle "No match" response or empty array
       if (Array.isArray(apiResponse) && apiResponse.length === 0) {
         console.warn(`⚠️ ${cardTitle} (${apiType}) API returned empty array`);
         this.comparisonDataByCard[cardTitle] = [];
+        // Cache empty result to avoid re-fetching (use normalized cache key)
+        this.comparisonDataCache[finalCacheKey] = {
+          data: [],
+          projectName: projectName.trim(),
+          date: date
+        };
         return;
       }
       
@@ -4177,6 +4551,12 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!apiResponse) {
         console.warn(`⚠️ ${cardTitle} (${apiType}) API returned null or undefined`);
         this.comparisonDataByCard[cardTitle] = [];
+        // Cache empty result to avoid re-fetching (use normalized cache key)
+        this.comparisonDataCache[finalCacheKey] = {
+          data: [],
+          projectName: projectName.trim(),
+          date: date
+        };
         return;
       }
 
@@ -4216,14 +4596,26 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           if (apiResponse.message) {
             const message = apiResponse.message.toLowerCase();
             if (message === 'no match' || message.includes('no data') || message.includes('not found')) {
-              console.warn(`⚠️ ${cardTitle} (${apiType}) API returned: ${apiResponse.message} for project: ${exactProjectName}, date: ${dateToUse}`);
+              console.warn(`⚠️ ${cardTitle} (${apiType}) API returned: ${apiResponse.message} for project: ${exactProjectName}, date: ${date}`);
               this.comparisonDataByCard[cardTitle] = [];
+              // Cache empty result to avoid re-fetching (use normalized cache key)
+              this.comparisonDataCache[finalCacheKey] = {
+                data: [],
+                projectName: this.filters.projectName.trim(),
+                date: this.filters.date
+              };
               return;
             }
           }
           if (apiResponse.detail) {
             console.error(`API returned error for ${apiType}:`, apiResponse.detail);
             this.comparisonDataByCard[cardTitle] = [];
+            // Cache empty result to avoid re-fetching (use normalized cache key)
+            this.comparisonDataCache[finalCacheKey] = {
+              data: [],
+              projectName: this.filters.projectName.trim(),
+              date: this.filters.date
+            };
             return;
           }
           if (Array.isArray(apiResponse.data)) {
@@ -4253,14 +4645,27 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       if (flatData.length === 0) {
         console.warn(`⚠️ ${cardTitle} (${apiType}): No flat data to transform. Check API response structure.`);
         this.comparisonDataByCard[cardTitle] = [];
+        // Cache empty result to avoid re-fetching (use normalized cache key)
+        this.comparisonDataCache[finalCacheKey] = {
+          data: [],
+          projectName: projectName.trim(),
+          date: date
+        };
         return;
       }
       
       const transformed = this.transformDataByApiType(flatData, apiType);
       this.comparisonDataByCard[cardTitle] = transformed;
       
+      // Cache the fetched data for future use (use normalized cache key)
+      this.comparisonDataCache[finalCacheKey] = {
+        data: transformed,
+        projectName: projectName.trim(),
+        date: date
+      };
+      
       console.log(`✅ Successfully loaded ${transformed.length} transformed items for ${cardTitle} (${apiType})`);
-      console.log(`✅ Stored in comparisonDataByCard['${cardTitle}']`);
+      console.log(`✅ Stored in comparisonDataByCard['${cardTitle}'] and cached with key: ${cacheKey}`);
       
       if (transformed.length > 0) {
         console.log(`📊 Sample transformed item:`, transformed[0]);
@@ -4397,7 +4802,7 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             return { apiType, data: [], flatData: [] };
           }
 
-          // Get exact project name for this API type
+          // Get exact project name for this API type (handle "Abu Road to Swaroopganj" vs "Abu Road to swaroopganj" etc.)
           let exactProjectName = this.filters.projectName.trim();
           const originalNamesMap = this.originalProjectNamesByApiType?.[apiType];
           const rawProjectDates = this.rawProjectDatesByApiType?.[apiType];
@@ -4410,6 +4815,41 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             const matchingKey = projectKeys.find(key => key.toLowerCase().trim() === normalizedProjectName);
             if (matchingKey) {
               exactProjectName = matchingKey;
+            }
+          }
+
+          // On-demand: if we still don't have per-endpoint name, fetch this API's projects-dates for exact casing
+          if (normalizedProjectName && exactProjectName === this.filters.projectName.trim() && (!originalNamesMap || !originalNamesMap[normalizedProjectName])) {
+            const projectsDatesEndpointMap: { [key: string]: string } = {
+              inventory: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/inventory',
+              reported: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/distress_reported',
+              predicted: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/distress_predicted',
+              tis: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/tis',
+              ais: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/ais',
+              pms: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/pms',
+              rwfis: 'https://fantastic-reportapi-production.up.railway.app/projects-dates/rwfis',
+            };
+            const projectsDatesUrl = projectsDatesEndpointMap[apiType];
+            if (projectsDatesUrl) {
+              try {
+                const pdResponse = await fetch(projectsDatesUrl, { method: 'GET', headers: { accept: 'application/json' } });
+                if (pdResponse.ok) {
+                  const rawProjectDatesForType: ProjectDatesResponse = await pdResponse.json();
+                  const projectKeys = Object.keys(rawProjectDatesForType || {});
+                  const matchingKey = projectKeys.find((key) => key.toLowerCase().trim() === normalizedProjectName);
+                  if (matchingKey) {
+                    exactProjectName = matchingKey;
+                    if (!this.rawProjectDatesByApiType) this.rawProjectDatesByApiType = {};
+                    this.rawProjectDatesByApiType[apiType] = rawProjectDatesForType;
+                    if (!this.originalProjectNamesByApiType) this.originalProjectNamesByApiType = {};
+                    const orig: { [norm: string]: string } = {};
+                    projectKeys.forEach((key) => { orig[key.toLowerCase().trim()] = key; });
+                    this.originalProjectNamesByApiType[apiType] = orig;
+                  }
+                }
+              } catch (e) {
+                console.warn(`⚠️ ${apiType}: Could not fetch projects-dates for exact name:`, e);
+              }
             }
           }
 
@@ -4589,11 +5029,9 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
     
-    // Update combined comparison data
+    // Update combined comparison data (this will also regenerate the chart)
     this.updateCombinedComparisonData();
     
-    // Regenerate chart with updated data
-    this.generateChainageComparisonChart();
     console.log(`📊 Chart regenerated after toggling ${cardTitle}`);
   }
 
@@ -5051,7 +5489,40 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
       
-      return matchesChainage && matchesSelectedCard;
+      // Filter by direction
+      const matchesDirection = 
+        !this.comparisonFilters.direction || 
+        this.comparisonFilters.direction === 'All' ||
+        (item.direction && item.direction.trim() === this.comparisonFilters.direction.trim());
+      
+      // Filter by pavement type
+      const matchesPavementType = 
+        !this.comparisonFilters.pavementType || 
+        this.comparisonFilters.pavementType === 'All' ||
+        (item.pavement_type && item.pavement_type.trim() === this.comparisonFilters.pavementType.trim());
+      
+      // Filter by lane
+      const matchesLane = 
+        !this.comparisonFilters.lane || 
+        this.comparisonFilters.lane === 'All' ||
+        (item.lane && item.lane.trim() === this.comparisonFilters.lane.trim());
+      
+      const matches = matchesChainage && matchesSelectedCard && matchesDirection && matchesPavementType && matchesLane;
+      
+      // Debug logging for first few items
+      if (this.comparisonChartData.indexOf(item) < 3) {
+        console.log(`🔍 Filter check for item ${this.comparisonChartData.indexOf(item)}:`, {
+          chainage: `${item.chainage_start}-${item.chainage_end}`,
+          matchesChainage,
+          matchesSelectedCard,
+          direction: `${item.direction} vs ${this.comparisonFilters.direction} = ${matchesDirection}`,
+          pavementType: `${item.pavement_type} vs ${this.comparisonFilters.pavementType} = ${matchesPavementType}`,
+          lane: `${item.lane} vs ${this.comparisonFilters.lane} = ${matchesLane}`,
+          matches
+        });
+      }
+      
+      return matches;
     });
 
     // Log detailed information about available data
@@ -5063,11 +5534,42 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     console.log('📊 Comparison chart data by API type (all data in comparisonChartData):', comparisonDataByApiType);
     console.log('📊 Selected comparison cards:', Array.from(this.selectedCardsForComparison));
+    console.log('📊 Current comparison filters:', this.comparisonFilters);
+    console.log('📊 Comparison data count before filtering:', this.comparisonChartData.length);
     console.log('📊 Comparison data count after filtering:', comparisonData.length);
+    
+    // Log sample of filtered data
+    if (comparisonData.length > 0) {
+      console.log('✅ Sample filtered data (first 3 items):', comparisonData.slice(0, 3).map(item => ({
+        apiType: item.apiType,
+        direction: item.direction,
+        pavement_type: item.pavement_type,
+        lane: item.lane,
+        chainage: `${item.chainage_start}-${item.chainage_end}`
+      })));
+    }
 
     if (comparisonData.length === 0) {
-      console.log('No filtered data for chainage comparison chart');
-      console.log('Comparison chart data count:', this.comparisonChartData.length);
+      console.log('❌ No filtered data for chainage comparison chart');
+      console.log('📊 Comparison chart data count:', this.comparisonChartData.length);
+      console.log('📊 Filter breakdown:', {
+        chainageRange: `${this.comparisonChainageMin}-${this.comparisonChainageMax}`,
+        direction: this.comparisonFilters.direction,
+        pavementType: this.comparisonFilters.pavementType,
+        lane: this.comparisonFilters.lane,
+        selectedCards: Array.from(this.selectedCardsForComparison)
+      });
+      
+      // Log sample of unfiltered data to help debug
+      if (this.comparisonChartData.length > 0) {
+        console.log('📊 Sample unfiltered data (first 3 items):', this.comparisonChartData.slice(0, 3).map(item => ({
+          apiType: item.apiType,
+          direction: item.direction,
+          pavement_type: item.pavement_type,
+          lane: item.lane,
+          chainage: `${item.chainage_start}-${item.chainage_end}`
+        })));
+      }
       this.chainageComparisonChartOptions = {
         title: {
           text: 'No Data for Selected Filters',
@@ -5274,8 +5776,8 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       grid: {
         left: isTabletOrSmaller ? '15%' : '5%',
         right: '5%',
-        bottom: isTabletOrSmaller ? '20%' : '32%',
-        top: '10%',
+        bottom: isTabletOrSmaller ? '20%' : '20%',
+        top: '5%',
         containLabel: true,
       },
       xAxis: isTabletOrSmaller
