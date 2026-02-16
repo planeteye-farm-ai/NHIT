@@ -141,6 +141,14 @@
             <h3>Location wise Data Distribution</h3>
             <div class="chart-buttons">
               <button 
+                class="comparison-chart-btn toggle-icons-btn"
+                (click)="toggleMapIconsVisibility()"
+                [title]="mapIconsVisible ? 'Hide all icons on map' : 'Show all icons on map'"
+              >
+                <i [class]="mapIconsVisible ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                {{ mapIconsVisible ? 'Hide Icons' : 'Show Icons' }}
+              </button>
+              <button 
                 class="comparison-chart-btn"
                 (click)="openChainageComparisonModal()"
                 title="View Chainage Comparison Chart"

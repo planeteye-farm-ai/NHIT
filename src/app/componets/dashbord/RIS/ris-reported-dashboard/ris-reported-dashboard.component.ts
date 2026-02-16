@@ -7,10 +7,12 @@ import {
   ElementRef,
   PLATFORM_ID,
   Inject,
+  NgZone,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxEchartsModule, provideEcharts } from 'ngx-echarts';
+import { GoogleMapsTrafficService } from '../../../../shared/services/google-maps-traffic.service';
 
 interface DistressData {
   name: string;
@@ -141,7 +143,23 @@ export class RisReportedDashboardComponent
   private map: any;
   public isBrowser: boolean;
   public isLoading: boolean = false;
+  isLoadingKml: boolean = false;
   public isSidebarOpen: boolean = false;
+
+  // Map ready for Street View button
+  isMapReady: boolean = false;
+
+  // Street View modal state
+  isStreetViewModalOpen: boolean = false;
+  isLoadingStreetView: boolean = false;
+  streetViewError: string | null = null;
+  private streetViewPanorama: any = null;
+
+  // Street View coverage mode (hold button): show blue lines on map, click to open Street View there
+  streetViewCoverageMode: boolean = false;
+  private streetViewCoverageMap: any = null;
+  private streetViewLongPressTimer: any = null;
+  private streetViewLongPressHandled: boolean = false;
 
   // Flag to prevent duplicate data loads when project changes
   private isProjectChanging: boolean = false;
@@ -152,7 +170,11 @@ export class RisReportedDashboardComponent
   private distressMarkers: any[] = []; // Store all markers
   private iconCache: Map<string, any> = new Map(); // Cache for Leaflet icons (PERFORMANCE BOOST!)
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private googleMapsService: GoogleMapsTrafficService,
+    private ngZone: NgZone
+  ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
@@ -1017,7 +1039,7 @@ export class RisReportedDashboardComponent
             <strong>Position:</strong> ${distance.toFixed(3)}m, L${laserNum}<br/>
             <strong>Gray Value:</strong> ${grayValue.toFixed(1)}<br/>
             <strong>Depth:</strong> ${depthMm.toFixed(1)}mm<br/>
-            <strong>Severity:</strong> ${severity}
+            
           `;
         }
       },
@@ -2487,6 +2509,7 @@ export class RisReportedDashboardComponent
       setTimeout(() => {
         if (this.map) {
           this.map.invalidateSize();
+          this.isMapReady = true;
           console.log('Map initialized successfully');
           // Set initial view to show all projects
           this.adjustMapBounds();
@@ -2503,6 +2526,220 @@ export class RisReportedDashboardComponent
       this.addDistressMarkers();
     } catch (error) {
       console.error('Error initializing map:', error);
+    }
+  }
+
+  closeStreetView() {
+    this.isStreetViewModalOpen = false;
+    this.streetViewError = null;
+    this.isLoadingStreetView = false;
+    if (this.streetViewPanorama) {
+      this.streetViewPanorama = null;
+    }
+  }
+
+  private readonly STREET_VIEW_LONG_PRESS_MS = 500;
+
+  onStreetViewBtnMouseDown(event: MouseEvent) {
+    if (!this.isBrowser || !this.map || !this.filters?.date || !this.isMapReady) return;
+    this.streetViewLongPressHandled = false;
+    this.streetViewLongPressTimer = setTimeout(() => {
+      this.streetViewLongPressTimer = null;
+      this.streetViewLongPressHandled = true;
+      this.enterStreetViewCoverageMode();
+    }, this.STREET_VIEW_LONG_PRESS_MS);
+  }
+
+  onStreetViewBtnMouseUp() {
+    if (this.streetViewLongPressTimer) {
+      clearTimeout(this.streetViewLongPressTimer);
+      this.streetViewLongPressTimer = null;
+    }
+  }
+
+  onStreetViewBtnMouseLeave() {
+    if (this.streetViewLongPressTimer) {
+      clearTimeout(this.streetViewLongPressTimer);
+      this.streetViewLongPressTimer = null;
+    }
+  }
+
+  onStreetViewBtnClick(event: MouseEvent) {
+    if (this.streetViewLongPressHandled) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.streetViewLongPressHandled = false;
+      return;
+    }
+    this.openStreetView();
+  }
+
+  async enterStreetViewCoverageMode() {
+    if (!this.isBrowser || !this.map) return;
+    this.streetViewCoverageMode = true;
+    await new Promise((resolve) => setTimeout(resolve, 80));
+    await this.initStreetViewCoverageMap();
+  }
+
+  exitStreetViewCoverageMode() {
+    this.streetViewCoverageMode = false;
+    if (this.streetViewCoverageMap) {
+      this.streetViewCoverageMap = null;
+    }
+  }
+
+  private async initStreetViewCoverageMap() {
+    const container = document.getElementById('streetViewCoverageMapContainer');
+    if (!container || !this.map) return;
+    try {
+      await this.googleMapsService.loadGoogleMaps();
+      const g = (window as any).google;
+      if (!g?.maps) return;
+      const center = this.map.getCenter();
+      const zoom = this.map.getZoom();
+      const googleZoom = Math.min(21, Math.max(0, zoom + 0)); // Leaflet and Google zoom are close
+      const mapOptions: any = {
+        center: { lat: center.lat, lng: center.lng },
+        zoom: googleZoom,
+        disableDefaultUI: true,
+        zoomControl: true,
+        mapTypeControl: false,
+        scaleControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        styles: [
+          { featureType: 'all', elementType: 'geometry', stylers: [{ visibility: 'simplified' }] },
+          { featureType: 'water', stylers: [{ visibility: 'on' }, { color: '#b5d0d0' }] },
+          { featureType: 'road', stylers: [{ visibility: 'simplified' }] },
+        ],
+      };
+      const coverageMap = new g.maps.Map(container, mapOptions);
+      if ((g.maps as any).StreetViewCoverageLayer) {
+        const coverageLayer = new (g.maps as any).StreetViewCoverageLayer();
+        coverageLayer.setMap(coverageMap);
+      }
+      coverageMap.addListener('click', (e: any) => {
+        const latLng = e.latLng;
+        if (latLng) {
+          this.ngZone.run(() => {
+            this.openStreetViewAt(latLng.lat(), latLng.lng());
+          });
+        }
+      });
+      this.streetViewCoverageMap = coverageMap;
+      this.syncCoverageMapToLeaflet();
+    } catch (_) {}
+  }
+
+  private syncCoverageMapToLeaflet() {
+    if (!this.map || !this.streetViewCoverageMap) return;
+    const center = this.map.getCenter();
+    const zoom = this.map.getZoom();
+    this.streetViewCoverageMap.setCenter({ lat: center.lat, lng: center.lng });
+    this.streetViewCoverageMap.setZoom(Math.min(21, Math.max(0, zoom)));
+  }
+
+  /**
+   * Open Street View at a specific point (e.g. from coverage map click). Optional lat/lng; if not provided uses map center.
+   */
+  async openStreetViewAt(lat: number, lng: number) {
+    await this.openStreetView(lat, lng);
+  }
+
+  /**
+   * Open Street View at current map center or at the given point. Uses Google Maps Street View API.
+   */
+  async openStreetView(centerLat?: number, centerLng?: number) {
+    if (!this.isBrowser || !this.map) return;
+    // Ensure any coverage overlay is turned off when actually opening Street View
+    this.streetViewCoverageMode = false;
+    this.isStreetViewModalOpen = true;
+    this.streetViewError = null;
+    this.isLoadingStreetView = true;
+
+    let lat: number;
+    let lng: number;
+    if (centerLat != null && centerLng != null) {
+      lat = centerLat;
+      lng = centerLng;
+    } else {
+      // When opening from the button (no explicit point), compute a representative
+      // center for the CURRENT PROJECT from the loaded distress data.
+      if (Array.isArray(this.rawData) && this.rawData.length > 0) {
+        const validPoints = this.rawData.filter(
+          (p: any) =>
+            typeof p.latitude === 'number' &&
+            !isNaN(p.latitude) &&
+            typeof p.longitude === 'number' &&
+            !isNaN(p.longitude)
+        );
+
+        if (validPoints.length > 0) {
+          const lats = validPoints.map((p: any) => p.latitude);
+          const lngs = validPoints.map((p: any) => p.longitude);
+          const minLat = Math.min(...lats);
+          const maxLat = Math.max(...lats);
+          const minLng = Math.min(...lngs);
+          const maxLng = Math.max(...lngs);
+          lat = (minLat + maxLat) / 2;
+          lng = (minLng + maxLng) / 2;
+        } else {
+          const center = this.map.getCenter();
+          lat = center.lat;
+          lng = center.lng;
+        }
+      } else {
+        const center = this.map.getCenter();
+        lat = center.lat;
+        lng = center.lng;
+      }
+    }
+
+    try {
+      await this.googleMapsService.loadGoogleMaps();
+      const g = (window as any).google;
+      if (!g?.maps) {
+        this.streetViewError = 'Google Maps API could not be loaded.';
+        this.isLoadingStreetView = false;
+        return;
+      }
+
+      // Allow DOM to render the inline Street View container
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const container = document.getElementById('streetViewContainer');
+      if (!container) {
+        this.streetViewError = 'Street View container not found.';
+        this.isLoadingStreetView = false;
+        return;
+      }
+
+      const streetViewService = new g.maps.StreetViewService();
+      const request = {
+        location: { lat, lng },
+        // Use a smaller radius so we stay near the selected project's corridor
+        radius: 5000,
+      };
+
+      streetViewService.getPanorama(request, (data: any, status: any) => {
+        this.isLoadingStreetView = false;
+        if (status !== g.maps.StreetViewStatus.OK || !data || !data.location) {
+          this.streetViewError = 'No Street View coverage near this area. Pan the map to a region with roads (e.g. a city or highway) and try again.';
+          return;
+        }
+        const position = data.location.latLng;
+        this.streetViewPanorama = new g.maps.StreetViewPanorama(container, {
+          position: { lat: position.lat(), lng: position.lng() },
+          pov: { heading: 0, pitch: 0 },
+          zoom: 1,
+          addressControl: true,
+          linksControl: true,
+          fullscreenControl: true,
+        });
+      });
+    } catch (err: any) {
+      this.isLoadingStreetView = false;
+      this.streetViewError = err?.message || 'Failed to load Street View.';
     }
   }
 
@@ -2610,7 +2847,6 @@ export class RisReportedDashboardComponent
               <strong>Direction:</strong> ${item.direction || 'N/A'}
             </p>
             <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Severity:</strong> ${item.severity || 'N/A'}
             </p>
           </div>
         `);
@@ -2660,7 +2896,7 @@ export class RisReportedDashboardComponent
               1
             )}-${item.chainage_end?.toFixed(1)} km<br>Dir: ${
               item.direction || 'N/A'
-            }<br>Sev: ${item.severity || 'N/A'}</div></div>`;
+            }</div></div>`;
             marker.bindPopup(popup).openPopup();
           });
 
@@ -2978,6 +3214,57 @@ export class RisReportedDashboardComponent
       }
     }
     return dateString;
+  }
+
+  /** Call distress_report_filter_kml and download the returned KML file using current filters. */
+  async downloadKml(): Promise<void> {
+    if (!this.filters.projectName?.trim() || !this.filters.date) {
+      alert('Please select Project and Date before downloading KML.');
+      return;
+    }
+    this.isLoadingKml = true;
+    try {
+      const requestBody = {
+        chainage_start: Math.max(0, this.filters.chainageRange?.min ?? 0),
+        chainage_end: Math.min(1381, this.filters.chainageRange?.max ?? 1380),
+        date: this.convertDateFormat(this.filters.date),
+        direction: ['all'],
+        project_name: [this.filters.projectName.trim()],
+        distress_type: ['All'],
+      };
+
+      const response = await fetch(
+        'https://fantastic-reportapi-production.up.railway.app/distress_report_filter_kml',
+        {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('KML API error:', response.status, text);
+        alert(`Download failed: ${response.status}. Check console for details.`);
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `distress-report-${(this.filters.projectName || 'data').replace(/\s+/g, '-')}-${this.filters.date || 'export'}.kml`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Download KML failed:', e);
+      alert('Download failed. Check console for details.');
+    } finally {
+      this.isLoadingKml = false;
+    }
   }
 
   async onProjectChange(event: any) {

@@ -82,14 +82,19 @@
                 class="chainage-slider">
             </div>
           </div>
-          
-          <!-- <div class="filter-group">
-            <label>Distress Type:</label>
-            <select [value]="filters.distressType" (change)="onDistressTypeChange($event)" class="filter-select">
-              <option value="All">All</option>
-              <option *ngFor="let type of availableDistressTypes" [value]="type">{{ type }}</option>
-            </select>
-          </div> -->
+
+          <div class="filter-group filter-group-download-kml">
+            <button 
+              class="comparison-chart-btn download-kml-btn"
+              (click)="downloadKml()"
+              [disabled]="isLoadingKml || !filters.projectName || !filters.date"
+              title="Download KML for current filters"
+            >
+              <!-- <i *ngIf="!isLoadingKml" class="fas fa-download"></i> -->
+              <i *ngIf="isLoadingKml" class="fas fa-spinner fa-spin"></i>
+              {{ isLoadingKml ? 'Downloading…' : 'Download KML' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -117,14 +122,28 @@
         <div class="map-container">
           <div class="chart-header">
             <h3>Location wise Distress Distribution</h3>
-            <button 
-              class="comparison-chart-btn"
-              (click)="openChainageComparisonModal()"
-              title="View Chainage Comparison Chart"
-            >
-              <i class="fas fa-chart-line"></i>
-              Chainage Comparison
-            </button>
+            <div class="chart-header-buttons">
+              <!-- <button 
+                class="street-view-btn"
+                (mousedown)="onStreetViewBtnMouseDown($event)"
+                (mouseup)="onStreetViewBtnMouseUp()"
+                (mouseleave)="onStreetViewBtnMouseLeave()"
+                (click)="onStreetViewBtnClick($event)"
+                [disabled]="!filters.date || !isMapReady"
+                title="Hold to show Street View coverage; click to open at map center"
+              >
+                <i class="fas fa-street-view" aria-hidden="true"></i>
+                Street View
+              </button> -->
+              <button 
+                class="comparison-chart-btn"
+                (click)="openChainageComparisonModal()"
+                title="View Chainage Comparison Chart"
+              >
+                <i class="fas fa-chart-line"></i>
+                Chainage Comparison
+              </button>
+            </div>
           </div>
           <div class="map-wrapper">
             <div class="section-loading-overlay" *ngIf="isLoading">
@@ -140,7 +159,27 @@
               <div class="loading-spinner"></div>
               <p>Loading map data...</p>
             </div>
-            <div *ngIf="filters.date" id="mapContainer" class="map"></div>
+            <div *ngIf="filters.date" id="mapContainer" class="map" [class.map-hidden]="isStreetViewModalOpen || streetViewCoverageMode"></div>
+            <!-- Street View coverage layer (hold Street View button): blue lines show where Street View is available; click a point to open -->
+            <div class="street-view-coverage-overlay" *ngIf="streetViewCoverageMode && filters.date">
+              <div id="streetViewCoverageMapContainer" class="street-view-coverage-map"></div>
+              <div class="street-view-coverage-hint">Click on a blue road to open Street View</div>
+              <button type="button" class="street-view-exit-coverage-btn" (click)="exitStreetViewCoverageMode()" title="Back to map">
+                <i class="fas fa-times"></i> Back to map
+              </button>
+            </div>
+            <!-- Street View directly on the map -->
+            <div class="street-view-inline" *ngIf="isStreetViewModalOpen">
+              <div *ngIf="streetViewError" class="street-view-inline-error">{{ streetViewError }}</div>
+              <div *ngIf="isLoadingStreetView" class="street-view-inline-loading">
+                <div class="loading-spinner"></div>
+                <p>Loading Street View…</p>
+              </div>
+              <div *ngIf="!streetViewError" id="streetViewContainer" class="street-view-panorama-inline"></div>
+              <button type="button" class="street-view-exit-btn" (click)="closeStreetView()" title="Exit Street View">
+                <i class="fas fa-times"></i> Exit Street View
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -208,13 +208,16 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private zoomUpdateTimeout: any = null;
   private lastMarkerMode: 'dots' | 'icons' | null = null; // Track current marker mode
 
+  // Toggle icons visibility on this map card only (hide/show all data markers)
+  mapIconsVisible: boolean = true;
+
   // TIS Traffic route visualization
   private trafficRoutePolylines: any[] = [];
   private trafficMarkers: any[] = [];
   private originMarker: any = null;
   private destinationMarker: any = null;
   private currentRouteData: RouteData | null = null;
-  private pendingTisRoute: { routeData: RouteData; coordinates: { origin: string; destination: string } } | null = null;
+  private pendingTisRoute: { routeData: RouteData; coordinates: { origin: string; destination: string }; directionsResult?: any } | null = null;
 
   // Selected info card for interactive filtering
   public selectedInfoCard: string | null = null;
@@ -291,6 +294,63 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           }, 1500);
         }
       }, 1000);
+    }
+  }
+
+  /** Convert UI date (e.g. DD-MM-YYYY) to API format YYYY-MM-DD for TIS and other APIs. */
+  private convertDateFormat(dateString: string): string {
+    if (!dateString || !dateString.includes('-') || dateString.length !== 10) return dateString;
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return dateString;
+    if (parts[0].length === 4) return dateString; // already YYYY-MM-DD
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+
+  /**
+   * When TIS was selected but TIS API returned no data for this date, try to show the route
+   * using start/end coordinates from other cards (Reported, Inventory, etc.) so the map still shows the road.
+   */
+  private async tryTisRouteFallbackFromOtherData(results: { apiType: string; flatData: any[]; data?: any }[]): Promise<void> {
+    if (!this.currentApiTypes.has('tis')) return;
+    const tisResult = results.find((r) => r.apiType === 'tis');
+    if (!tisResult || tisResult.flatData.length > 0) return;
+
+    const coordinates = this.getProjectStartEndCoordinates();
+    if (!coordinates) {
+      console.warn('⚠️ TIS: No data for this date and no coordinates from other cards. TIS route not shown.');
+      return;
+    }
+
+    console.log('✅ TIS: No TIS data for this date; using coordinates from other cards to show route.');
+    try {
+      const departureTime = new Date(Date.now() + 2 * 60 * 1000);
+      const { routeData, directionsResult } = await this.trafficService.getRouteForDisplay(
+        coordinates.origin,
+        coordinates.destination,
+        departureTime
+      );
+      this.currentRouteData = routeData;
+
+      const displayRoute = async () => {
+        let retries = 0;
+        while (!this.map && retries < 10) {
+          await new Promise((resolve) => setTimeout(resolve, 200));
+          retries++;
+        }
+        if (this.map) {
+          try {
+            await this.displayTrafficRouteOnMap(routeData, coordinates, directionsResult);
+            console.log('✅ TIS route displayed using coordinates from other cards.');
+          } catch (err) {
+            console.error('❌ Error displaying TIS fallback route:', err);
+          }
+        } else {
+          this.pendingTisRoute = { routeData, coordinates, directionsResult };
+        }
+      };
+      displayRoute();
+    } catch (err) {
+      console.warn('⚠️ TIS fallback route failed:', err);
     }
   }
 
@@ -395,9 +455,14 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Display traffic route on Leaflet map (similar to TIS dashboard)
+   * Display traffic route on Leaflet map (similar to TIS dashboard).
+   * If directionsResult is provided, skips fetching Directions again and draws immediately.
    */
-  private async displayTrafficRouteOnMap(routeData: RouteData, coordinates: { origin: string; destination: string }): Promise<void> {
+  private async displayTrafficRouteOnMap(
+    routeData: RouteData,
+    coordinates: { origin: string; destination: string },
+    directionsResult?: any
+  ): Promise<void> {
     if (!this.map || !this.isBrowser) {
       console.warn('⚠️ Cannot display traffic route: map or browser not available');
       return;
@@ -405,37 +470,30 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     try {
       console.log('🚦 Starting traffic route display...');
-      await this.trafficService.loadGoogleMaps();
-      const google = (window as any).google;
-
-      if (typeof google === 'undefined' || !google.maps) {
-        throw new Error('Google Maps API not loaded');
+      if (!directionsResult) {
+        await this.trafficService.loadGoogleMaps();
+        const google = (window as any).google;
+        if (typeof google === 'undefined' || !google.maps) throw new Error('Google Maps API not loaded');
+        const directionsService = new google.maps.DirectionsService();
+        directionsResult = await new Promise<any>((resolve, reject) => {
+          directionsService.route(
+            {
+              origin: routeData.origin,
+              destination: routeData.destination,
+              travelMode: google.maps.TravelMode.DRIVING,
+              drivingOptions: {
+                departureTime: new Date(routeData.departure_time),
+                trafficModel: google.maps.TrafficModel.BEST_GUESS,
+              },
+            },
+            (result: any, status: any) => {
+              if (status === 'OK' && result) resolve(result);
+              else reject(new Error('Directions request failed: ' + status));
+            }
+          );
+        });
       }
 
-      // Get route from Google Maps Directions API
-      const directionsService = new google.maps.DirectionsService();
-      const directionsResult = await new Promise<any>((resolve, reject) => {
-        directionsService.route(
-          {
-            origin: routeData.origin,
-            destination: routeData.destination,
-            travelMode: google.maps.TravelMode.DRIVING,
-            drivingOptions: {
-              departureTime: new Date(routeData.departure_time),
-              trafficModel: google.maps.TrafficModel.BEST_GUESS,
-            },
-          },
-          (result: any, status: any) => {
-            if (status === 'OK' && result) {
-              resolve(result);
-            } else {
-              reject(new Error('Directions request failed: ' + status));
-            }
-          }
-        );
-      });
-
-      // Draw route on Leaflet map
       await this.drawTrafficRouteOnLeaflet(routeData, directionsResult, coordinates);
     } catch (error) {
       console.error('Error displaying traffic route on map:', error);
@@ -936,7 +994,7 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           requestBody: {
             chainage_start: 0,
               chainage_end: 1381,
-            date: this.filters.date,
+            date: this.convertDateFormat(this.filters.date),
             direction: ['All'],
             project_name: [this.filters.projectName.trim()],
           }
@@ -1116,52 +1174,34 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               return { apiType, data: [], flatData: [] };
             }
 
-            // Load Google Maps API and fetch traffic data
-            await this.trafficService.loadGoogleMaps();
-            const departureTime = new Date();
-            const routeData = await this.trafficService.processRouteWithTraffic(
+            // Get route for immediate display (Directions only – no slow per-segment traffic calls)
+            const departureTime = new Date(Date.now() + 2 * 60 * 1000);
+            const { routeData, directionsResult } = await this.trafficService.getRouteForDisplay(
               coordinates.origin,
               coordinates.destination,
               departureTime
             );
 
-            // Store route data for visualization
             this.currentRouteData = routeData;
 
-            // Display route on map - ensure map is ready first
             const displayRoute = async () => {
-              // Wait for map to be ready (with retries)
               let retries = 0;
               while (!this.map && retries < 10) {
                 await new Promise(resolve => setTimeout(resolve, 200));
                 retries++;
               }
-              
               if (this.map) {
-                console.log('🚦 Displaying TIS traffic route on map...');
+                console.log('🚦 Displaying TIS route on map (instant)...');
                 try {
-                  await this.displayTrafficRouteOnMap(routeData, coordinates);
-                  
-                  // Verify route was drawn after a short delay
-                  setTimeout(() => {
-                    if (this.trafficRoutePolylines.length === 0) {
-                      console.warn('⚠️ TIS route was cleared, redrawing...');
-                      this.displayTrafficRouteOnMap(routeData, coordinates);
-                    } else {
-                      console.log(`✅ TIS route displayed successfully: ${this.trafficRoutePolylines.length} segments`);
-                    }
-                  }, 500);
+                  await this.displayTrafficRouteOnMap(routeData, coordinates, directionsResult);
+                  console.log(`✅ TIS route displayed: ${this.trafficRoutePolylines.length} polyline(s)`);
                 } catch (error) {
                   console.error('❌ Error displaying TIS route:', error);
                 }
               } else {
-                console.warn('⚠️ Map not ready after retries, storing route for later display');
-                // Store route data to display later when map is ready
-                this.pendingTisRoute = { routeData, coordinates };
+                this.pendingTisRoute = { routeData, coordinates, directionsResult };
               }
             };
-            
-            // Start displaying route
             displayRoute();
 
             // Also fetch TIS data for markers (in addition to route visualization)
@@ -1522,6 +1562,9 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       // Store data from all selected cards only
       // This ensures rawData only contains data from currently selected cards
       this.rawData = allTransformedData;
+
+      // When TIS had no data for this date, try to show route using coordinates from other cards (Reported, Inventory, etc.)
+      await this.tryTisRouteFallbackFromOtherData(results);
 
       this.extractFilterOptions();
       this.updateInfoSummary();
@@ -2310,6 +2353,26 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return assets;
   }
 
+  /** Unique key for an item so we can deduplicate same-asset entries at one location (e.g. TIS duplicate rows). */
+  private getItemDedupKey(item: ReportData): string {
+    const asset = this.getAssetNameForItem(item);
+    const chStart = item.chainage_start ?? '';
+    const chEnd = item.chainage_end ?? '';
+    const dir = item.direction ?? '';
+    return `${item.apiType ?? ''}|${asset}|${chStart}|${chEnd}|${dir}`;
+  }
+
+  /** Deduplicate items at a location so popup shows each distinct asset once. */
+  private deduplicateLocationItems(items: ReportData[]): ReportData[] {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+      const key = this.getItemDedupKey(item);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
   // Get asset name for a single ReportData item
   private getAssetNameForItem(item: ReportData): string {
     if (!item.apiType) return 'Unknown';
@@ -2678,7 +2741,11 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           // If there's a pending TIS route, display it now that map is ready
           if (this.pendingTisRoute) {
             console.log('🚦 Displaying pending TIS route now that map is ready...');
-            this.displayTrafficRouteOnMap(this.pendingTisRoute.routeData, this.pendingTisRoute.coordinates).then(() => {
+            this.displayTrafficRouteOnMap(
+              this.pendingTisRoute.routeData,
+              this.pendingTisRoute.coordinates,
+              this.pendingTisRoute.directionsResult
+            ).then(() => {
               this.pendingTisRoute = null;
               console.log('✅ Pending TIS route displayed successfully');
             });
@@ -2861,7 +2928,10 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       const isCluster = items.length > 1;
       
       if (isCluster) {
-        // Create cluster marker with count
+        const uniqueItems = this.deduplicateLocationItems(items);
+        const displayCount = uniqueItems.length;
+
+        // Create cluster marker with count (use unique count so badge matches popup)
         const marker = L.circleMarker([lat, lng], {
           radius: 8,
           fillColor: '#FF6B6B',
@@ -2869,7 +2939,9 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           weight: 2,
           opacity: 1,
           fillOpacity: 0.9,
-        }).addTo(this.map);
+        });
+        if (this.mapIconsVisible) marker.addTo(this.map);
+        this.markers.push(marker);
         
         // Add count label
         const countLabel = L.divIcon({
@@ -2887,23 +2959,24 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             font-size: 11px;
             border: 2px solid white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-          ">${items.length}</div>`,
+          ">${displayCount}</div>`,
           iconSize: [20, 20],
           iconAnchor: [10, 10],
         });
         
-        const labelMarker = L.marker([lat, lng], { icon: countLabel, zIndexOffset: 1000 }).addTo(this.map);
+        const labelMarker = L.marker([lat, lng], { icon: countLabel, zIndexOffset: 1000 });
+        if (this.mapIconsVisible) labelMarker.addTo(this.map);
         this.markers.push(labelMarker);
         
-        // Build popup with all items at this location
+        // Build popup with unique items only (no duplicate assets at same location)
         let popupContent = `
           <div style="font-family: Arial, sans-serif; max-width: 400px; max-height: 500px; overflow-y: auto;">
             <h4 style="margin: 0 0 10px 0; color: #FF6B6B; font-size: 16px; border-bottom: 2px solid #FF6B6B; padding-bottom: 5px;">
-              ${items.length} Items at this Location
+              ${displayCount} Item${displayCount !== 1 ? 's' : ''} at this Location
             </h4>
         `;
         
-        items.forEach((item, index) => {
+        uniqueItems.forEach((item, index) => {
           const markerColor = item.apiType === 'reported' && item.distress_type
             ? this.getDistressColor(item.distress_type)
             : item.apiType === 'pms' && item.distress_type
@@ -2958,7 +3031,9 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           weight: 0,
           opacity: 1,
           fillOpacity: 0.8,
-        }).addTo(this.map);
+        });
+        if (this.mapIconsVisible) marker.addTo(this.map);
+        this.markers.push(marker);
 
         // Build popup content based on API type
         const popupTitle = item.apiType === 'reported' 
@@ -3023,9 +3098,6 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               <strong>Carriage Type:</strong> ${item.pavement_type || 'N/A'}
             </p>
             <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Severity:</strong> ${item.severity || 'N/A'}
-            </p>
-            <p style="margin: 5px 0; font-size: 12px;">
               <strong>RI:</strong> ${iriDisplay}
             </p>
           `;
@@ -3043,7 +3115,6 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           className: 'flag-popup-connected',
           offset: L.point(0, -40)
         });
-        this.markers.push(marker);
       }
     });
   }
@@ -3081,7 +3152,10 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         const isCluster = items.length > 1;
         
         if (isCluster) {
-          // Create cluster marker with count
+          const uniqueItems = this.deduplicateLocationItems(items);
+          const displayCount = uniqueItems.length;
+
+          // Create cluster marker with count (use unique count so badge matches popup)
           const clusterIcon = L.divIcon({
             className: 'cluster-icon',
             html: `<div style="
@@ -3097,22 +3171,23 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               font-size: 14px;
               border: 3px solid white;
               box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-            ">${items.length}</div>`,
+            ">${displayCount}</div>`,
             iconSize: [32, 32],
             iconAnchor: [16, 16],
           });
           
-          const marker = L.marker([lat, lng], { icon: clusterIcon, zIndexOffset: 1000 }).addTo(this.map);
+          const marker = L.marker([lat, lng], { icon: clusterIcon, zIndexOffset: 1000 });
+          if (this.mapIconsVisible) marker.addTo(this.map);
           
-          // Build popup with all items at this location
+          // Build popup with unique items only (no duplicate assets at same location)
           let popupContent = `
             <div style="font-family: Arial, sans-serif; max-width: 400px; max-height: 500px; overflow-y: auto;">
               <h4 style="margin: 0 0 10px 0; color: #FF6B6B; font-size: 16px; border-bottom: 2px solid #FF6B6B; padding-bottom: 5px;">
-                ${items.length} Items at this Location
+                ${displayCount} Item${displayCount !== 1 ? 's' : ''} at this Location
               </h4>
           `;
           
-          items.forEach((item, index) => {
+          uniqueItems.forEach((item, index) => {
             const popupColor = item.apiType === 'reported' && item.distress_type
               ? this.getDistressColor(item.distress_type)
               : item.apiType === 'pms' && item.distress_type
@@ -3228,7 +3303,7 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               : 'N/A';
             popup += `<br>Carriage Type: ${item.pavement_type || 'N/A'}<br>IRI: ${iriDisplay}`;
           } else {
-            popup += `<br>Type: ${item.pavement_type || 'N/A'}`;
+            // popup += `<br>Type: ${item.pavement_type || 'N/A'}`;
           }
           
           popup += `</div></div>`;
@@ -3237,7 +3312,8 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           if (item.latitude != null && item.longitude != null) {
             const marker = L.marker([item.latitude, item.longitude], {
               icon: customIcon,
-            }).addTo(this.map);
+            });
+            if (this.mapIconsVisible) marker.addTo(this.map);
 
             // Bind popup once when marker is created (not in click handler)
             marker.bindPopup(popup, {
@@ -3340,6 +3416,26 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       console.warn('Error clearing markers:', error);
       this.markers = [];
     }
+  }
+
+  /** Toggle visibility of all data icons on this map card only. */
+  toggleMapIconsVisibility() {
+    if (!this.map) return;
+    this.mapIconsVisible = !this.mapIconsVisible;
+    this.markers.forEach((marker: any) => {
+      try {
+        if (!marker) return;
+        if (this.mapIconsVisible) {
+          if (this.map && (!this.map.hasLayer || !this.map.hasLayer(marker))) {
+            marker.addTo(this.map);
+          }
+        } else {
+          if (this.map && this.map.hasLayer && this.map.hasLayer(marker)) {
+            this.map.removeLayer(marker);
+          }
+        }
+      } catch (_) {}
+    });
   }
 
   onFilterChange() {

@@ -254,6 +254,33 @@ export class GoogleMapsTrafficService {
   }
 
   /**
+   * Fetch route without traffic (no departure time). Used when request with traffic fails (e.g. INVALID_REQUEST).
+   */
+  private fetchRouteDataWithoutTraffic(
+    origin: string | google.maps.LatLng,
+    destination: string | google.maps.LatLng
+  ): Promise<google.maps.DirectionsResult> {
+    return new Promise((resolve, reject) => {
+      if (!this.isBrowser || typeof google === 'undefined' || !google.maps?.DirectionsService) {
+        reject(new Error('Google Maps API not loaded'));
+        return;
+      }
+      const directionsService = new google.maps.DirectionsService();
+      directionsService.route(
+        {
+          origin,
+          destination,
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === 'OK' && result) resolve(result);
+          else reject(new Error('Directions request failed: ' + status));
+        }
+      );
+    });
+  }
+
+  /**
    * Fetch segment traffic data using Distance Matrix API
    */
   fetchSegmentTraffic(
@@ -290,6 +317,71 @@ export class GoogleMapsTrafficService {
   }
 
   /**
+   * Get route for immediate display (Directions API only, no per-segment traffic).
+   * Use this to show the road on the map instantly; optional: run processRouteWithTraffic in background for traffic colors.
+   */
+  async getRouteForDisplay(
+    origin: string | google.maps.LatLng,
+    destination: string | google.maps.LatLng,
+    departureTime: Date
+  ): Promise<{ routeData: RouteData; directionsResult: google.maps.DirectionsResult }> {
+    if (!this.isBrowser) throw new Error('Not in browser environment');
+
+    const nowMs = Date.now();
+    const minDeparture = nowMs + 60 * 1000;
+    if (departureTime.getTime() < minDeparture) departureTime = new Date(minDeparture);
+
+    await this.loadGoogleMaps();
+    const google = (window as any).google;
+    let retries = 0;
+    while (retries < 20 && (!google || !google.maps || !google.maps.DirectionsService)) {
+      await new Promise((r) => setTimeout(r, 100));
+      retries++;
+    }
+    if (!google?.maps?.DirectionsService) throw new Error('DirectionsService not available');
+
+    let directionsResult: google.maps.DirectionsResult;
+    try {
+      directionsResult = await this.fetchRouteData(origin, destination, departureTime);
+    } catch (err) {
+      directionsResult = await this.fetchRouteDataWithoutTraffic(origin, destination);
+    }
+    const route = directionsResult.routes[0];
+    const leg = route.legs[0];
+    const legDuration = leg.duration?.value ?? 0;
+    const legDistance = leg.distance?.value ?? 0;
+    const hours = Math.floor(legDuration / 3600);
+    const minutes = Math.floor((legDuration % 3600) / 60);
+    const seconds = Math.floor(legDuration % 60);
+    const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const now = new Date();
+    const originStr = typeof origin === 'string' ? origin : `${origin.lat()},${origin.lng()}`;
+    const destinationStr = typeof destination === 'string' ? destination : `${destination.lat()},${destination.lng()}`;
+
+    const routeData: RouteData = {
+      route: `${leg.start_address} → ${leg.end_address}`,
+      total_kms: Math.round(legDistance / 1000) || 1,
+      total_seconds: legDuration,
+      total_time: timeStr,
+      date_times: now.toISOString().slice(0, 16).replace('T', ' '),
+      departure_time: departureTime.toISOString(),
+      segments: [
+        {
+          segment_no: 1,
+          from_marker: 'Source',
+          to_marker: 'Destination',
+          distance: leg.distance?.text ?? `${Math.round(legDistance / 1000)} km`,
+          time_required: leg.duration?.text ?? timeStr,
+          duration_seconds: legDuration,
+        },
+      ],
+      origin: originStr,
+      destination: destinationStr,
+    };
+    return { routeData, directionsResult };
+  }
+
+  /**
    * Process route with traffic data - main function
    */
   async processRouteWithTraffic(
@@ -299,6 +391,13 @@ export class GoogleMapsTrafficService {
   ): Promise<RouteData> {
     if (!this.isBrowser) {
       throw new Error('Not in browser environment');
+    }
+
+    // Traffic API requires departure_time to be now or in the future; clamp to avoid INVALID_REQUEST
+    const nowMs = Date.now();
+    const minDeparture = nowMs + 60 * 1000; // 1 minute from now
+    if (departureTime.getTime() < minDeparture) {
+      departureTime = new Date(minDeparture);
     }
 
     // Ensure Google Maps is loaded
@@ -317,10 +416,17 @@ export class GoogleMapsTrafficService {
       throw new Error('Google Maps DirectionsService is not available after loading. Please refresh the page.');
     }
 
-    // Step 1: Get route from Directions API
-    const directionsResult = await this.fetchRouteData(origin, destination, departureTime);
+    // Step 1: Get route from Directions API (with traffic). If that fails (e.g. departure_time in past), get route without traffic.
+    let directionsResult: google.maps.DirectionsResult;
+    try {
+      directionsResult = await this.fetchRouteData(origin, destination, departureTime);
+    } catch (err) {
+      console.warn('Directions with traffic failed, falling back to route without traffic:', (err as Error)?.message);
+      directionsResult = await this.fetchRouteDataWithoutTraffic(origin, destination);
+    }
     const route = directionsResult.routes[0];
     const leg = route.legs[0];
+    const legDurationSeconds = leg.duration?.value ?? 0;
 
     // Step 2: Decode polyline to get detailed path
     let detailedPath: google.maps.LatLng[] = [];
@@ -349,8 +455,10 @@ export class GoogleMapsTrafficService {
 
     // Step 3: Get 1km markers along the path
     const markers = this.getMarkerCoordinatesFromPath(detailedPath, 1000);
+    const numSegments = Math.max(1, markers.length - 1);
+    const fallbackSegmentSeconds = legDurationSeconds > 0 ? Math.round(legDurationSeconds / numSegments) : 60;
 
-    // Step 4: Fetch traffic data for each segment
+    // Step 4: Fetch traffic data for each segment (failures use estimated duration so route still completes)
     const segments: RouteSegment[] = [];
     let totalSeconds = 0;
 
@@ -384,12 +492,31 @@ export class GoogleMapsTrafficService {
               : element.duration.text,
             duration_seconds: durationInTraffic,
           });
+        } else {
+          totalSeconds += fallbackSegmentSeconds;
+          segments.push({
+            segment_no: i + 1,
+            from_marker: i === 0 ? 'Source' : `${i} km`,
+            to_marker: i + 1 === markers.length - 1 ? 'Destination' : `${i + 1} km`,
+            distance: '~1 km',
+            time_required: `${Math.round(fallbackSegmentSeconds / 60)} min`,
+            duration_seconds: fallbackSegmentSeconds,
+          });
         }
 
         // Small delay to respect API rate limits
         await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (error) {
-        console.warn(`Segment ${i + 1} failed:`, error);
+        console.warn(`Segment ${i + 1} failed:`, (error as Error)?.message);
+        totalSeconds += fallbackSegmentSeconds;
+        segments.push({
+          segment_no: i + 1,
+          from_marker: i === 0 ? 'Source' : `${i} km`,
+          to_marker: i + 1 === markers.length - 1 ? 'Destination' : `${i + 1} km`,
+          distance: '~1 km',
+          time_required: `${Math.round(fallbackSegmentSeconds / 60)} min`,
+          duration_seconds: fallbackSegmentSeconds,
+        });
       }
     }
 
