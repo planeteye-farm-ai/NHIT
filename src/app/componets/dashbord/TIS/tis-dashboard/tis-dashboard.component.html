@@ -161,9 +161,17 @@
         </div>
 
         <!-- Actual Distress Map -->
-        <div class="map-container">
+        <div class="map-container" #mapContainerWrapper>
           <div class="chart-header">
             <h3>Location wise TIS Distribution</h3>
+            <button 
+              class="comparison-chart-btn fullscreen-map-btn"
+              (click)="toggleMapFullScreen()"
+              [title]="isMapFullScreen ? 'Exit full screen' : 'Full screen map'"
+            >
+              <i class="fas" [ngClass]="isMapFullScreen ? 'fa-compress' : 'fa-expand'"></i>
+              {{ isMapFullScreen ? 'Exit full screen' : 'Full screen' }}
+            </button>
             <button
               class="btn-traffic-analysis"
               (click)="openTrafficAnalysisModal()"

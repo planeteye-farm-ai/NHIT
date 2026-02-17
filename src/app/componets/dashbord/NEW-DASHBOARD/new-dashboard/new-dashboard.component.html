@@ -136,10 +136,18 @@
       <!-- Left Panel (90% width) -->
       <div class="left-panel">
         <!-- Map Container -->
-        <div class="map-container">
+        <div class="map-container" #mapContainerWrapper>
           <div class="chart-header">
             <h3>Location wise Data Distribution</h3>
             <div class="chart-buttons">
+              <button 
+                class="comparison-chart-btn fullscreen-map-btn"
+                (click)="toggleMapFullScreen()"
+                [title]="isMapFullScreen ? 'Exit full screen' : 'Full screen map'"
+              >
+                <i class="bi" [ngClass]="isMapFullScreen ? 'bi-fullscreen-exit' : 'bi-fullscreen'"></i>
+                {{ isMapFullScreen ? 'Exit full screen' : 'Full screen' }}
+              </button>
               <button 
                 class="comparison-chart-btn toggle-icons-btn"
                 (click)="toggleMapIconsVisibility()"
@@ -183,9 +191,9 @@
       <!-- Right Panel (10% width) -->
       <div class="right-panel" [class.sidebar-open]="isSidebarOpen">
         <div class="asset-summary">
-          <div class="asset-summary-header">
+          <!-- <div class="asset-summary-header">
             <h3>Cards</h3>
-          </div>
+          </div> -->
           <div class="asset-grid mobile-grid">
             <div
               *ngFor="let card of dashboardCards"

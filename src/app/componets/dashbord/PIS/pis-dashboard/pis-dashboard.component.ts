@@ -59,6 +59,10 @@ interface DistressReportData {
 })
 export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
+  @ViewChild('mapContainerWrapper', { static: false }) mapContainerWrapper!: ElementRef;
+
+  isMapFullScreen = false;
+  private fullscreenChangeListener = () => this.onFullscreenChange();
 
   // Raw data from JSON
   rawData: DistressReportData[] = [];
@@ -136,6 +140,7 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     if (this.isBrowser) {
+      document.addEventListener('fullscreenchange', this.fullscreenChangeListener);
       // Wait for data to load before initializing map
       setTimeout(() => {
         if (this.rawData.length > 0) {
@@ -145,7 +150,25 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  toggleMapFullScreen(): void {
+    if (!this.mapContainerWrapper?.nativeElement) return;
+    const el = this.mapContainerWrapper.nativeElement as HTMLElement;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.()?.then(() => {}).catch(() => {});
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
+
+  private onFullscreenChange(): void {
+    this.isMapFullScreen = !!document.fullscreenElement;
+    if (this.map) {
+      setTimeout(() => this.map.invalidateSize(), 100);
+    }
+  }
+
   ngOnDestroy() {
+    document.removeEventListener('fullscreenchange', this.fullscreenChangeListener);
     if (this.isBrowser && this.map) {
       this.map.remove();
     }
@@ -390,8 +413,19 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       carriageWidth = rawData.carriage_width || 'Four Lane';
     }
 
-    // Get road length from PIS API response - this is the same for the entire project
-    const roadLength = rawData.length || 0;
+    // Calculate road length from filtered data (actual length for selected filter)
+    const dataForLength =
+      fullyFilteredData.length > 0 ? fullyFilteredData : this.rawData;
+    let roadLength = 0;
+    if (dataForLength.length > 0) {
+      const minChainage = Math.min(
+        ...dataForLength.map((item) => item.chainage_start)
+      );
+      const maxChainage = Math.max(
+        ...dataForLength.map((item) => item.chainage_end)
+      );
+      roadLength = maxChainage - minChainage;
+    }
     const originatingVillage = rawData.originating || 'N/A';
     const terminatingVillage = rawData.terminating || 'N/A';
 
@@ -840,6 +874,9 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           fillOpacity: 0.8,
         }).addTo(this.map);
 
+        const latLon = (item.latitude != null && item.longitude != null)
+          ? `${item.latitude.toFixed(5)}, ${item.longitude.toFixed(5)}`
+          : 'N/A';
         marker.bindPopup(`
           <div style="font-family: Arial, sans-serif; min-width: 200px;">
             <h4 style="margin: 0 0 10px 0; color: ${color}; font-size: 14px;">
@@ -851,13 +888,22 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               )} - ${item.chainage_end?.toFixed(2)} km
             </p>
             <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Direction:</strong> ${item.direction || 'N/A'}
+              <strong>Lat, Lon:</strong> ${latLon}
             </p>
             <p style="margin: 5px 0; font-size: 12px;">
               <strong>Project:</strong> ${item.project_name || 'N/A'}
             </p>
           </div>
         `);
+        marker.bindTooltip(`${this.getAssetKey(item._rawItem)} | Lat: ${item.latitude?.toFixed(5)}, Lon: ${item.longitude?.toFixed(5)}`, {
+          permanent: false,
+          direction: 'top',
+          offset: [0, -12],
+          opacity: 0.9,
+          interactive: false,
+        });
+        marker.on('popupopen', () => marker.closeTooltip?.());
+        marker.on('popupclose', () => marker.closeTooltip?.());
 
         this.distressMarkers.push(marker);
       }
@@ -897,15 +943,29 @@ export class PisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           }).addTo(this.map);
 
           // Create popup only when clicked - saves memory
+          const latLonStr = (item.latitude != null && item.longitude != null)
+            ? `${item.latitude.toFixed(5)}, ${item.longitude.toFixed(5)}`
+            : 'N/A';
+          marker.bindTooltip(`${this.getAssetKey(item._rawItem)} | Lat: ${item.latitude?.toFixed(5)}, Lon: ${item.longitude?.toFixed(5)}`, {
+            permanent: false,
+            direction: 'top',
+            offset: [0, -12],
+            opacity: 0.9,
+            interactive: false,
+          });
           marker.on('click', () => {
+            marker.closeTooltip?.();
+            marker.unbindPopup?.();
             const assetType = this.getAssetKey(item._rawItem);
             const color = this.getAssetColor(item._rawItem);
             const popup = `<div style="padding:8px;"><div style="color:${color};font-weight:bold;margin-bottom:5px;">${assetType}</div><div style="font-size:11px;">Ch: ${item.chainage_start?.toFixed(
               1
-            )}-${item.chainage_end?.toFixed(1)} km<br>Dir: ${
-              item.direction || 'N/A'
-            }<br>Project: ${item.project_name || 'N/A'}</div></div>`;
+            )}-${item.chainage_end?.toFixed(1)} km<br>Lat, Lon: ${latLonStr}<br>Project: ${item.project_name || 'N/A'}</div></div>`;
             marker.bindPopup(popup).openPopup();
+            marker.once('popupclose', () => {
+              marker.unbindPopup?.();
+              marker.closeTooltip?.();
+            });
           });
 
           this.distressMarkers.push(marker);

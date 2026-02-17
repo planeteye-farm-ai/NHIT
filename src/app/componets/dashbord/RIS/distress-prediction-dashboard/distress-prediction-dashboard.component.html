@@ -121,17 +121,27 @@
       <!-- Left Panel (50% width) - Map Only -->
       <div class="left-panel">
         <!-- Predicted Distress Map -->
-        <div class="map-container">
+        <div class="map-container" #mapContainerWrapper>
           <div class="chart-header">
             <h3>Location wise Predicted Distress Distribution</h3>
-            <button 
-              class="comparison-chart-btn"
-              (click)="openChainageComparisonModal()"
-              title="View Chainage Comparison Chart"
-            >
-              <i class="fas fa-chart-line"></i>
-              Chainage Comparison
-            </button>
+            <div class="chart-header-buttons">
+              <button 
+                class="comparison-chart-btn fullscreen-map-btn"
+                (click)="toggleMapFullScreen()"
+                [title]="isMapFullScreen ? 'Exit full screen' : 'Full screen map'"
+              >
+                <i class="fas" [ngClass]="isMapFullScreen ? 'fa-compress' : 'fa-expand'"></i>
+                {{ isMapFullScreen ? 'Exit full screen' : 'Full screen' }}
+              </button>
+              <button 
+                class="comparison-chart-btn"
+                (click)="openChainageComparisonModal()"
+                title="View Chainage Comparison Chart"
+              >
+                <i class="fas fa-chart-line"></i>
+                Chainage Comparison
+              </button>
+            </div>
           </div>
           <div class="map-wrapper">
             <div class="section-loading-overlay" *ngIf="isLoading">

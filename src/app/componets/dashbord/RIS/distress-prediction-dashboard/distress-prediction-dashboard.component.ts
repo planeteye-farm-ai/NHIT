@@ -72,6 +72,10 @@ export class DistressPredictionDashboardComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
+  @ViewChild('mapContainerWrapper', { static: false }) mapContainerWrapper!: ElementRef;
+
+  isMapFullScreen = false;
+  private fullscreenChangeListener = () => this.onFullscreenChange();
 
   rawData: PredictedDistressData[] = [];
   filters: FilterData = {
@@ -164,6 +168,7 @@ export class DistressPredictionDashboardComponent
 
   ngAfterViewInit() {
     if (this.isBrowser) {
+      document.addEventListener('fullscreenchange', this.fullscreenChangeListener);
       setTimeout(() => {
         this.initChartOptions();
         // Map will be initialized after data loads in loadDistressData()
@@ -171,7 +176,25 @@ export class DistressPredictionDashboardComponent
     }
   }
 
+  toggleMapFullScreen(): void {
+    if (!this.mapContainerWrapper?.nativeElement) return;
+    const el = this.mapContainerWrapper.nativeElement as HTMLElement;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.()?.then(() => {}).catch(() => {});
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
+
+  private onFullscreenChange(): void {
+    this.isMapFullScreen = !!document.fullscreenElement;
+    if (this.map) {
+      setTimeout(() => this.map.invalidateSize(), 100);
+    }
+  }
+
   ngOnDestroy() {
+    document.removeEventListener('fullscreenchange', this.fullscreenChangeListener);
     if (this.isBrowser && this.map) {
       this.map.remove();
     }

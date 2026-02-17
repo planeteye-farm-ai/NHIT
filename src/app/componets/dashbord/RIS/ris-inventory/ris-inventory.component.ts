@@ -1,4 +1,4 @@
-﻿import {
+import {
   Component,
   OnInit,
   AfterViewInit,
@@ -85,6 +85,10 @@ interface InfrastructureData {
 })
 export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
+  @ViewChild('mapContainerWrapper', { static: false }) mapContainerWrapper!: ElementRef;
+
+  isMapFullScreen = false;
+  private fullscreenChangeListener = () => this.onFullscreenChange();
 
   // Raw data from JSON
   rawData: InfrastructureData[] = [];
@@ -208,6 +212,7 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
     if (this.isBrowser) {
+      document.addEventListener('fullscreenchange', this.fullscreenChangeListener);
       console.log(
         'ngAfterViewInit called, mapContainerRef:',
         this.mapContainerRef
@@ -3910,7 +3915,25 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  toggleMapFullScreen(): void {
+    if (!this.mapContainerWrapper?.nativeElement) return;
+    const el = this.mapContainerWrapper.nativeElement as HTMLElement;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.()?.then(() => {}).catch(() => {});
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
+
+  private onFullscreenChange(): void {
+    this.isMapFullScreen = !!document.fullscreenElement;
+    if (this.map) {
+      setTimeout(() => this.map.invalidateSize(), 100);
+    }
+  }
+
   ngOnDestroy() {
+    document.removeEventListener('fullscreenchange', this.fullscreenChangeListener);
     // Clean up event listeners
     if (this.isBrowser && typeof window !== 'undefined') {
       window.removeEventListener('resize', this.onWindowResize);

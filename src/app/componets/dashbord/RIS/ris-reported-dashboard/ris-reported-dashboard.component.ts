@@ -63,6 +63,10 @@ export class RisReportedDashboardComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
+  @ViewChild('mapContainerWrapper', { static: false }) mapContainerWrapper!: ElementRef;
+
+  isMapFullScreen = false;
+  private fullscreenChangeListener = () => this.onFullscreenChange();
 
   // Raw data from JSON
   rawData: DistressReportData[] = [];
@@ -187,6 +191,7 @@ export class RisReportedDashboardComponent
 
   ngAfterViewInit() {
     if (this.isBrowser) {
+      document.addEventListener('fullscreenchange', this.fullscreenChangeListener);
       // Wait for data to load before initializing map
       setTimeout(() => {
         if (this.rawData.length > 0) {
@@ -1436,7 +1441,25 @@ export class RisReportedDashboardComponent
     return 'Normal';
   }
 
+  toggleMapFullScreen(): void {
+    if (!this.mapContainerWrapper?.nativeElement) return;
+    const el = this.mapContainerWrapper.nativeElement as HTMLElement;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.()?.then(() => {}).catch(() => {});
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
+
+  private onFullscreenChange(): void {
+    this.isMapFullScreen = !!document.fullscreenElement;
+    if (this.map) {
+      setTimeout(() => this.map.invalidateSize(), 100);
+    }
+  }
+
   ngOnDestroy() {
+    document.removeEventListener('fullscreenchange', this.fullscreenChangeListener);
     if (this.isBrowser && this.map) {
       this.map.remove();
     }

@@ -61,6 +61,10 @@ export class RwfisDashboardComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
+  @ViewChild('mapContainerWrapper', { static: false }) mapContainerWrapper!: ElementRef;
+
+  isMapFullScreen = false;
+  private fullscreenChangeListener = () => this.onFullscreenChange();
 
   // Raw data from JSON
   rawData: DistressReportData[] = [];
@@ -138,6 +142,7 @@ export class RwfisDashboardComponent
 
   ngAfterViewInit() {
     if (this.isBrowser) {
+      document.addEventListener('fullscreenchange', this.fullscreenChangeListener);
       // Wait for data to load before initializing map
       setTimeout(() => {
         if (this.rawData.length > 0) {
@@ -147,7 +152,25 @@ export class RwfisDashboardComponent
     }
   }
 
+  toggleMapFullScreen(): void {
+    if (!this.mapContainerWrapper?.nativeElement) return;
+    const el = this.mapContainerWrapper.nativeElement as HTMLElement;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.()?.then(() => {}).catch(() => {});
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
+
+  private onFullscreenChange(): void {
+    this.isMapFullScreen = !!document.fullscreenElement;
+    if (this.map) {
+      setTimeout(() => this.map.invalidateSize(), 100);
+    }
+  }
+
   ngOnDestroy() {
+    document.removeEventListener('fullscreenchange', this.fullscreenChangeListener);
     if (this.isBrowser && this.map) {
       this.map.remove();
     }
@@ -864,6 +887,8 @@ export class RwfisDashboardComponent
             </p>
           </div>
         `);
+        marker.on('popupopen', () => marker.closeTooltip?.());
+        marker.on('popupclose', () => marker.closeTooltip?.());
 
         this.distressMarkers.push(marker);
       }
@@ -914,6 +939,8 @@ export class RwfisDashboardComponent
 
           // Create popup only when clicked - saves memory
           marker.on('click', () => {
+            marker.closeTooltip?.();
+            marker.unbindPopup?.();
             const popup = `<div style="padding:8px;">
               <div style="color:#4CAF50;font-weight:bold;margin-bottom:5px;">${assetType}</div>
               <div style="font-size:11px;">
@@ -926,6 +953,10 @@ export class RwfisDashboardComponent
               </div>
             </div>`;
             marker.bindPopup(popup).openPopup();
+            marker.once('popupclose', () => {
+              marker.unbindPopup?.();
+              marker.closeTooltip?.();
+            });
           });
 
           this.distressMarkers.push(marker);

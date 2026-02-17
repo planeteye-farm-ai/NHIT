@@ -101,6 +101,10 @@ interface CardWithAssets {
 })
 export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
+  @ViewChild('mapContainerWrapper', { static: false }) mapContainerWrapper!: ElementRef;
+
+  isMapFullScreen = false;
+  private fullscreenChangeListener = () => this.onFullscreenChange();
 
   // Raw data from API
   rawData: ReportData[] = [];
@@ -279,6 +283,7 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     if (this.isBrowser) {
+      document.addEventListener('fullscreenchange', this.fullscreenChangeListener);
       // Initialize map after view is ready
       setTimeout(() => {
         console.log('🔄 ngAfterViewInit: Initializing map...');
@@ -725,7 +730,25 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  toggleMapFullScreen(): void {
+    if (!this.mapContainerWrapper?.nativeElement) return;
+    const el = this.mapContainerWrapper.nativeElement as HTMLElement;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.()?.then(() => {}).catch(() => {});
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
+
+  private onFullscreenChange(): void {
+    this.isMapFullScreen = !!document.fullscreenElement;
+    if (this.map) {
+      setTimeout(() => this.map.invalidateSize(), 100);
+    }
+  }
+
   ngOnDestroy() {
+    document.removeEventListener('fullscreenchange', this.fullscreenChangeListener);
     if (this.isBrowser && this.map) {
       try {
         // Clear traffic route
@@ -3008,6 +3031,8 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           maxWidth: 450,
           maxHeight: 550
         });
+        marker.on('popupopen', () => marker.closeTooltip?.());
+        marker.on('popupclose', () => marker.closeTooltip?.());
         this.markers.push(marker);
       } else {
         // Single marker - use original logic
@@ -3115,6 +3140,8 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           className: 'flag-popup-connected',
           offset: L.point(0, -40)
         });
+        marker.on('popupopen', () => marker.closeTooltip?.());
+        marker.on('popupclose', () => marker.closeTooltip?.());
       }
     });
   }
@@ -3320,6 +3347,8 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               className: 'flag-popup-connected',
               offset: L.point(0, -40)
             });
+            marker.on('popupopen', () => marker.closeTooltip?.());
+            marker.on('popupclose', () => marker.closeTooltip?.());
 
             this.markers.push(marker);
           }

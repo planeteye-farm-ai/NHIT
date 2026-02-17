@@ -94,6 +94,10 @@ interface DistressReportData {
 })
 export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
+  @ViewChild('mapContainerWrapper', { static: false }) mapContainerWrapper!: ElementRef;
+
+  isMapFullScreen = false;
+  private fullscreenChangeListener = () => this.onFullscreenChange();
 
   // Raw accident data from JSON
   rawData: AccidentData[] = [];
@@ -170,10 +174,30 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    // Map will be initialized when data is loaded
+    if (this.isBrowser) {
+      document.addEventListener('fullscreenchange', this.fullscreenChangeListener);
+    }
+  }
+
+  toggleMapFullScreen(): void {
+    if (!this.mapContainerWrapper?.nativeElement) return;
+    const el = this.mapContainerWrapper.nativeElement as HTMLElement;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.()?.then(() => {}).catch(() => {});
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
+
+  private onFullscreenChange(): void {
+    this.isMapFullScreen = !!document.fullscreenElement;
+    if (this.map) {
+      setTimeout(() => this.map.invalidateSize(), 100);
+    }
   }
 
   ngOnDestroy() {
+    document.removeEventListener('fullscreenchange', this.fullscreenChangeListener);
     if (this.isBrowser && this.map) {
       this.map.remove();
     }
@@ -1012,6 +1036,8 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         `;
         
         marker.bindPopup(popupContent);
+        marker.on('popupopen', () => marker.closeTooltip?.());
+        marker.on('popupclose', () => marker.closeTooltip?.());
 
         this.distressMarkers.push(marker);
       }
@@ -1137,6 +1163,8 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         `;
 
         marker.bindPopup(popupContent);
+        marker.on('popupopen', () => marker.closeTooltip?.());
+        marker.on('popupclose', () => marker.closeTooltip?.());
         marker.addTo(this.map);
         this.distressMarkers.push(marker);
       }

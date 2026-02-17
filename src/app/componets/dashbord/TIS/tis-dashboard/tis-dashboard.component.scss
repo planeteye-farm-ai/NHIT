@@ -706,6 +706,29 @@
   height: 100%;
 }
 
+.map-container:fullscreen,
+.map-container:-webkit-full-screen,
+.map-container:-ms-fullscreen {
+  width: 100vw;
+  height: 100vh;
+  padding: 16px;
+  border-radius: 0;
+}
+.map-container:fullscreen .map-wrapper,
+.map-container:-webkit-full-screen .map-wrapper,
+.map-container:-ms-fullscreen .map-wrapper {
+  flex: 1;
+  min-height: 0;
+}
+.map-container:fullscreen .map,
+.map-container:-webkit-full-screen .map,
+.map-container:-ms-fullscreen .map {
+  height: 100% !important;
+}
+.fullscreen-map-btn {
+  margin-right: 8px;
+}
+
 .chart-header {
   display: flex;
   justify-content: space-between;
