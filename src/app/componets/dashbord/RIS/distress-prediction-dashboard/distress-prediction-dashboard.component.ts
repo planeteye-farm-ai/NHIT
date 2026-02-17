@@ -915,6 +915,24 @@ export class DistressPredictionDashboardComponent
     }
   }
 
+  /** Whether an item matches current Direction, Pavement Type, and Lane (used for Month-wise Comparison chart). */
+  private itemMatchesCurrentFilters(item: PredictedDistressData): boolean {
+    const norm = (v: string | undefined) => (v || '').toString().trim().toLowerCase();
+    const matchesDirection =
+      this.filters.direction === 'All' ||
+      norm(item.direction) === norm(this.filters.direction);
+    const matchesPavement =
+      this.filters.pavementType === 'All' ||
+      norm(item.pavement_type) === norm(this.filters.pavementType);
+    const matchesLane =
+      this.filters.lane === 'All' ||
+      norm(item.lane) === norm(this.filters.lane);
+    const matchesChainage =
+      item.chainage_start <= this.filters.chainageRange.max &&
+      item.chainage_end >= this.filters.chainageRange.min;
+    return matchesDirection && matchesPavement && matchesLane && matchesChainage;
+  }
+
   getFilteredData(): PredictedDistressData[] {
     return this.rawData.filter((item) => {
       // Note: Project and Date filtering is now done by the API
@@ -1804,6 +1822,11 @@ export class DistressPredictionDashboardComponent
       this.addDistressMarkers();
       this.updateChart();
     }
+
+    // Refresh Month-wise Comparison chart when filters change so it shows filter-wise data
+    if (this.isMonthComparisonModalOpen && this.selectedDistressesForMonthComparison.length > 0) {
+      this.generateMonthComparisonChart();
+    }
   }
 
   formatDistressCount(distress: DistressData): string {
@@ -2105,24 +2128,18 @@ export class DistressPredictionDashboardComponent
         const fieldName = distressFieldMap[distressName];
         const monthData: number[] = [];
         
-        console.log(`📊 Processing distress: ${distressName}, field: ${fieldName}`);
-        
         this.availableMonthsForComparison.forEach(month => {
-          const data = monthDataMap[month] || [];
-          console.log(`  Month ${month}: ${data.length} total records`);
+          const rawData = monthDataMap[month] || [];
+          // Apply current filters (Direction, Pavement Type, Lane) so chart shows filter-wise data
+          const data = rawData.filter((item) => this.itemMatchesCurrentFilters(item));
           
-          // Sum the actual field values (not just count occurrences)
           const totalCount = data.reduce((sum, item) => {
             const fieldValue = parseFloat((item as any)[fieldName]) || 0;
-            // Sum the actual values
             return sum + fieldValue;
           }, 0);
           
-          console.log(`  ${month}: Count = ${totalCount}`);
           monthData.push(totalCount);
         });
-        
-        console.log(`📊 Final data for ${distressName}:`, monthData);
 
         series.push({
           name: distressName,

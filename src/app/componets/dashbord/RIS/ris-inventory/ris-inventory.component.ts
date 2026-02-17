@@ -454,32 +454,37 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       this.filters.direction = this.availableDirections[0];
     }
 
-    // Extract unique pavement types from data
-    // Try to get pavement_type, fallback to carriage_type if not available
-    const uniquePavementTypes = [
+    // Base data for pavement/lane options: prefer direction-filtered data when a direction is selected,
+    // but if that yields no options (e.g. Median items have no pavement/lane in API), use full dataset
+    const normDir = (v: string | undefined) => (v || '').toString().trim().toLowerCase();
+    const directionFilter = this.filters.direction && this.filters.direction !== 'All';
+    const dataForOptions = directionFilter
+      ? this.rawData.filter((item) => normDir(item.direction) === normDir(this.filters.direction))
+      : this.rawData;
+
+    // Extract unique pavement types: from direction-filtered data, fallback to full rawData if empty
+    let uniquePavementTypes = [
       ...new Set(
-        this.rawData.map((item) => item.pavement_type || item.carriage_type).filter((p): p is string => !!p)
+        dataForOptions.map((item) => item.pavement_type || item.carriage_type).filter((p): p is string => !!p)
       ),
     ];
-    console.log('Extracted pavement types:', uniquePavementTypes);
-    if (uniquePavementTypes.length > 0) {
-      this.availablePavementTypes = ['All', ...uniquePavementTypes];
-    } else {
-      this.availablePavementTypes = ['All'];
+    if (uniquePavementTypes.length === 0) {
+      uniquePavementTypes = [
+        ...new Set(
+          this.rawData.map((item) => item.pavement_type || item.carriage_type).filter((p): p is string => !!p)
+        ),
+      ];
     }
-    console.log('Available pavement types:', this.availablePavementTypes);
+    this.availablePavementTypes = uniquePavementTypes.length > 0 ? ['All', ...uniquePavementTypes] : ['All'];
 
-    // Extract unique lanes from data
-    const uniqueLanes = [
-      ...new Set(this.rawData.map((item) => item.lane).filter((l): l is string => !!l)),
+    // Extract unique lanes: from direction-filtered data, fallback to full rawData if empty
+    let uniqueLanes = [
+      ...new Set(dataForOptions.map((item) => item.lane).filter((l): l is string => !!l)),
     ];
-    console.log('Extracted lanes:', uniqueLanes);
-    if (uniqueLanes.length > 0) {
-      this.availableLanes = ['All', ...uniqueLanes];
-    } else {
-      this.availableLanes = ['All'];
+    if (uniqueLanes.length === 0) {
+      uniqueLanes = [...new Set(this.rawData.map((item) => item.lane).filter((l): l is string => !!l))];
     }
-    console.log('Available lanes:', this.availableLanes);
+    this.availableLanes = uniqueLanes.length > 0 ? ['All', ...uniqueLanes] : ['All'];
 
     // Update filter ranges based on current data
     const chainages = Array.isArray(this.rawData)
@@ -552,6 +557,12 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async onDirectionChange(event: any) {
     this.filters.direction = event.target.value;
+    // Rebuild pavement/lane options for the selected direction so dropdowns only show valid choices
+    if (Array.isArray(this.rawData) && this.rawData.length > 0) {
+      this.extractFilterOptions();
+      this.filters.pavementType = 'All';
+      this.filters.lane = 'All';
+    }
     await this.updateDashboard(true); // Skip comparison chart for faster response
   }
 
@@ -980,16 +991,28 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       .sort((a, b) => b.count - a.count); // Sort by count descending (0 counts will appear at the end)
   }
 
+  /** Whether an item matches current Direction, Pavement Type, and Lane (for Month-wise Comparison chart). */
+  private itemMatchesCurrentFilters(item: InfrastructureData): boolean {
+    const norm = (v: string | undefined) => (v || '').toString().trim().toLowerCase();
+    const matchesDirection = !this.filters.direction || this.filters.direction === 'All' || norm(item.direction) === norm(this.filters.direction);
+    const itemPavement = norm(item.pavement_type || item.carriage_type);
+    const matchesPavement = this.filters.pavementType === 'All' || (itemPavement !== '' && itemPavement === norm(this.filters.pavementType));
+    const itemLane = norm(item.lane);
+    const matchesLane = this.filters.lane === 'All' || (itemLane !== '' && itemLane === norm(this.filters.lane));
+    return matchesDirection && matchesPavement && matchesLane;
+  }
+
   private getFilteredData(): InfrastructureData[] {
     let filteredData = [...this.rawData];
 
     // Note: Project and Date filtering is now done by the API
     // We only filter by the UI-level filters below
 
-    // Filter by Direction
-    if (this.filters.direction) {
+    // Filter by Direction (skip when "All"; compare case-insensitive and trimmed)
+    if (this.filters.direction && this.filters.direction !== 'All') {
+      const dir = (this.filters.direction || '').toString().trim().toLowerCase();
       filteredData = filteredData.filter(
-        (item) => item.direction === this.filters.direction
+        (item) => (item.direction || '').toString().trim().toLowerCase() === dir
       );
     }
 
@@ -1019,18 +1042,22 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       );
     }
 
-    // Filter by Pavement Type
+    // Filter by Pavement Type (case-insensitive, trimmed). Only show items that have matching pavement/carriage type.
     if (this.filters.pavementType && this.filters.pavementType !== 'All') {
-      filteredData = filteredData.filter(
-        (item) => (item.pavement_type || item.carriage_type) === this.filters.pavementType
-      );
+      const pavement = (this.filters.pavementType || '').toString().trim().toLowerCase();
+      filteredData = filteredData.filter((item) => {
+        const itemPavement = (item.pavement_type || item.carriage_type || '').toString().trim().toLowerCase();
+        return itemPavement !== '' && itemPavement === pavement;
+      });
     }
 
-    // Filter by Lane
+    // Filter by Lane (case-insensitive and trimmed). Only show items that have matching lane.
     if (this.filters.lane && this.filters.lane !== 'All') {
-      filteredData = filteredData.filter(
-        (item) => item.lane === this.filters.lane
-      );
+      const lane = (this.filters.lane || '').toString().trim().toLowerCase();
+      filteredData = filteredData.filter((item) => {
+        const itemLane = (item.lane || '').toString().trim().toLowerCase();
+        return itemLane !== '' && itemLane === lane;
+      });
     }
 
     return filteredData;
@@ -3656,9 +3683,10 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
         const monthData: number[] = [];
         
         this.availableMonthsForComparison.forEach(month => {
-          const data = monthDataMap[month] || [];
+          const rawData = monthDataMap[month] || [];
+          // Apply current filters (Direction, Pavement Type, Lane) so chart shows data for selected filters only
+          const data = rawData.filter((item) => this.itemMatchesCurrentFilters(item));
           
-          // Sum actual asset counts across ALL directions within the chainage range
           const totalCount = data.reduce((sum, item) => {
             const assetCount = item[fieldName as keyof InfrastructureData];
             const numericCount = typeof assetCount === 'number' ? assetCount : parseFloat(assetCount as string) || 0;

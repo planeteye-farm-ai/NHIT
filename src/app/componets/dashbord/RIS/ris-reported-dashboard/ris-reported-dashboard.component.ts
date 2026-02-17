@@ -2164,6 +2164,23 @@ export class RisReportedDashboardComponent
     }
   }
 
+  /** Whether an item matches current Direction, Pavement Type, and Lane (used for Month-wise Comparison chart). */
+  private itemMatchesCurrentFilters(item: DistressReportData): boolean {
+    const matchesDirection =
+      this.filters.direction === 'All' ||
+      (item.direction || '').toString().trim().toLowerCase() === (this.filters.direction || '').toString().trim().toLowerCase();
+    const matchesPavement =
+      this.filters.pavementType === 'All' ||
+      (item.pavement_type || '').toString().trim().toLowerCase() === (this.filters.pavementType || '').toString().trim().toLowerCase();
+    const matchesLane =
+      this.filters.lane === 'All' ||
+      (item.lane || '').toString().trim().toLowerCase() === (this.filters.lane || '').toString().trim().toLowerCase();
+    const matchesChainage =
+      item.chainage_start <= this.filters.chainageRange.max &&
+      item.chainage_end >= this.filters.chainageRange.min;
+    return matchesDirection && matchesPavement && matchesLane && matchesChainage;
+  }
+
   getFilteredData(): DistressReportData[] {
     return this.rawData.filter((item) => {
       // Note: Project and Date filtering is now done by the API
@@ -3201,6 +3218,11 @@ export class RisReportedDashboardComponent
       this.addDistressMarkers();
       this.updateChart();
     }
+
+    // Refresh Month-wise Comparison chart when filters change so it shows filter-wise data
+    if (this.isMonthComparisonModalOpen && this.selectedDistressesForMonthComparison.length > 0) {
+      this.generateMonthComparisonChart();
+    }
   }
 
   formatDistressCount(distress: DistressData): string {
@@ -3560,29 +3582,20 @@ export class RisReportedDashboardComponent
         const distressColor = this.getDistressColor(distressName);
         const monthData: number[] = [];
         
-        console.log(`ðŸ" Processing distress: ${distressName}`);
-        
         this.availableMonthsForComparison.forEach(month => {
-          const data = monthDataMap[month] || [];
-          console.log(`  Month ${month}: ${data.length} total records`);
-          
-          // Log first few items to see the actual distress_type values
-          if (data.length > 0) {
-            console.log(`    Sample distress types:`, data.slice(0, 3).map(d => d.distress_type));
-          }
+          const rawData = monthDataMap[month] || [];
+          // Apply current filters (Direction, Pavement Type, Lane) so chart shows filter-wise data
+          const data = rawData.filter((item) => this.itemMatchesCurrentFilters(item));
           
           const totalCount = data.reduce((count, item) => {
-            // Case-insensitive comparison
             const itemDistressType = (item.distress_type || '').toLowerCase().trim();
             const searchDistressType = (distressName || '').toLowerCase().trim();
-            
             if (itemDistressType === searchDistressType) {
               return count + 1;
             }
             return count;
           }, 0);
           
-          console.log(`  ${month}: Count = ${totalCount}`);
           monthData.push(totalCount);
         });
 
