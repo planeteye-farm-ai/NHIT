@@ -49,6 +49,10 @@ interface DistressReportData {
   longitude: number;
   date: string;
   severity: string;
+  area?: number | string;
+  length?: number | string;
+  width?: number | string;
+  depth?: number | string;
 }
 
 @Component({
@@ -2062,6 +2066,10 @@ export class RisReportedDashboardComponent
         longitude: item.longitude || 0,
         date: item.date || '2025-07-20',
         severity: this.getSeverityFromDistressType(item.distress_type),
+        area: item.area ?? item.area_sqm ?? item.area_sq_m,
+        length: item.length ?? item.length_m ?? item.length_mm,
+        width: item.width ?? item.width_m ?? item.width_mm,
+        depth: item.depth ?? item.depth_mm ?? item.depth_m,
       }));
 
       this.extractFilterOptions();
@@ -2873,21 +2881,22 @@ export class RisReportedDashboardComponent
           fillOpacity: this.selectedDistressType ? 0.9 : 0.8, // More opaque when filtering
         }).addTo(this.map);
 
+        const lat = item.latitude != null ? Number(item.latitude).toFixed(6) : 'N/A';
+        const lng = item.longitude != null ? Number(item.longitude).toFixed(6) : 'N/A';
+        const fmt = (v: number | string | undefined) => (v != null && v !== '') ? (typeof v === 'number' ? String(v) : v) : 'N/A';
         marker.bindPopup(`
-          <div style="font-family: Arial, sans-serif; min-width: 200px;">
+          <div style="font-family: Arial, sans-serif; min-width: 220px;">
             <h4 style="margin: 0 0 10px 0; color: ${color}; font-size: 14px;">
               ${item.distress_type}
             </h4>
-            <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Chainage:</strong> ${item.chainage_start?.toFixed(
-                2
-              )} - ${item.chainage_end?.toFixed(2)} km
-            </p>
-            <p style="margin: 5px 0; font-size: 12px;">
-              <strong>Direction:</strong> ${item.direction || 'N/A'}
-            </p>
-            <p style="margin: 5px 0; font-size: 12px;">
-            </p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Project:</strong> ${item.project_name || 'N/A'}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Lat/Long:</strong> ${lat}, ${lng}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Chainage:</strong> ${item.chainage_start?.toFixed(2)} - ${item.chainage_end?.toFixed(2)} km</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Direction:</strong> ${item.direction || 'N/A'}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Area:</strong> ${fmt(item.area)}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Length:</strong> ${fmt(item.length)}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Width:</strong> ${fmt(item.width)}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Depth:</strong> ${fmt(item.depth)}</p>
           </div>
         `);
 
@@ -2927,18 +2936,25 @@ export class RisReportedDashboardComponent
             icon: customIcon,
           }).addTo(this.map);
 
-          // Create popup only when clicked - saves memory
-          marker.on('click', () => {
-            const color = this.getDistressColor(item.distress_type);
-            const popup = `<div style="padding:8px;"><div style="color:${color};font-weight:bold;margin-bottom:5px;">${
-              item.distress_type
-            }</div><div style="font-size:11px;">Ch: ${item.chainage_start?.toFixed(
-              1
-            )}-${item.chainage_end?.toFixed(1)} km<br>Dir: ${
-              item.direction || 'N/A'
-            }</div></div>`;
-            marker.bindPopup(popup).openPopup();
-          });
+          // Bind popup at creation so marker stays clickable on repeated clicks
+          const color = this.getDistressColor(item.distress_type);
+          const lat = item.latitude != null ? Number(item.latitude).toFixed(6) : 'N/A';
+          const lng = item.longitude != null ? Number(item.longitude).toFixed(6) : 'N/A';
+          const fmt = (v: number | string | undefined) => (v != null && v !== '') ? (typeof v === 'number' ? String(v) : v) : 'N/A';
+          const popupContent = `<div style="padding:10px; font-family: Arial, sans-serif; min-width: 220px;">
+            <div style="color:${color};font-weight:bold;margin-bottom:8px;font-size:14px;">${item.distress_type}</div>
+            <div style="font-size:12px;">
+              <p style="margin:4px 0;"><strong>Project:</strong> ${item.project_name || 'N/A'}</p>
+              <p style="margin:4px 0;"><strong>Lat/Long:</strong> ${lat}, ${lng}</p>
+              <p style="margin:4px 0;"><strong>Chainage:</strong> ${item.chainage_start?.toFixed(2)} - ${item.chainage_end?.toFixed(2)} km</p>
+              <p style="margin:4px 0;"><strong>Direction:</strong> ${item.direction || 'N/A'}</p>
+              <p style="margin:4px 0;"><strong>Area:</strong> ${fmt(item.area)}</p>
+              <p style="margin:4px 0;"><strong>Length:</strong> ${fmt(item.length)}</p>
+              <p style="margin:4px 0;"><strong>Width:</strong> ${fmt(item.width)}</p>
+              <p style="margin:4px 0;"><strong>Depth:</strong> ${fmt(item.depth)}</p>
+            </div>
+          </div>`;
+          marker.bindPopup(popupContent);
 
           this.distressMarkers.push(marker);
         }

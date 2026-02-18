@@ -1506,17 +1506,11 @@ export class DistressPredictionDashboardComponent
           fillOpacity: markerOpacity,
         }).addTo(this.map);
 
-        // Create popup only when clicked - saves massive memory
-        marker.on('click', () => {
-          const popup = `<div style="padding:5px;"><b>Predicted: ${
-            item.distress_type
-          }</b><br>Ch: ${item.chainage_start?.toFixed(
-            1
-          )}-${item.chainage_end?.toFixed(
-            1
-          )} km<br>Conf: ${item.prediction_confidence?.toFixed(0)}%</div>`;
-          marker.bindPopup(popup).openPopup();
-        });
+        // Bind popup at creation so marker stays clickable on repeated clicks
+        const lat = item.latitude != null ? Number(item.latitude).toFixed(6) : 'N/A';
+        const lng = item.longitude != null ? Number(item.longitude).toFixed(6) : 'N/A';
+        const popupContent = `<div style="padding:5px; min-width: 200px;"><b>Predicted: ${item.distress_type}</b><br><strong>Project:</strong> ${item.project_name || 'N/A'}<br><strong>Lat/Long:</strong> ${lat}, ${lng}<br>Ch: ${item.chainage_start?.toFixed(1)}-${item.chainage_end?.toFixed(1)} km</div>`;
+        marker.bindPopup(popupContent);
 
         this.distressMarkers.push(marker);
       }
@@ -1559,18 +1553,13 @@ export class DistressPredictionDashboardComponent
           icon: customIcon,
         }).addTo(this.map);
 
-        // Create popup only when clicked - saves massive memory
-        marker.on('click', () => {
-          const displayDistressType =
-            this.selectedDistressType || item.distress_type;
-          const color = this.getDistressColor(displayDistressType);
-          const popup = `<div style="padding:8px;"><div style="color:${color};font-weight:bold;margin-bottom:5px;">Predicted: ${displayDistressType}</div><div style="font-size:11px;">Ch: ${item.chainage_start?.toFixed(
-            1
-          )}-${item.chainage_end?.toFixed(1)} km<br>Dir: ${
-            item.direction || 'N/A'
-          }<br>Conf: ${item.prediction_confidence?.toFixed(0)}%</div></div>`;
-          marker.bindPopup(popup).openPopup();
-        });
+        // Bind popup at creation so marker stays clickable on repeated clicks
+        const displayDistressType = this.selectedDistressType || item.distress_type;
+        const iconPopupColor = this.getDistressColor(displayDistressType);
+        const lat = item.latitude != null ? Number(item.latitude).toFixed(6) : 'N/A';
+        const lng = item.longitude != null ? Number(item.longitude).toFixed(6) : 'N/A';
+        const popupContent = `<div style="padding:8px; min-width: 220px;"><div style="color:${iconPopupColor};font-weight:bold;margin-bottom:5px;">Predicted: ${displayDistressType}</div><div style="font-size:11px;"><strong>Project:</strong> ${item.project_name || 'N/A'}<br><strong>Lat/Long:</strong> ${lat}, ${lng}<br>Ch: ${item.chainage_start?.toFixed(1)}-${item.chainage_end?.toFixed(1)} km<br>Dir: ${item.direction || 'N/A'}</div></div>`;
+        marker.bindPopup(popupContent);
 
         this.distressMarkers.push(marker);
       }

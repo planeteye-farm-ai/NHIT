@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   AfterViewInit,
@@ -1766,8 +1766,13 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
           );
           marker.bindPopup(popupContent);
 
-          // Add tooltip on hover
-          marker.bindTooltip(`${asset.type}: ${asset.count}`, {
+          // Add tooltip on hover (include lat/long)
+          const tooltipLat = item.latitude != null ? Number(item.latitude).toFixed(5) : '';
+          const tooltipLng = item.longitude != null ? Number(item.longitude).toFixed(5) : '';
+          const tooltipText = tooltipLat && tooltipLng
+            ? `${asset.type}: ${asset.count} | Lat: ${tooltipLat}, Long: ${tooltipLng}`
+            : `${asset.type}: ${asset.count}`;
+          marker.bindTooltip(tooltipText, {
             permanent: false,
             direction: 'top',
             offset: [0, -15],
@@ -1857,6 +1862,8 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         // Add popup with asset information
+        const lat = item.latitude != null ? Number(item.latitude).toFixed(6) : 'N/A';
+        const lng = item.longitude != null ? Number(item.longitude).toFixed(6) : 'N/A';
         const popupContent = `
           <div style="font-family: Arial, sans-serif; min-width: 200px;">
             <h4 style="margin: 0 0 10px 0; color: ${color}; font-size: 14px;">
@@ -1869,6 +1876,9 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
             </p>
             <p style="margin: 5px 0; font-size: 12px;">
               <strong>Direction:</strong> ${item.direction || 'N/A'}
+            </p>
+            <p style="margin: 5px 0; font-size: 12px;">
+              <strong>Lat/Long:</strong> ${lat}, ${lng}
             </p>
             ${
               this.selectedAssetType
@@ -2118,11 +2128,14 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
+    const lat = item.latitude != null ? Number(item.latitude).toFixed(6) : 'N/A';
+    const lng = item.longitude != null ? Number(item.longitude).toFixed(6) : 'N/A';
     return `
       <div style="font-family: 'Segoe UI', sans-serif; min-width: 200px;">
         <h4 style="margin: 0 0 8px 0; color: #333; font-size: 14px;">${item.project_name}</h4>
         <p style="margin: 4px 0; font-size: 12px;"><strong>Chainage:</strong> ${item.chainage_start} - ${item.chainage_end} KM</p>
         <p style="margin: 4px 0; font-size: 12px;"><strong>Direction:</strong> ${item.direction}</p>
+        <p style="margin: 4px 0; font-size: 12px;"><strong>Lat/Long:</strong> ${lat}, ${lng}</p>
         <p style="margin: 4px 0; font-size: 12px;"><strong>Asset Type:</strong> ${item.asset_type}</p>
         <p style="margin: 4px 0; font-size: 12px;"><strong>Primary Asset:</strong> ${primaryAsset} (${maxCount})</p>
         <p style="margin: 4px 0; font-size: 12px;"><strong>Date:</strong> ${item.date}</p>
@@ -2261,11 +2274,14 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
       })
       .join('');
 
+    const lat = item.latitude != null ? Number(item.latitude).toFixed(6) : 'N/A';
+    const lng = item.longitude != null ? Number(item.longitude).toFixed(6) : 'N/A';
     return `
       <div style="font-family: 'Segoe UI', sans-serif; min-width: 220px; max-width: 280px;">
         <h4 style="margin: 0 0 8px 0; color: #333; font-size: 14px; font-weight: bold;">${item.project_name}</h4>
-        <p style="margin: 4px 0; font-size: 12px;"><strong>Chainage:</strong> ${item.chainage_start} - ${item.chainage_end} KM</p>
+        <p style="margin: 4px 0; font-size: 12px;"><strong>Chainage:</strong> ${item.chainage_start.toFixed(3)} - ${item.chainage_end.toFixed(3)} KM</p>
         <p style="margin: 4px 0; font-size: 12px;"><strong>Direction:</strong> ${item.direction}</p>
+        <p style="margin: 4px 0; font-size: 12px;"><strong>Lat/Long:</strong> ${lat}, ${lng}</p>
         <p style="margin: 4px 0; font-size: 12px;"><strong>Date:</strong> ${item.date}</p>
         <hr style="margin: 8px 0; border: none; border-top: 1px solid #ddd;">
         <p style="margin: 4px 0 6px 0; font-size: 11px; font-weight: bold; color: #666;">Assets at this chainage:</p>
