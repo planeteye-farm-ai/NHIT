@@ -53,6 +53,10 @@ interface PredictedDistressData {
   hotspots?: number;
   edge_break?: number;
   simple_crack_alligator_crack?: number;
+  alligator_crack?: number;
+  transverse_crack?: number;
+  hairline_crack?: number;
+  longitudinal_crack?: number;
   block_crack_oblique_crack?: number;
   longitudinal_crack_transverse_crack?: number;
   rutting?: number;
@@ -778,6 +782,7 @@ export class DistressPredictionDashboardComponent
       }
 
       const apiResponse = await response.json();
+      console.log('Distress Prediction API Response:', apiResponse);
 
       // Handle API response - check if it's an error or valid data
       if (apiResponse && apiResponse.detail) {
@@ -787,56 +792,12 @@ export class DistressPredictionDashboardComponent
         return;
       }
 
-      // Process the response data - flatten nested arrays if needed
-      let flatData: any[] = [];
-      if (Array.isArray(apiResponse)) {
-        apiResponse.forEach((group) => {
-          if (Array.isArray(group)) {
-            flatData.push(...group);
-          } else {
-            flatData.push(group);
-          }
-        });
-      } else {
-        flatData = [];
-      }
+      this.rawData = this.processApiResponseToRawData(apiResponse);
 
       console.log(`Distress Prediction API Response for ${this.filters.date}:`, {
-        totalItems: flatData.length,
+        totalItems: this.rawData.length,
         project: this.filters.projectName
       });
-
-      // Data flattened successfully
-
-      this.rawData = flatData.map((item: any) => ({
-        project_name: item.project_name || 'Unknown Project',
-        chainage_start: item.chainage_start || 0,
-        chainage_end: item.chainage_end || 0,
-        direction: item.direction
-          ? item.direction.charAt(0).toUpperCase() +
-            item.direction.slice(1).toLowerCase()
-          : 'Unknown',
-        pavement_type: item.carriage_type || 'Unknown',
-        lane: item.lane || 'Unknown',
-        distress_type: item.distress_type || 'Unknown',
-        latitude: item.latitude || 0,
-        longitude: item.longitude || 0,
-        date: item.date || '2025-07-20',
-        severity: this.getSeverity(item),
-        prediction_confidence: Math.random() * 100,
-        // Add individual distress counts for summary calculation
-        rough_spot: item.rough_spot || 0,
-        pothole: item.pothole || 0,
-        hotspots: item.hotspots || 0,
-        edge_break: item.edge_break || 0,
-        simple_crack_alligator_crack: item['simple_crack/alligator_crack'] || 0,
-        block_crack_oblique_crack: item['block_crack/oblique_crack'] || 0,
-        longitudinal_crack_transverse_crack:
-          item['longitudinal_crack/transverse_crack'] || 0,
-        rutting: item.rutting || 0,
-        bleeding: item.bleeding || 0,
-        raveling: item.raveling || 0,
-      }));
 
       // Data loaded successfully
 
@@ -871,6 +832,51 @@ export class DistressPredictionDashboardComponent
     if (totalDistress > 5) return 'High';
     if (totalDistress > 2) return 'Medium';
     return 'Low';
+  }
+
+  /** Flatten [location, distressData] pairs and map to PredictedDistressData for both main load and month fetch */
+  private processApiResponseToRawData(apiResponse: any): PredictedDistressData[] {
+    let flatData: any[] = [];
+    if (Array.isArray(apiResponse)) {
+      apiResponse.forEach((group: any) => {
+        if (Array.isArray(group) && group.length >= 2) {
+          const [loc, distress] = group;
+          flatData.push({ ...loc, ...distress });
+        } else if (Array.isArray(group)) {
+          flatData.push(...group);
+        } else {
+          flatData.push(group);
+        }
+      });
+    }
+    return flatData.map((item: any) => ({
+      project_name: item.project_name || 'Unknown Project',
+      chainage_start: item.chainage_start || 0,
+      chainage_end: item.chainage_end || 0,
+      direction: item.direction ? item.direction.charAt(0).toUpperCase() + item.direction.slice(1).toLowerCase() : 'Unknown',
+      pavement_type: item.carriage_type || 'Unknown',
+      lane: item.lane || 'Unknown',
+      distress_type: item.distress_type || 'Unknown',
+      latitude: item.latitude || 0,
+      longitude: item.longitude || 0,
+      date: item.date || '2025-07-20',
+      severity: this.getSeverity(item),
+      prediction_confidence: Math.random() * 100,
+      rough_spot: item.rough_spot || 0,
+      pothole: item.pothole || 0,
+      hotspots: item.hotspots || 0,
+      edge_break: item.edge_break || 0,
+      simple_crack_alligator_crack: item.alligator_crack ?? item['simple_crack/alligator_crack'] ?? 0,
+      alligator_crack: item.alligator_crack ?? item['simple_crack/alligator_crack'] ?? 0,
+      transverse_crack: item.transverse_crack ?? 0,
+      hairline_crack: item.hairline_crack ?? 0,
+      longitudinal_crack: item.longitudinal_crack ?? 0,
+      block_crack_oblique_crack: item['block_crack/oblique_crack'] ?? item.block_crack_oblique_crack ?? 0,
+      longitudinal_crack_transverse_crack: ((item.longitudinal_crack ?? 0) + (item.transverse_crack ?? 0)) || (item['longitudinal_crack/transverse_crack'] ?? 0),
+      rutting: item.rutting || 0,
+      bleeding: item.bleeding || 0,
+      raveling: item.raveling || 0,
+    }));
   }
 
   private resetChainageCache() {
@@ -976,9 +982,11 @@ export class DistressPredictionDashboardComponent
           Pothole: 'pothole',
           Hotspot: 'hotspots',
           'Edge Break': 'edge_break',
-          'Simple/Alligator Crack': 'simple_crack_alligator_crack',
+          'Alligator Crack': 'alligator_crack',
           'Block/Oblique Crack': 'block_crack_oblique_crack',
-          'LG/Transverse crack': 'longitudinal_crack_transverse_crack',
+          'Transverse crack': 'transverse_crack',
+          'Hairline crack': 'hairline_crack',
+          'Longitudinal crack': 'longitudinal_crack',
           Rutting: 'rutting',
           Bleeding: 'bleeding',
           Raveling: 'raveling',
@@ -1067,9 +1075,9 @@ export class DistressPredictionDashboardComponent
       { name: 'Hotspot', color: '#45B7D1', field: 'hotspots' },
       { name: 'Edge Break', color: '#DDA0DD', field: 'edge_break' },
       {
-        name: 'Simple/Alligator Crack',
+        name: 'Alligator Crack',
         color: '#FFEAA7',
-        field: 'simple_crack_alligator_crack',
+        field: 'alligator_crack',
       },
       {
         name: 'Block/Oblique Crack',
@@ -1077,9 +1085,19 @@ export class DistressPredictionDashboardComponent
         field: 'block_crack_oblique_crack',
       },
       {
-        name: 'LG/Transverse crack',
+        name: 'Transverse crack',
         color: '#74B9FF',
-        field: 'longitudinal_crack_transverse_crack',
+        field: 'transverse_crack',
+      },
+      {
+        name: 'Hairline crack',
+        color: '#A29BFE',
+        field: 'hairline_crack',
+      },
+      {
+        name: 'Longitudinal crack',
+        color: '#6C5CE7',
+        field: 'longitudinal_crack',
       },
       { name: 'Rutting', color: '#8A2BE2', field: 'rutting' },
       { name: 'Bleeding', color: '#FD79A8', field: 'bleeding' },
@@ -1596,7 +1614,7 @@ export class DistressPredictionDashboardComponent
     Pothole: { icon: 'fa-solid fa-circle', color: '#CC6600' },
     Rutting: { icon: 'fa-solid fa-road', color: '#4B0082' },
     'Edge Break': { icon: 'fa-solid fa-divide', color: '#8B008B' },
-    'Simple/Alligator Crack': {
+    'Alligator Crack': {
       icon: 'fa-solid fa-wave-square',
       color: '#C71585',
     },
@@ -1613,6 +1631,10 @@ export class DistressPredictionDashboardComponent
     'Transverse crack': {
       icon: 'fa-solid fa-arrows-left-right',
       color: '#4682B4',
+    },
+    'Hairline crack': {
+      icon: 'fa-solid fa-grip-lines',
+      color: '#A29BFE',
     },
     'Block crack': { icon: 'fa-solid fa-grip', color: '#228B22' },
     'Longitudinal crack': {
@@ -1835,9 +1857,11 @@ export class DistressPredictionDashboardComponent
     );
 
     const cracksAndRuttingNames = [
-      'Simple/Alligator Crack',
+      'Alligator Crack',
       'Block/Oblique Crack',
-      'LG/Transverse crack',
+      'Transverse crack',
+      'Hairline crack',
+      'Longitudinal crack',
       'Rutting',
       'Bleeding',
       'Raveling',
@@ -2081,7 +2105,7 @@ export class DistressPredictionDashboardComponent
           );
 
           const apiResponse = await response.json();
-          const monthData = Array.isArray(apiResponse) ? apiResponse.flat() : [];
+          const monthData = this.processApiResponseToRawData(apiResponse);
           
           this.monthDataCache[monthCacheKey] = monthData;
           return { month, data: monthData };
@@ -2098,15 +2122,18 @@ export class DistressPredictionDashboardComponent
 
       const series: any[] = [];
 
-      // Map distress names to their corresponding field names
+      // Map distress names to their corresponding field names (matches updateDistressSummary)
       const distressFieldMap: { [key: string]: string } = {
         'Rough Spot': 'rough_spot',
         'Pothole': 'pothole',
         'Hotspot': 'hotspots',
         'Edge Break': 'edge_break',
-        'Simple/Alligator Crack': 'simple_crack/alligator_crack',
-        'Block/Oblique Crack': 'block_crack/oblique_crack',
-        'LG/Transverse crack': 'longitudinal_crack/transverse_crack',
+        'Alligator Crack': 'alligator_crack',
+        'Block/Oblique Crack': 'block_crack_oblique_crack',
+        'Transverse crack': 'transverse_crack',
+        'Hairline crack': 'hairline_crack',
+        'Longitudinal crack': 'longitudinal_crack',
+        'LG/Transverse crack': 'longitudinal_crack_transverse_crack',
         'Rutting': 'rutting',
         'Bleeding': 'bleeding',
         'Raveling': 'raveling'
