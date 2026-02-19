@@ -2893,10 +2893,10 @@ export class RisReportedDashboardComponent
             <p style="margin: 5px 0; font-size: 12px;"><strong>Lat/Long:</strong> ${lat}, ${lng}</p>
             <p style="margin: 5px 0; font-size: 12px;"><strong>Chainage:</strong> ${item.chainage_start?.toFixed(2)} - ${item.chainage_end?.toFixed(2)} km</p>
             <p style="margin: 5px 0; font-size: 12px;"><strong>Direction:</strong> ${item.direction || 'N/A'}</p>
-            <p style="margin: 5px 0; font-size: 12px;"><strong>Area:</strong> ${fmt(item.area)}</p>
-            <p style="margin: 5px 0; font-size: 12px;"><strong>Length:</strong> ${fmt(item.length)}</p>
-            <p style="margin: 5px 0; font-size: 12px;"><strong>Width:</strong> ${fmt(item.width)}</p>
-            <p style="margin: 5px 0; font-size: 12px;"><strong>Depth:</strong> ${fmt(item.depth)}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Area(M square):</strong> ${fmt(item.area)}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Length(M):</strong> ${fmt(item.length)}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Width(M):</strong> ${fmt(item.width)}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Depth(MM):</strong> ${fmt(item.depth)}</p>
           </div>
         `);
 
@@ -2948,10 +2948,10 @@ export class RisReportedDashboardComponent
               <p style="margin:4px 0;"><strong>Lat/Long:</strong> ${lat}, ${lng}</p>
               <p style="margin:4px 0;"><strong>Chainage:</strong> ${item.chainage_start?.toFixed(2)} - ${item.chainage_end?.toFixed(2)} km</p>
               <p style="margin:4px 0;"><strong>Direction:</strong> ${item.direction || 'N/A'}</p>
-              <p style="margin:4px 0;"><strong>Area:</strong> ${fmt(item.area)}</p>
-              <p style="margin:4px 0;"><strong>Length:</strong> ${fmt(item.length)}</p>
-              <p style="margin:4px 0;"><strong>Width:</strong> ${fmt(item.width)}</p>
-              <p style="margin:4px 0;"><strong>Depth:</strong> ${fmt(item.depth)}</p>
+              <p style="margin:4px 0;"><strong>Area(M square):</strong> ${fmt(item.area)}</p>
+              <p style="margin:4px 0;"><strong>Length(M):</strong> ${fmt(item.length)}</p>
+              <p style="margin:4px 0;"><strong>Width(M):</strong> ${fmt(item.width)}</p>
+              <p style="margin:4px 0;"><strong>Depth(MM):</strong> ${fmt(item.depth)}</p>
             </div>
           </div>`;
           marker.bindPopup(popupContent);
