@@ -7,6 +7,7 @@ import {
   ElementRef,
   PLATFORM_ID,
   Inject,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +16,7 @@ import {
   GoogleMapsTrafficService,
   RouteData,
 } from '../../../../shared/services/google-maps-traffic.service';
+import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
 
 interface TrafficInfoData {
   title: string;
@@ -197,9 +199,15 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   // Date selection for traffic analysis
   trafficAnalysisDate: string = '';
 
+  // Chainage range for Traffic Analysis modal (user can change independently)
+  trafficAnalysisChainageRange: { min: number; max: number } = { min: 0, max: 1380.387 };
+  private trafficChainageRefreshTimer: any = null;
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private trafficService: GoogleMapsTrafficService
+    private trafficService: GoogleMapsTrafficService,
+    private projectSelection: ProjectSelectionService,
+    private cdr: ChangeDetectorRef
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -272,18 +280,18 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       // Extract project names
       this.availableProjects = Object.keys(projectDates);
 
-      // Set first project as default
+      // Prefer globally selected project if it exists in available projects
       if (this.availableProjects.length > 0) {
-        this.filters.projectName = this.availableProjects[0];
+        const match = this.projectSelection.getMatchingProject(this.availableProjects);
+        this.filters.projectName = match || this.availableProjects[0];
 
-        // Set available dates for first project
         this.availableDates =
           this.projectDatesMap[this.filters.projectName] || [];
 
-        // Set first date as default
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
         }
+        this.cdr.detectChanges();
       }
 
       // Now load the actual data
@@ -1224,8 +1232,10 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return dateString;
   }
 
-  async onProjectChange(event: any) {
-    console.log('onProjectChange triggered - new project:', event.target.value);
+  async onProjectChange(eventOrValue: any) {
+    const newProject = typeof eventOrValue === 'string' ? eventOrValue : eventOrValue?.target?.value;
+    if (!newProject) return;
+    console.log('onProjectChange triggered - new project:', newProject);
     this.isProjectChanging = true;
 
     // Clear old data first
@@ -1237,7 +1247,7 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showTrafficAnalysis = false;
     this.clearTrafficRouteFromMap();
 
-    this.filters.projectName = event.target.value;
+    this.filters.projectName = newProject;
 
     // Update available dates for the selected project
     this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
@@ -1727,6 +1737,14 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ============= Traffic Analysis Methods =============
 
+  /** Chainage range used for traffic API: modal chainage when modal is open, else main filters */
+  private getEffectiveChainageForTraffic(): { min: number; max: number } {
+    if (this.isTrafficAnalysisModalOpen) {
+      return this.trafficAnalysisChainageRange;
+    }
+    return this.filters.chainageRange;
+  }
+
   /**
    * Get project start and end coordinates based on chainage
    */
@@ -1738,20 +1756,19 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       return null;
     }
 
-    // Filter data by current project, direction, and chainage range
+    const chainage = this.getEffectiveChainageForTraffic();
     const filteredData = this.rawData.filter((item) => {
       const matchesProject = item.project_name === this.filters.projectName;
       const matchesDirection =
         this.filters.direction === 'All' ||
         item.direction === this.filters.direction;
-      // Filter by chainage range - check if chainage_start or chainage_end falls within the range
       const matchesChainage =
-        (item.chainage_start >= this.filters.chainageRange.min &&
-          item.chainage_start <= this.filters.chainageRange.max) ||
-        (item.chainage_end >= this.filters.chainageRange.min &&
-          item.chainage_end <= this.filters.chainageRange.max) ||
-        (item.chainage_start <= this.filters.chainageRange.min &&
-          item.chainage_end >= this.filters.chainageRange.max);
+        (item.chainage_start >= chainage.min &&
+          item.chainage_start <= chainage.max) ||
+        (item.chainage_end >= chainage.min &&
+          item.chainage_end <= chainage.max) ||
+        (item.chainage_start <= chainage.min &&
+          item.chainage_end >= chainage.max);
       return matchesProject && matchesDirection && matchesChainage;
     });
 
@@ -1759,22 +1776,17 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       return null;
     }
 
-    // Sort by chainage to get start and end points within the selected range
     const sortedData = [...filteredData].sort(
       (a, b) => a.chainage_start - b.chainage_start
     );
 
-    // Find points that match the exact chainage boundaries
-    // For start: find point where chainage_start matches min chainage, or closest
     let startPoint = sortedData.find(
-      item => item.chainage_start === this.filters.chainageRange.min
+      item => item.chainage_start === chainage.min
     ) || sortedData[0];
-    
-    // If exact match not found, find closest to min chainage
-    if (!sortedData.find(item => item.chainage_start === this.filters.chainageRange.min)) {
-      let minDiff = Math.abs(startPoint.chainage_start - this.filters.chainageRange.min);
+    if (!sortedData.find(item => item.chainage_start === chainage.min)) {
+      let minDiff = Math.abs(startPoint.chainage_start - chainage.min);
       for (const item of sortedData) {
-        const diff = Math.abs(item.chainage_start - this.filters.chainageRange.min);
+        const diff = Math.abs(item.chainage_start - chainage.min);
         if (diff < minDiff) {
           minDiff = diff;
           startPoint = item;
@@ -1782,16 +1794,13 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    // For end: find point where chainage_end matches max chainage, or closest
     let endPoint = sortedData.find(
-      item => item.chainage_end === this.filters.chainageRange.max
+      item => item.chainage_end === chainage.max
     ) || sortedData[sortedData.length - 1];
-    
-    // If exact match not found, find closest to max chainage
-    if (!sortedData.find(item => item.chainage_end === this.filters.chainageRange.max)) {
-      let maxDiff = Math.abs(endPoint.chainage_end - this.filters.chainageRange.max);
+    if (!sortedData.find(item => item.chainage_end === chainage.max)) {
+      let maxDiff = Math.abs(endPoint.chainage_end - chainage.max);
       for (const item of sortedData) {
-        const diff = Math.abs(item.chainage_end - this.filters.chainageRange.max);
+        const diff = Math.abs(item.chainage_end - chainage.max);
         if (diff < maxDiff) {
           maxDiff = diff;
           endPoint = item;
@@ -1822,20 +1831,19 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       return null;
     }
 
-    // Filter data by current project, direction, and chainage range
+    const chainage = this.getEffectiveChainageForTraffic();
     const filteredData = this.rawData.filter((item) => {
       const matchesProject = item.project_name === this.filters.projectName;
       const matchesDirection =
         this.filters.direction === 'All' ||
         item.direction === this.filters.direction;
-      // Filter by chainage range - check if chainage_start or chainage_end falls within the range
       const matchesChainage =
-        (item.chainage_start >= this.filters.chainageRange.min &&
-          item.chainage_start <= this.filters.chainageRange.max) ||
-        (item.chainage_end >= this.filters.chainageRange.min &&
-          item.chainage_end <= this.filters.chainageRange.max) ||
-        (item.chainage_start <= this.filters.chainageRange.min &&
-          item.chainage_end >= this.filters.chainageRange.max);
+        (item.chainage_start >= chainage.min &&
+          item.chainage_start <= chainage.max) ||
+        (item.chainage_end >= chainage.min &&
+          item.chainage_end <= chainage.max) ||
+        (item.chainage_start <= chainage.min &&
+          item.chainage_end >= chainage.max);
       return matchesProject && matchesDirection && matchesChainage;
     });
 
@@ -1843,22 +1851,17 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       return null;
     }
 
-    // Sort by chainage to get start and end points within the selected range
     const sortedData = [...filteredData].sort(
       (a, b) => a.chainage_start - b.chainage_start
     );
 
-    // Find points that match the exact chainage boundaries
-    // For start: find point where chainage_start matches min chainage, or closest
     let startPoint = sortedData.find(
-      item => item.chainage_start === this.filters.chainageRange.min
+      item => item.chainage_start === chainage.min
     ) || sortedData[0];
-    
-    // If exact match not found, find closest to min chainage
-    if (!sortedData.find(item => item.chainage_start === this.filters.chainageRange.min)) {
-      let minDiff = Math.abs(startPoint.chainage_start - this.filters.chainageRange.min);
+    if (!sortedData.find(item => item.chainage_start === chainage.min)) {
+      let minDiff = Math.abs(startPoint.chainage_start - chainage.min);
       for (const item of sortedData) {
-        const diff = Math.abs(item.chainage_start - this.filters.chainageRange.min);
+        const diff = Math.abs(item.chainage_start - chainage.min);
         if (diff < minDiff) {
           minDiff = diff;
           startPoint = item;
@@ -1866,16 +1869,13 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    // For end: find point where chainage_end matches max chainage, or closest
     let endPoint = sortedData.find(
-      item => item.chainage_end === this.filters.chainageRange.max
+      item => item.chainage_end === chainage.max
     ) || sortedData[sortedData.length - 1];
-    
-    // If exact match not found, find closest to max chainage
-    if (!sortedData.find(item => item.chainage_end === this.filters.chainageRange.max)) {
-      let maxDiff = Math.abs(endPoint.chainage_end - this.filters.chainageRange.max);
+    if (!sortedData.find(item => item.chainage_end === chainage.max)) {
+      let maxDiff = Math.abs(endPoint.chainage_end - chainage.max);
       for (const item of sortedData) {
-        const diff = Math.abs(item.chainage_end - this.filters.chainageRange.max);
+        const diff = Math.abs(item.chainage_end - chainage.max);
         if (diff < maxDiff) {
           maxDiff = diff;
           endPoint = item;
@@ -1898,8 +1898,8 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       endLng, 
       origin, 
       destination,
-      startChainage: this.filters.chainageRange.min,
-      endChainage: this.filters.chainageRange.max
+      startChainage: chainage.min,
+      endChainage: chainage.max
     };
   }
 
@@ -2601,7 +2601,11 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isTrafficAnalysisModalOpen = true;
-    
+    this.trafficAnalysisChainageRange = {
+      min: this.filters.chainageRange.min,
+      max: this.filters.chainageRange.max,
+    };
+
     // Set default time to current time if not set
     if (!this.trafficModalTime) {
       const now = new Date();
@@ -2638,6 +2642,74 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   closeTrafficAnalysisModal() {
     this.isTrafficAnalysisModalOpen = false;
     this.clearTrafficModalMap();
+  }
+
+  /** Chainage change handlers for Traffic Analysis modal - refresh traffic data */
+  async onTrafficModalChainageMinChange(event: any) {
+    const value = parseFloat(event.target.value);
+    if (value >= 0 && value <= this.trafficAnalysisChainageRange.max) {
+      this.trafficAnalysisChainageRange = {
+        ...this.trafficAnalysisChainageRange,
+        min: value,
+      };
+      await this.refreshTrafficDataForModalChainage();
+    }
+  }
+
+  async onTrafficModalChainageMaxChange(event: any) {
+    const value = parseFloat(event.target.value);
+    if (
+      value >= this.trafficAnalysisChainageRange.min &&
+      value <= this.getChainageMax()
+    ) {
+      this.trafficAnalysisChainageRange = {
+        ...this.trafficAnalysisChainageRange,
+        max: value,
+      };
+      await this.refreshTrafficDataForModalChainage();
+    }
+  }
+
+  async onTrafficModalChainageMinSliderChange(event: any) {
+    const value = parseFloat(event.target.value);
+    if (value <= this.trafficAnalysisChainageRange.max) {
+      this.trafficAnalysisChainageRange = {
+        ...this.trafficAnalysisChainageRange,
+        min: value,
+      };
+      await this.refreshTrafficDataForModalChainage();
+    }
+  }
+
+  async onTrafficModalChainageMaxSliderChange(event: any) {
+    const value = parseFloat(event.target.value);
+    if (value >= this.trafficAnalysisChainageRange.min) {
+      this.trafficAnalysisChainageRange = {
+        ...this.trafficAnalysisChainageRange,
+        max: value,
+      };
+      await this.refreshTrafficDataForModalChainage();
+    }
+  }
+
+  /** Refresh 24hr trend, forecast, route when chainage changes in modal (debounced for slider) */
+  private refreshTrafficDataForModalChainage() {
+    if (!this.isTrafficAnalysisModalOpen) return;
+    if (this.trafficChainageRefreshTimer) clearTimeout(this.trafficChainageRefreshTimer);
+    this.trafficChainageRefreshTimer = setTimeout(async () => {
+      this.trafficChainageRefreshTimer = null;
+      try {
+        await this.fetchTrafficData();
+        if (this.routeData && this.trafficModalMap) {
+          await this.displayTrafficRouteOnModalMap(this.routeData);
+        }
+        await this.load24hrTrafficTrend();
+        await this.loadForecastTrafficData();
+      } catch (error: any) {
+        console.error('Error refreshing traffic data for chainage:', error);
+        this.trafficError = error.message || 'Failed to refresh traffic data';
+      }
+    }, 400);
   }
 
   /**

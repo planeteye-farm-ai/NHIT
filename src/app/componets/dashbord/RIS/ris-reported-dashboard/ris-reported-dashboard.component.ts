@@ -8,11 +8,13 @@ import {
   PLATFORM_ID,
   Inject,
   NgZone,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxEchartsModule, provideEcharts } from 'ngx-echarts';
 import { GoogleMapsTrafficService } from '../../../../shared/services/google-maps-traffic.service';
+import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
 
 interface DistressData {
   name: string;
@@ -181,7 +183,9 @@ export class RisReportedDashboardComponent
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private googleMapsService: GoogleMapsTrafficService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private projectSelection: ProjectSelectionService,
+    private cdr: ChangeDetectorRef
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -283,7 +287,7 @@ export class RisReportedDashboardComponent
   goToNextSegment() {
     if (this.currentSegmentIndex < this.totalSegments - 1) {
       this.currentSegmentIndex++;
-      console.log(`â–¶ï¸ Moved to segment ${this.currentSegmentIndex + 1}/${this.totalSegments}`);
+      console.log(`Moved to segment ${this.currentSegmentIndex + 1}/${this.totalSegments}`);
       
       // Clear charts first to force recreation
       this.potholeDepthChartOptions = null;
@@ -1965,21 +1969,20 @@ export class RisReportedDashboardComponent
       // Extract project names
       this.availableProjects = Object.keys(projectDates);
 
-      // Set first project as default
+      // Prefer globally selected project if it exists in available projects
       if (this.availableProjects.length > 0) {
-        this.filters.projectName = this.availableProjects[0];
+        const match = this.projectSelection.getMatchingProject(this.availableProjects);
+        this.filters.projectName = match || this.availableProjects[0];
 
-        // Set available dates for first project
         this.availableDates =
           this.projectDatesMap[this.filters.projectName] || [];
 
-        // Set first date as default
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
         }
+        this.cdr.detectChanges();
       }
 
-      // Now load the actual data
       if (this.filters.date && this.filters.projectName) {
         await this.loadDistressData();
       }
@@ -2222,18 +2225,18 @@ export class RisReportedDashboardComponent
 
     // Define all distress types from the image
     const allDistressTypes = [
-      'Alligator crack',
-      'Transverse crack',
-      'Hairline crack',
-      'Block crack',
+      'Alligator crack (m)',
+      'Transverse crack (m)',
+      'Hairline crack (m)',
+      'Block crack (m)',
       'Edge Break',
       'Heaves',
-      'Hungry crack',
+      'Hungry crack (m)',
       'Hotspots',
-      'Joint crack',
+      'Joint crack (m)',
       'Joint seal defects',
       'Slippage',
-      'Longitudinal crack',
+      'Longitudinal crack (m)',
       'Multiple cracks',
       'Bleeding',
       'Stripping',
@@ -2242,10 +2245,10 @@ export class RisReportedDashboardComponent
       'Punchout',
       'Settlement',
       'Raveling',
-      'Simple crack',
-      'Discrete crack',
+      'Simple crack (m)',
+      'Discrete crack (m)',
       'Shoving',
-      'Rutting',
+      'Rutting (m)',
     ];
 
     // Define colors for distress types
@@ -3328,11 +3331,13 @@ export class RisReportedDashboardComponent
     }
   }
 
-  async onProjectChange(event: any) {
-    console.log('onProjectChange triggered - new project:', event.target.value);
+  async onProjectChange(eventOrValue: any) {
+    const newProject = typeof eventOrValue === 'string' ? eventOrValue : eventOrValue?.target?.value;
+    if (!newProject) return;
+    console.log('onProjectChange triggered - new project:', newProject);
     this.isProjectChanging = true;
 
-    this.filters.projectName = event.target.value;
+    this.filters.projectName = newProject;
 
     // Update available dates for the selected project
     this.availableDates = this.projectDatesMap[this.filters.projectName] || [];

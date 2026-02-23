@@ -10,8 +10,8 @@
           <div class="filter-group">
             <label>Project Name:</label>
             <select
-              [value]="filters.projectName"
-              (change)="onProjectChange($event)"
+              [(ngModel)]="filters.projectName"
+              (ngModelChange)="onProjectChange($event)"
               class="filter-select"
             >
               <option
@@ -358,14 +358,50 @@
       </button>
     </div>
 
-    <!-- Navbar with Chainage, Date, Time, and Get Live Traffic Button -->
+    <!-- Navbar with Chainage bar, Date, Time, and Get Live Traffic Button -->
     <div class="traffic-modal-navbar">
-      <div class="traffic-navbar-item">
+      <div class="traffic-navbar-item traffic-chainage-bar">
         <label>Chainage:</label>
-        <span
-          >{{ filters.chainageRange.min.toFixed(3) }} -
-          {{ filters.chainageRange.max.toFixed(3) }}</span
-        >
+        <div class="chainage-range-container">
+          <div class="chainage-inputs">
+            <input
+              type="number"
+              [min]="getChainageMin()"
+              [max]="trafficAnalysisChainageRange.max"
+              [value]="trafficAnalysisChainageRange.min"
+              (input)="onTrafficModalChainageMinChange($event)"
+              class="chainage-input"
+              step="0.001"
+            />
+            <input
+              type="number"
+              [min]="trafficAnalysisChainageRange.min"
+              [max]="getChainageMax()"
+              [value]="trafficAnalysisChainageRange.max"
+              (input)="onTrafficModalChainageMaxChange($event)"
+              class="chainage-input"
+              step="0.001"
+            />
+          </div>
+          <div class="chainage-slider-container">
+            <input
+              type="range"
+              [min]="getChainageMin()"
+              [max]="getChainageMax()"
+              [value]="trafficAnalysisChainageRange.min"
+              (input)="onTrafficModalChainageMinSliderChange($event)"
+              class="chainage-slider"
+            />
+            <input
+              type="range"
+              [min]="getChainageMin()"
+              [max]="getChainageMax()"
+              [value]="trafficAnalysisChainageRange.max"
+              (input)="onTrafficModalChainageMaxSliderChange($event)"
+              class="chainage-slider"
+            />
+          </div>
+        </div>
       </div>
       <div class="traffic-navbar-item">
         <label>Project Date:</label>

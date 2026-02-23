@@ -7,6 +7,7 @@ import {
   ElementRef,
   PLATFORM_ID,
   Inject,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +16,7 @@ import {
   GoogleMapsTrafficService,
   RouteData,
 } from '../../../../shared/services/google-maps-traffic.service';
+import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
 
 interface InfoData {
   title: string;
@@ -271,15 +273,14 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private trafficService: GoogleMapsTrafficService
+    private trafficService: GoogleMapsTrafficService,
+    private projectSelection: ProjectSelectionService,
+    private cdr: ChangeDetectorRef
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
-  ngOnInit() {
-    // Don't auto-load data - wait for card click
-    // TIS card will be auto-selected in ngAfterViewInit
-  }
+  ngOnInit() {}
 
   ngAfterViewInit() {
     if (this.isBrowser) {
@@ -904,19 +905,18 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       // Extract project names
       this.availableProjects = Object.keys(mergedProjectDates);
 
-      // Only set defaults if no project/date is currently selected
-      // This allows loadProjectsAndDates to be called without resetting user's selection
+      // Prefer globally selected project, then current selection, else first available
       if (this.availableProjects.length > 0 && !this.filters.projectName) {
-        this.filters.projectName = this.availableProjects[0];
+        const match = this.projectSelection.getMatchingProject(this.availableProjects);
+        this.filters.projectName = match || this.availableProjects[0];
 
-        // Set available dates for first project
         this.availableDates =
           this.projectDatesMap[this.filters.projectName] || [];
 
-        // Set first date as default
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
         }
+        this.cdr.detectChanges();
       } else if (this.filters.projectName) {
         // Update available dates for currently selected project
         this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
@@ -3500,8 +3500,10 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  async onProjectChange(event: any) {
-    console.log('onProjectChange triggered - new project:', event.target.value);
+  async onProjectChange(eventOrValue: any) {
+    const newProject = typeof eventOrValue === 'string' ? eventOrValue : eventOrValue?.target?.value;
+    if (!newProject) return;
+    console.log('onProjectChange triggered - new project:', newProject);
     this.isProjectChanging = true;
 
     this.rawData = [];
@@ -3513,7 +3515,7 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.comparisonDataByCard = {};
     this.comparisonChartData = [];
 
-    this.filters.projectName = event.target.value;
+    this.filters.projectName = newProject;
 
     this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
 
@@ -3796,7 +3798,7 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       // Load projects and dates for ALL selected card types
       await this.loadProjectsAndDates();
       
-      // Restore previous selection if it still exists in merged results
+      // Restore or set project: prefer current selection, then globally selected, then first available
       if (currentProject && this.availableProjects.includes(currentProject)) {
         this.filters.projectName = currentProject;
         this.availableDates = this.projectDatesMap[currentProject] || [];
@@ -3806,14 +3808,16 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           this.filters.date = this.availableDates[0];
         }
       } else if (this.availableProjects.length > 0) {
-        // If previous project doesn't exist, use first available
-        this.filters.projectName = this.availableProjects[0];
+        // Previous project missing or first load: use globally selected project if it matches
+        const matchFromSelection = this.projectSelection.getMatchingProject(this.availableProjects);
+        this.filters.projectName = matchFromSelection || this.availableProjects[0];
         this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
         }
+        this.cdr.detectChanges();
       }
-      
+
       // Load data for ALL selected cards (this will fetch from all selected API types)
       if (this.filters.projectName && this.filters.date) {
         console.log('📊 Loading data for all selected cards with project:', this.filters.projectName, 'date:', this.filters.date);

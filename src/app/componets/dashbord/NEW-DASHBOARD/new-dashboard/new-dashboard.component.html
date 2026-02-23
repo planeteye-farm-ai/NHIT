@@ -9,8 +9,8 @@
           <div class="filter-group">
             <label>Project Name:</label>
             <select
-              [value]="filters.projectName"
-              (change)="onProjectChange($event)"
+              [(ngModel)]="filters.projectName"
+              (ngModelChange)="onProjectChange($event)"
               class="filter-select"
             >
               <option

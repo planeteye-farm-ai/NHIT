@@ -3261,6 +3261,28 @@
         font-size: 14px;
       }
     }
+
+    &.traffic-chainage-bar {
+      flex: 1;
+      min-width: 200px;
+      max-width: 320px;
+
+      .chainage-range-container {
+        width: 100%;
+      }
+
+      .chainage-input {
+        background: #0f3460;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        font-size: 13px;
+        padding: 6px 10px;
+      }
+
+      .chainage-slider-container {
+        margin-top: 4px;
+      }
+    }
   }
 }
 

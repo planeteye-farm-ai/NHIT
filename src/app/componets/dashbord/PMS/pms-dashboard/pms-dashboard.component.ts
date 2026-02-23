@@ -7,10 +7,12 @@ import {
   ElementRef,
   PLATFORM_ID,
   Inject,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxEchartsModule, provideEcharts } from 'ngx-echarts';
+import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
 
 interface PavementInfoData {
   title: string;
@@ -131,7 +133,11 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   isMonthComparisonMode: boolean = false;
   isPreloadingMonthData: boolean = false;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private projectSelection: ProjectSelectionService,
+    private cdr: ChangeDetectorRef
+  ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
@@ -203,21 +209,20 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       // Extract project names
       this.availableProjects = Object.keys(projectDates);
 
-      // Set first project as default
+      // Prefer globally selected project if it exists in available projects
       if (this.availableProjects.length > 0) {
-        this.filters.projectName = this.availableProjects[0];
+        const match = this.projectSelection.getMatchingProject(this.availableProjects);
+        this.filters.projectName = match || this.availableProjects[0];
 
-        // Set available dates for first project
         this.availableDates =
           this.projectDatesMap[this.filters.projectName] || [];
 
-        // Set first date as default
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
         }
+        this.cdr.detectChanges();
       }
 
-      // Now load the actual data
       if (this.filters.date && this.filters.projectName) {
         await this.loadDistressData();
       }
@@ -1127,8 +1132,10 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return dateString;
   }
 
-  async onProjectChange(event: any) {
-    console.log('onProjectChange triggered - new project:', event.target.value);
+  async onProjectChange(eventOrValue: any) {
+    const newProject = typeof eventOrValue === 'string' ? eventOrValue : eventOrValue?.target?.value;
+    if (!newProject) return;
+    console.log('onProjectChange triggered - new project:', newProject);
     this.isProjectChanging = true;
 
     // Clear old data first
@@ -1136,7 +1143,7 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pavementInfoData = [];
     this.monthDataCache = {};
 
-    this.filters.projectName = event.target.value;
+    this.filters.projectName = newProject;
 
     // Update available dates for the selected project
     this.availableDates = this.projectDatesMap[this.filters.projectName] || [];

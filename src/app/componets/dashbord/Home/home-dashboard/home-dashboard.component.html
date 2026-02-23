@@ -10,264 +10,71 @@
   </div>
 </div>
 
+<!-- Selected project banner -->
+<div *ngIf="projectSelection.selectedProject" class="project-selection-banner mb-3">
+  <span class="project-selection-banner-text">
+    <strong>{{ projectSelection.selectedProject }}</strong> is selected for all dashboards.
+  </span>
+</div>
+
 <!-- Start::row-1 -->
-<div class="row">
+<div class="row project-cards-row">
   <div class="col-md-12 col-xl-12">
-    <div class="row">
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/pis">
-        <div class="card custom-card overflow-hidden system-card pis-card">
-          <div class="card-body p-0">
-            <div class="mb-2 p-3 pb-0">
-              <div class="pis-title flex-fill fs-15">
-                Project Information System(PIS)
+    <div class="row g-4">
+      <ng-container *ngFor="let projectName of projectNames; let i = index">
+        <div
+          class="col-sm-6 col-lg-4 col-xl-3"
+          (click)="selectProject(projectName)"
+        >
+          <div
+            class="project-card project-card-modern"
+            [class.project-card-selected]="isProjectSelected(projectName)"
+            [attr.data-index]="i"
+          >
+            <div class="project-card-body">
+              <div class="project-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
               </div>
-            </div>
-            <div class="system-card-content px-3">
-              <ng-container *ngIf="!pisSummaryLoading; else systemLoadingTpl">
-                <div class="system-metrics">
-                  <div class="system-metric">
-                    <span class="metric-label">Total Projects</span>
-                    <span
-                      class="metric-value pis-value-primary"
-                      style="padding-right: 25px"
-                    >
-                      {{ totalPisProjects }}
-                    </span>
-                  </div>
-                  <div class="system-metric">
-                    <span class="metric-label">Total Road Length</span>
-                    <span class="metric-value pis-value-accent">
-                      {{ totalPisRoadLengthKm | number : "1.0-0" }}
-                      <span class="metric-unit">KM</span>
-                    </span>
-                  </div>
-                </div>
-              </ng-container>
-              <div *ngIf="pisSummaryError" class="system-error mt-2">
-                {{ pisSummaryError }}
+              <h3 class="project-card-title">{{ projectName }}</h3>
+              <div class="project-card-cta">
+                <ng-container *ngIf="!projectCardsLoading; else systemLoadingTpl">
+                  <span *ngIf="!isProjectSelected(projectName)">Select for all dashboards</span>
+                  <span *ngIf="isProjectSelected(projectName)" class="project-card-selected-label">✓ Selected</span>
+                  <svg *ngIf="!isProjectSelected(projectName)" class="project-card-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </ng-container>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="col-md-6 col-lg-3 col-xl-3"
-        routerLink="/ris/inventory-dashboard"
-      >
-        <div class="card custom-card overflow-hidden system-card ris-card">
-          <div class="card-body p-0">
-            <div class="mb-2 p-3 pb-0">
-              <div class="flex-fill fs-15">
-                Road Inventory System <br />(RIS)
-              </div>
-            </div>
-            <div class="system-card-content px-3">
-              <ng-container *ngIf="!risSummaryLoading; else systemLoadingTpl">
-                <div class="system-metrics ris-metrics">
-                  <div class="system-metric ris-primary-metric">
-                    <span class="metric-label">Total Inventory</span>
-                    <span class="metric-value ris-value-primary">
-                      {{ risSummary.totalInventory | number : "1.0-0" }}
-                    </span>
-                  </div>
-                  <div class="ris-secondary-metrics">
-                    <div class="system-metric">
-                      <span class="metric-label">Distress Reported</span>
-                      <span class="metric-value ris-value-secondary">
-                        {{
-                          risSummary.totalDistressReported | number : "1.0-0"
-                        }}
-                      </span>
-                    </div>
-                    <div class="system-metric">
-                      <span class="metric-label">Distress Predicted</span>
-                      <span class="metric-value ris-value-tertiary">
-                        {{
-                          risSummary.totalDistressPredicted | number : "1.0-0"
-                        }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-              <div *ngIf="risSummaryError" class="system-error mt-2">
-                {{ risSummaryError }}
+              <div *ngIf="projectCardsError" class="project-card-error">
+                {{ projectCardsError }}
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/bis/bis-dashboard">
-        <div class="card custom-card overflow-hidden system-card bis-card">
-          <div class="card-body p-0">
-            <div class="mb-2 p-3 pb-0">
-              <div class="flex-fill fs-15">
-                Bridge Management System <br />(BMS)
-              </div>
-            </div>
-            <div class="system-card-content px-3">
-              <ng-container *ngIf="!bisSummaryLoading; else systemLoadingTpl">
-                <div class="system-metrics">
-                  <div class="system-metric">
-                    <span class="metric-label">Total Bridges</span>
-                    <span
-                      class="metric-value bis-value-primary"
-                      style="padding-right: 10px"
-                      >3</span
-                    >
-                  </div>
-                </div>
-              </ng-container>
-              <div *ngIf="bisSummaryError" class="system-error mt-2">
-                {{ bisSummaryError }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/tis/tis-dashboard">
-        <div class="card custom-card overflow-hidden system-card tis-card">
-          <div class="card-body p-0">
-            <div class="mb-2 p-3 pb-0">
-              <div class="flex-fill fs-15">Traffic Information System(TIS)</div>
-            </div>
-            <div class="system-card-content px-3">
-              <ng-container *ngIf="!tisSummaryLoading; else systemLoadingTpl">
-                <div class="system-metrics">
-                  <div class="system-metric tis-primary-metric">
-                    <span class="metric-label">Average AADT</span>
-                    <span class="metric-value tis-value-primary">
-                      {{ tisSummary.averageAadt | number : "1.0-0" }}
-                    </span>
-                  </div>
-                </div>
-              </ng-container>
-              <div *ngIf="tisSummaryError" class="system-error mt-2">
-                {{ tisSummaryError }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </ng-container>
 
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/ais/ais-dashboard">
-        <div class="card custom-card overflow-hidden system-card ais-card">
-          <div class="card-body p-0">
-            <div class="mb-2 p-3 pb-0">
-              <div class="flex-fill fs-15">
-                Accident Information System (AIS)
-              </div>
-            </div>
-            <div class="system-card-content px-3">
-              <ng-container *ngIf="!aisSummaryLoading; else systemLoadingTpl">
-                <div class="system-metrics">
-                  <div class="system-metric">
-                    <span class="metric-label">Total Accidents</span>
-                    <span class="metric-value ais-value-primary">
-                      {{ aisSummary.totalAccidents | number : "1.0-0" }}
-                    </span>
-                  </div>
-                  <div class="system-metric">
-                    <span class="metric-label">Total Injuries</span>
-                    <span class="metric-value ais-value-secondary">
-                      {{ aisSummary.totalInjuries | number : "1.0-0" }}
-                    </span>
-                  </div>
+      <!-- Placeholder cards if fewer than 8 projects -->
+      <ng-container *ngIf="projectNames.length < 8 && !projectCardsLoading">
+        <ng-container *ngFor="let _ of placeholderCount">
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="project-card project-card-modern project-card-placeholder">
+              <div class="project-card-body">
+                <div class="project-card-icon project-card-icon-muted">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  </svg>
                 </div>
-              </ng-container>
-              <div *ngIf="aisSummaryError" class="system-error mt-2">
-                {{ aisSummaryError }}
+                <h3 class="project-card-title">—</h3>
+                <span class="project-card-cta-muted">No project</span>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/pms/pms-dashboard">
-        <div class="card custom-card overflow-hidden system-card pms-card">
-          <div class="card-body p-0">
-            <div class="mb-2 p-3 pb-0">
-              <div class="flex-fill fs-15">Pavement Management System(PMS)</div>
-            </div>
-            <div class="system-card-content px-3">
-              <ng-container *ngIf="!pmsSummaryLoading; else systemLoadingTpl">
-                <div class="system-metrics pms-metrics pms-single">
-                  <div
-                    class="system-metric pms-placeholder"
-                    aria-hidden="true"
-                  ></div>
-                  <div class="pms-secondary-metrics single">
-                    <div class="system-metric">
-                      <span class="metric-label">Avg RI Index</span>
-                      <span class="metric-value pms-value-primary">
-                        {{ pmsSummary.averageRiIndex | number : "1.2-2" }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-              <div *ngIf="pmsSummaryError" class="system-error mt-2">
-                {{ pmsSummaryError }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="col-md-6 col-lg-3 col-xl-3"
-        routerLink="/rwfis/rwfis-dashboard"
-      >
-        <div class="card custom-card overflow-hidden system-card rwfis-card">
-          <div class="card-body p-0">
-            <div class="mb-2 p-3 pb-0">
-              <div class="flex-fill fs-15">
-                Road Way Features Information System(RWFIS)
-              </div>
-            </div>
-            <div class="system-card-content px-3">
-              <ng-container *ngIf="!rwfisSummaryLoading; else systemLoadingTpl">
-                <div class="system-metrics">
-                  <div class="system-metric">
-                    <span class="metric-label">Average Offset</span>
-                    <span class="metric-value rwfis-value-primary">
-                      {{ rwfisSummary.averageOffset | number : "1.2-2" }}
-                      <span class="metric-unit">m</span>
-                    </span>
-                  </div>
-                  <div class="system-metric">
-                    <span class="metric-label">Number of Features</span>
-                    <span class="metric-value rwfis-value-secondary">
-                      {{ rwfisSummary.featureCount | number : "1.0-0" }}
-                    </span>
-                  </div>
-                </div>
-              </ng-container>
-              <div *ngIf="rwfisSummaryError" class="system-error mt-2">
-                {{ rwfisSummaryError }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6 col-lg-3 col-xl-3" routerLink="/reports">
-        <div class="card custom-card overflow-hidden system-card reports-card">
-          <div class="card-body p-0">
-            <div class="mb-2 p-3 pb-0">
-              <div class="flex-fill fs-15">Reports</div>
-            </div>
-            <div class="system-card-content px-3">
-              <div class="system-metrics">
-                <div class="system-metric">
-                  <span class="metric-label">Inventory</span>
-                </div>
-                <div class="system-metric">
-                  <span class="metric-label">Distress</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        </ng-container>
+      </ng-container>
     </div>
   </div>
 </div>

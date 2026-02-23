@@ -9,7 +9,7 @@
         <div class="filter-row-main">
           <div class="filter-group">
             <label>Project Name:</label>
-            <select [value]="filters.projectName" (change)="onProjectChange($event)" class="filter-select">
+            <select [(ngModel)]="filters.projectName" (ngModelChange)="onProjectChange($event)" class="filter-select">
               <option *ngFor="let project of availableProjects" [value]="project">{{ project }}</option>
             </select>
           </div>

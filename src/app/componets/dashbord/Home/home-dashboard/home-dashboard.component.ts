@@ -22,6 +22,7 @@ import {
   ApexTooltip,
 } from 'ng-apexcharts';
 import { SharedModule } from '../../../../shared/common/sharedmodule';
+import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
 export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
@@ -631,18 +632,68 @@ export class HomeDashboardComponent implements OnInit {
     distressReports: 0,
   };
 
+  // Project cards (up to 8 projects)
+  projectNames: string[] = [];
+  projectCardsLoading = false;
+  projectCardsError = '';
+  private readonly PROJECT_CARDS_CACHE_KEY = 'home_dashboard_project_names';
+  private readonly MAX_PROJECT_CARDS = 8;
+
+  constructor(public projectSelection: ProjectSelectionService) {}
+
   ngOnInit(): void {
     if (!this.isBrowser) {
       return;
     }
-    this.loadPisSummary();
-    this.loadRisSummary();
-    this.loadBisSummary();
-    this.loadTisSummary();
-    this.loadAisSummary();
-    this.loadPmsSummary();
-    this.loadRwfisSummary();
-    this.loadReportSummary();
+    this.loadProjectNames();
+  }
+
+  /** Load up to 8 project names for project cards */
+  private async loadProjectNames(): Promise<void> {
+    this.projectCardsLoading = true;
+    this.projectCardsError = '';
+
+    const cached = this.getCachedValue<string[]>(this.PROJECT_CARDS_CACHE_KEY);
+    if (cached) {
+      this.projectNames = cached.value;
+      if (this.isCacheFresh(cached)) {
+        this.projectCardsLoading = false;
+        return;
+      }
+    }
+
+    try {
+      const projectDates = await this.fetchProjectDateMap('projects-dates/pis');
+      const names = Object.keys(projectDates || {}).filter((n) => (n || '').trim());
+      this.projectNames = names.slice(0, this.MAX_PROJECT_CARDS);
+      this.setCachedValue(this.PROJECT_CARDS_CACHE_KEY, this.projectNames);
+    } catch (error) {
+      console.error('Failed to load project names', error);
+      this.projectCardsError = 'Unable to load projects.';
+      if (!cached) {
+        this.projectNames = [];
+      }
+    } finally {
+      this.projectCardsLoading = false;
+    }
+  }
+
+  /** Select project for all dashboards (PIS, RIS, TIS, AIS, PMS, RWFIS, etc.) */
+  selectProject(projectName: string): void {
+    this.projectSelection.setSelectedProject(projectName);
+  }
+
+  /** Check if a project is currently selected globally */
+  isProjectSelected(projectName: string): boolean {
+    return this.projectSelection.selectedProject === projectName;
+  }
+
+  /** Count of placeholder cards to reach 8 total */
+  get placeholderCount(): number[] {
+    const count = Math.max(0, this.MAX_PROJECT_CARDS - this.projectNames.length);
+    return Array(count)
+      .fill(0)
+      .map((_, i) => i);
   }
 
   private getCachedValue<T>(
