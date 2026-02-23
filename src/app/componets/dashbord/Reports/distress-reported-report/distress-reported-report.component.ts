@@ -227,25 +227,31 @@ getDistressKeys(row: any): string[] {
 }
 
  generatePDF() {
-  // console.log('tableData', this.tableData);
-
-  // const doc = new jsPDF();
   const doc = new jsPDF({
-    orientation: 'landscape', // or 'portrait'
+    orientation: 'landscape',
     unit: 'mm',
-    format: 'a5'
+    format: 'a4',
+    compress: true,
   });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 14;
+  const contentWidth = pageWidth - 2 * margin;
+
   // Title
   doc.setFontSize(18);
-  doc.text('Reported Distress Report', doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
+  doc.setFont('helvetica', 'bold');
+  doc.text('Reported Distress Report', pageWidth / 2, 15, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
 
   // Meta info
   doc.setFontSize(10);
   doc.setTextColor(50);
 
-  const leftX = 14;
-  const rightX = 105;
-  let y = 30;
+  const leftX = margin;
+  const rightX = pageWidth / 2 + 5;
+  let y = 28;
 
   const projectNames = Array.isArray(this.filterDataShow.project_name) 
     ? this.filterDataShow.project_name.join(', ') 
@@ -265,11 +271,11 @@ getDistressKeys(row: any): string[] {
   const rightText2 = `Distress Type: ${distressType}`;
    const leftText3 = date;
 
-  const leftLines1 = doc.splitTextToSize(leftText1, 90);
-  const rightLines1 = doc.splitTextToSize(rightText1, 90);
-  const leftLines2 = doc.splitTextToSize(leftText2, 90);
-  const rightLines2 = doc.splitTextToSize(rightText2, 90);
-  const leftLines3 = doc.splitTextToSize(leftText3, 90);
+  const leftLines1 = doc.splitTextToSize(leftText1, contentWidth / 2 - 5);
+  const rightLines1 = doc.splitTextToSize(rightText1, contentWidth / 2 - 5);
+  const leftLines2 = doc.splitTextToSize(leftText2, contentWidth / 2 - 5);
+  const rightLines2 = doc.splitTextToSize(rightText2, contentWidth / 2 - 5);
+  const leftLines3 = doc.splitTextToSize(leftText3, contentWidth);
 
 
   const rowHeight = 6;
@@ -299,23 +305,22 @@ getDistressKeys(row: any): string[] {
   // Horizontal line
   doc.setDrawColor(0);
   doc.setLineWidth(0.5);
-  doc.line(14, y, doc.internal.pageSize.getWidth() - 14, y);
+  doc.line(margin, y, pageWidth - margin, y);
   y += 5;
 
-  // Table headers
+  // Table headers with units
   const tableColumns = [
     'Distress Type',
     'Chainage Start',
     'Chainage End',
     'Latitude',
     'Longitude',
-    // 'Event',
     'Carriage Type',
     'Lane',
-    'Length',
-    'Area',
-    'Width',
-    'Depth'
+    'Length (m)',
+    'Area (m²)',
+    'Width (m)',
+    'Depth (m)',
   ];
 
   const excludedKeys = [
@@ -369,8 +374,31 @@ getDistressKeys(row: any): string[] {
     head: [tableColumns],
     body: tableRows,
     startY: y + 5,
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [100, 100, 255] },
+    margin: { left: margin, right: margin },
+    tableWidth: 'auto',
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      overflow: 'linebreak',
+    },
+    headStyles: {
+      fillColor: [70, 130, 180],
+      textColor: 255,
+      fontStyle: 'bold',
+      halign: 'center',
+    },
+    alternateRowStyles: { fillColor: [245, 245, 245] },
+    showHead: 'everyPage',
+    didDrawPage: (data: { pageNumber: number }) => {
+      doc.setFontSize(8);
+      doc.setTextColor(128);
+      doc.text(
+        `Reported Distress Report - Page ${data.pageNumber}`,
+        pageWidth - margin,
+        pageHeight - 8,
+        { align: 'right' }
+      );
+    },
   });
 
   doc.save(`${this.filterDataShow.project_name} - Reported Distress Report.pdf`);
