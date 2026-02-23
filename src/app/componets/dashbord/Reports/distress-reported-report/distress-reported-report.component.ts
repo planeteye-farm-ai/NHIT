@@ -308,7 +308,7 @@ getDistressKeys(row: any): string[] {
   doc.line(margin, y, pageWidth - margin, y);
   y += 5;
 
-  // Table headers with units
+  // Table headers with units (order: Length, Width, Depth, Area)
   const tableColumns = [
     'Distress Type',
     'Chainage Start',
@@ -318,9 +318,9 @@ getDistressKeys(row: any): string[] {
     'Carriage Type',
     'Lane',
     'Length (m)',
-    'Area (m²)',
     'Width (m)',
     'Depth (m)',
+    'Area (m²)',
   ];
 
   const excludedKeys = [
@@ -360,13 +360,12 @@ getDistressKeys(row: any): string[] {
       parseFloat(item.chainage_end)?.toFixed(3),
       item.latitude || '-',
       item.longitude || '-',
-      // eventValue,
       item.carriage_type,
       item.lane,
-      item.length?.toFixed(2),
-      item.area?.toFixed(2),
-      item.width?.toFixed(2),
-      item.depth?.toFixed(2),
+      item.length != null ? Number(item.length).toFixed(4) : '-',
+      item.width != null ? Number(item.width).toFixed(4) : '-',
+      item.depth != null ? Number(item.depth).toFixed(4) : '-',
+      item.area != null ? Number(item.area).toFixed(4) : '-',
     ]);
   });
 
