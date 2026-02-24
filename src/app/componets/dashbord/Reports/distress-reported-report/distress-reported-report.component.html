@@ -56,16 +56,13 @@
                                 <th>Chainage Start</th>
                                 <th>Chainage End</th>
                                 <th>Latitude</th>
-                                <th>Longitude</th>                                
-                                <!-- <th>Event</th> -->
+                                <th>Longitude</th>
                                 <th>Carriage Type</th>
                                 <th>Lane</th>
-                                <th>Length</th>
-                                <th>Area</th>
-                                <th>Width</th>
-                                <th>Depth</th>
-
-
+                                <th>Length (m)</th>
+                                <th>Width (m)</th>
+                                <th>Depth (m)</th>
+                                <th>Area (m²)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,10 +77,10 @@
                         <!-- <td>{{ row[key]?.toFixed(2) }}</td> -->
                          <td>{{ row.carriage_type || '-' }}</td>
                          <td>{{ row.lane || '-' }}</td>
-                        <td>{{ row.length?.toFixed(2) || '0' }}</td>
-                        <td>{{ row.area?.toFixed(2) || '0' }}</td>
-                        <td>{{ row.width?.toFixed(2) || '0' }}</td>
-                        <td>{{ row.depth?.toFixed(2) || '0' }}</td>
+                        <td>{{ row.length != null ? (row.length | number:'1.4-4') : '-' }}</td>
+                        <td>{{ row.width != null ? (row.width | number:'1.4-4') : '-' }}</td>
+                        <td>{{ row.depth != null ? (row.depth | number:'1.4-4') : '-' }}</td>
+                        <td>{{ row.area != null ? (row.area | number:'1.4-4') : '-' }}</td>
                         </tr>
                     </ng-container>
                     </ng-container>
