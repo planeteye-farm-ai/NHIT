@@ -1872,8 +1872,13 @@ export class DistressPredictionDashboardComponent
       'Raveling',
     ];
     this.cracksAndRutting = this.distressSummary
-      .filter((d) => cracksAndRuttingNames.includes(d.name))
-      .map((d) => ({ ...d, count: Math.round(d.count) }));
+      .filter((d) => cracksAndRuttingNames.includes(d.name));
+  }
+
+  /** Format Cracks & Rutting values as float (2 decimal places) - API returns meter values */
+  formatCracksAndRuttingValue(value: number): string {
+    const n = Number(value);
+    return Number.isFinite(n) ? n.toFixed(2) : '0';
   }
 
   async onDateChange(event: any) {

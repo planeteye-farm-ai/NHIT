@@ -21,6 +21,8 @@ interface DistressData {
   count: number;
   unit?: string;
   color: string;
+  /** True if count is a sum of float values (m) rather than item count */
+  isSumValue?: boolean;
 }
 
 interface FilterData {
@@ -1541,7 +1543,7 @@ export class RisReportedDashboardComponent
     return this.distressSummary.find(d => d.name === distressName)?.color || '#4CAF50';
   }
 
-  /** Distress types that use (m) unit in display - for Distress Summary panel */
+  /** Distress types that use (m) unit and sum float values - for Distress Summary panel */
   private distressTypesWithUnitM = new Set([
     'Alligator crack',
     'Transverse crack',
@@ -1558,6 +1560,29 @@ export class RisReportedDashboardComponent
   /** Returns distress label with (m) unit for types that use it */
   getDistressDisplayLabel(name: string): string {
     return this.distressTypesWithUnitM.has(name) ? `${name} (m)` : name;
+  }
+
+  /** Parse numeric value from API (handles number or string) */
+  private parseNumeric(value: number | string | undefined | null): number {
+    if (value == null || value === '') return 0;
+    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+    const s = String(value).replace(/,/g, '').trim();
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  /** Extract primary measurement (length m, area m², width m, depth mm) - prefer length for cracks */
+  private getItemMeasurementValue(item: DistressReportData): number {
+    const length = this.parseNumeric(item.length);
+    const area = this.parseNumeric(item.area);
+    const width = this.parseNumeric(item.width);
+    const depth = this.parseNumeric(item.depth);
+    // Prefer length (m) for cracks; fallback to area, width, depth
+    if (length > 0) return length;
+    if (area > 0) return area;
+    if (width > 0) return width;
+    if (depth > 0) return depth;
+    return 0;
   }
 
   // Get distress background color for chip
@@ -2299,13 +2324,21 @@ export class RisReportedDashboardComponent
     };
 
     this.distressSummary = allDistressTypes.map((distressType) => {
-      const count = filteredData.filter(
+      const matchingItems = filteredData.filter(
         (item) => item.distress_type === distressType
-      ).length;
+      );
+      const isSumType = this.distressTypesWithUnitM.has(distressType);
+      const count = isSumType
+        ? matchingItems.reduce(
+            (sum, item) => sum + this.getItemMeasurementValue(item),
+            0
+          )
+        : matchingItems.length;
       return {
         name: distressType,
         count: count,
         color: distressColors[distressType] || '#9E9E9E',
+        isSumValue: isSumType,
       };
     });
   }
@@ -2915,10 +2948,10 @@ export class RisReportedDashboardComponent
             <p style="margin: 5px 0; font-size: 12px;"><strong>Lat/Long:</strong> ${lat}, ${lng}</p>
             <p style="margin: 5px 0; font-size: 12px;"><strong>Chainage:</strong> ${item.chainage_start?.toFixed(2)} - ${item.chainage_end?.toFixed(2)} km</p>
             <p style="margin: 5px 0; font-size: 12px;"><strong>Direction:</strong> ${item.direction || 'N/A'}</p>
-            <p style="margin: 5px 0; font-size: 12px;"><strong>Area(M square):</strong> ${fmt(item.area)}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Area(M²):</strong> ${fmt(item.area)}</p>
             <p style="margin: 5px 0; font-size: 12px;"><strong>Length(M):</strong> ${fmt(item.length)}</p>
             <p style="margin: 5px 0; font-size: 12px;"><strong>Width(M):</strong> ${fmt(item.width)}</p>
-            <p style="margin: 5px 0; font-size: 12px;"><strong>Depth(MM):</strong> ${fmt(item.depth)}</p>
+            <p style="margin: 5px 0; font-size: 12px;"><strong>Depth(M):</strong> ${fmt(item.depth)}</p>
           </div>
         `);
 
@@ -2970,10 +3003,10 @@ export class RisReportedDashboardComponent
               <p style="margin:4px 0;"><strong>Lat/Long:</strong> ${lat}, ${lng}</p>
               <p style="margin:4px 0;"><strong>Chainage:</strong> ${item.chainage_start?.toFixed(2)} - ${item.chainage_end?.toFixed(2)} km</p>
               <p style="margin:4px 0;"><strong>Direction:</strong> ${item.direction || 'N/A'}</p>
-              <p style="margin:4px 0;"><strong>Area(M square):</strong> ${fmt(item.area)}</p>
+              <p style="margin:4px 0;"><strong>Area(M²):</strong> ${fmt(item.area)}</p>
               <p style="margin:4px 0;"><strong>Length(M):</strong> ${fmt(item.length)}</p>
               <p style="margin:4px 0;"><strong>Width(M):</strong> ${fmt(item.width)}</p>
-              <p style="margin:4px 0;"><strong>Depth(MM):</strong> ${fmt(item.depth)}</p>
+              <p style="margin:4px 0;"><strong>Depth(M):</strong> ${fmt(item.depth)}</p>
             </div>
           </div>`;
           marker.bindPopup(popupContent);
@@ -3264,6 +3297,9 @@ export class RisReportedDashboardComponent
   }
 
   formatDistressCount(distress: DistressData): string {
+    if (distress.isSumValue && typeof distress.count === 'number') {
+      return Number(distress.count).toFixed(2);
+    }
     return distress.count.toString();
   }
 
