@@ -404,23 +404,58 @@ getDistressKeys(row: any): string[] {
 }
 
  excelExport() {
-    let filename = `${this.filterDataShow.project_name} - Reported Distress Report.xlsx`;
-    let data = document.getElementById('distressReportExport');
-    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(data);
-    const wscols = [
-      { wpx: 150 }, // Distress Type		
-      { wpx: 100 }, // Latitude
-      { wpx: 100 }, // Longitude
-      { wpx: 100 }, // date
-
+    const headers = [
+      'Distress Type',
+      'Chainage Start',
+      'Chainage End',
+      'Latitude',
+      'Longitude',
+      'Carriage Type',
+      'Lane',
+      'Length (m)',
+      'Width (m)',
+      'Depth (m)',
+      'Area (m²)',
     ];
-
-    ws['!cols'] = wscols;
-
+    const excludeKeys = ['latitude', 'longitude', 'chainage_start', 'chainage_end', 'project_name', 'length', 'area', 'width', 'depth', 'total_distress', 'distress_type', 'carriage_type', 'lane'];
+    const rows: any[][] = [headers];
+    (this.tableData || []).forEach((row: any) => {
+      const distressKeys = Object.keys(row).filter(
+        (k) => !excludeKeys.includes(k) && typeof row[k] === 'number' && row[k] > 0
+      );
+      distressKeys.forEach((key) => {
+        rows.push([
+          key,
+          row.chainage_start != null ? Number(row.chainage_start).toFixed(3) : '-',
+          row.chainage_end != null ? Number(row.chainage_end).toFixed(3) : '-',
+          row.latitude ?? '-',
+          row.longitude ?? '-',
+          row.carriage_type ?? '-',
+          row.lane ?? '-',
+          row.length != null ? Number(row.length).toFixed(4) : '-',
+          row.width != null ? Number(row.width).toFixed(4) : '-',
+          row.depth != null ? Number(row.depth).toFixed(4) : '-',
+          row.area != null ? Number(row.area).toFixed(4) : '-',
+        ]);
+      });
+    });
+    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [
+      { wpx: 120 },
+      { wpx: 95 },
+      { wpx: 95 },
+      { wpx: 90 },
+      { wpx: 90 },
+      { wpx: 95 },
+      { wpx: 60 },
+      { wpx: 85 },
+      { wpx: 85 },
+      { wpx: 85 },
+      { wpx: 85 },
+    ];
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1')
-
-    XLSX.writeFile(wb, filename);
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, `${this.filterDataShow.project_name} - Reported Distress Report.xlsx`);
   }
 
   changeRange(project_name:any){
