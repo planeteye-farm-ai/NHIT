@@ -137,6 +137,7 @@ export class DistressPredictionDashboardComponent
   public map: any;
   public isBrowser: boolean;
   public isLoading: boolean = false;
+  isLoadingKml: boolean = false;
 
   // Flag to prevent duplicate data loads when project changes
   private isProjectChanging: boolean = false;
@@ -716,6 +717,10 @@ export class DistressPredictionDashboardComponent
 
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
+        }
+        // When a project is selected on Information System, show only that project in dropdown
+        if (this.projectSelection.selectedProject && match) {
+          this.availableProjects = [match];
         }
         this.cdr.detectChanges();
       }
@@ -1879,6 +1884,66 @@ export class DistressPredictionDashboardComponent
   formatCracksAndRuttingValue(value: number): string {
     const n = Number(value);
     return Number.isFinite(n) ? n.toFixed(2) : '0';
+  }
+
+  /** Convert UI date (e.g. DD-MM-YYYY) to API format YYYY-MM-DD for KML endpoint */
+  private convertDateFormat(dateString: string): string {
+    if (!dateString || !dateString.includes('-') || dateString.length < 10) return dateString;
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return dateString;
+    if (parts[0].length === 4) return dateString; // already YYYY-MM-DD
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+
+  /** Call distress_predic_filter_kml and download the returned KML file using current filters. */
+  async downloadKml(): Promise<void> {
+    if (!this.filters.projectName?.trim() || !this.filters.date) {
+      alert('Please select Project and Date before downloading KML.');
+      return;
+    }
+    this.isLoadingKml = true;
+    try {
+      const requestBody = {
+        chainage_start: Math.max(0, this.filters.chainageRange?.min ?? 0),
+        chainage_end: Math.min(1381, this.filters.chainageRange?.max ?? 1380),
+        date: this.convertDateFormat(this.filters.date),
+        direction:['All'],
+        project_name: [this.filters.projectName.trim()],
+        distress_type:['All'],
+      };
+
+      const response = await fetch(
+        'https://fantastic-reportapi-production.up.railway.app/distress_predic_filter_kml',
+        {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('KML API error:', response.status, text);
+        alert(`Download failed: ${response.status}. Check console for details.`);
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `distress-predicted-${(this.filters.projectName || 'data').replace(/\s+/g, '-')}-${this.filters.date || 'export'}.kml`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Download KML failed:', e);
+      alert('Download failed. Check console for details.');
+    } finally {
+      this.isLoadingKml = false;
+    }
   }
 
   async onDateChange(event: any) {

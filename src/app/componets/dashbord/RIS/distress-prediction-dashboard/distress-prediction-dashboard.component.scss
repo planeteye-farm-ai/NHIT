@@ -221,6 +221,19 @@
   hyphens: auto;
 }
 
+/* Download KML in filter row - align with other filters */
+.filter-group-download-kml {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: auto;
+  flex: 0 0 auto;
+}
+.filter-group-download-kml .download-kml-btn {
+  min-height: 34px;
+  white-space: nowrap;
+}
+
 /* Direction Buttons */
 .direction-buttons {
   display: flex;

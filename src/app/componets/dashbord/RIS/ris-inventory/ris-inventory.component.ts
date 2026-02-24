@@ -335,6 +335,10 @@ export class RisInventoryComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
         }
+        // When a project is selected on Information System, show only that project in dropdown
+        if (this.projectSelection.selectedProject && match) {
+          this.availableProjects = [match];
+        }
         this.cdr.detectChanges();
       }
 

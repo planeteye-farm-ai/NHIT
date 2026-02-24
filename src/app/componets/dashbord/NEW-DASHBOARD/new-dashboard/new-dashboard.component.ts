@@ -930,6 +930,14 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
       }
+
+      // When a project is selected on Information System, show only that project in dropdown
+      if (this.projectSelection.selectedProject && this.availableProjects.length > 0) {
+        const match = this.projectSelection.getMatchingProject(this.availableProjects);
+        if (match) {
+          this.availableProjects = [match];
+        }
+      }
       
       // Note: loadData() is called explicitly from onCardClick() to ensure
       // it loads data for ALL selected cards, not just when projects/dates are loaded
@@ -3814,6 +3822,10 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
+        }
+        // When a project is selected on Information System, show only that project in dropdown
+        if (this.projectSelection.selectedProject && matchFromSelection) {
+          this.availableProjects = [matchFromSelection];
         }
         this.cdr.detectChanges();
       }

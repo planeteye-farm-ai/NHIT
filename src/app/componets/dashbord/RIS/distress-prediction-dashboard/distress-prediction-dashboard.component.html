@@ -112,6 +112,18 @@
                 class="chainage-slider max-slider">
             </div>
           </div>
+
+          <div class="filter-group filter-group-download-kml">
+            <button 
+              class="comparison-chart-btn download-kml-btn"
+              (click)="downloadKml()"
+              [disabled]="isLoadingKml || !filters.projectName || !filters.date"
+              title="Download KML for current filters"
+            >
+              <i *ngIf="isLoadingKml" class="fas fa-spinner fa-spin"></i>
+              {{ isLoadingKml ? 'Downloading…' : 'Download KML' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
