@@ -237,10 +237,10 @@
               *ngFor="let distress of distressSummary" 
               class="asset-card"
               [class.selected]="selectedDistressType === distress.name"
-              [title]="distress.name"
+              [title]="getDistressDisplayLabel(distress.name)"
               (click)="onDistressCardClick(distress)">
               <div class="asset-info">
-                <div class="asset-name">{{ distress.name }}</div>
+                <div class="asset-name">{{ getDistressDisplayLabel(distress.name) }}</div>
                 <div class="asset-count">
                   {{ formatDistressCount(distress) }}
                 </div>

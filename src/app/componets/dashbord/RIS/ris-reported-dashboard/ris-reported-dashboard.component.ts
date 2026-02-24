@@ -1541,6 +1541,25 @@ export class RisReportedDashboardComponent
     return this.distressSummary.find(d => d.name === distressName)?.color || '#4CAF50';
   }
 
+  /** Distress types that use (m) unit in display - for Distress Summary panel */
+  private distressTypesWithUnitM = new Set([
+    'Alligator crack',
+    'Transverse crack',
+    'Hairline crack',
+    'Block crack',
+    'Hungry crack',
+    'Joint crack',
+    'Longitudinal crack',
+    'Simple crack',
+    'Discrete crack',
+    'Rutting',
+  ]);
+
+  /** Returns distress label with (m) unit for types that use it */
+  getDistressDisplayLabel(name: string): string {
+    return this.distressTypesWithUnitM.has(name) ? `${name} (m)` : name;
+  }
+
   // Get distress background color for chip
   getDistressChipBackgroundColor(distressName: string): string {
     return this.isDistressSelectedForComparison(distressName) 
@@ -2225,18 +2244,18 @@ export class RisReportedDashboardComponent
 
     // Define all distress types from the image
     const allDistressTypes = [
-      'Alligator crack (m)',
-      'Transverse crack (m)',
-      'Hairline crack (m)',
-      'Block crack (m)',
+      'Alligator crack',
+      'Transverse crack',
+      'Hairline crack',
+      'Block crack',
       'Edge Break',
       'Heaves',
-      'Hungry crack (m)',
+      'Hungry crack',
       'Hotspots',
-      'Joint crack (m)',
+      'Joint crack',
       'Joint seal defects',
       'Slippage',
-      'Longitudinal crack (m)',
+      'Longitudinal crack',
       'Multiple cracks',
       'Bleeding',
       'Stripping',
@@ -2245,10 +2264,10 @@ export class RisReportedDashboardComponent
       'Punchout',
       'Settlement',
       'Raveling',
-      'Simple crack (m)',
-      'Discrete crack (m)',
+      'Simple crack',
+      'Discrete crack',
       'Shoving',
-      'Rutting (m)',
+      'Rutting',
     ];
 
     // Define colors for distress types
