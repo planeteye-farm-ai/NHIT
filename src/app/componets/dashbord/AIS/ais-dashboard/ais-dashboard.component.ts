@@ -239,8 +239,7 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         const match = this.projectSelection.getMatchingProject(this.availableProjects);
         this.filters.projectName = match || this.availableProjects[0];
 
-        this.availableDates =
-          this.projectDatesMap[this.filters.projectName] || [];
+        this.availableDates = (this.projectDatesMap[this.filters.projectName] || []).slice().sort((a, b) => b.localeCompare(a));
 
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
@@ -1389,7 +1388,7 @@ export class AisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filters.projectName = newProject;
 
     // Update available dates for the selected project
-    this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
+    this.availableDates = (this.projectDatesMap[this.filters.projectName] || []).slice().sort((a, b) => b.localeCompare(a));
     console.log('Available dates for project:', this.availableDates);
 
     // Set first date as default or clear if no dates available

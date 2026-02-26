@@ -732,6 +732,40 @@
   min-height: 0;
 }
 
+/* Distress sections: point distresses + Cracks & Rutting (Meter) */
+.right-panel .distress-sections-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.right-panel .distress-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.right-panel .section-header {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 6px 10px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 12px;
+  color: #ffffff;
+  margin-top: 4px;
+}
+
+.right-panel .distress-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
 .right-panel .asset-card {
   background: rgba(255, 255, 255, 0.08); /* Slightly darker for better contrast */
   // border: 1px solid rgba(255, 255, 255, 0.1);

@@ -40,7 +40,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of tableData; track $index) {
+            @for (row of displayedTableData; track $index) {
             <tr>
               <td>{{ row.name_of_road }}</td>
               <td>{{ row.road_section_no }}</td>

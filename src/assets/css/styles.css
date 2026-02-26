@@ -2545,8 +2545,8 @@ progress {
   display: flex;
   flex-wrap: wrap;
   margin-block-start: calc(-1 * var(--bs-gutter-y));
-  margin-inline-end: calc(-0.5 * var(--bs-gutter-x));
-  margin-inline-start: calc(-0.5 * var(--bs-gutter-x));
+  margin-inline-end: calc(0.1* var(--bs-gutter-x));
+  margin-inline-start: calc(0.1* var(--bs-gutter-x));
 }
 
 .row > * {

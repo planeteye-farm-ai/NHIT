@@ -57,6 +57,7 @@ interface DistressReportData {
   length?: number | string;
   width?: number | string;
   depth?: number | string;
+  _rawItem?: any;
 }
 
 @Component({
@@ -106,6 +107,10 @@ export class RisReportedDashboardComponent
 
   // Distress summary data - calculated from raw data
   distressSummary: DistressData[] = [];
+
+  // Point distresses (others) and Cracks & Rutting (Meter) - for split layout like predicted dashboard
+  pointDistresses: DistressData[] = [];
+  cracksAndRutting: DistressData[] = [];
 
   // Chart data for chainage - ECharts format
   chainageData: any[] = [];
@@ -1562,6 +1567,11 @@ export class RisReportedDashboardComponent
     return this.distressTypesWithUnitM.has(name) ? `${name} (m)` : name;
   }
 
+  /** Returns distress label with "crack"/"cracks" removed for card display */
+  getDistressLabelWithoutCrack(name: string): string {
+    return name.replace(/\s+cracks?\b/gi, '').trim();
+  }
+
   /** Parse numeric value from API (handles number or string) */
   private parseNumeric(value: number | string | undefined | null): number {
     if (value == null || value === '') return 0;
@@ -1572,11 +1582,12 @@ export class RisReportedDashboardComponent
   }
 
   /** Extract primary measurement (length m, area m², width m, depth mm) - prefer length for cracks */
-  private getItemMeasurementValue(item: DistressReportData): number {
-    const length = this.parseNumeric(item.length);
-    const area = this.parseNumeric(item.area);
-    const width = this.parseNumeric(item.width);
-    const depth = this.parseNumeric(item.depth);
+  private getItemMeasurementValue(item: DistressReportData & { _rawItem?: any }): number {
+    const raw = item._rawItem || item;
+    const length = this.parseNumeric(item.length ?? raw.length ?? raw.length_m ?? raw.length_mm);
+    const area = this.parseNumeric(item.area ?? raw.area ?? raw.area_sqm ?? raw.area_sq_m);
+    const width = this.parseNumeric(item.width ?? raw.width ?? raw.width_m ?? raw.width_mm);
+    const depth = this.parseNumeric(item.depth ?? raw.depth ?? raw.depth_mm ?? raw.depth_m);
     // Prefer length (m) for cracks; fallback to area, width, depth
     if (length > 0) return length;
     if (area > 0) return area;
@@ -2018,8 +2029,7 @@ export class RisReportedDashboardComponent
         const match = this.projectSelection.getMatchingProject(this.availableProjects);
         this.filters.projectName = match || this.availableProjects[0];
 
-        this.availableDates =
-          this.projectDatesMap[this.filters.projectName] || [];
+        this.availableDates = (this.projectDatesMap[this.filters.projectName] || []).slice().sort((a, b) => b.localeCompare(a));
 
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
@@ -2121,6 +2131,7 @@ export class RisReportedDashboardComponent
         length: item.length ?? item.length_m ?? item.length_mm,
         width: item.width ?? item.width_m ?? item.width_mm,
         depth: item.depth ?? item.depth_mm ?? item.depth_m,
+        _rawItem: item,
       }));
 
       this.extractFilterOptions();
@@ -2295,7 +2306,6 @@ export class RisReportedDashboardComponent
       'Raveling',
       'Simple crack',
       'Discrete crack',
-      'Shoving',
       'Rutting',
     ];
 
@@ -2332,12 +2342,17 @@ export class RisReportedDashboardComponent
         (item) => item.distress_type === distressType
       );
       const isSumType = this.distressTypesWithUnitM.has(distressType);
-      const count = isSumType
-        ? matchingItems.reduce(
-            (sum, item) => sum + this.getItemMeasurementValue(item),
-            0
-          )
-        : matchingItems.length;
+      let count: number;
+      if (isSumType) {
+        const sum = matchingItems.reduce(
+          (s, item) => s + this.getItemMeasurementValue(item),
+          0
+        );
+        // Fallback to count when no measurement data (sum 0) but items exist
+        count = sum > 0 ? sum : matchingItems.length;
+      } else {
+        count = matchingItems.length;
+      }
       return {
         name: distressType,
         count: count,
@@ -2345,6 +2360,33 @@ export class RisReportedDashboardComponent
         isSumValue: isSumType,
       };
     });
+
+    // Split for layout: Cracks & Rutting (Meter) section + rest as point distresses
+    const cracksAndRuttingNames = [
+      'Alligator crack',
+      'Transverse crack',
+      'Hairline crack',
+      'Block crack',
+      'Hungry crack',
+      'Joint crack',
+      'Longitudinal crack',
+      'Simple crack',
+      'Discrete crack',
+      'Multiple cracks',
+      'Rutting',
+    ];
+    this.cracksAndRutting = cracksAndRuttingNames
+      .map((name) => this.distressSummary.find((d) => d.name === name))
+      .filter((d): d is DistressData => d != null);
+    this.pointDistresses = this.distressSummary.filter(
+      (d) => !cracksAndRuttingNames.includes(d.name)
+    );
+  }
+
+  /** Format Cracks & Rutting values as float (2 decimal places) - meter values */
+  formatCracksAndRuttingValue(value: number): string {
+    const n = Number(value);
+    return Number.isFinite(n) ? n.toFixed(2) : '0';
   }
 
   updateChainageData() {
@@ -3399,7 +3441,7 @@ export class RisReportedDashboardComponent
     this.filters.projectName = newProject;
 
     // Update available dates for the selected project
-    this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
+    this.availableDates = (this.projectDatesMap[this.filters.projectName] || []).slice().sort((a, b) => b.localeCompare(a));
     console.log('Available dates for project:', this.availableDates);
 
     // Set first date as default or clear if no dates available

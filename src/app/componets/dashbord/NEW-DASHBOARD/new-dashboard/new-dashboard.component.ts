@@ -910,16 +910,15 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         const match = this.projectSelection.getMatchingProject(this.availableProjects);
         this.filters.projectName = match || this.availableProjects[0];
 
-        this.availableDates =
-          this.projectDatesMap[this.filters.projectName] || [];
+        this.availableDates = (this.projectDatesMap[this.filters.projectName] || []).slice().sort((a, b) => b.localeCompare(a));
 
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
         }
         this.cdr.detectChanges();
       } else if (this.filters.projectName) {
-        // Update available dates for currently selected project
-        this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
+        // Update available dates for currently selected project (latest first)
+        this.availableDates = (this.projectDatesMap[this.filters.projectName] || []).slice().sort((a, b) => b.localeCompare(a));
         
         // If current date is not in available dates, reset to first available date
         if (this.filters.date && !this.availableDates.includes(this.filters.date)) {
@@ -3525,7 +3524,7 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.filters.projectName = newProject;
 
-    this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
+    this.availableDates = (this.projectDatesMap[this.filters.projectName] || []).slice().sort((a, b) => b.localeCompare(a));
 
     if (this.availableDates.length > 0) {
       this.filters.date = this.availableDates[0];
@@ -3809,7 +3808,7 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       // Restore or set project: prefer current selection, then globally selected, then first available
       if (currentProject && this.availableProjects.includes(currentProject)) {
         this.filters.projectName = currentProject;
-        this.availableDates = this.projectDatesMap[currentProject] || [];
+        this.availableDates = (this.projectDatesMap[currentProject] || []).slice().sort((a, b) => b.localeCompare(a));
         if (currentDate && this.availableDates.includes(currentDate)) {
           this.filters.date = currentDate;
         } else if (this.availableDates.length > 0) {
@@ -3819,7 +3818,7 @@ export class NewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         // Previous project missing or first load: use globally selected project if it matches
         const matchFromSelection = this.projectSelection.getMatchingProject(this.availableProjects);
         this.filters.projectName = matchFromSelection || this.availableProjects[0];
-        this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
+        this.availableDates = (this.projectDatesMap[this.filters.projectName] || []).slice().sort((a, b) => b.localeCompare(a));
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
         }

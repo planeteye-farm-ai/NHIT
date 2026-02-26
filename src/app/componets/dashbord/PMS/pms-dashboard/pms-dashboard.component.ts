@@ -108,7 +108,7 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Zoom-based visualization properties
   private currentZoomLevel: number = 10;
-  private zoomThreshold: number = 16;
+  private zoomThreshold: number = 17;
   private distressMarkers: any[] = [];
   private iconCache: Map<string, any> = new Map();
 
@@ -214,8 +214,7 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         const match = this.projectSelection.getMatchingProject(this.availableProjects);
         this.filters.projectName = match || this.availableProjects[0];
 
-        this.availableDates =
-          this.projectDatesMap[this.filters.projectName] || [];
+        this.availableDates = (this.projectDatesMap[this.filters.projectName] || []).slice().sort((a, b) => b.localeCompare(a));
 
         if (this.availableDates.length > 0) {
           this.filters.date = this.availableDates[0];
@@ -690,6 +689,72 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return colorMap[distressType] || '#006600';
   }
 
+  /** Get RI index or PCS value from raw item - checks multiple possible API field names */
+  private getRiIndexFromItem(item: DistressReportData): string | number | undefined {
+    const raw = item._rawItem || {};
+    const ri =
+      raw.iri_index ??
+      raw.IRI_Index ??
+      raw.iri ??
+      raw.IRIndex ??
+      raw.ri_index ??
+      raw.IRI_INDEX ??
+      raw['iri_index'] ??
+      raw['IRI Index'] ??
+      raw['IRI_Index'];
+    if (ri !== undefined && ri !== null && ri !== '') return ri;
+    // Fallback to PCS (pavement condition score) when iri_index not available
+    const pcs = raw['pavement_condition_score_(pcs):'] ?? item.distress_type;
+    const pcsNum = typeof pcs === 'number' ? pcs : parseFloat(String(pcs));
+    return !isNaN(pcsNum) ? pcsNum : undefined;
+  }
+
+  /** Get color for RI Index (iri_index) or PCS - used for map markers on initial load */
+  private getRiIndexColor(iriIndex: string | number | undefined): string {
+    if (iriIndex === undefined || iriIndex === null || iriIndex === '') return '#666666';
+    const str = String(iriIndex).trim().toLowerCase();
+    const colorMap: { [key: string]: string } = {
+      'very good': '#4CAF50',
+      good: '#8BC34A',
+      fair: '#FFC107',
+      poor: '#FF9800',
+      'very poor': '#F44336',
+    };
+    const color = colorMap[str];
+    if (color) return color;
+    const num = parseFloat(String(iriIndex));
+    if (isNaN(num)) return '#666666';
+    // PCS (0-100, higher=better): treat as PCS if > 20
+    if (num > 20) {
+      if (num >= 85) return '#4CAF50';
+      if (num >= 70) return '#8BC34A';
+      if (num >= 55) return '#FFC107';
+      if (num >= 40) return '#FF9800';
+      return '#F44336';
+    }
+    // IRI (m/km): 0-2 Good, 2-4 Fair, 4-6 Poor, 6+ Very Poor
+    if (num < 2) return '#4CAF50';
+    if (num < 4) return '#FFC107';
+    if (num < 6) return '#FF9800';
+    return '#F44336';
+  }
+
+  /** Get icon HTML for RI Index - used for zoomed-in map markers */
+  private getRiIndexIcon(iriIndex: string | number | undefined): string {
+    const color = this.getRiIndexColor(iriIndex);
+    const icon =
+      color === '#F44336' || color === '#FF9800'
+        ? 'fa-solid fa-circle-exclamation'
+        : color === '#FFC107'
+          ? 'fa-solid fa-circle-exclamation'
+          : 'fa-solid fa-circle-check';
+    return `
+      <div style="width:28px;height:28px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;">
+        <i class="${icon}" style="color:#fff;font-size:14px;"></i>
+      </div>
+    `;
+  }
+
   updateChart() {
     if (this.chartOptions) {
       this.chartOptions = { ...this.chartOptions };
@@ -849,7 +914,8 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private async showColorfulPoints(filteredData: DistressReportData[], L: any) {
     filteredData.forEach((item) => {
       if (item.latitude && item.longitude) {
-        const color = this.getDistressColor(item.distress_type);
+        const riValue = this.getRiIndexFromItem(item);
+        const color = this.getRiIndexColor(riValue);
         const marker = L.circleMarker([item.latitude, item.longitude], {
           radius: 6,
           fillColor: color,
@@ -900,25 +966,21 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       for (let i = currentIndex; i < endIndex; i++) {
         const item = filteredData[i];
         if (item.latitude && item.longitude) {
-          // Normalize distress type for stable caching and lookup
-          const normalizedType = (item.distress_type || 'Unknown')
-            .toString()
-            .toLowerCase()
-            .trim();
+          const riValue = this.getRiIndexFromItem(item);
+          const cacheKey = (riValue ?? 'unknown').toString();
 
-          // Use cached icon or create new one
-          let customIcon = this.iconCache.get(normalizedType);
+          // Use cached icon or create new one - cache by RI index for correct colors
+          let customIcon = this.iconCache.get(cacheKey);
 
           if (!customIcon) {
-            const iconHtml = this.getDistressIcon(normalizedType);
+            const iconHtml = this.getRiIndexIcon(riValue);
             customIcon = L.divIcon({
               html: iconHtml,
               className: 'custom-distress-icon',
               iconSize: [28, 28],
               iconAnchor: [14, 14],
             });
-            // Cache the icon for reuse
-            this.iconCache.set(normalizedType, customIcon);
+            this.iconCache.set(cacheKey, customIcon);
           }
 
           const marker = L.marker([item.latitude, item.longitude], {
@@ -927,7 +989,7 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
           // Create popup only when clicked - saves memory
           marker.on('click', () => {
-            const color = this.getDistressColor(item.distress_type);
+            const color = this.getRiIndexColor(riValue);
             const popup = `<div style="padding:8px;"><div style="color:${color};font-weight:bold;margin-bottom:5px;">${
               item.project_name
             }</div><div style="font-size:11px;">Ch: ${item.chainage_start?.toFixed(
@@ -1150,7 +1212,7 @@ export class PmsDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filters.projectName = newProject;
 
     // Update available dates for the selected project
-    this.availableDates = this.projectDatesMap[this.filters.projectName] || [];
+    this.availableDates = (this.projectDatesMap[this.filters.projectName] || []).slice().sort((a, b) => b.localeCompare(a));
     console.log('Available dates for project:', this.availableDates);
 
     // Set first date as default or clear if no dates available

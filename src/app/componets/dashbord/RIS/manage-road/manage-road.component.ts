@@ -1,4 +1,4 @@
-import { Component, Renderer2 } from '@angular/core';
+import { Component, Renderer2, OnDestroy } from '@angular/core';
 import { ShowcodeCardComponent } from '../../../../shared/common/includes/showcode-card/showcode-card.component';
 import * as prismCodeData from '../../../../shared/prismData/tables';
 import { SharedModule } from '../../../../shared/common/sharedmodule';
@@ -12,6 +12,8 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RoadService } from './road.service';
 import { HttpClient } from '@angular/common/http';
+import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-manage-road',
@@ -28,22 +30,59 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './manage-road.component.html',
   styleUrl: './manage-road.component.scss',
 })
-export class ManageRoadComponent {
+export class ManageRoadComponent implements OnDestroy {
   prismCode = prismCodeData;
   content: any;
   tableData: any;
+  /** Filtered table rows - only selected project when set from Information System */
+  displayedTableData: any[] = [];
   selectedId: number | null = null;
+  private destroy$ = new Subject<void>();
 
   constructor(
     config: NgbModalConfig,
     private modalService: NgbModal,
     private toastr: ToastrService,
     private roadService: RoadService,
-    private http: HttpClient
+    private http: HttpClient,
+    private projectSelection: ProjectSelectionService
   ) {}
 
   ngOnInit(): void {
+    this.projectSelection.selectedProject$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.applyProjectFilter());
     this.getRoadData();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /** Filter table to show only the project selected in Information System */
+  private applyProjectFilter(): void {
+    if (!this.tableData) {
+      this.displayedTableData = [];
+      return;
+    }
+    const selected = this.projectSelection.selectedProject;
+    if (!selected?.trim()) {
+      this.displayedTableData = [...this.tableData];
+      return;
+    }
+    const normalized = (selected || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+    this.displayedTableData = this.tableData.filter((row: any) => {
+      const name = (row.name_of_road || '')
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ');
+      return name === normalized;
+    });
   }
 
   getRoadData() {
@@ -105,7 +144,11 @@ export class ManageRoadComponent {
         } else {
           // No test roads, just show API roads
           this.tableData = apiRoads;
+        }
 
+        this.applyProjectFilter();
+
+        if (!testRoads?.length) {
           this.toastr.success(
             `Loaded ${apiRoads.length} roads from API`,
             'Roads Loaded',
@@ -141,6 +184,7 @@ export class ManageRoadComponent {
           }));
 
           this.tableData = formattedTestRoads;
+          this.applyProjectFilter();
 
           this.toastr.warning(
             'Failed to load API roads. Showing localStorage roads only.',
@@ -155,6 +199,7 @@ export class ManageRoadComponent {
           this.roadService.getRoadData().subscribe((res) => {
             console.log('road data list from original API', res);
             this.tableData = res.data;
+            this.applyProjectFilter();
           });
         }
       }

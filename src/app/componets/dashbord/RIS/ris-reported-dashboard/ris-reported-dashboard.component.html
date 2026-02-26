@@ -219,7 +219,7 @@
               </button> -->
             </div>
           </div>
-          <div class="asset-grid mobile-grid">
+          <div class="asset-grid mobile-grid distress-sections-wrapper">
             <div class="section-loading-overlay" *ngIf="isLoading">
               <div class="section-loading-content">
                 <div class="loading-spinner small"></div>
@@ -233,16 +233,34 @@
               <div class="loading-spinner"></div>
               <p>Loading distress data...</p>
             </div>
-            <div 
-              *ngFor="let distress of distressSummary" 
-              class="asset-card"
-              [class.selected]="selectedDistressType === distress.name"
-              [title]="getDistressDisplayLabel(distress.name)"
-              (click)="onDistressCardClick(distress)">
-              <div class="asset-info">
-                <div class="asset-name">{{ getDistressDisplayLabel(distress.name) }}</div>
-                <div class="asset-count">
-                  {{ formatDistressCount(distress) }}
+            <div *ngIf="filters.date && rawData.length > 0" class="distress-sections">
+              <!-- Other distresses (point / non–cracks-and-rutting) -->
+              <div class="distress-grid">
+                <div 
+                  *ngFor="let distress of pointDistresses" 
+                  class="asset-card"
+                  [class.selected]="selectedDistressType === distress.name"
+                  [title]="getDistressLabelWithoutCrack(distress.name)"
+                  (click)="onDistressCardClick(distress)">
+                  <div class="asset-info">
+                    <div class="asset-name">{{ getDistressLabelWithoutCrack(distress.name) }}</div>
+                    <div class="asset-count">{{ formatDistressCount(distress) }}</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Cracks & Rutting (Meter) Section -->
+              <div class="section-header">Cracks & Rutting (Meter)</div>
+              <div class="distress-grid">
+                <div 
+                  *ngFor="let distress of cracksAndRutting" 
+                  class="asset-card"
+                  [class.selected]="selectedDistressType === distress.name"
+                  [title]="getDistressLabelWithoutCrack(distress.name)"
+                  (click)="onDistressCardClick(distress)">
+                  <div class="asset-info">
+                    <div class="asset-name">{{ getDistressLabelWithoutCrack(distress.name) }}</div>
+                    <div class="asset-count">{{ formatCracksAndRuttingValue(distress.count) }}</div>
+                  </div>
                 </div>
               </div>
             </div>
