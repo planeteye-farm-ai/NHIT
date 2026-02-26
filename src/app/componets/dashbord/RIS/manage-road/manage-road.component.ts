@@ -14,6 +14,7 @@ import { RoadService } from './road.service';
 import { HttpClient } from '@angular/common/http';
 import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
 import { Subject, takeUntil } from 'rxjs';
+import { AddInventoryComponent } from './road-inventory/add-inventory/add-inventory.component';
 
 @Component({
   selector: 'app-manage-road',
@@ -26,6 +27,7 @@ import { Subject, takeUntil } from 'rxjs';
     FormsModule,
     RouterLink,
     ShowcodeCardComponent,
+    AddInventoryComponent,
   ],
   templateUrl: './manage-road.component.html',
   styleUrl: './manage-road.component.scss',
@@ -37,6 +39,8 @@ export class ManageRoadComponent implements OnDestroy {
   /** Filtered table rows - only selected project when set from Information System */
   displayedTableData: any[] = [];
   selectedId: number | null = null;
+  /** Row selected for Add Inventory - when set, show form below table */
+  selectedRoadForInventory: any = null;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -277,5 +281,15 @@ export class ManageRoadComponent implements OnDestroy {
   open(content: any, id: any) {
     this.selectedId = id;
     this.modalService.open(content);
+  }
+
+  /** Open Add Road Inventory form below the table for the clicked row */
+  openAddInventoryForm(row: any) {
+    this.selectedRoadForInventory = row;
+  }
+
+  /** Close Add Road Inventory form */
+  closeAddInventoryForm() {
+    this.selectedRoadForInventory = null;
   }
 }

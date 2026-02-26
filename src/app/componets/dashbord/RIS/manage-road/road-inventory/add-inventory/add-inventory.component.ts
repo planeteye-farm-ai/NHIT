@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { SharedModule } from '../../../../../../shared/common/sharedmodule';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
@@ -30,10 +30,16 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './add-inventory.component.html',
   styleUrl: './add-inventory.component.scss',
 })
-export class AddInventoryComponent {
+export class AddInventoryComponent implements OnInit, OnChanges {
   inventoryForm!: FormGroup;
   roadId: any;
   roadName: any;
+
+  /** When embedded in manage-road, receive road details from parent */
+  @Input() roadIdInput?: number;
+  @Input() roadNameInput?: string;
+  @Input() embeddedMode = false;
+  @Output() formClosed = new EventEmitter<void>();
   roadList: any[] = [];
 
   // Dynamic Roads from API
@@ -221,11 +227,31 @@ export class AddInventoryComponent {
     // Load dynamic roads from API
     this.loadDynamicRoads();
 
-    this.route.paramMap.subscribe((params) => {
-      this.roadId = Number(params.get('id'));
+    if (this.roadIdInput != null && this.roadNameInput) {
+      this.roadId = this.roadIdInput;
+      this.roadName = this.roadNameInput;
+      this.selectedRoadName = this.roadNameInput;
       this.loadRoadList();
-      this.loadRoadName();
-    });
+      this.loadChainageRange(this.roadNameInput);
+    } else {
+      this.route.paramMap.subscribe((params) => {
+        this.roadId = Number(params.get('id'));
+        this.loadRoadList();
+        this.loadRoadName();
+      });
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ((changes['roadIdInput'] || changes['roadNameInput']) && this.roadIdInput != null && this.roadNameInput) {
+      this.roadId = this.roadIdInput;
+      this.roadName = this.roadNameInput;
+      this.selectedRoadName = this.roadNameInput;
+      if (this.inventoryForm) {
+        this.loadRoadList();
+        this.loadChainageRange(this.roadNameInput);
+      }
+    }
   }
 
   // Load roads dynamically from API
@@ -1206,11 +1232,16 @@ export class AddInventoryComponent {
       );
     }
 
-    // Navigate to road inventory list only if at least one succeeded
+    // Navigate or close form
     if (apiSuccessCount > 0) {
-      setTimeout(() => {
-        this.router.navigate(['/ris/road-manage/road-inventory', this.roadId]);
-      }, 500);
+      if (this.embeddedMode) {
+        this.toastr.success('Inventory added successfully', 'Success');
+        this.formClosed.emit();
+      } else {
+        setTimeout(() => {
+          this.router.navigate(['/ris/road-manage/road-inventory', this.roadId]);
+        }, 500);
+      }
     }
   }
 
@@ -1355,10 +1386,14 @@ export class AddInventoryComponent {
         }
       );
 
-      // Navigate to road inventory list after a short delay
-      setTimeout(() => {
-        this.router.navigate(['/ris/road-manage/road-inventory', this.roadId]);
-      }, 500);
+      // Navigate or close form when embedded
+      if (this.embeddedMode) {
+        this.formClosed.emit();
+      } else {
+        setTimeout(() => {
+          this.router.navigate(['/ris/road-manage/road-inventory', this.roadId]);
+        }, 500);
+      }
     } else {
       this.toastr.error('Failed to submit to API. Please try again.', 'Error', {
         timeOut: 4000,

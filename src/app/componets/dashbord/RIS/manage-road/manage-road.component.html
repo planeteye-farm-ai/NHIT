@@ -102,10 +102,7 @@
                   <a
                     href="javascript:void(0);"
                     title="Inventory"
-                    [routerLink]="[
-                      '/ris/road-manage/road-inventory',
-                      row.geometry_data_id
-                    ]"
+                    (click)="openAddInventoryForm(row)"
                     class="btn btn-icon btn-sm btn-primary-transparent rounded-pill"
                     ><i class="bi bi-boxes"></i
                   ></a>
@@ -116,6 +113,18 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Add Road Inventory form - shown below table when Inventory icon is clicked -->
+      @if (selectedRoadForInventory) {
+        <div class="mt-4 add-inventory-embedded">
+          <app-add-inventory
+            [roadIdInput]="selectedRoadForInventory.geometry_data_id"
+            [roadNameInput]="selectedRoadForInventory.name_of_road"
+            [embeddedMode]="true"
+            (formClosed)="closeAddInventoryForm()"
+          ></app-add-inventory>
+        </div>
+      }
     </app-showcode-card>
   </div>
 </div>

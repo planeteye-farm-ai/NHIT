@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ShowcodeCardComponent } from '../../../../shared/common/includes/showcode-card/showcode-card.component';
 import * as prismCodeData from '../../../../shared/prismData/tables';
 import { SharedModule } from '../../../../shared/common/sharedmodule';
@@ -16,6 +16,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../report.service';
+import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
+import { Subject, takeUntil } from 'rxjs';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -36,7 +38,7 @@ import autoTable from 'jspdf-autotable';
   templateUrl: './inventory-report.component.html',
   styleUrl: './inventory-report.component.scss',
 })
-export class InventoryReportComponent {
+export class InventoryReportComponent implements OnInit, OnDestroy {
   filterForm!: FormGroup;
   prismCode = prismCodeData;
   content: any;
@@ -80,6 +82,9 @@ export class InventoryReportComponent {
   ];
 
   assetListWithSelectAll = [];
+  /** Project list for dropdown - filtered by Information System selection */
+  displayedProjectNameList: string[] = [];
+
   inventoryReport: any;
   tableData: any;
   currentDate: any;
@@ -89,17 +94,21 @@ export class InventoryReportComponent {
   inventoryArray: any;
   // form!: FormGroup;
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     config: NgbModalConfig,
     private modalService: NgbModal,
     private toastr: ToastrService,
     private inventoryReportService: ReportService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private projectSelection: ProjectSelectionService
   ) {}
 
   ngOnInit(): void {
-    // const currentDate = new Date();
-    // this.currentDate = currentDate.toISOString().split('T')[0];
+    this.projectSelection.selectedProject$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.updateDisplayedProjects());
 
     const defaultDate = new Date(2025, 5, 21); // Note: Month is 0-indexed, so 5 = June
     const formattedDate = defaultDate.toISOString().split('T')[0]; // Gives '2025-06-20'
@@ -112,6 +121,26 @@ export class InventoryReportComponent {
       chainage_end: [''],
       asset_type: [[]],
     });
+
+    this.updateDisplayedProjects();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private updateDisplayedProjects(): void {
+    const selected = this.projectSelection.selectedProject;
+    if (selected?.trim()) {
+      const match = this.projectSelection.getMatchingProject(this.projectNameList);
+      this.displayedProjectNameList = match ? [match] : this.projectNameList;
+      if (match && this.filterForm) {
+        this.filterForm.patchValue({ project_name: match });
+      }
+    } else {
+      this.displayedProjectNameList = [...this.projectNameList];
+    }
   }
 
   filterDistress() {

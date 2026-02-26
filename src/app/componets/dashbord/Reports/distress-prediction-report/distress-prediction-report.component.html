@@ -10,7 +10,7 @@
                     
                     <select class="form-select" style="width: auto; min-width: 100px;" id="project_name" formControlName="project_name" (change)="changeRange(filterForm.get('project_name')?.value)">
                         <option value="null" selected disabled>Select Projects</option>
-                        @for (row of projectNameList; track $index) {
+                        @for (row of displayedProjectNameList; track $index) {
                             <option value="{{row}}">{{row}}</option>
                         }
                     </select>&nbsp;&nbsp;

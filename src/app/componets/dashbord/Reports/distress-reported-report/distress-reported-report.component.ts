@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ShowcodeCardComponent } from '../../../../shared/common/includes/showcode-card/showcode-card.component';
 import * as prismCodeData from '../../../../shared/prismData/tables';
 import { SharedModule } from '../../../../shared/common/sharedmodule';
@@ -11,6 +11,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../report.service';
+import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
+import { Subject, takeUntil } from 'rxjs';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -22,11 +24,13 @@ import autoTable from 'jspdf-autotable';
   templateUrl: './distress-reported-report.component.html',
   styleUrl: './distress-reported-report.component.scss'
 })
-export class DistressReportedReportComponent {
+export class DistressReportedReportComponent implements OnInit, OnDestroy {
  filterForm!: FormGroup;
   prismCode = prismCodeData;
   content: any;
    projectNameList = ["Agra Bypass Road", "Abu Road to Swaroopganj","Borkhedi to Wadner","Chittorgarh to kota","Shivpuri to Jhasi","Kochugaon to Kaljhar-1","Kochugaon to Kaljhar-2","Kaljhar to Patacharkuchi"];
+  /** Project list for dropdown - filtered by Information System selection */
+  displayedProjectNameList: string[] = [];
   directionList = ["Increasing", "Decreasing"];
   distressReport:any;
   tableData:any
@@ -64,16 +68,17 @@ export class DistressReportedReportComponent {
     "Stripping",
     "Settlement"
   ]
+   private destroy$ = new Subject<void>();
+
    constructor(config: NgbModalConfig,
     private modalService: NgbModal,
     private toastr: ToastrService,
     private inventoryReportService: ReportService,
     private fb: FormBuilder,
-  ) {
+    private projectSelection: ProjectSelectionService
+  ) {}
 
-  }
-
-  ngOnInit(): void {
+   ngOnInit(): void {
     // const currentDate = new Date();
     // this.currentDate = currentDate.toISOString().split('T')[0];
      const defaultDate = new Date(2025, 5, 21); // Note: Month is 0-indexed, so 5 = June
@@ -89,7 +94,28 @@ export class DistressReportedReportComponent {
       distress_type: [[]],
     });
 
-    
+    this.projectSelection.selectedProject$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.updateDisplayedProjects());
+    this.updateDisplayedProjects();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private updateDisplayedProjects(): void {
+    const selected = this.projectSelection.selectedProject;
+    if (selected?.trim()) {
+      const match = this.projectSelection.getMatchingProject(this.projectNameList);
+      this.displayedProjectNameList = match ? [match] : this.projectNameList;
+      if (match && this.filterForm) {
+        this.filterForm.patchValue({ project_name: match });
+      }
+    } else {
+      this.displayedProjectNameList = [...this.projectNameList];
+    }
   }
 
   // filterDistress(){
