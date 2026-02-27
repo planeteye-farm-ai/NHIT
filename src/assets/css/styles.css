@@ -33998,7 +33998,7 @@ code[class*=language-] {
 }
 
 .text-white {
-  color: var(--custom-white) !important;
+  color: var(--custom-white);
 }
 
 .text-fixed-white {

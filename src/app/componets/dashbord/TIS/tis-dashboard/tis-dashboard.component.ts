@@ -1978,13 +1978,21 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (error instanceof Error) {
         errorMessage = error.message;
-        // Check for specific Google Maps API errors
         if (
+          errorMessage.includes('ApiNotActivatedMapError') ||
+          errorMessage.includes('api-not-activated')
+        ) {
+          errorMessage =
+            'Google Maps API is not activated. Please enable the Maps JavaScript API and Directions API in the Google Cloud Console.';
+        } else if (
           errorMessage.includes('DeletedApiProjectMapError') ||
           errorMessage.includes('deleted-api-project')
         ) {
           errorMessage =
             'Google Maps API key is invalid or the project has been deleted. Please check your API key configuration.';
+        } else if (errorMessage.includes('DirectionsService is not available')) {
+          errorMessage =
+            'Directions API is not enabled. Please enable it in the Google Cloud Console for your API key.';
         } else if (errorMessage.includes('API key')) {
           errorMessage = 'Google Maps API key error: ' + errorMessage;
         }
@@ -2042,11 +2050,20 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       if (error instanceof Error) {
         errorMessage = error.message;
         if (
+          errorMessage.includes('ApiNotActivatedMapError') ||
+          errorMessage.includes('api-not-activated')
+        ) {
+          errorMessage =
+            'Google Maps API is not activated. Please enable the Maps JavaScript API and Directions API in the Google Cloud Console.';
+        } else if (
           errorMessage.includes('DeletedApiProjectMapError') ||
           errorMessage.includes('deleted-api-project')
         ) {
           errorMessage =
             'Google Maps API key is invalid. Please update your API key in the environment configuration.';
+        } else if (errorMessage.includes('DirectionsService is not available')) {
+          errorMessage =
+            'Directions API is not enabled. Please enable it in the Google Cloud Console for your API key.';
         }
       }
 
@@ -2269,9 +2286,12 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         const originCoords = routeData.origin.split(',');
         const googleMaps = (window as any).google.maps;
 
+        if (!(mapElement as HTMLElement).isConnected) {
+          throw new Error('Map container element is not attached to DOM');
+        }
+
         // Check if element already has a map instance
         if ((mapElement as any)._googleMapInstance) {
-          // Clear existing map
           (mapElement as any)._googleMapInstance = null;
         }
 
@@ -2340,11 +2360,20 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       if (error instanceof Error) {
         errorMessage = error.message;
         if (
+          errorMessage.includes('ApiNotActivatedMapError') ||
+          errorMessage.includes('api-not-activated')
+        ) {
+          errorMessage =
+            'Google Maps API is not activated. Please enable the Maps JavaScript API and Directions API in the Google Cloud Console.';
+        } else if (
           errorMessage.includes('DeletedApiProjectMapError') ||
           errorMessage.includes('deleted-api-project')
         ) {
           errorMessage =
             'Google Maps API key is invalid. Please update your API key in the environment configuration.';
+        } else if (errorMessage.includes('DirectionsService is not available')) {
+          errorMessage =
+            'Directions API is not enabled. Please enable it in the Google Cloud Console for your API key.';
         }
       }
 
@@ -2742,8 +2771,8 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Wait for DOM element to be available
       const mapElement = document.getElementById('trafficModalMap');
-      if (!mapElement) {
-        throw new Error('Map container element not found');
+      if (!mapElement || !mapElement.isConnected) {
+        throw new Error('Map container element not found or not attached to DOM');
       }
 
       // Initialize map with mapId for AdvancedMarkerElement support
@@ -2751,11 +2780,11 @@ export class TisDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.trafficModalMap = new google.maps.Map(mapElement, {
         zoom: 12,
         center: center,
-        mapTypeId: google.maps.MapTypeId.SATELLITE, // Default to satellite view
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
         fullscreenControl: true,
         mapTypeControl: true,
         streetViewControl: true,
-        mapId: 'TRAFFIC_ANALYSIS_MAP', // Required for AdvancedMarkerElement
+        mapId: 'TRAFFIC_ANALYSIS_MAP',
       });
 
       // Add traffic layer

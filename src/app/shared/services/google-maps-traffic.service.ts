@@ -35,6 +35,24 @@ export class GoogleMapsTrafficService {
   }
 
   /**
+   * Returns true when the Maps JS core (google.maps.Map) is ready.
+   * We no longer gate on DirectionsService because that class may not be
+   * activated in the project (ApiNotActivatedMapError) and its absence
+   * must not crash the readiness check.
+   */
+  private isMapsReady(): boolean {
+    try {
+      return (
+        typeof google !== 'undefined' &&
+        !!google.maps &&
+        typeof google.maps.Map === 'function'
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Load Google Maps API script dynamically
    */
   loadGoogleMaps(): Promise<void> {
@@ -44,8 +62,7 @@ export class GoogleMapsTrafficService {
         return;
       }
 
-      // Check if Google Maps is already loaded and fully initialized
-      if (typeof google !== 'undefined' && google.maps && google.maps.DirectionsService) {
+      if (this.isMapsReady()) {
         this.googleMapsLoaded = true;
         resolve();
         return;
@@ -60,76 +77,42 @@ export class GoogleMapsTrafficService {
       const existingScript = document.querySelector(
         'script[src*="maps.googleapis.com/maps/api/js"]'
       ) as HTMLScriptElement;
-      
+
       if (existingScript) {
-        // Check if the existing script has the correct API key
         const existingKey = existingScript.src.match(/[?&]key=([^&]+)/)?.[1];
         const correctKey = environment.googleMapsApiKey;
-        
+
         if (existingKey && existingKey !== correctKey) {
-          // Remove the old script with wrong key
           console.warn('Removing existing Google Maps script with different API key');
           existingScript.remove();
-          // Continue to load with correct key below
-        } else if (existingKey === correctKey) {
-          // Wait for existing script to load
-          if (typeof google !== 'undefined' && google.maps && google.maps.DirectionsService) {
-            this.googleMapsLoaded = true;
-            resolve();
-            return;
-          }
-          existingScript.addEventListener('load', () => {
-            // Wait for DirectionsService to be available
-            const checkGoogleMaps = () => {
-              if (typeof google !== 'undefined' && google.maps && google.maps.DirectionsService) {
-                this.googleMapsLoaded = true;
-                resolve();
-              } else {
-                setTimeout(checkGoogleMaps, 50);
-              }
-            };
-            checkGoogleMaps();
-            
-            // Timeout after 10 seconds
-            setTimeout(() => {
-              if (!this.googleMapsLoaded) {
-                reject(new Error('Google Maps API failed to initialize within timeout period'));
-              }
-            }, 10000);
-          });
-          existingScript.addEventListener('error', () => {
-            reject(new Error('Failed to load Google Maps API'));
-          });
-          return;
+          // Fall through to load with the correct key
         } else {
-          // Script exists but we can't determine the key, wait for it
-          if (typeof google !== 'undefined' && google.maps && google.maps.DirectionsService) {
+          // Same key (or unknown key) — wait for the existing script
+          if (this.isMapsReady()) {
             this.googleMapsLoaded = true;
             resolve();
             return;
           }
-          existingScript.addEventListener('load', () => {
-            // Wait for DirectionsService to be available
-            const checkGoogleMaps = () => {
-              if (typeof google !== 'undefined' && google.maps && google.maps.DirectionsService) {
+          const waitForLoad = () => {
+            const checkReady = () => {
+              if (this.isMapsReady()) {
                 this.googleMapsLoaded = true;
                 resolve();
               } else {
-                setTimeout(checkGoogleMaps, 50);
+                setTimeout(checkReady, 50);
               }
             };
-            checkGoogleMaps();
-            
-            // Timeout after 10 seconds
+            checkReady();
             setTimeout(() => {
               if (!this.googleMapsLoaded) {
                 reject(new Error('Google Maps API failed to initialize within timeout period'));
               }
             }, 10000);
-          });
-          existingScript.addEventListener('error', () => {
-            reject(new Error('Failed to load Google Maps API'));
-          });
+          };
+          existingScript.addEventListener('load', waitForLoad);
+          existingScript.addEventListener('error', () =>
+            reject(new Error('Failed to load Google Maps API'))
+          );
           return;
         }
       }
@@ -141,23 +124,20 @@ export class GoogleMapsTrafficService {
       }
 
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=geometry,marker&loading=async`;
+      // Include the Routes library for the modern Routes API alongside legacy libraries
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=geometry,marker,routes&loading=async`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
-        // Wait for Google Maps API to be fully initialized
-        const checkGoogleMaps = () => {
-          if (typeof google !== 'undefined' && google.maps && google.maps.DirectionsService) {
+        const checkReady = () => {
+          if (this.isMapsReady()) {
             this.googleMapsLoaded = true;
             resolve();
           } else {
-            // Retry after a short delay
-            setTimeout(checkGoogleMaps, 50);
+            setTimeout(checkReady, 50);
           }
         };
-        checkGoogleMaps();
-        
-        // Timeout after 10 seconds
+        checkReady();
         setTimeout(() => {
           if (!this.googleMapsLoaded) {
             reject(new Error('Google Maps API failed to initialize within timeout period'));
@@ -221,14 +201,16 @@ export class GoogleMapsTrafficService {
     departureTime: Date
   ): Promise<google.maps.DirectionsResult> {
     return new Promise((resolve, reject) => {
-      if (!this.isBrowser || typeof google === 'undefined' || !google.maps) {
+      if (!this.isBrowser || !this.isMapsReady()) {
         reject(new Error('Google Maps API not loaded'));
         return;
       }
 
-      // Ensure DirectionsService is available
       if (!google.maps.DirectionsService) {
-        reject(new Error('Google Maps DirectionsService is not available. API may not be fully loaded.'));
+        reject(new Error(
+          'Google Maps DirectionsService is not available. ' +
+          'Please enable the Directions API in the Google Cloud Console for your project.'
+        ));
         return;
       }
 
@@ -261,8 +243,15 @@ export class GoogleMapsTrafficService {
     destination: string | google.maps.LatLng
   ): Promise<google.maps.DirectionsResult> {
     return new Promise((resolve, reject) => {
-      if (!this.isBrowser || typeof google === 'undefined' || !google.maps?.DirectionsService) {
+      if (!this.isBrowser || !this.isMapsReady()) {
         reject(new Error('Google Maps API not loaded'));
+        return;
+      }
+      if (!google.maps.DirectionsService) {
+        reject(new Error(
+          'Google Maps DirectionsService is not available. ' +
+          'Please enable the Directions API in the Google Cloud Console.'
+        ));
         return;
       }
       const directionsService = new google.maps.DirectionsService();
@@ -332,13 +321,7 @@ export class GoogleMapsTrafficService {
     if (departureTime.getTime() < minDeparture) departureTime = new Date(minDeparture);
 
     await this.loadGoogleMaps();
-    const google = (window as any).google;
-    let retries = 0;
-    while (retries < 20 && (!google || !google.maps || !google.maps.DirectionsService)) {
-      await new Promise((r) => setTimeout(r, 100));
-      retries++;
-    }
-    if (!google?.maps?.DirectionsService) throw new Error('DirectionsService not available');
+    if (!this.isMapsReady()) throw new Error('Google Maps API is not available');
 
     let directionsResult: google.maps.DirectionsResult;
     try {
@@ -402,18 +385,8 @@ export class GoogleMapsTrafficService {
 
     // Ensure Google Maps is loaded
     await this.loadGoogleMaps();
-
-    // Wait for DirectionsService to be available (with retry)
-    const google = (window as any).google;
-    let retries = 0;
-    const maxRetries = 20;
-    while (retries < maxRetries && (!google || !google.maps || !google.maps.DirectionsService)) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      retries++;
-    }
-
-    if (!google || !google.maps || !google.maps.DirectionsService) {
-      throw new Error('Google Maps DirectionsService is not available after loading. Please refresh the page.');
+    if (!this.isMapsReady()) {
+      throw new Error('Google Maps API is not available. Please check your API key and enabled APIs.');
     }
 
     // Step 1: Get route from Directions API (with traffic). If that fails (e.g. departure_time in past), get route without traffic.
