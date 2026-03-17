@@ -47,9 +47,9 @@ export class InventoryReportComponent implements OnInit, OnDestroy {
     'Abu Road to Swaroopganj',
     'Borkhedi to Wadner',
     'Chittorgarh to kota',
-    'Shivpuri to Jhasi',
-    'Kochugaon to Kaljhar-1',
-    'Kochugaon to Kaljhar-2',
+    'Shivpuri to Jhansi',
+    'Kochugaon to Kaljar -1',
+    'Kochugaon to Kaljar -2',
     'Kaljhar to Patacharkuchi',
   ];
   directionList = ['Increasing', 'Decreasing', 'Median'];
@@ -88,6 +88,7 @@ export class InventoryReportComponent implements OnInit, OnDestroy {
   inventoryReport: any;
   tableData: any;
   currentDate: any;
+  isLoadingChainage = false;
   objectKeys = Object.keys;
   filterDataShow: any;
   selectedAssets: any;
@@ -137,6 +138,8 @@ export class InventoryReportComponent implements OnInit, OnDestroy {
       this.displayedProjectNameList = match ? [match] : this.projectNameList;
       if (match && this.filterForm) {
         this.filterForm.patchValue({ project_name: match });
+        // Auto-fetch chainage range then load report data
+        this.changeRange(match);
       }
     } else {
       this.displayedProjectNameList = [...this.projectNameList];
@@ -363,12 +366,16 @@ export class InventoryReportComponent implements OnInit, OnDestroy {
   changeRange(project_name: any) {
     this.filterForm.get('chainage_start')?.setValue('');
     this.filterForm.get('chainage_end')?.setValue('');
+    this.isLoadingChainage = true;
     let type = 'inventory';
     this.inventoryReportService
       .getProjectRange(project_name, type)
-      .subscribe((res) => {
-        const projectData = res.Inventory[project_name];
-        this.patchValue(projectData);
+      .subscribe({
+        next: (res) => {
+          const projectData = res.Inventory[project_name];
+          this.patchValue(projectData);
+        },
+        error: () => { this.isLoadingChainage = false; }
       });
   }
   patchValue(res: any) {
@@ -376,5 +383,7 @@ export class InventoryReportComponent implements OnInit, OnDestroy {
       chainage_start: res['Start First'],
       chainage_end: res['Start Last'],
     });
+    this.isLoadingChainage = false;
+    this.filterDistress();
   }
 }

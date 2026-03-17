@@ -22,9 +22,16 @@
                         }
                     </select>&nbsp;&nbsp;
 
-                    <input type="text" class="form-control" style="width: auto; min-width: 100px;" id="chainage_start" placeholder="Chainage Start" formControlName="chainage_start">
-                    
-                    <input type="text" class="form-control" style="width: auto; min-width: 1ch;" id="chainage_end" placeholder="Chainage End" formControlName="chainage_end">
+                    <div class="d-flex align-items-center gap-2">
+                      <input type="text" class="form-control" style="width: auto; min-width: 100px;" id="chainage_start" placeholder="Chainage Start" formControlName="chainage_start" [disabled]="isLoadingChainage">
+                      <input type="text" class="form-control" style="width: auto; min-width: 1ch;" id="chainage_end" placeholder="Chainage End" formControlName="chainage_end" [disabled]="isLoadingChainage">
+                      @if (isLoadingChainage) {
+                        <div class="d-flex align-items-center gap-1 text-primary">
+                          <span class="spinner-border spinner-border-sm" role="status"></span>
+                          <small>Fetching chainage...</small>
+                        </div>
+                      }
+                    </div>
 
                     <ng-select
                          class="scrollable-multiselect"

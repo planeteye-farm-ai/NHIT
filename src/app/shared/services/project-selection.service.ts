@@ -53,7 +53,8 @@ export class ProjectSelectionService {
     return (name || '')
       .trim()
       .toLowerCase()
-      .replace(/\s+/g, ' ');
+      .replace(/\s*-\s*/g, '-') // normalize spaces around hyphens: "Kaljar -1" → "Kaljar-1"
+      .replace(/\s+/g, ' ');    // collapse multiple spaces
   }
 
   private getStoredProject(): string | null {

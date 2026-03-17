@@ -29,13 +29,14 @@ export class DistressPredictionReportComponent implements OnInit, OnDestroy {
   filterForm!: FormGroup;
   prismCode = prismCodeData;
   content: any;
-  projectNameList = ["Agra Bypass Road", "Abu Road to Swaroopganj","Borkhedi to Wadner","Chittorgarh to kota","Shivpuri to Jhasi","Kochugaon to Kaljhar-1","Kochugaon to Kaljhar-2","Kaljhar to Patacharkuchi"];
+  projectNameList = ["Agra Bypass Road", "Abu Road to Swaroopganj","Borkhedi to Wadner","Chittorgarh to kota","Shivpuri to Jhansi","Kochugaon to Kaljar -1","Kochugaon to Kaljar -2","Kaljhar to Patacharkuchi"];
   /** Project list for dropdown - filtered by Information System selection */
   displayedProjectNameList: string[] = [];
   directionList = ["Increasing", "Decreasing"];
   distressReport:any;
   tableData:any
   currentDate: any;
+  isLoadingChainage = false;
   objectKeys = Object.keys;
   filterDataShow:any
   selectedAssets: any;
@@ -106,6 +107,8 @@ export class DistressPredictionReportComponent implements OnInit, OnDestroy {
       this.displayedProjectNameList = match ? [match] : this.projectNameList;
       if (match && this.filterForm) {
         this.filterForm.patchValue({ project_name: match });
+        // Auto-fetch chainage range then load report data
+        this.changeRange(match);
       }
     } else {
       this.displayedProjectNameList = [...this.projectNameList];
@@ -341,20 +344,25 @@ export class DistressPredictionReportComponent implements OnInit, OnDestroy {
     XLSX.writeFile(wb, filename);
   }
 
-   changeRange(project_name:any){
-    this.filterForm.get('chainage_start')?.setValue(''); 
-    this.filterForm.get('chainage_end')?.setValue(''); 
-    let type = 'distress_predicted'
-    this.inventoryReportService.getProjectRange(project_name,type).subscribe((res)=>{
-      // console.log("res",res);
-      const projectData = res["Distress Predicted"]?.[project_name];
-    this.patchValue(projectData);
-    })
+  changeRange(project_name:any){
+    this.filterForm.get('chainage_start')?.setValue('');
+    this.filterForm.get('chainage_end')?.setValue('');
+    this.isLoadingChainage = true;
+    let type = 'distress_predicted';
+    this.inventoryReportService.getProjectRange(project_name, type).subscribe({
+      next: (res) => {
+        const projectData = res["Distress Predicted"]?.[project_name];
+        this.patchValue(projectData);
+      },
+      error: () => { this.isLoadingChainage = false; }
+    });
   }
   patchValue(res:any){
     this.filterForm.patchValue({
-      chainage_start:res['Start First'],
-    chainage_end: res['Start Last']
+      chainage_start: res['Start First'],
+      chainage_end: res['Start Last']
     });
+    this.isLoadingChainage = false;
+    this.filterDistress();
   }
 }
