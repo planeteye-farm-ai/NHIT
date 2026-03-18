@@ -12,7 +12,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../report.service';
 import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, finalize } from 'rxjs';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -36,6 +36,8 @@ export class DistressReportedReportComponent implements OnInit, OnDestroy {
   tableData:any
   currentDate: any;
   isLoadingChainage = false;
+  /** True while distress reported filter API is loading */
+  isFiltering = false;
   objectKeys = Object.keys;
   filterDataShow:any
   selectedAssets: any;
@@ -207,28 +209,22 @@ export class DistressReportedReportComponent implements OnInit, OnDestroy {
     // Store filter data for display or export
     this.filterDataShow = dataObj;
 
-    // Fetch distress report data
-    this.inventoryReportService.getDistressReportedData(dataObj).subscribe({
-      next: (res) => {
-        // 🔁 Flatten nested arrays from API response
-        const flatData = res.flat();
-
-        // ✅ Assign flattened data directly to tableData for display
-        this.tableData = flatData;
-
-        // ✅ Keep original nested array for export (PDF or Excel, if needed)
-        this.distressReport = res;
-
-        // Optional debugging logs
-        // console.log('Raw Response:', res);
-        // console.log('Flattened Table Data:', this.tableData);
-        console.log('tableData', this.tableData);
-      },
-      error: (error) => {
-        console.error('Error fetching distress reported report:', error);
-        this.toastr.error('Failed to fetch distress reported report data', 'Error');
-      },
-    });
+    this.isFiltering = true;
+    this.inventoryReportService
+      .getDistressReportedData(dataObj)
+      .pipe(finalize(() => (this.isFiltering = false)))
+      .subscribe({
+        next: (res) => {
+          const flatData = res.flat();
+          this.tableData = flatData;
+          this.distressReport = res;
+          console.log('tableData', this.tableData);
+        },
+        error: (error) => {
+          console.error('Error fetching distress reported report:', error);
+          this.toastr.error('Failed to fetch distress reported report data', 'Error');
+        },
+      });
   }
 
    resetFilter() {

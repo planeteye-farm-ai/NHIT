@@ -47,7 +47,14 @@
                    
                     &nbsp;&nbsp;
 
-                    <button type="submit" class="btn btn-primary">filter</button>
+                    <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2" [disabled]="isFiltering">
+                      @if (isFiltering) {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span>Loading...</span>
+                      } @else {
+                        <span>filter</span>
+                      }
+                    </button>
                     <button type="reset" class="btn btn-danger" (click)="resetFilter()">Reset</button>
                     <button type="reset" *ngIf="tableData && objectKeys(tableData).length > 0" class="btn btn-secondary" (click)="excelExport()">EXCLE</button>
                     <button type="reset"*ngIf="tableData && objectKeys(tableData).length > 0"  class="btn btn-secondary" (click)="generatePDF()">PDF</button>

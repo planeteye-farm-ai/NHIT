@@ -17,7 +17,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../report.service';
 import { ProjectSelectionService } from '../../../../shared/services/project-selection.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, finalize } from 'rxjs';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -89,6 +89,8 @@ export class InventoryReportComponent implements OnInit, OnDestroy {
   tableData: any;
   currentDate: any;
   isLoadingChainage = false;
+  /** True while inventory filter API is loading */
+  isFiltering = false;
   objectKeys = Object.keys;
   filterDataShow: any;
   selectedAssets: any;
@@ -179,27 +181,21 @@ export class InventoryReportComponent implements OnInit, OnDestroy {
 
     this.filterDataShow = dataObj;
 
-    this.inventoryReportService.getInventoryReportData(dataObj).subscribe({
-      next: (res) => {
-        // Flattening response
-        let flatData = res.flat();
-
-        // Assign to tableData for summary view (if needed)
-        this.tableData = flatData;
-
-        // ✅ Create inventoryArray here for use in PDF export
-        this.inventoryArray = res; // Original grouped format (nested arrays)
-
-        // Optional: log the parsed structure
-        // console.log('Raw Response:', res);
-        // console.log('Flattened Table Data:', this.tableData);
-        // console.log('Inventory Array for PDF:', this.inventoryArray);
-      },
-      error: (error) => {
-        console.error('Error fetching inventory report:', error);
-        this.toastr.error('Failed to fetch inventory report data', 'Error');
-      },
-    });
+    this.isFiltering = true;
+    this.inventoryReportService
+      .getInventoryReportData(dataObj)
+      .pipe(finalize(() => (this.isFiltering = false)))
+      .subscribe({
+        next: (res) => {
+          let flatData = res.flat();
+          this.tableData = flatData;
+          this.inventoryArray = res;
+        },
+        error: (error) => {
+          console.error('Error fetching inventory report:', error);
+          this.toastr.error('Failed to fetch inventory report data', 'Error');
+        },
+      });
   }
 
   resetFilter() {
