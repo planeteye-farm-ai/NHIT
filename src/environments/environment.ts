@@ -5,7 +5,7 @@
 // ─── Google Maps API Key (Street View, Directions, Traffic, etc.) ───
 // Paste your key from: https://console.cloud.google.com/apis/credentials
 // Enable: Maps JavaScript API (includes Street View)
-const GOOGLE_MAPS_API_KEY = 'AIzaSyCyqs-U7iERKSqsbSJtugO1B2vZ7eTl5kM';
+const GOOGLE_MAPS_API_KEY = 'AIzaSyDVSngPkmduteBrD-J7CLHzJi_xhiZ62xs';
 
 export const environment = {
   production: true,
